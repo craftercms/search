@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<product>
+    <code indexable="false">c7d25f90-ebb0-11e1-aff1-0800200c9a66</code>
+    <name>iPad</name>
+    <description fieldName="description_html">&lt;p&gt;Apple iPad MC705LL/A (16GB, Wi-Fi, Black) NEWEST MODEL&lt;/p&gt;</description>
+    <weight fieldName="weight_f">1.4</weight>
+    <price fieldName="price_f">517.77</price>
+    <rating fieldName="rating_i">4</rating>
+    <date fieldName="date_dt">11/30/2012 10:00:00</date>
+</product>

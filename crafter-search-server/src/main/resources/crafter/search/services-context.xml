@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <context:annotation-config/>
+
+    <bean id="crafter.properties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:crafter/search/server-config.properties</value>
+                <value>classpath*:crafter/search/extension/server-config.properties</value>
+            </list>
+        </property>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    </bean>
+
+    <bean id="crafter.solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+        <constructor-arg type="java.lang.String" value="${crafter.search.solr.server.url}"/>
+        <property name="parser">
+            <bean class="org.apache.solr.client.solrj.impl.XMLResponseParser"/>
+        </property>
+    </bean>
+
+    <bean id="crafter.solrDocumentBuilder" class="org.craftercms.search.service.impl.SolrDocumentBuilder">
+        <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
+        <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
+        <property name="dateTimeFieldPattern" value="${crafter.search.solr.field.type.datetime.pattern}"/>
+        <property name="dateTimeFieldSuffix" value="${crafter.search.solr.field.type.datetime.suffix}"/>
+        <property name="htmlFieldSuffix" value="${crafter.search.solr.field.type.html.suffix}"/>
+    </bean>
+
+    <bean id="crafter.searchService" class="org.craftercms.search.service.impl.SolrSearchService">
+        <property name="solrServer" ref="crafter.solrServer"/>
+        <property name="solrDocumentBuilder" ref="crafter.solrDocumentBuilder"/>
+    </bean>
+
+    <import resource="classpath*:crafter/search/extension/services-context.xml" />
+
+</beans>

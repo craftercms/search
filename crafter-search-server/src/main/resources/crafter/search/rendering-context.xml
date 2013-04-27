@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd">
+
+    <mvc:annotation-driven/>
+
+    <bean id="crafter.properties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:crafter/search/server-config.properties</value>
+                <value>classpath*:crafter/search/extension/server-config.properties</value>
+            </list>
+        </property>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    </bean>
+
+    <bean id="crafter.searchRestController" class="org.craftercms.search.controller.SearchRestController">
+        <property name="searchService" ref="crafter.searchService"/>
+    </bean>
+
+    <bean id="crafter.searchMonitoringController" class="org.craftercms.search.controller.MonitoringController">
+        <property name="statusMessage"><value>${crafter.search.monitoring.statusMessage}</value></property>
+    </bean>
+
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+
+    <import resource="classpath*:crafter/search/extension/rendering-context.xml" />
+
+</beans>
