@@ -17,6 +17,12 @@
 			<artifactId>crafter-search-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>rome</groupId>
+			<artifactId>rome</artifactId>
+			<version>0.9</version>
+			<scope>runtime</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
