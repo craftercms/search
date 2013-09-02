@@ -38,6 +38,6 @@
         <property name="solrDocumentBuilder" ref="crafter.solrDocumentBuilder"/>
     </bean>
 
-    <import resource="classpath*:crafter/search/extension/services-context.xml" />
+    <import resource="classpath*:crafter/search/extension/services-context.xml"/>
 
 </beans>

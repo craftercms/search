@@ -16,10 +16,10 @@
  */
 package org.craftercms.search.service;
 
-import org.craftercms.search.exception.SearchException;
-
 import java.io.File;
 import java.util.Map;
+
+import org.craftercms.search.exception.SearchException;
 
 /**
  * Provides a basic interface to a search engine, like Solr.
@@ -31,40 +31,30 @@ public interface SearchService {
     /**
      * Does a full-text search and returns a Map model.
      *
-     * @param query
-     *          the query object
+     * @param query the query object
      * @return search result in a Map data model. The key is the field name and the value is the field single value or
-     * multiple values (as a list)
-     *
-     * @throws SearchException
-     *          if any error occurs that makes the search fail
+     *         multiple values (as a list)
+     * @throws SearchException if any error occurs that makes the search fail
      */
     Map<String, Object> search(Query query) throws SearchException;
 
     /**
      * Updates the search engine's index data of an XML document.
      *
-     * @param site
-     *          the Crafter site name the content belongs to
-     * @param id
-     *          the id of the XML document, within the site
-     * @param xml
-     *          the XML document to update in the index
-     * @param ignoreRootInFieldNames
-     *          ignore the root element of the input XML in field names
+     * @param site                   the Crafter site name the content belongs to
+     * @param id                     the id of the XML document, within the site
+     * @param xml                    the XML document to update in the index
+     * @param ignoreRootInFieldNames ignore the root element of the input XML in field names
      * @return a success string
      * @throws SearchException
-     *
      */
     String update(String site, String id, String xml, boolean ignoreRootInFieldNames) throws SearchException;
 
     /**
      * Deletes the search engine's index data of an XML document.
      *
-     * @param site
-     *          the Crafter site name the content belongs to
-     * @param id
-     *          the id of the content, within the site
+     * @param site the Crafter site name the content belongs to
+     * @param id   the id of the content, within the site
      * @return a success string
      * @throws SearchException
      */
@@ -81,32 +71,23 @@ public interface SearchService {
     /**
      * Updates the search engine's index data of a structured document (PDF, Word, Office).
      *
-     * @param site
-     *          the Crafter site name the content belongs to
-     * @param id
-     *          the id of the XML document, within the site
-     * @param document
-     *          the document to update in the index
+     * @param site     the Crafter site name the content belongs to
+     * @param id       the id of the XML document, within the site
+     * @param document the document to update in the index
      * @return a success string
      * @throws SearchException
-     *
      */
     String updateDocument(String site, String id, File document) throws SearchException;
 
     /**
      * Updates the search engine's index data of a structured document (PDF, Word, Office).
      *
-     * @param site
-     *          the Crafter site name the content belongs to
-     * @param id
-     *          the id of the XML document, within the site
-     * @param document
-     *          the document to update in the index
-     * @param documentXmlDescriptor
-     *          the descriptor with additional metadata for document to update in the index
+     * @param site                  the Crafter site name the content belongs to
+     * @param id                    the id of the XML document, within the site
+     * @param document              the document to update in the index
+     * @param documentXmlDescriptor the descriptor with additional metadata for document to update in the index
      * @return a success string
      * @throws SearchException
-     *
      */
     String updateDocument(String site, String id, File document, String documentXmlDescriptor) throws SearchException;
 

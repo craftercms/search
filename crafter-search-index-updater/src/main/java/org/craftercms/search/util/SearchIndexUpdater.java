@@ -16,6 +16,10 @@
  */
 package org.craftercms.search.util;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.io.FileUtils;
@@ -26,13 +30,11 @@ import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.RestClientSearchService;
 import org.springframework.beans.factory.annotation.Required;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-
 /**
- * Small utility command line program that receives a Crafter site path as an argument and updates the search engine's index with all
- * XML documents found in the path. The program also receives the site name and search server URL as command line arguments.
+ * Small utility command line program that receives a Crafter site path as an argument and updates the search
+ * engine's index with all
+ * XML documents found in the path. The program also receives the site name and search server URL as command line
+ * arguments.
  *
  * @author Alfonso Vásquez
  */
@@ -96,7 +98,8 @@ public class SearchIndexUpdater {
         } catch (IOException e) {
             logger.warn("Cannot read file [" + docFile.getAbsolutePath() + "]", e);
         } catch (SearchException e) {
-            throw new SearchException("Error while attempting to add file [" + docFile.getAbsolutePath() + "] to index", e);
+            throw new SearchException("Error while attempting to add file [" + docFile.getAbsolutePath() + "] to " +
+                "index", e);
         }
     }
 
@@ -126,7 +129,8 @@ public class SearchIndexUpdater {
                 throw new IllegalArgumentException("The specified document's path [" + sitePath + "] doesn't exist");
             }
             if (!siteRoot.isDirectory()) {
-                throw new IllegalArgumentException("The specified document's path [" + sitePath + "] is not a directory");
+                throw new IllegalArgumentException("The specified document's path [" + sitePath + "] is not a " +
+                    "directory");
             }
 
             SearchIndexUpdater searchIndexUpdater = new SearchIndexUpdater();

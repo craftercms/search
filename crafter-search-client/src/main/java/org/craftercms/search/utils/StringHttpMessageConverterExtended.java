@@ -16,13 +16,6 @@
  */
 package org.craftercms.search.utils;
 
-import org.apache.commons.lang.CharEncoding;
-import org.springframework.http.HttpInputMessage;
-import org.springframework.http.HttpOutputMessage;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.AbstractHttpMessageConverter;
-import org.springframework.util.FileCopyUtils;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -30,6 +23,13 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang.CharEncoding;
+import org.springframework.http.HttpInputMessage;
+import org.springframework.http.HttpOutputMessage;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.AbstractHttpMessageConverter;
+import org.springframework.util.FileCopyUtils;
 
 
 public class StringHttpMessageConverterExtended extends AbstractHttpMessageConverter<String> {
@@ -73,9 +73,8 @@ public class StringHttpMessageConverterExtended extends AbstractHttpMessageConve
     protected Long getContentLength(String s, MediaType contentType) {
         Charset charset = getContentTypeCharset(contentType);
         try {
-            return (long) s.getBytes(charset.name()).length;
-        }
-        catch (UnsupportedEncodingException ex) {
+            return (long)s.getBytes(charset.name()).length;
+        } catch (UnsupportedEncodingException ex) {
             // should not occur
             throw new InternalError(ex.getMessage());
         }
@@ -92,7 +91,7 @@ public class StringHttpMessageConverterExtended extends AbstractHttpMessageConve
 
     /**
      * Return the list of supported {@link Charset}.
-     *
+     * <p/>
      * <p>By default, returns {@link Charset#availableCharsets()}. Can be overridden in subclasses.
      *
      * @return the list of accepted charsets
@@ -104,8 +103,7 @@ public class StringHttpMessageConverterExtended extends AbstractHttpMessageConve
     private Charset getContentTypeCharset(MediaType contentType) {
         if (contentType != null && contentType.getCharSet() != null) {
             return contentType.getCharSet();
-        }
-        else {
+        } else {
             return DEFAULT_CHARSET;
         }
     }

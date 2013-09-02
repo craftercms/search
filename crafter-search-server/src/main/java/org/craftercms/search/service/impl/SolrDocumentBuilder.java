@@ -16,6 +16,11 @@
  */
 package org.craftercms.search.service.impl;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.List;
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -23,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.CharReader;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilter;
 import org.apache.solr.common.SolrInputDocument;
+import org.craftercms.search.exception.SolrDocumentBuildException;
+import org.craftercms.search.utils.BooleanUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -31,14 +38,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.craftercms.search.exception.SolrDocumentBuildException;
-import org.craftercms.search.utils.BooleanUtils;
 import org.springframework.beans.factory.annotation.Required;
-
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.List;
 
 /**
  * <p/>
@@ -61,7 +61,8 @@ import java.util.List;
  *     &lt;/add&gt;
  * </pre>
  * <p/>
- * The Solr document is represent in Java as a {@link SolrInputDocument} object, which then can be sent to the server with
+ * The Solr document is represent in Java as a {@link SolrInputDocument} object, which then can be sent to the server
+ * with
  * {@link org.apache.solr.client.solrj.SolrServer#add(org.apache.solr.common.SolrInputDocument)}
  * <p/>
  *
@@ -126,18 +127,17 @@ public class SolrDocumentBuilder {
     /**
      * Build the Solr document from the input XML.
      *
-     * @param site
-     *          the Crafter site name the content belongs to
-     * @param id
-     *          value for the "localId" field in the Solr document (final doc id is built as site:localId)
-     * @param xml
-     *          the input XML
-     * @param ignoreRootInFieldNames
-     *          ignore the root element of the input XML in field names
+     * @param site                   the Crafter site name the content belongs to
+     * @param id                     value for the "localId" field in the Solr document (final doc id is built as
+     *                               site:localId)
+     * @param xml                    the input XML
+     * @param ignoreRootInFieldNames ignore the root element of the input XML in field names
      * @return the Solr document
      * @throws org.craftercms.search.exception.SolrDocumentBuildException
+     *
      */
-    public SolrInputDocument build(String site, String id, String xml, boolean ignoreRootInFieldNames) throws SolrDocumentBuildException {
+    public SolrInputDocument build(String site, String id, String xml, boolean ignoreRootInFieldNames) throws
+        SolrDocumentBuildException {
         SAXReader reader = createSAXReader();
         SolrInputDocument solrDoc = new SolrInputDocument();
         String finalId = site + ":" + id;
@@ -161,14 +161,14 @@ public class SolrDocumentBuilder {
         // Start the recursive call to build the Solr Update Schema
         List<Element> children = rootElement.elements();
         for (Element child : children) {
-            build(solrDoc, ignoreRootInFieldNames ? null : rootElement.getName(), child);
+            build(solrDoc, ignoreRootInFieldNames? null: rootElement.getName(), child);
         }
 
         return solrDoc;
     }
 
     protected void build(SolrInputDocument solrDoc, String branchName, Element element) {
-        branchName = (StringUtils.isNotEmpty(branchName)? branchName + '.' : "") + element.getName();
+        branchName = (StringUtils.isNotEmpty(branchName)? branchName + '.': "") + element.getName();
 
         // All fields are indexable unless excluded using the indexable attribute, e.g. <name indexable="false"/>.
         // If the element is a branch, skip the children too.
@@ -237,7 +237,7 @@ public class SolrDocumentBuilder {
                 if (charsRead > 0) {
                     strippedValue.append(buffer, 0, charsRead);
                 }
-            } while(charsRead >= 0);
+            } while (charsRead >= 0);
         } catch (IOException e) {
             throw new SolrDocumentBuildException("Failed to strip the HTML from field '" + element + "'", e);
         }

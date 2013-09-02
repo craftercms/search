@@ -24,7 +24,8 @@ package org.craftercms.search.utils;
 public class BooleanUtils extends org.apache.commons.lang.BooleanUtils {
 
     /**
-     * Just as {@link #toBoolean(String)}, except that true will be returned if str = null when {@code trueIfNull} is true,
+     * Just as {@link #toBoolean(String)}, except that true will be returned if str = null when {@code trueIfNull} is
+     * true,
      * false otherwise.
      */
     public static final boolean toBoolean(String str, boolean trueIfNull) {

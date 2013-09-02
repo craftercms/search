@@ -16,6 +16,14 @@
  */
 package org.craftercms.search.service.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrResponse;
@@ -36,10 +44,6 @@ import org.craftercms.search.exception.SolrDocumentBuildException;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
 import org.springframework.beans.factory.annotation.Required;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
 
 import static org.craftercms.search.service.SearchRestConstants.SOLR_CONTENT_STREAM_UPDATE_URL;
 
@@ -71,7 +75,7 @@ public class SolrSearchService implements SearchService {
     }
 
     /**
-     * Sets the Solr document builder, to build Solr documents from generic XML documents.  
+     * Sets the Solr document builder, to build Solr documents from generic XML documents.
      */
     @Required
     public void setSolrDocumentBuilder(SolrDocumentBuilder solrDocumentBuilder) {
@@ -82,28 +86,29 @@ public class SolrSearchService implements SearchService {
      * {@inheritDoc}
      */
     public Map<String, Object> search(Query query) {
-		if (logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Searching: " + query);
         }
 
         SolrResponse response;
         try {
-            response = solrServer.query(toSolrQuery((QueryParams) query));
+            response = solrServer.query(toSolrQuery((QueryParams)query));
         } catch (SolrServerException e) {
             throw new SearchException("Search for query " + query + " failed: " + e.getMessage(), e);
         }
 
-        // Solr search result is a List<Map.Entry<String,Object>>, where every entry is a (name,value) pair, and there can be
+        // Solr search result is a List<Map.Entry<String,Object>>, where every entry is a (name,value) pair,
+        // and there can be
         // duplicate names in the list.
-		NamedList<Object> list = response.getResponse();
-		// Convert this list into a ,ap where values of the same name are grouped into a list.
+        NamedList<Object> list = response.getResponse();
+        // Convert this list into a ,ap where values of the same name are grouped into a list.
         Map<String, Object> map = toMap(list);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Response for query " + query + ": " + map);
         }
 
-		return map;
+        return map;
     }
 
     /**
@@ -124,7 +129,8 @@ public class SolrSearchService implements SearchService {
         } catch (SolrDocumentBuildException e) {
             throw new SearchException("Unable to build Solr update document: " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new SearchException("I/O error while communicating with Solr server to execute update: " + e.getMessage(), e);
+            throw new SearchException("I/O error while communicating with Solr server to execute update: " + e
+                .getMessage(), e);
         } catch (Exception e) {
             throw new SearchException(e.getMessage(), e);
         }
@@ -145,7 +151,8 @@ public class SolrSearchService implements SearchService {
 
             return "Successfully deleted '" + finalId + "'";
         } catch (IOException e) {
-            throw new SearchException("I/O error while communicating with Solr server to execute delete: " + e.getMessage(), e);
+            throw new SearchException("I/O error while communicating with Solr server to execute delete: " + e
+                .getMessage(), e);
         } catch (Exception e) {
             throw new SearchException(e.getMessage(), e);
         }
@@ -164,7 +171,8 @@ public class SolrSearchService implements SearchService {
 
             return "Successfully committed";
         } catch (IOException e) {
-            throw new SearchException("I/O error while communicating with Solr server to execute commit: " + e.getMessage(), e);
+            throw new SearchException("I/O error while communicating with Solr server to execute commit: " + e
+                .getMessage(), e);
         } catch (Exception e) {
             throw new SearchException(e.getMessage(), e);
         }
@@ -185,7 +193,7 @@ public class SolrSearchService implements SearchService {
                 List<Object> group;
 
                 if (valueInMap instanceof List) {
-                    group = (List<Object>) valueInMap;
+                    group = (List<Object>)valueInMap;
                 } else {
                     group = new ArrayList<Object>();
                     group.add(valueInMap);
@@ -205,11 +213,11 @@ public class SolrSearchService implements SearchService {
     protected Object toSerializableValue(Object namedListValue) {
         // The value can also be a NamedList, so convert it to map.
         if (namedListValue instanceof NamedList) {
-            return toMap((NamedList<Object>) namedListValue);
+            return toMap((NamedList<Object>)namedListValue);
         }
         // If the value is a SolrDocumentList, copy the list attributes to a map
         if (namedListValue instanceof SolrDocumentList) {
-            SolrDocumentList docList = (SolrDocumentList) namedListValue;
+            SolrDocumentList docList = (SolrDocumentList)namedListValue;
             Map<String, Object> docListMap = new HashMap<String, Object>(4);
 
             docListMap.put("start", docList.getStart());
@@ -229,7 +237,8 @@ public class SolrSearchService implements SearchService {
     }
 
     @Override
-    public String updateDocument(String site, String id, File document, String documentXmlDescriptor) throws SearchException {
+    public String updateDocument(String site, String id, File document, String documentXmlDescriptor) throws
+        SearchException {
         String finalId = site + ":" + id;
 
         ContentStreamUpdateRequest request = new ContentStreamUpdateRequest(SOLR_CONTENT_STREAM_UPDATE_URL);
@@ -242,7 +251,8 @@ public class SolrSearchService implements SearchService {
             request.setAction(AbstractUpdateRequest.ACTION.COMMIT, true, true);
             solrServer.request(request);
         } catch (SolrServerException e) {
-            throw new SearchException("Error while communicating with Solr server to commit document" + e.getMessage(), e);
+            throw new SearchException("Error while communicating with Solr server to commit document" + e.getMessage
+                (), e);
         } catch (IOException e) {
             throw new SearchException("I/O error while committing document to Solr server " + e.getMessage(), e);
         } finally {

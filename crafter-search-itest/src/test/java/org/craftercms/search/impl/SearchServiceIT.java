@@ -16,25 +16,27 @@
  */
 package org.craftercms.search.impl;
 
-import org.apache.commons.io.IOUtils;
-import org.joda.time.format.ISODateTimeFormat;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.craftercms.search.service.impl.SolrQuery;
-import org.craftercms.search.service.impl.SolrRestClientSearchService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import org.apache.commons.io.IOUtils;
+import org.craftercms.search.service.impl.SolrQuery;
+import org.craftercms.search.service.impl.SolrRestClientSearchService;
+import org.joda.time.format.ISODateTimeFormat;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Integration test of the search service client/server.
@@ -79,10 +81,10 @@ public class SearchServiceIT {
         Map<String, Object> results = searchService.search(query);
         assertNotNull(results);
 
-        Map<String, Object> response = (Map<String, Object>) results.get("response");
-        assertEquals(TEST_DOC_IDS.length, ((Integer) response.get("numFound")).intValue());
+        Map<String, Object> response = (Map<String, Object>)results.get("response");
+        assertEquals(TEST_DOC_IDS.length, ((Integer)response.get("numFound")).intValue());
 
-        List<Map<String, Object>> docs = (List<Map<String, Object>>) response.get("documents");
+        List<Map<String, Object>> docs = (List<Map<String, Object>>)response.get("documents");
         Map<String, Object> iPadDoc;
         Map<String, Object> kindleDoc;
 
@@ -98,7 +100,8 @@ public class SearchServiceIT {
         long kindleDate = ISODateTimeFormat.dateTime().parseDateTime("2012-12-15T16:30:00.000Z").getMillis();
 
         assertDoc(iPadDoc, "iPad", "Apple iPad MC705LL/A (16GB, Wi-Fi, Black) NEWEST MODEL", 1.4, 517.77, 4, ipadDate);
-        assertDoc(kindleDoc, "Kindle Fire", "Kindle Fire, Full Color 7\" Multi-touch Display, Wi-Fi", 0.91, 199.0, 4, kindleDate);
+        assertDoc(kindleDoc, "Kindle Fire", "Kindle Fire, Full Color 7\" Multi-touch Display, Wi-Fi", 0.91, 199.0, 4,
+            kindleDate);
     }
 
     private Map<String, String> getTestDocs() throws IOException {
@@ -113,8 +116,8 @@ public class SearchServiceIT {
         return IOUtils.toString(new ClassPathResource(path).getInputStream());
     }
 
-    private void assertDoc(Map<String, Object> doc, String name, String description, Double weight, Double price, Integer rating,
-                           long date) {
+    private void assertDoc(Map<String, Object> doc, String name, String description, Double weight, Double price,
+                           Integer rating, long date) {
         assertTrue(!doc.containsKey("code"));
         assertEquals(name, doc.get("name"));
         assertEquals(description, doc.get("description_html"));

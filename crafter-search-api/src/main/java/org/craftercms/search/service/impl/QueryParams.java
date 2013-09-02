@@ -16,11 +16,11 @@
  */
 package org.craftercms.search.service.impl;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.craftercms.search.service.Query;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.craftercms.search.service.Query;
 
 /**
  * Simple {@link Query} represented as a map of query parameters.
@@ -52,7 +52,7 @@ public class QueryParams implements Query {
         String[] values;
 
         if (ArrayUtils.isNotEmpty(oldValues)) {
-            values = (String[]) ArrayUtils.add(oldValues, value);
+            values = (String[])ArrayUtils.add(oldValues, value);
         } else {
             values = new String[1];
             values[0] = value;
@@ -66,7 +66,7 @@ public class QueryParams implements Query {
     public QueryParams addParam(String name, String... values) {
         String[] oldValues = params.get(name);
         if (ArrayUtils.isNotEmpty(oldValues)) {
-            values = (String[]) ArrayUtils.addAll(oldValues, values);
+            values = (String[])ArrayUtils.addAll(oldValues, values);
         }
 
         params.put(name, values);
