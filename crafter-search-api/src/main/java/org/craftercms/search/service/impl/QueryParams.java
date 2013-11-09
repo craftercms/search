@@ -16,11 +16,13 @@
  */
 package org.craftercms.search.service.impl;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.craftercms.search.service.Query;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Simple {@link Query} represented as a map of query parameters.
@@ -90,7 +92,12 @@ public class QueryParams implements Query {
                     queryStr.append('&');
                 }
 
-                queryStr.append(name).append('=').append(value);
+                try {
+                    queryStr.append(name).append('=').append(URLEncoder.encode(value, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    // Shouldn't happen, UTF-8 is a valid encoding
+                    throw new RuntimeException();
+                }
             }
         }
 
