@@ -16,13 +16,6 @@
  */
 package org.craftercms.search.service.impl;
 
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import javax.xml.transform.stream.StreamSource;
-
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -49,17 +42,16 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_DESCRIPTOR;
-import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_DOCUMENT;
-import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_ID;
-import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_IGNORE_ROOT_IN_FIELD_NAMES;
-import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_SITE;
-import static org.craftercms.search.service.SearchRestConstants.URL_COMMIT;
-import static org.craftercms.search.service.SearchRestConstants.URL_DELETE;
-import static org.craftercms.search.service.SearchRestConstants.URL_ROOT;
-import static org.craftercms.search.service.SearchRestConstants.URL_SEARCH;
-import static org.craftercms.search.service.SearchRestConstants.URL_UPDATE;
-import static org.craftercms.search.service.SearchRestConstants.URL_UPDATE_DOCUMENT;
+import javax.xml.transform.stream.StreamSource;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.craftercms.search.service.SearchRestConstants.*;
 
 /**
  * Client implementation of {@link SearchService}, which uses REST to communicate with the server
@@ -121,11 +113,13 @@ public class RestClientSearchService implements SearchService {
         String searchUrl = serverUrl + URL_ROOT + URL_SEARCH + "?" + query.toQueryString();
 
         try {
-            return restTemplate.getForObject(searchUrl, Map.class);
+            return restTemplate.getForObject(new URI(searchUrl), Map.class);
+        } catch (URISyntaxException e) {
+            throw new SearchException("Invalid URI: " + searchUrl, e);
         } catch (HttpStatusCodeException e) {
             throw new SearchException("Search for query " + query + " failed: [" + e.getStatusText() + "] " + e
                 .getResponseBodyAsString());
-        } catch (Exception e) {
+        }  catch (Exception e) {
             throw new SearchException("Search for query " + query + " failed: " + e.getMessage(), e);
         }
     }
@@ -136,7 +130,9 @@ public class RestClientSearchService implements SearchService {
             "=" + id + "&" + REQUEST_PARAM_IGNORE_ROOT_IN_FIELD_NAMES + "=" + ignoreRootInFieldNames;
 
         try {
-            return restTemplate.postForObject(updateUrl, xml, String.class);
+            return restTemplate.postForObject(new URI(updateUrl), xml, String.class);
+        } catch (URISyntaxException e) {
+            throw new SearchException("Invalid URI: " + updateUrl, e);
         } catch (HttpStatusCodeException e) {
             throw new SearchException("Update for XML '" + id + "' failed: [" + e.getStatusText() + "] " + e
                 .getResponseBodyAsString());
@@ -150,7 +146,9 @@ public class RestClientSearchService implements SearchService {
             REQUEST_PARAM_ID + "=" + id;
 
         try {
-            return restTemplate.postForObject(deleteUrl, null, String.class);
+            return restTemplate.postForObject(new URI(deleteUrl), null, String.class);
+        } catch (URISyntaxException e) {
+            throw new SearchException("Invalid URI: " + deleteUrl, e);
         } catch (HttpStatusCodeException e) {
             throw new SearchException("Delete for XML '" + id + "' failed: [" + e.getStatusText() + "] " + e
                 .getResponseBodyAsString());
@@ -163,7 +161,9 @@ public class RestClientSearchService implements SearchService {
         String commitUrl = serverUrl + URL_ROOT + URL_COMMIT;
 
         try {
-            return restTemplate.postForObject(commitUrl, null, String.class);
+            return restTemplate.postForObject(new URI(commitUrl), null, String.class);
+        } catch (URISyntaxException e) {
+            throw new SearchException("Invalid URI: " + commitUrl, e);
         } catch (HttpStatusCodeException e) {
             throw new SearchException("Commit failed: [" + e.getStatusText() + "] " + e.getResponseBodyAsString());
         } catch (Exception e) {
