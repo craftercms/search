@@ -19,14 +19,19 @@ package org.craftercms.search.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.service.SearchRestConstants;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.QueryParams;
 import org.springframework.beans.factory.annotation.Required;
@@ -100,8 +105,7 @@ public class SearchRestController {
     }
 
     @ExceptionHandler(Exception.class)
-    public void handleException(Exception e, HttpServletRequest request, HttpServletResponse response,
-                                Writer responseWriter) throws IOException {
+    public void handleException(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
         logger.error("RESTful request " + request.getRequestURI() + " failed", e);
 
         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ExceptionUtils.getRootCauseMessage(e));
@@ -109,22 +113,39 @@ public class SearchRestController {
 
     @RequestMapping(value = URL_UPDATE_DOCUMENT, method = RequestMethod.POST)
     @ResponseBody
-    public String updateDocument(@RequestPart(REQUEST_PARAM_SITE) String site, @RequestPart(REQUEST_PARAM_ID) String
-        id, @RequestPart(REQUEST_PARAM_DOCUMENT) MultipartFile document,
-                                 @RequestPart(value = REQUEST_PARAM_DESCRIPTOR, required = false) MultipartFile
-                                     descriptor) throws SearchException {
+    public String updateDocument(@RequestPart(REQUEST_PARAM_SITE) String site,
+                                 @RequestPart(REQUEST_PARAM_ID) String id,
+                                 @RequestPart(REQUEST_PARAM_DOCUMENT) MultipartFile document,
+                                 HttpServletRequest request) throws SearchException {
 
         try {
-            String tempPath = System.getProperty("java.io.tmpdir");
-            if (tempPath == null) {
-                tempPath = "temp";
-            }
-            File documentFile = new File(tempPath + File.separator + "crafter" + document.getOriginalFilename());
+            File tmpFile = File.createTempFile("crafter" + document.getOriginalFilename(), "");
+            Map<String, String> additionalFields = getAdditionalFields(request);
 
-            document.transferTo(documentFile);
-            return searchService.updateDocument(site, id, documentFile);
+            document.transferTo(tmpFile);
+
+            String result = searchService.updateDocument(site, id, tmpFile, additionalFields);
+
+            FileUtils.forceDelete(tmpFile);
+
+            return result;
         } catch (IOException e) {
             throw new SearchException(e);
         }
     }
+
+    protected Map<String, String> getAdditionalFields(HttpServletRequest request) {
+        String[] ignoredParams = { REQUEST_PARAM_SITE, REQUEST_PARAM_ID, REQUEST_PARAM_DOCUMENT };
+        Map<String, String> additionalFields = new HashMap<String, String>();
+
+        for (Enumeration i = request.getParameterNames(); i.hasMoreElements();) {
+            String paramName = (String) i.nextElement();
+            if (!ArrayUtils.contains(ignoredParams, paramName)) {
+                additionalFields.put(paramName, request.getParameter(paramName));
+            }
+        }
+
+        return additionalFields;
+    }
+
 }

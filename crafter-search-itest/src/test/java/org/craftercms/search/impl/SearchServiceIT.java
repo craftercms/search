@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -50,6 +51,8 @@ public class SearchServiceIT {
     private static final String SITE = "testsite";
     private static final String IPAD_DOC_ID = "ipad.xml";
     private static final String KINDLE_DOC_ID = "kindle.xml";
+    private static final String WP_REASONS_PDF_ID = "crafter-wp-7-reasons.pdf";
+
     private static final String[] TEST_DOC_IDS = {IPAD_DOC_ID, KINDLE_DOC_ID};
 
     @Autowired
@@ -61,6 +64,14 @@ public class SearchServiceIT {
             searchService.update(SITE, docEntry.getKey(), docEntry.getValue(), true);
         }
 
+        Resource wpReasonsPdf = new ClassPathResource("/docs/" + WP_REASONS_PDF_ID);
+
+        Map<String, String> additionalFields = new HashMap<String, String>(2);
+        additionalFields.put("testField1", "This is a test");
+        additionalFields.put("testField2", "This is another test");
+
+        searchService.updateDocument(SITE, WP_REASONS_PDF_ID, wpReasonsPdf.getFile(), additionalFields);
+
         searchService.commit();
     }
 
@@ -69,6 +80,8 @@ public class SearchServiceIT {
         for (String docId : TEST_DOC_IDS) {
             searchService.delete(SITE, docId);
         }
+
+        searchService.delete(SITE, WP_REASONS_PDF_ID);
 
         searchService.commit();
     }
@@ -82,32 +95,31 @@ public class SearchServiceIT {
         assertNotNull(results);
 
         Map<String, Object> response = (Map<String, Object>)results.get("response");
-        assertEquals(TEST_DOC_IDS.length, ((Integer)response.get("numFound")).intValue());
+        assertEquals(3, ((Integer)response.get("numFound")).intValue());
 
         List<Map<String, Object>> docs = (List<Map<String, Object>>)response.get("documents");
-        Map<String, Object> iPadDoc;
-        Map<String, Object> kindleDoc;
+        Map<String, Map<String, Object>> docsMap = new HashMap<String, Map<String, Object>>(3);
 
-        if (docs.get(0).get("id").equals(SITE + ":" + IPAD_DOC_ID)) {
-            iPadDoc = docs.get(0);
-            kindleDoc = docs.get(1);
-        } else {
-            kindleDoc = docs.get(0);
-            iPadDoc = docs.get(1);
+        for (Map<String, Object> doc : docs) {
+            docsMap.put((String) doc.get("localId"), doc);
         }
 
         long ipadDate = ISODateTimeFormat.dateTime().parseDateTime("2012-11-30T10:00:00.000Z").getMillis();
         long kindleDate = ISODateTimeFormat.dateTime().parseDateTime("2012-12-15T16:30:00.000Z").getMillis();
 
-        assertDoc(iPadDoc, "iPad", "Apple iPad MC705LL/A (16GB, Wi-Fi, Black) NEWEST MODEL", 1.4, 517.77, 4, ipadDate);
-        assertDoc(kindleDoc, "Kindle Fire", "Kindle Fire, Full Color 7\" Multi-touch Display, Wi-Fi", 0.91, 199.0, 4,
-            kindleDate);
+        assertDoc(docsMap.get(IPAD_DOC_ID), "iPad", "Apple iPad MC705LL/A (16GB, Wi-Fi, Black) NEWEST MODEL",
+                1.4, 517.77, 4, ipadDate);
+        assertDoc(docsMap.get(KINDLE_DOC_ID), "Kindle Fire", "Kindle Fire, Full Color 7\" Multi-touch Display, " +
+                "Wi-Fi", 0.91, 199.0, 4, kindleDate);
+
+        assertEquals(docsMap.get(WP_REASONS_PDF_ID).get("testField1"), "This is a test");
+        assertEquals(docsMap.get(WP_REASONS_PDF_ID).get("testField2"), "This is another test");
     }
 
     private Map<String, String> getTestDocs() throws IOException {
         Map<String, String> docs = new HashMap<String, String>(1);
-        docs.put(IPAD_DOC_ID, getClasspathFileContent("/docs/ipad.xml"));
-        docs.put(KINDLE_DOC_ID, getClasspathFileContent("/docs/kindle.xml"));
+        docs.put(IPAD_DOC_ID, getClasspathFileContent("/docs/" + IPAD_DOC_ID));
+        docs.put(KINDLE_DOC_ID, getClasspathFileContent("/docs/" + KINDLE_DOC_ID));
 
         return docs;
     }

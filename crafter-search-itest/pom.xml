@@ -149,6 +149,29 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Copy Solr hom from crafter-search-provider/solr -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>copy-solr-home</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.testOutputDirectory}/solr</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>../crafter-search-provider/solr</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Use Jetty plugin in pre-integration-test phase to start up Solr and
                 Crafter Search -->
             <plugin>

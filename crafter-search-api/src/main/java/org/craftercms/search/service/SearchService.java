@@ -85,10 +85,10 @@ public interface SearchService {
      * @param site                  the Crafter site name the content belongs to
      * @param id                    the id of the XML document, within the site
      * @param document              the document to update in the index
-     * @param documentXmlDescriptor the descriptor with additional metadata for document to update in the index
+     * @param additionalFields      additional metadata fields to be indexed (shouldn't have the name site, id or document)
      * @return a success string
      * @throws SearchException
      */
-    String updateDocument(String site, String id, File document, String documentXmlDescriptor) throws SearchException;
+    String updateDocument(String site, String id, File document, Map<String, String> additionalFields) throws SearchException;
 
 }
