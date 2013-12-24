@@ -53,6 +53,7 @@ import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_IG
 import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_SITE;
 import static org.craftercms.search.service.SearchRestConstants.URL_COMMIT;
 import static org.craftercms.search.service.SearchRestConstants.URL_DELETE;
+import static org.craftercms.search.service.SearchRestConstants.URL_PARTIAL_DOCUMENT_UPDATE;
 import static org.craftercms.search.service.SearchRestConstants.URL_ROOT;
 import static org.craftercms.search.service.SearchRestConstants.URL_SEARCH;
 import static org.craftercms.search.service.SearchRestConstants.URL_UPDATE;
@@ -62,6 +63,7 @@ import static org.craftercms.search.service.SearchRestConstants.URL_UPDATE_DOCUM
  * REST controller for the search service.
  *
  * @author Alfonso Vásquez
+ * @author Dejan Brkic
  */
 @Controller
 @RequestMapping(URL_ROOT)
@@ -125,6 +127,29 @@ public class SearchRestController {
             document.transferTo(tmpFile);
 
             String result = searchService.updateDocument(site, id, tmpFile, additionalFields);
+
+            FileUtils.forceDelete(tmpFile);
+
+            return result;
+        } catch (IOException e) {
+            throw new SearchException(e);
+        }
+    }
+
+    @RequestMapping(value = URL_PARTIAL_DOCUMENT_UPDATE, method = RequestMethod.POST)
+    @ResponseBody
+    public String partialDocumentUpdate(@RequestPart(REQUEST_PARAM_SITE) String site,
+                                 @RequestPart(REQUEST_PARAM_ID) String id,
+                                 @RequestPart(REQUEST_PARAM_DOCUMENT) MultipartFile document,
+                                 HttpServletRequest request) throws SearchException {
+
+        try {
+            File tmpFile = File.createTempFile("crafter" + document.getOriginalFilename(), "");
+            Map<String, String> additionalFields = getAdditionalFields(request);
+
+            document.transferTo(tmpFile);
+
+            String result = searchService.partialDocumentUpdate(site, id, tmpFile, additionalFields);
 
             FileUtils.forceDelete(tmpFile);
 
