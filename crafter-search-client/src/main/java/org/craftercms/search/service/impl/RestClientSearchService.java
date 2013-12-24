@@ -214,4 +214,43 @@ public class RestClientSearchService implements SearchService {
             throw new SearchException("Update for document '" + id + "' failed: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public String partialDocumentUpdate(final String site, final String id, final File document, final Map<String,
+        String> additionalFields) throws SearchException {
+        FileSystemResource fsrDoc = new FileSystemResource(document);
+        MultiValueMap<String, Object> form = new LinkedMultiValueMap<String, Object>();
+
+        form.add(REQUEST_PARAM_SITE, site);
+        form.add(REQUEST_PARAM_ID, id);
+        form.add(REQUEST_PARAM_DOCUMENT, fsrDoc);
+
+        if (MapUtils.isNotEmpty(additionalFields)) {
+            for (Map.Entry<String, String> additionalField : additionalFields.entrySet()) {
+                String fieldName = additionalField.getKey();
+
+                if (fieldName.equals(REQUEST_PARAM_SITE) ||
+                    fieldName.equals(REQUEST_PARAM_ID) ||
+                    fieldName.equals(REQUEST_PARAM_DOCUMENT)) {
+                    throw new SearchException(String.format("An additional field shouldn't have the following names: %s, %s, %s",
+                        REQUEST_PARAM_SITE, REQUEST_PARAM_ID, REQUEST_PARAM_DOCUMENT));
+                }
+
+                form.add(fieldName, additionalField.getValue());
+            }
+        }
+
+        String updateDocumentUrl = serverUrl + URL_ROOT + URL_PARTIAL_DOCUMENT_UPDATE;
+
+        try {
+            return restTemplate.postForObject(new URI(updateDocumentUrl), form, String.class);
+        } catch (URISyntaxException e) {
+            throw new SearchException("Invalid URI: " + updateDocumentUrl, e);
+        } catch (HttpStatusCodeException e) {
+            throw new SearchException("Update for document '" + id + "' failed: [" + e.getStatusText() + "] " + e
+                .getResponseBodyAsString());
+        } catch (Exception e) {
+            throw new SearchException("Update for document '" + id + "' failed: " + e.getMessage(), e);
+        }
+    }
 }

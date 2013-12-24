@@ -20,6 +20,7 @@ package org.craftercms.search.service;
  * Common REST constants used by both server and client.
  *
  * @author Alfonso Vásquez
+ * @author Dejan Brkic
  */
 public class SearchRestConstants {
 
@@ -27,6 +28,7 @@ public class SearchRestConstants {
     public static final String URL_SEARCH = "/search";
     public static final String URL_UPDATE = "/update";
     public static final String URL_UPDATE_DOCUMENT = "/update-document";
+    public static final String URL_PARTIAL_DOCUMENT_UPDATE = "/partial-document-update";
     public static final String URL_DELETE = "/delete";
     public static final String URL_COMMIT = "/commit";
 
