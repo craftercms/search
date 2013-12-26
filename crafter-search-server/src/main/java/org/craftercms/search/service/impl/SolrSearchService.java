@@ -27,15 +27,17 @@ import java.util.Map;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.solr.client.solrj.SolrResponse;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.*;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
@@ -53,6 +55,7 @@ import static org.craftercms.search.service.SearchRestConstants.SOLR_CONTENT_STR
  *
  * @author Michael Chen
  * @author Alfonso V��squez
+ * @author Dejan Brkic
  */
 public class SolrSearchService implements SearchService {
 
@@ -238,6 +241,91 @@ public class SolrSearchService implements SearchService {
     }
 
     @Override
+    public String partialDocumentUpdate(final String site, final String id, final File document, final Map<String,
+        String> additionalFields) throws SearchException {
+
+        String finalId = site + ":" + id;
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing partial document update for index entry id: " + finalId);
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Check if there is index entry already exist for id: " + finalId);
+        }
+        org.apache.solr.client.solrj.SolrQuery query = new SolrQuery();
+        query.setParam("q","id:"+finalId.replace(":","\\:"));
+        SolrDocument existingDocument = null;
+        try {
+            QueryResponse exitingEntry = solrServer.query(query);
+
+            SolrDocumentList documentList = exitingEntry.getResults();
+            if (documentList.size() == 1) {
+                existingDocument = documentList.get(0);
+
+            }
+        } catch (SolrServerException e) {
+            logger.warn("Failed to retrieve existing document for id: " + finalId, e);
+        }
+
+
+        if (existingDocument == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("If entry does not exist, execute regular update operation.");
+            }
+            return updateDocument(site, id, document, additionalFields);
+        }
+
+        // Convert existing document to solr input document for update operation
+        SolrInputDocument inputDocument = ClientUtils.toSolrInputDocument(existingDocument);
+        ContentStreamUpdateRequest request = new ContentStreamUpdateRequest(SOLR_CONTENT_STREAM_UPDATE_URL);
+        try {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Executing extract only operation for document (without indexing) [" + finalId + "]");
+            }
+            request.addFile(document);
+            request.setParam("extractOnly", "true");
+            NamedList response = solrServer.request(request);
+
+            // Add metadata extracted from document to solr input document
+            Object metadataObj = response.get("_metadata");
+            if (metadataObj != null && metadataObj instanceof NamedList) {
+                NamedList metadata = (NamedList)metadataObj;
+                for (int i = 0; i < metadata.size(); i++) {
+                    String key = metadata.getName(i);
+                    Object val = metadata.get(key);
+                    inputDocument.setField(key, val);
+                }
+            }
+
+            // Add id and file name related metadata
+            inputDocument.setField("id", finalId);
+            inputDocument.setField(solrDocumentBuilder.siteFieldName, site);
+            inputDocument.setField("file-name", finalId);
+            inputDocument.setField(solrDocumentBuilder.localIdFieldName, id);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Adding external (custom) metadata for index entry id: " + finalId);
+            }
+            if (MapUtils.isNotEmpty(additionalFields)) {
+                for (Map.Entry<String, String> additionalField : additionalFields.entrySet()) {
+                    inputDocument.setField(additionalField.getKey(), additionalField.getValue());
+                }
+            }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Update index entry [id: " + finalId + "]");
+            }
+            solrServer.add(inputDocument);
+        } catch (SolrServerException e) {
+            throw new SearchException("Error while communicating with Solr server to commit document" + e
+                .getMessage(), e);
+        } catch (IOException e) {
+            throw new SearchException("I/O error while committing document to Solr server " + e.getMessage(), e);
+        }
+
+        return "Successfully updated '" + id + "'";
+    }
+
+    @Override
     public String updateDocument(String site, String id, File document, Map<String, String> additionalFields)
             throws SearchException {
         String finalId = site + ":" + id;
@@ -268,5 +356,7 @@ public class SolrSearchService implements SearchService {
         }
 
         return "Successfully updated '" + id + "'";
+
+
     }
 }
