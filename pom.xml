@@ -45,7 +45,7 @@
         <module>crafter-search-server</module>
         <module>crafter-search-client</module>
         <module>crafter-search-itest</module>
-        <module>crafter-search-index-updater</module>
+        <!--module>crafter-search-index-updater</module-->
     </modules>
 
     <properties>
