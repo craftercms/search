@@ -19,6 +19,7 @@ package org.craftercms.search.service.impl;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.CharEncoding;
@@ -27,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.CharReader;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilter;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.craftercms.search.exception.SolrDocumentBuildException;
 import org.craftercms.search.utils.BooleanUtils;
@@ -252,4 +254,43 @@ public class SolrDocumentBuilder {
         return outgoingFormatter.print(incomingFormatter.parseDateTime(dateTimeStr));
     }
 
+    /**
+     * Build the Solr document for partial update of the search engine's index data of a structured document.
+     *
+     * @param solrDoc                Existing solr document
+     * @param additionalFields       Fields to add to solr document
+     * @return the Solr document
+     *
+     */
+    public SolrInputDocument buildPartialUpdateDocument(SolrInputDocument solrDoc, Map<String,
+            String> additionalFields) {
+
+        for (Map.Entry<String, String> additionalField : additionalFields.entrySet()) {
+            String fieldName = additionalField.getKey();
+
+            String fieldValue = additionalField.getValue();
+            // If fieldName ends with HTML prefix, strip all HTML markup from the field value.
+            if (fieldName.endsWith(htmlFieldSuffix)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Stripping HTML from field '" + fieldName + "'");
+                }
+
+                fieldValue = stripHtml(fieldName, fieldValue);
+            }
+            // If fieldName ends with datetime prefix, convert the field value to an ISO datetime string.
+            if (fieldName.endsWith(dateTimeFieldSuffix)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Converting '" + fieldValue + "' to ISO datetime");
+                }
+
+                fieldValue = convertToISODateTimeString(fieldValue);
+            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Adding field '" + fieldName + "' to the Solr doc");
+            }
+            solrDoc.setField(fieldName, fieldValue);
+        }
+        return solrDoc;
+    }
 }

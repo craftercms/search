@@ -307,9 +307,7 @@ public class SolrSearchService implements SearchService {
                 logger.debug("Adding external (custom) metadata for index entry id: " + finalId);
             }
             if (MapUtils.isNotEmpty(additionalFields)) {
-                for (Map.Entry<String, String> additionalField : additionalFields.entrySet()) {
-                    inputDocument.setField(additionalField.getKey(), additionalField.getValue());
-                }
+                inputDocument = solrDocumentBuilder.buildPartialUpdateDocument(inputDocument, additionalFields);
             }
             if (logger.isDebugEnabled()) {
                 logger.debug("Update index entry [id: " + finalId + "]");
