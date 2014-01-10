@@ -337,10 +337,7 @@ public class SolrSearchService implements SearchService {
             request.setParam(ExtractingParams.LITERALS_PREFIX + solrDocumentBuilder.localIdFieldName, id);
 
             if (MapUtils.isNotEmpty(additionalFields)) {
-                for (Map.Entry<String, String> additionalField : additionalFields.entrySet()) {
-                    request.setParam(ExtractingParams.LITERALS_PREFIX + additionalField.getKey(), additionalField
-                            .getValue());
-                }
+                request = solrDocumentBuilder.buildPartialUpdateDocument(request, additionalFields);
             }
 
             request.setAction(AbstractUpdateRequest.ACTION.COMMIT, true, true);
