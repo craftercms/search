@@ -32,6 +32,7 @@ import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.handler.extraction.ExtractingParams;
 import org.craftercms.search.exception.SolrDocumentBuildException;
 import org.craftercms.search.utils.BooleanUtils;
 import org.dom4j.Document;
@@ -331,7 +332,7 @@ public class SolrDocumentBuilder {
             if (logger.isDebugEnabled()) {
                 logger.debug("Adding field '" + fieldName + "' to the Solr doc");
             }
-            request.setParam(fieldName, fieldValue);
+            request.setParam(ExtractingParams.LITERALS_PREFIX + fieldName, fieldValue);
         }
         return request;
     }
