@@ -293,7 +293,8 @@ public class SolrSearchService implements SearchService {
                 for (int i = 0; i < metadata.size(); i++) {
                     String key = metadata.getName(i);
                     Object val = metadata.get(key);
-                    inputDocument.setField(key, val);
+                    //inputDocument.setField(key, val);
+                    inputDocument.remove(key);
                 }
             }
 
@@ -312,7 +313,15 @@ public class SolrSearchService implements SearchService {
             if (logger.isDebugEnabled()) {
                 logger.debug("Update index entry [id: " + finalId + "]");
             }
-            solrServer.add(inputDocument);
+
+            request = new ContentStreamUpdateRequest(SOLR_CONTENT_STREAM_UPDATE_URL);
+            request.addFile(document);
+            for (Map.Entry<String, SolrInputField> entry : inputDocument.entrySet()) {
+                SolrInputField field = entry.getValue();
+                request.setParam(ExtractingParams.LITERALS_PREFIX + entry.getKey(), String.valueOf(field.getValue()));
+            }
+            solrServer.request(request);
+            //solrServer.add(inputDocument);
         } catch (SolrServerException e) {
             throw new SearchException("Error while communicating with Solr server to commit document" + e
                 .getMessage(), e);
