@@ -18,6 +18,7 @@ package org.craftercms.search.service.impl;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
@@ -32,6 +33,8 @@ import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.SolrInputField;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.handler.extraction.ExtractingParams;
 import org.craftercms.search.exception.SolrDocumentBuildException;
 import org.craftercms.search.utils.BooleanUtils;
@@ -83,6 +86,7 @@ public class SolrDocumentBuilder {
     protected String dateTimeFieldPattern;
     protected String dateTimeFieldSuffix;
     protected String htmlFieldSuffix;
+    protected String multivalueSeparator;
 
     /**
      * Sets the site field name, which is used to indicate to which site the document belongs to.
@@ -122,6 +126,10 @@ public class SolrDocumentBuilder {
     @Required
     public void setHtmlFieldSuffix(String htmlFieldSuffix) {
         this.htmlFieldSuffix = htmlFieldSuffix;
+    }
+
+    public void setMultivalueSeparator(final String multivalueSeparator) {
+        this.multivalueSeparator = multivalueSeparator;
     }
 
     @PostConstruct
@@ -292,6 +300,16 @@ public class SolrDocumentBuilder {
             if (logger.isDebugEnabled()) {
                 logger.debug("Adding field '" + fieldName + "' to the Solr doc");
             }
+            if (fieldName.endsWith(htmlFieldSuffix) || fieldName.endsWith(dateTimeFieldSuffix)) {
+                solrDoc.setField(fieldName, fieldValue);
+            } else {
+                String[] fieldValues = fieldValue.split(multivalueSeparator);
+                if (fieldValues.length > 1) {
+                    solrDoc.setField(fieldName, fieldValues);
+                } else {
+                    solrDoc.setField(fieldName, fieldValue);
+                }
+            }
             solrDoc.setField(fieldName, fieldValue);
         }
         return solrDoc;
@@ -332,7 +350,19 @@ public class SolrDocumentBuilder {
             if (logger.isDebugEnabled()) {
                 logger.debug("Adding field '" + fieldName + "' to the Solr doc");
             }
-            request.setParam(ExtractingParams.LITERALS_PREFIX + fieldName, fieldValue);
+            if (fieldName.endsWith(htmlFieldSuffix) || fieldName.endsWith(dateTimeFieldSuffix)) {
+                request.setParam(ExtractingParams.LITERALS_PREFIX + fieldName, fieldValue);
+            } else {
+                String[] fieldValues = fieldValue.split(multivalueSeparator);
+                if (fieldValues.length > 1) {
+                    ModifiableSolrParams params = request.getParams();
+                    params.add(ExtractingParams.LITERALS_PREFIX + fieldName, fieldValues);
+                } else {
+                    request.setParam(ExtractingParams.LITERALS_PREFIX + fieldName, fieldValue);
+                }
+            }
+
+
         }
         return request;
     }
