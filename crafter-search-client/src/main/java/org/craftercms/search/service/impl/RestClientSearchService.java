@@ -178,7 +178,8 @@ public class RestClientSearchService implements SearchService {
     }
 
     @Override
-    public String updateDocument(String site, String id, File document, Map<String, String> additionalFields) throws SearchException {
+    public String updateDocument(String site, String id, File document, Map<String,
+        String> additionalFields) throws SearchException {
         FileSystemResource fsrDoc = new FileSystemResource(document);
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<String, Object>();
 
