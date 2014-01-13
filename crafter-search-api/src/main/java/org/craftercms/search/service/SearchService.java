@@ -90,7 +90,8 @@ public interface SearchService {
      * @return a success string
      * @throws SearchException
      */
-    String updateDocument(String site, String id, File document, Map<String, String> additionalFields) throws SearchException;
+    String updateDocument(String site, String id, File document, Map<String, String> additionalFields) throws
+        SearchException;
 
     /**
      * Partial update of the search engine's index data of a structured document (PDF, Word, Office).
@@ -104,5 +105,7 @@ public interface SearchService {
      */
     String partialDocumentUpdate(String site, String id, File document, Map<String, String> additionalFields) throws
         SearchException;
+
+
 
 }

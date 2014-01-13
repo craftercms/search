@@ -31,6 +31,7 @@
         <property name="dateTimeFieldPattern" value="${crafter.search.solr.field.type.datetime.pattern}"/>
         <property name="dateTimeFieldSuffix" value="${crafter.search.solr.field.type.datetime.suffix}"/>
         <property name="htmlFieldSuffix" value="${crafter.search.solr.field.type.html.suffix}"/>
+        <property name="multivalueSeparator" value="${crafter.search.solr.field.multivalue.separator}"/>
     </bean>
 
     <bean id="crafter.searchService" class="org.craftercms.search.service.impl.SolrSearchService">

@@ -293,7 +293,8 @@ public class SolrSearchService implements SearchService {
                 for (int i = 0; i < metadata.size(); i++) {
                     String key = metadata.getName(i);
                     Object val = metadata.get(key);
-                    inputDocument.setField(key, val);
+                    //inputDocument.setField(key, val);
+                    inputDocument.remove(key);
                 }
             }
 
@@ -307,14 +308,28 @@ public class SolrSearchService implements SearchService {
                 logger.debug("Adding external (custom) metadata for index entry id: " + finalId);
             }
             if (MapUtils.isNotEmpty(additionalFields)) {
-                for (Map.Entry<String, String> additionalField : additionalFields.entrySet()) {
-                    inputDocument.setField(additionalField.getKey(), additionalField.getValue());
-                }
+                inputDocument = solrDocumentBuilder.buildPartialUpdateDocument(inputDocument, additionalFields);
             }
             if (logger.isDebugEnabled()) {
                 logger.debug("Update index entry [id: " + finalId + "]");
             }
-            solrServer.add(inputDocument);
+
+            request = new ContentStreamUpdateRequest(SOLR_CONTENT_STREAM_UPDATE_URL);
+            request.addFile(document);
+            ModifiableSolrParams params = new ModifiableSolrParams();
+            for (Map.Entry<String, SolrInputField> entry : inputDocument.entrySet()) {
+                SolrInputField field = entry.getValue();
+                if (field.getValueCount() > 1) {
+                    for(Object value : field.getValues()) {
+                        params.add(ExtractingParams.LITERALS_PREFIX + entry.getKey(), String.valueOf(value));
+                    }
+                } else {
+                    params.add(ExtractingParams.LITERALS_PREFIX + entry.getKey(), String.valueOf(field.getValue()));
+                }
+            }
+            request.setParams(params);
+            solrServer.request(request);
+            //solrServer.add(inputDocument);
         } catch (SolrServerException e) {
             throw new SearchException("Error while communicating with Solr server to commit document" + e
                 .getMessage(), e);
@@ -327,7 +342,7 @@ public class SolrSearchService implements SearchService {
 
     @Override
     public String updateDocument(String site, String id, File document, Map<String, String> additionalFields)
-            throws SearchException {
+        throws SearchException {
         String finalId = site + ":" + id;
 
         ContentStreamUpdateRequest request = new ContentStreamUpdateRequest(SOLR_CONTENT_STREAM_UPDATE_URL);
@@ -339,10 +354,7 @@ public class SolrSearchService implements SearchService {
             request.setParam(ExtractingParams.LITERALS_PREFIX + solrDocumentBuilder.localIdFieldName, id);
 
             if (MapUtils.isNotEmpty(additionalFields)) {
-                for (Map.Entry<String, String> additionalField : additionalFields.entrySet()) {
-                    request.setParam(ExtractingParams.LITERALS_PREFIX + additionalField.getKey(), additionalField
-                            .getValue());
-                }
+                request = solrDocumentBuilder.buildPartialUpdateDocument(request, additionalFields);
             }
 
             request.setAction(AbstractUpdateRequest.ACTION.COMMIT, true, true);
@@ -350,7 +362,7 @@ public class SolrSearchService implements SearchService {
             solrServer.request(request);
         } catch (SolrServerException e) {
             throw new SearchException("Error while communicating with Solr server to commit document" + e
-                    .getMessage(), e);
+                .getMessage(), e);
         } catch (IOException e) {
             throw new SearchException("I/O error while committing document to Solr server " + e.getMessage(), e);
         }
