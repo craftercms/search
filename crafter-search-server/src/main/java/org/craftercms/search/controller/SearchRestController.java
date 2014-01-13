@@ -18,7 +18,6 @@ package org.craftercms.search.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +30,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.craftercms.search.exception.SearchException;
-import org.craftercms.search.service.SearchRestConstants;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.QueryParams;
 import org.springframework.beans.factory.annotation.Required;
@@ -46,7 +44,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_DESCRIPTOR;
 import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_DOCUMENT;
 import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_ID;
 import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_IGNORE_ROOT_IN_FIELD_NAMES;
