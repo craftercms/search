@@ -274,7 +274,7 @@ public class SolrDocumentBuilder {
      *
      */
     public SolrInputDocument buildPartialUpdateDocument(SolrInputDocument solrDoc, Map<String,
-            String> additionalFields) {
+        String> additionalFields) {
 
         for (Map.Entry<String, String> additionalField : additionalFields.entrySet()) {
             String fieldName = additionalField.getKey();
@@ -310,7 +310,6 @@ public class SolrDocumentBuilder {
                     solrDoc.setField(fieldName, fieldValue);
                 }
             }
-            solrDoc.setField(fieldName, fieldValue);
         }
         return solrDoc;
     }

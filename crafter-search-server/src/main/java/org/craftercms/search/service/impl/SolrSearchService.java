@@ -316,10 +316,18 @@ public class SolrSearchService implements SearchService {
 
             request = new ContentStreamUpdateRequest(SOLR_CONTENT_STREAM_UPDATE_URL);
             request.addFile(document);
+            ModifiableSolrParams params = new ModifiableSolrParams();
             for (Map.Entry<String, SolrInputField> entry : inputDocument.entrySet()) {
                 SolrInputField field = entry.getValue();
-                request.setParam(ExtractingParams.LITERALS_PREFIX + entry.getKey(), String.valueOf(field.getValue()));
+                if (field.getValueCount() > 1) {
+                    for(Object value : field.getValues()) {
+                        params.add(ExtractingParams.LITERALS_PREFIX + entry.getKey(), String.valueOf(value));
+                    }
+                } else {
+                    params.add(ExtractingParams.LITERALS_PREFIX + entry.getKey(), String.valueOf(field.getValue()));
+                }
             }
+            request.setParams(params);
             solrServer.request(request);
             //solrServer.add(inputDocument);
         } catch (SolrServerException e) {
@@ -334,7 +342,7 @@ public class SolrSearchService implements SearchService {
 
     @Override
     public String updateDocument(String site, String id, File document, Map<String, String> additionalFields)
-            throws SearchException {
+        throws SearchException {
         String finalId = site + ":" + id;
 
         ContentStreamUpdateRequest request = new ContentStreamUpdateRequest(SOLR_CONTENT_STREAM_UPDATE_URL);
@@ -354,7 +362,7 @@ public class SolrSearchService implements SearchService {
             solrServer.request(request);
         } catch (SolrServerException e) {
             throw new SearchException("Error while communicating with Solr server to commit document" + e
-                    .getMessage(), e);
+                .getMessage(), e);
         } catch (IOException e) {
             throw new SearchException("I/O error while committing document to Solr server " + e.getMessage(), e);
         }
