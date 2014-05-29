@@ -284,52 +284,71 @@ public class SolrSearchService implements SearchService {
             }
             request.addFile(document);
             request.setParam("extractOnly", "true");
-            NamedList response = solrServer.request(request);
+            NamedList response = null;
+            try {
+                response = solrServer.request(request);
+            } catch (SolrServerException e) {
+                logger.warn("Error while communicating with Solr server to extract metadata from document" + e
+                    .getMessage());
+            } catch (IOException e) {
+                logger.warn("I/O error while extracting metadata from document " + e.getMessage());
+            }
 
             // Add metadata extracted from document to solr input document
-            Object metadataObj = response.get("_metadata");
-            if (metadataObj != null && metadataObj instanceof NamedList) {
-                NamedList metadata = (NamedList)metadataObj;
-                for (int i = 0; i < metadata.size(); i++) {
-                    String key = metadata.getName(i);
-                    Object val = metadata.get(key);
-                    //inputDocument.setField(key, val);
-                    inputDocument.remove(key);
-                }
-            }
-
-            // Add id and file name related metadata
-            inputDocument.setField("id", finalId);
-            inputDocument.setField(solrDocumentBuilder.siteFieldName, site);
-            inputDocument.setField("file-name", finalId);
-            inputDocument.setField(solrDocumentBuilder.localIdFieldName, id);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Adding external (custom) metadata for index entry id: " + finalId);
-            }
-            if (MapUtils.isNotEmpty(additionalFields)) {
-                inputDocument = solrDocumentBuilder.buildPartialUpdateDocument(inputDocument, additionalFields);
-            }
-            if (logger.isDebugEnabled()) {
-                logger.debug("Update index entry [id: " + finalId + "]");
-            }
-
-            request = new ContentStreamUpdateRequest(SOLR_CONTENT_STREAM_UPDATE_URL);
-            request.addFile(document);
-            ModifiableSolrParams params = new ModifiableSolrParams();
-            for (Map.Entry<String, SolrInputField> entry : inputDocument.entrySet()) {
-                SolrInputField field = entry.getValue();
-                if (field.getValueCount() > 1) {
-                    for(Object value : field.getValues()) {
-                        params.add(ExtractingParams.LITERALS_PREFIX + entry.getKey(), String.valueOf(value));
+            if (response != null) {
+                Object metadataObj = response.get("_metadata");
+                if (metadataObj != null && metadataObj instanceof NamedList) {
+                    NamedList metadata = (NamedList)metadataObj;
+                    for (int i = 0; i < metadata.size(); i++) {
+                        String key = metadata.getName(i);
+                        Object val = metadata.get(key);
+                        //inputDocument.setField(key, val);
+                        inputDocument.remove(key);
                     }
-                } else {
-                    params.add(ExtractingParams.LITERALS_PREFIX + entry.getKey(), String.valueOf(field.getValue()));
                 }
+
+
+                // Add id and file name related metadata
+                inputDocument.setField("id", finalId);
+                inputDocument.setField(solrDocumentBuilder.siteFieldName, site);
+                inputDocument.setField("file-name", new File(finalId).getName());
+                inputDocument.setField(solrDocumentBuilder.localIdFieldName, id);
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Adding external (custom) metadata for index entry id: " + finalId);
+                }
+                if (MapUtils.isNotEmpty(additionalFields)) {
+                    inputDocument = solrDocumentBuilder.buildPartialUpdateDocument(inputDocument, additionalFields);
+                }
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Update index entry [id: " + finalId + "]");
+                }
+
+                request = new ContentStreamUpdateRequest(SOLR_CONTENT_STREAM_UPDATE_URL);
+                request.addFile(document);
+                ModifiableSolrParams params = new ModifiableSolrParams();
+                for (Map.Entry<String, SolrInputField> entry : inputDocument.entrySet()) {
+                    SolrInputField field = entry.getValue();
+                    if (field.getValueCount() > 1) {
+                        for (Object value : field.getValues()) {
+                            params.add(ExtractingParams.LITERALS_PREFIX + entry.getKey(), String.valueOf(value));
+                        }
+                    } else {
+                        params.add(ExtractingParams.LITERALS_PREFIX + entry.getKey(), String.valueOf(field.getValue()));
+                    }
+                }
+                request.setParams(params);
+                solrServer.request(request);
+                //solrServer.add(inputDocument);
+            } else {
+                inputDocument = solrDocumentBuilder.buildPartialUpdateDocument(inputDocument, additionalFields);
+                // Add id and file name related metadata
+                inputDocument.setField("id", finalId);
+                inputDocument.setField(solrDocumentBuilder.siteFieldName, site);
+                inputDocument.setField("file-name", new File(finalId).getName());
+                inputDocument.setField(solrDocumentBuilder.localIdFieldName, id);
+                UpdateResponse res = solrServer.add(inputDocument);
             }
-            request.setParams(params);
-            solrServer.request(request);
-            //solrServer.add(inputDocument);
         } catch (SolrServerException e) {
             throw new SearchException("Error while communicating with Solr server to commit document" + e
                 .getMessage(), e);
@@ -361,8 +380,26 @@ public class SolrSearchService implements SearchService {
 
             solrServer.request(request);
         } catch (SolrServerException e) {
-            throw new SearchException("Error while communicating with Solr server to commit document" + e
-                .getMessage(), e);
+            logger.warn("Error while communicating with Solr server to commit document: " + e.getMessage());
+            try {
+
+                SolrInputDocument inputDocument = new SolrInputDocument();
+                inputDocument = solrDocumentBuilder.buildPartialUpdateDocument(inputDocument, additionalFields);
+                // Add id and file name related metadata
+                inputDocument.setField("id", finalId);
+                inputDocument.setField(solrDocumentBuilder.siteFieldName, site);
+                inputDocument.setField("file-name", new File(finalId).getName());
+                inputDocument.setField(solrDocumentBuilder.localIdFieldName, id);
+                UpdateResponse response = solrServer.add(inputDocument);
+            } catch (IOException e1) {
+                throw new SearchException("I/O error while committing document to Solr server " + e.getMessage(), e1);
+            } catch (SolrServerException e1) {
+                throw new SearchException("Error while communicating with Solr server to commit document" + e1
+                    .getMessage(), e1);
+            }
+
+
+
         } catch (IOException e) {
             throw new SearchException("I/O error while committing document to Solr server " + e.getMessage(), e);
         }
