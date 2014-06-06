@@ -27,7 +27,8 @@ import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.CharReader;
+//import org.apache.lucene.analysis.CharReader;
+import org.apache.lucene.analysis.CharFilter;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilter;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
@@ -239,7 +240,8 @@ public class SolrDocumentBuilder {
 
     protected String stripHtml(String element, String value) throws SolrDocumentBuildException {
         StringReader reader = new StringReader(value);
-        HTMLStripCharFilter htmlStripper = new HTMLStripCharFilter(CharReader.get(reader));
+        //HTMLStripCharFilter htmlStripper = new HTMLStripCharFilter(CharReader.get(reader));
+        HTMLStripCharFilter htmlStripper = new HTMLStripCharFilter(reader);
         char[] buffer = new char[1024 * 10];
         StringBuilder strippedValue = new StringBuilder();
 
