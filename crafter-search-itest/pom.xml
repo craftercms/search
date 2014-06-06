@@ -114,7 +114,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.solr</groupId>
                                     <artifactId>solr</artifactId>
-                                    <version>3.6.0</version>
+                                    <version>4.8.1</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}</outputDirectory>

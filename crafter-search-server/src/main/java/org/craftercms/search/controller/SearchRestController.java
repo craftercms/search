@@ -146,7 +146,7 @@ public class SearchRestController {
 
             document.transferTo(tmpFile);
 
-            String result = searchService.partialDocumentUpdate(site, id, tmpFile, additionalFields);
+            String result = searchService.updateDocument(site, id, tmpFile, additionalFields);
 
             FileUtils.forceDelete(tmpFile);
 

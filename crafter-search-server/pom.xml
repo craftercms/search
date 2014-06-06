@@ -22,29 +22,25 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>3.6.0</version>
+            <version>4.8.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-cell</artifactId>
-            <version>3.6.0</version>
+            <version>4.8.1</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers</artifactId>
-            <version>3.6.0</version>
-        </dependency>
+
         <!-- httpclient and httpmime are needed for use of HttpSolrServer For details
             see: https://issues.apache.org/jira/browse/SOLR-3411 -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.1.3</version>
+            <version>4.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>4.1.3</version>
+            <version>4.3.1</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
