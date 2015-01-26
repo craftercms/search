@@ -1,7 +1,7 @@
 *.class
 
 # Package Files #
-*.jar
+
 *.war
 *.ear
 
@@ -26,5 +26,3 @@ Thumbs.db
 # Maven build overlays #
 overlays
 
-!crafter-search-provider/solr/lib/*.jar
-!crafter-search-provider/solr/lib/extraction/*.jar

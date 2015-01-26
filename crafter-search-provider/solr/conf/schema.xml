@@ -163,8 +163,6 @@
         NOTE: This field is not indexed by default, since it is also copied to "text"
         using copyField below. This is to save space. Use this field for returning and
         highlighting document content. Use the "text" field to search the content. -->
-   <field name="content" type="text_general" indexed="false" stored="true" multiValued="true"/>
-   
 
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
