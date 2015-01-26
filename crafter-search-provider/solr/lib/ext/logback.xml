@@ -10,21 +10,23 @@
 <configuration>
   <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
-    <File>${solr.log}/solr.log</File>
+    <File>solr-crafter/crafter-search-solr.log</File>
     <encoder>
-      <pattern>%-5p - %d{yyyy-MM-dd HH:mm:ss.SSS}; %C; %m</pattern>
+        <Pattern>%d{yyyy-MM-dd_HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+        </Pattern>
     </encoder>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <maxIndex>9</maxIndex>
-      <FileNamePattern>${solr.log}/solr.log.%i</FileNamePattern>
+      <maxIndex>10</maxIndex>
+      <FileNamePattern>solr-crafter/crafter-search-solr.%i.log.zip</FileNamePattern>
     </rollingPolicy>
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-      <MaxFileSize>4MB</MaxFileSize>
+      <MaxFileSize>10MB</MaxFileSize>
     </triggeringPolicy>
   </appender>
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%-4r [%t] %-5p %c %x â€“ %m%n</pattern>
+        <Pattern>%d{yyyy-MM-dd_HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+        </Pattern>
     </encoder>
   </appender>
   <logger name="org.apache.zookeeper" level="WARN"/>
