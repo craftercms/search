@@ -16,25 +16,13 @@
  */
 package org.craftercms.search.service.impl;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-//import org.apache.lucene.analysis.CharReader;
-import org.apache.lucene.analysis.CharFilter;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilter;
-import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.handler.extraction.ExtractingParams;
 import org.craftercms.search.exception.SolrDocumentBuildException;
@@ -48,6 +36,14 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.factory.annotation.Required;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.List;
+import java.util.Map;
+
+//import org.apache.lucene.analysis.CharReader;
 
 /**
  * <p/>
@@ -197,7 +193,7 @@ public class SolrDocumentBuilder {
 
                     String fieldValue = element.getText();
                     // If fieldName ends with HTML prefix, strip all HTML markup from the field value.
-                    if (fieldName.endsWith(htmlFieldSuffix)) {
+                    if (endsWith(fieldName, htmlFieldSuffix)) {
                         if (logger.isDebugEnabled()) {
                             logger.debug("Stripping HTML from field '" + fieldName + "'");
                         }
@@ -205,7 +201,7 @@ public class SolrDocumentBuilder {
                         fieldValue = stripHtml(fieldName, fieldValue);
                     }
                     // If fieldName ends with datetime prefix, convert the field value to an ISO datetime string.
-                    if (fieldName.endsWith(dateTimeFieldSuffix)) {
+                    if (endsWith(fieldName, dateTimeFieldSuffix)) {
                         if (logger.isDebugEnabled()) {
                             logger.debug("Converting '" + fieldValue + "' to ISO datetime");
                         }
@@ -283,7 +279,7 @@ public class SolrDocumentBuilder {
 
             String fieldValue = additionalField.getValue();
             // If fieldName ends with HTML prefix, strip all HTML markup from the field value.
-            if (fieldName.endsWith(htmlFieldSuffix)) {
+            if (endsWith(fieldName, htmlFieldSuffix)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Stripping HTML from field '" + fieldName + "'");
                 }
@@ -291,7 +287,7 @@ public class SolrDocumentBuilder {
                 fieldValue = stripHtml(fieldName, fieldValue);
             }
             // If fieldName ends with datetime prefix, convert the field value to an ISO datetime string.
-            if (fieldName.endsWith(dateTimeFieldSuffix)) {
+            if (endsWith(fieldName, dateTimeFieldSuffix)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Converting '" + fieldValue + "' to ISO datetime");
                 }
@@ -302,7 +298,7 @@ public class SolrDocumentBuilder {
             if (logger.isDebugEnabled()) {
                 logger.debug("Adding field '" + fieldName + "' to the Solr doc");
             }
-            if (fieldName.endsWith(htmlFieldSuffix) || fieldName.endsWith(dateTimeFieldSuffix)) {
+            if (endsWith(fieldName, htmlFieldSuffix) || endsWith(fieldName, dateTimeFieldSuffix)) {
                 solrDoc.setField(fieldName, fieldValue);
             } else {
                 String[] fieldValues = fieldValue.split(multivalueSeparator);
@@ -332,7 +328,7 @@ public class SolrDocumentBuilder {
 
             String fieldValue = additionalField.getValue();
             // If fieldName ends with HTML prefix, strip all HTML markup from the field value.
-            if (fieldName.endsWith(htmlFieldSuffix)) {
+            if (endsWith(fieldName, htmlFieldSuffix)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Stripping HTML from field '" + fieldName + "'");
                 }
@@ -340,7 +336,7 @@ public class SolrDocumentBuilder {
                 fieldValue = stripHtml(fieldName, fieldValue);
             }
             // If fieldName ends with datetime prefix, convert the field value to an ISO datetime string.
-            if (fieldName.endsWith(dateTimeFieldSuffix)) {
+            if (endsWith(fieldName, dateTimeFieldSuffix)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Converting '" + fieldValue + "' to ISO datetime");
                 }
@@ -351,7 +347,7 @@ public class SolrDocumentBuilder {
             if (logger.isDebugEnabled()) {
                 logger.debug("Adding field '" + fieldName + "' to the Solr doc");
             }
-            if (fieldName.endsWith(htmlFieldSuffix) || fieldName.endsWith(dateTimeFieldSuffix)) {
+            if (endsWith(fieldName,htmlFieldSuffix) || endsWith(fieldName, dateTimeFieldSuffix)) {
                 request.setParam(ExtractingParams.LITERALS_PREFIX + fieldName, fieldValue);
             } else {
                 String[] fieldValues = fieldValue.split(multivalueSeparator);
@@ -366,5 +362,14 @@ public class SolrDocumentBuilder {
 
         }
         return request;
+    }
+
+    private boolean endsWith(String str, String suffix) {
+        for (String value : suffix.split("\\s",-1)) {
+            if (str.endsWith(value)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
