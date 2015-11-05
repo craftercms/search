@@ -86,6 +86,7 @@ public class SolrDocumentBuilder {
     protected String localIdFieldName;
     protected String dateTimeFieldPattern;
     protected String dateTimeFieldSuffix;
+    protected String dateTimeMultivaluedFieldSuffix;
     protected String htmlFieldSuffix;
     protected String multivalueSeparator;
 
@@ -119,6 +120,14 @@ public class SolrDocumentBuilder {
     @Required
     public void setDateTimeFieldSuffix(String dateTimeFieldSuffix) {
         this.dateTimeFieldSuffix = dateTimeFieldSuffix;
+    }
+
+    /**
+     * Sets the suffix of datetime multivalued fields (commonly _dts).
+     */
+    @Required
+    public void setDateTimeMultivaluedFieldSuffix(String dateTimeMultivaluedFieldSuffix) {
+        this.dateTimeMultivaluedFieldSuffix = dateTimeMultivaluedFieldSuffix;
     }
 
     /**
@@ -205,7 +214,7 @@ public class SolrDocumentBuilder {
                         fieldValue = stripHtml(fieldName, fieldValue);
                     }
                     // If fieldName ends with datetime prefix, convert the field value to an ISO datetime string.
-                    if (fieldName.endsWith(dateTimeFieldSuffix)) {
+                    if (fieldName.endsWith(dateTimeFieldSuffix) || fieldName.endsWith(dateTimeMultivaluedFieldSuffix)) {
                         if (logger.isDebugEnabled()) {
                             logger.debug("Converting '" + fieldValue + "' to ISO datetime");
                         }
@@ -291,7 +300,7 @@ public class SolrDocumentBuilder {
                 fieldValue = stripHtml(fieldName, fieldValue);
             }
             // If fieldName ends with datetime prefix, convert the field value to an ISO datetime string.
-            if (fieldName.endsWith(dateTimeFieldSuffix)) {
+            if (fieldName.endsWith(dateTimeFieldSuffix) || fieldName.endsWith(dateTimeMultivaluedFieldSuffix)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Converting '" + fieldValue + "' to ISO datetime");
                 }
@@ -340,7 +349,7 @@ public class SolrDocumentBuilder {
                 fieldValue = stripHtml(fieldName, fieldValue);
             }
             // If fieldName ends with datetime prefix, convert the field value to an ISO datetime string.
-            if (fieldName.endsWith(dateTimeFieldSuffix)) {
+            if (fieldName.endsWith(dateTimeFieldSuffix) || fieldName.endsWith(dateTimeMultivaluedFieldSuffix)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Converting '" + fieldValue + "' to ISO datetime");
                 }
