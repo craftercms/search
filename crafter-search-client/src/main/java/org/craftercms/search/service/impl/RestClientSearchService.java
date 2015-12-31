@@ -16,11 +16,17 @@
  */
 package org.craftercms.search.service.impl;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
@@ -43,16 +49,16 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.xml.transform.stream.StreamSource;
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.craftercms.search.service.SearchRestConstants.*;
+import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_DOCUMENT;
+import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_ID;
+import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_IGNORE_ROOT_IN_FIELD_NAMES;
+import static org.craftercms.search.service.SearchRestConstants.REQUEST_PARAM_SITE;
+import static org.craftercms.search.service.SearchRestConstants.URL_COMMIT;
+import static org.craftercms.search.service.SearchRestConstants.URL_DELETE;
+import static org.craftercms.search.service.SearchRestConstants.URL_ROOT;
+import static org.craftercms.search.service.SearchRestConstants.URL_SEARCH;
+import static org.craftercms.search.service.SearchRestConstants.URL_UPDATE;
+import static org.craftercms.search.service.SearchRestConstants.URL_UPDATE_DOCUMENT;
 
 /**
  * Client implementation of {@link SearchService}, which uses REST to communicate with the server
@@ -60,8 +66,6 @@ import static org.craftercms.search.service.SearchRestConstants.*;
  * @author Alfonso Vásquez
  */
 public class RestClientSearchService implements SearchService {
-
-    private static final Log logger = LogFactory.getLog(RestClientSearchService.class);
 
     private static final boolean jaxb2Present = ClassUtils.isPresent("javax.xml.bind.Binder",
         RestTemplate.class.getClassLoader());
@@ -78,15 +82,16 @@ public class RestClientSearchService implements SearchService {
 
     public RestClientSearchService() {
         restTemplate = new RestTemplate();
+
         List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
+
         messageConverters.add(new ByteArrayHttpMessageConverter());
-        StringHttpMessageConverterExtended stringHttpMessageConverter = new StringHttpMessageConverterExtended
-            (Charset.forName(CharEncoding.UTF_8));
-        messageConverters.add(stringHttpMessageConverter);
+        messageConverters.add(new StringHttpMessageConverterExtended(Charset.forName(CharEncoding.UTF_8)));
         messageConverters.add(new FormHttpMessageConverter());
         messageConverters.add(new ResourceHttpMessageConverter());
         messageConverters.add(new SourceHttpMessageConverter());
         messageConverters.add(new XmlAwareFormHttpMessageConverter());
+
         if (jaxb2Present) {
             messageConverters.add(new Jaxb2RootElementHttpMessageConverter());
         }

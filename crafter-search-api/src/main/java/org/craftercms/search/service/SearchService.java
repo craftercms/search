@@ -90,7 +90,7 @@ public interface SearchService {
      * @return a success string
      * @throws SearchException
      */
-    String updateDocument(String site, String id, File document, Map<String, String> additionalFields) throws
-        SearchException;
+    String updateDocument(String site, String id, File document,
+                          Map<String, String> additionalFields) throws SearchException;
 
 }

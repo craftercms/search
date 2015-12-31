@@ -136,9 +136,9 @@ public class SearchRestController {
     @RequestMapping(value = URL_PARTIAL_DOCUMENT_UPDATE, method = RequestMethod.POST)
     @ResponseBody
     public String partialDocumentUpdate(@RequestPart(REQUEST_PARAM_SITE) String site,
-                                 @RequestPart(REQUEST_PARAM_ID) String id,
-                                 @RequestPart(REQUEST_PARAM_DOCUMENT) MultipartFile document,
-                                 HttpServletRequest request) throws SearchException {
+                                        @RequestPart(REQUEST_PARAM_ID) String id,
+                                        @RequestPart(REQUEST_PARAM_DOCUMENT) MultipartFile document,
+                                        HttpServletRequest request) throws SearchException {
 
         try {
             File tmpFile = File.createTempFile("crafter" + document.getOriginalFilename(), "");
