@@ -16,6 +16,8 @@
  */
 package org.craftercms.search.service.impl;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Search query for Solr.
  *
@@ -23,6 +25,7 @@ package org.craftercms.search.service.impl;
  */
 public class SolrQuery extends QueryParams {
 
+    public static final String MULTIVALUE_SEPARATOR = ",";
     public static final String FIELDS_TO_RETURN = "fl";
     public static final String HIGHLIGHT_PARAM = "hl";
     public static final String HIGHLIGHT_FIELDS_PARAM = "hl.fl";
@@ -33,7 +36,7 @@ public class SolrQuery extends QueryParams {
     public static final String ROWS_PARAM = "rows";
 
     public SolrQuery setFieldsToReturn(String... fields) {
-        addParam(FIELDS_TO_RETURN, fields);
+        addParam(FIELDS_TO_RETURN, StringUtils.join(fields, MULTIVALUE_SEPARATOR));
 
         return this;
     }
@@ -49,7 +52,7 @@ public class SolrQuery extends QueryParams {
             addParam(HIGHLIGHT_PARAM, "true");
         }
 
-        addParam(HIGHLIGHT_FIELDS_PARAM, fields);
+        addParam(HIGHLIGHT_FIELDS_PARAM, StringUtils.join(fields, MULTIVALUE_SEPARATOR));
 
         return this;
     }
