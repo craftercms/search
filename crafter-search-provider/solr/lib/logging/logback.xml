@@ -10,13 +10,13 @@
 <configuration>
   <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
-    <File>/Users/cortiz/dev/craftersoftware/servers/crafter-standalone/logs/apache-tomcat/solr.log</File>
+    <File>${CATALINA_HOME}/logs/solr.log</File>
     <encoder>
       <pattern>%-5p - %d{yyyy-MM-dd HH:mm:ss.SSS}; %C; %m</pattern>
     </encoder>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <maxIndex>9</maxIndex>
-      <FileNamePattern>${solr.log}/solr.log.%i</FileNamePattern>
+      <FileNamePattern>${CATALINA_HOME}/logs/solr.log</FileNamePattern>
     </rollingPolicy>
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
       <MaxFileSize>4MB</MaxFileSize>
