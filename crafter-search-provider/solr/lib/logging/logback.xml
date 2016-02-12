@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+/Users/cortiz/dev/craftersoftware/main/engine<?xml version="1.0" encoding="UTF-8"?>
 
 <!-- For assistance related to logback-translator or configuration  -->
 <!-- files in general, please contact the logback user mailing list -->
@@ -10,23 +10,21 @@
 <configuration>
   <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
-    <File>solr-crafter/crafter-search-solr.log</File>
+    <File>${CATALINA_HOME}/logs/solr.log</File>
     <encoder>
-        <Pattern>%d{yyyy-MM-dd_HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
-        </Pattern>
+      <pattern>%-5p - %d{yyyy-MM-dd HH:mm:ss.SSS}; %C; %m</pattern>
     </encoder>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <maxIndex>10</maxIndex>
-      <FileNamePattern>solr-crafter/crafter-search-solr.%i.log.zip</FileNamePattern>
+      <maxIndex>9</maxIndex>
+      <FileNamePattern>${CATALINA_HOME}/logs/solr.log</FileNamePattern>
     </rollingPolicy>
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-      <MaxFileSize>10MB</MaxFileSize>
+      <MaxFileSize>4MB</MaxFileSize>
     </triggeringPolicy>
   </appender>
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-        <Pattern>%d{yyyy-MM-dd_HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
-        </Pattern>
+      <pattern>%-4r [%t] %-5p %c %x | %m%n</pattern>
     </encoder>
   </appender>
   <logger name="org.apache.zookeeper" level="WARN"/>
