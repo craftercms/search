@@ -106,6 +106,10 @@ public class RestClientSearchService implements SearchService {
         restTemplate.setMessageConverters(messageConverters);
     }
 
+    public String getServerUrl() {
+        return serverUrl;
+    }
+
     @Required
     public void setServerUrl(String serverUrl) {
         this.serverUrl = StringUtils.stripEnd(serverUrl, "/");
