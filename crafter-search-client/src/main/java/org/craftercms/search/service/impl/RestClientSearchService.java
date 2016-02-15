@@ -67,15 +67,15 @@ import static org.craftercms.search.service.SearchRestConstants.URL_UPDATE_DOCUM
  */
 public class RestClientSearchService implements SearchService {
 
-    private static final boolean jaxb2Present = ClassUtils.isPresent("javax.xml.bind.Binder",
-        RestTemplate.class.getClassLoader());
+    private static final boolean jaxb2Present = ClassUtils.isPresent("javax.xml.bind.Binder", RestTemplate.class
+        .getClassLoader());
 
-    private static final boolean jacksonPresent = ClassUtils.isPresent("org.codehaus.jackson.map.ObjectMapper",
-        RestTemplate.class.getClassLoader()) && ClassUtils.isPresent("org.codehaus.jackson.JsonGenerator",
-        RestTemplate.class.getClassLoader());
+    private static final boolean jacksonPresent =
+        ClassUtils.isPresent("org.codehaus.jackson.map.ObjectMapper", RestTemplate.class.getClassLoader()) &&
+        ClassUtils.isPresent("org.codehaus.jackson.JsonGenerator", RestTemplate.class.getClassLoader());
 
-    private static boolean romePresent = ClassUtils.isPresent("com.sun.syndication.feed.WireFeed",
-        RestTemplate.class.getClassLoader());
+    private static boolean romePresent = ClassUtils.isPresent("com.sun.syndication.feed.WireFeed", RestTemplate.class
+        .getClassLoader());
 
     protected String serverUrl;
     protected RestTemplate restTemplate;
@@ -127,25 +127,25 @@ public class RestClientSearchService implements SearchService {
         } catch (URISyntaxException e) {
             throw new SearchException("Invalid URI: " + searchUrl, e);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException("Search for query " + query + " failed: [" + e.getStatusText() + "] " + e
-                .getResponseBodyAsString());
-        }  catch (Exception e) {
+            throw new SearchException(
+                "Search for query " + query + " failed: [" + e.getStatusText() + "] " + e.getResponseBodyAsString());
+        } catch (Exception e) {
             throw new SearchException("Search for query " + query + " failed: " + e.getMessage(), e);
         }
     }
 
     public String update(String site, String id, String xml, boolean ignoreRootInFieldNames) throws SearchException {
         String updateUrl = serverUrl + URL_ROOT + URL_UPDATE + "?" + REQUEST_PARAM_SITE + "=" + site + "&" +
-            REQUEST_PARAM_ID +
-            "=" + id + "&" + REQUEST_PARAM_IGNORE_ROOT_IN_FIELD_NAMES + "=" + ignoreRootInFieldNames;
+                           REQUEST_PARAM_ID +
+                           "=" + id + "&" + REQUEST_PARAM_IGNORE_ROOT_IN_FIELD_NAMES + "=" + ignoreRootInFieldNames;
 
         try {
             return restTemplate.postForObject(new URI(updateUrl), xml, String.class);
         } catch (URISyntaxException e) {
             throw new SearchException("Invalid URI: " + updateUrl, e);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException("Update for XML '" + id + "' failed: [" + e.getStatusText() + "] " + e
-                .getResponseBodyAsString());
+            throw new SearchException(
+                "Update for XML '" + id + "' failed: [" + e.getStatusText() + "] " + e.getResponseBodyAsString());
         } catch (Exception e) {
             throw new SearchException("Update for XML '" + id + "' failed: " + e.getMessage(), e);
         }
@@ -153,15 +153,15 @@ public class RestClientSearchService implements SearchService {
 
     public String delete(String site, String id) throws SearchException {
         String deleteUrl = serverUrl + URL_ROOT + URL_DELETE + "?" + REQUEST_PARAM_SITE + "=" + site + "&" +
-            REQUEST_PARAM_ID + "=" + id;
+                           REQUEST_PARAM_ID + "=" + id;
 
         try {
             return restTemplate.postForObject(new URI(deleteUrl), null, String.class);
         } catch (URISyntaxException e) {
             throw new SearchException("Invalid URI: " + deleteUrl, e);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException("Delete for XML '" + id + "' failed: [" + e.getStatusText() + "] " + e
-                .getResponseBodyAsString());
+            throw new SearchException(
+                "Delete for XML '" + id + "' failed: [" + e.getStatusText() + "] " + e.getResponseBodyAsString());
         } catch (Exception e) {
             throw new SearchException("Delete for XML '" + id + "' failed: " + e.getMessage(), e);
         }
@@ -187,8 +187,8 @@ public class RestClientSearchService implements SearchService {
     }
 
     @Override
-    public String updateDocument(String site, String id, File document, Map<String,
-        String> additionalFields) throws SearchException {
+    public String updateDocument(String site, String id, File document,
+                                 Map<String, String> additionalFields) throws SearchException {
         FileSystemResource fsrDoc = new FileSystemResource(document);
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<String, Object>();
 
@@ -203,8 +203,9 @@ public class RestClientSearchService implements SearchService {
                 if (fieldName.equals(REQUEST_PARAM_SITE) ||
                     fieldName.equals(REQUEST_PARAM_ID) ||
                     fieldName.equals(REQUEST_PARAM_DOCUMENT)) {
-                    throw new SearchException(String.format("An additional field shouldn't have the following names: %s, %s, %s",
-                            REQUEST_PARAM_SITE, REQUEST_PARAM_ID, REQUEST_PARAM_DOCUMENT));
+                    throw new SearchException(String.format("An additional field shouldn't have the " +
+                                                            "following names: %s, %s, %s", REQUEST_PARAM_SITE,
+                                                            REQUEST_PARAM_ID, REQUEST_PARAM_DOCUMENT));
                 }
 
                 form.add(fieldName, additionalField.getValue());
@@ -218,8 +219,8 @@ public class RestClientSearchService implements SearchService {
         } catch (URISyntaxException e) {
             throw new SearchException("Invalid URI: " + updateDocumentUrl, e);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException("Update for document '" + id + "' failed: [" + e.getStatusText() + "] " + e
-                    .getResponseBodyAsString());
+            throw new SearchException(
+                "Update for document '" + id + "' failed: [" + e.getStatusText() + "] " + e.getResponseBodyAsString());
         } catch (Exception e) {
             throw new SearchException("Update for document '" + id + "' failed: " + e.getMessage(), e);
         }

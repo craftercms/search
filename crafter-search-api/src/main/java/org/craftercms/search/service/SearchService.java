@@ -86,7 +86,8 @@ public interface SearchService {
      * @param site                  the Crafter site name the content belongs to
      * @param id                    the id of the XML document, within the site
      * @param document              the document to update in the index
-     * @param additionalFields      additional metadata fields to be indexed (shouldn't have the name site, id or document)
+     * @param additionalFields      additional metadata fields to be indexed (shouldn't have the name site, id or
+     *                              document)
      * @return a success string
      * @throws SearchException
      */
