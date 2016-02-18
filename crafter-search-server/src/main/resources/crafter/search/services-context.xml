@@ -14,7 +14,7 @@
         <property name="locations">
             <list>
                 <value>classpath:crafter/search/server-config.properties</value>
-                <value>classpath*:crafter/search/extension/server-config.properties</value>
+                <value>${crafter.search.extension.base}/server-config.properties</value>
             </list>
         </property>
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
@@ -79,6 +79,6 @@
                value="${crafter.search.solr.field.type.datetime.multiValued.suffix}"/>
     </util:map>
 
-    <import resource="classpath*:crafter/search/extension/services-context.xml"/>
+    <import resource="${crafter.search.extension.base}/services-context.xml"/>
 
 </beans>

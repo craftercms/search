@@ -12,7 +12,7 @@
         <property name="locations">
             <list>
                 <value>classpath:crafter/search/server-config.properties</value>
-                <value>classpath*:crafter/search/extension/server-config.properties</value>
+                <value>${crafter.search.extension.base}/server-config.properties</value>
             </list>
         </property>
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
@@ -31,6 +31,6 @@
     <bean id="multipartResolver"
           class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
 
-    <import resource="classpath*:crafter/search/extension/rendering-context.xml"/>
+    <import resource="${crafter.search.extension.base}/rendering-context.xml"/>
 
 </beans>
