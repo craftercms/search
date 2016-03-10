@@ -8,6 +8,7 @@
     <packaging>pom</packaging>
     <name>Crafter Search</name>
     <description>Crafter Search</description>
+
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
@@ -51,7 +52,21 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>3.1.1.RELEASE</spring.version>
+        <servlet.api.version>3.0.1</servlet.api.version>
+        <commons.lang3.version>3.4</commons.lang3.version>
+        <commons.collection4.version>4.1</commons.collection4.version>
+        <commons.fileupload.version>1.2</commons.fileupload.version>
+        <httpcomponents.httpclient.version>4.3.1</httpcomponents.httpclient.version>
+        <httpcomponents.httpmime.version>4.3.1</httpcomponents.httpmime.version>
+        <jackson.version>1.9.7</jackson.version>
+        <spring.version>4.0.3.RELEASE</spring.version>
+        <slf4j.version>1.7.7</slf4j.version>
+        <log4j.version>1.2.16</log4j.version>
+        <dom4j.version>1.6.1</dom4j.version>
+        <rome.version>0.9</rome.version>
+        <solrj.version>4.8.1</solrj.version>
+        <jodatime.version>2.1</jodatime.version>
+        <junit.version>4.10</junit.version>
     </properties>
 
     <build>
@@ -113,50 +128,53 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.7</version>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${servlet.api.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <!-- Commons start -->
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
         </dependency>
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.1</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${commons.collection4.version}</version>
         </dependency>
         <!-- Commons end -->
+
+        <!-- Jackson start -->
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <!-- Jackson end -->
 
         <!-- Logging start -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.6</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.6.6</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.6.6</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <version>${log4j.version}</version>
         </dependency>
         <!-- Logging end -->
 

@@ -1,24 +1,18 @@
 package org.craftercms.search.service.impl;
 
-import javax.annotation.PostConstruct;
-
-import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Created by alfonsovasquez on 4/2/16.
+ * {@link FieldValueConverter} that formats a field in a source pattern to the ISO date format.
+ *
+ * @author avasquez
  */
 public class DateTimeConverter implements FieldValueConverter {
 
-    protected String dateTimeFieldPattern;
-
-    @PostConstruct
-    public void init() {
-        DateTimeZone.setDefault(DateTimeZone.UTC);
-    }
+    private String dateTimeFieldPattern;
 
     @Required
     public void setDateTimeFieldPattern(String dateTimeFieldPattern) {
@@ -27,7 +21,7 @@ public class DateTimeConverter implements FieldValueConverter {
 
     @Override
     public Object convert(String name, String value) {
-        DateTimeFormatter incomingFormatter = DateTimeFormat.forPattern(dateTimeFieldPattern);
+        DateTimeFormatter incomingFormatter = DateTimeFormat.forPattern(dateTimeFieldPattern).withZoneUTC();
         DateTimeFormatter outgoingFormatter = ISODateTimeFormat.dateTime();
 
         return outgoingFormatter.print(incomingFormatter.parseDateTime(value));

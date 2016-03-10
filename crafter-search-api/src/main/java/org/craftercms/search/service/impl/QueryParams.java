@@ -16,13 +16,13 @@
  */
 package org.craftercms.search.service.impl;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.craftercms.search.service.Query;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.craftercms.search.service.Query;
 
 /**
  * Simple {@link Query} represented as a map of query parameters.

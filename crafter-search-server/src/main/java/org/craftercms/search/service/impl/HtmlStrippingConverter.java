@@ -7,7 +7,9 @@ import org.apache.lucene.analysis.charfilter.HTMLStripCharFilter;
 import org.craftercms.search.exception.SolrDocumentBuildException;
 
 /**
- * Created by alfonsovasquez on 4/2/16.
+ * {@link FieldValueConverter} that strips all HTML tags from a field.
+ *
+ * @author avasquez
  */
 public class HtmlStrippingConverter implements FieldValueConverter {
 
