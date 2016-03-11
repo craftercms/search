@@ -17,11 +17,11 @@
 package org.craftercms.search.utils;
 
 /**
- * Extension of Apache Common's {@link org.apache.commons.lang.BooleanUtils} thats adds some new methods.
+ * Extension of Apache Common's {@link org.apache.commons.lang3.BooleanUtils} thats adds some new methods.
  *
  * @author Alfonso Vásquez
  */
-public class BooleanUtils extends org.apache.commons.lang.BooleanUtils {
+public class BooleanUtils extends org.apache.commons.lang3.BooleanUtils {
 
     /**
      * Just as {@link #toBoolean(String)}, except that true will be returned if str = null when {@code trueIfNull} is

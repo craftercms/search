@@ -2,10 +2,14 @@ package org.craftercms.search.service.impl;
 
 import java.util.Map;
 
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 
 /**
- * Created by alfonsovasquez on 5/2/16.
+ * Based on the suffix of a field, picks an actual {@link FieldValueConverter} from a set of suffix -> converter
+ * mappings. For example, if a field ends with _dt, this converter can delegate to a {@link DateTimeConverter} to
+ * convert the field.
+ *
+ * @author avasquez
  */
 public class CompositeSuffixBasedConverter implements FieldValueConverter {
 
