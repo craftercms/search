@@ -16,6 +16,8 @@
  */
 package org.craftercms.search.exception;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Thrown when an error occurs in the {@link org.craftercms.search.service.SearchService}.
  *
@@ -23,21 +25,20 @@ package org.craftercms.search.exception;
  */
 public class SearchException extends RuntimeException {
 
-    private static final long serialVersionUID = -516201308917166711L;
-
-    public SearchException() {
+    public SearchException(String msg) {
+        super(msg);
     }
 
-    public SearchException(String s) {
-        super(s);
+    public SearchException(String msg, Throwable cause) {
+        super(msg, cause);
     }
 
-    public SearchException(String s, Throwable throwable) {
-        super(s, throwable);
+    public SearchException(String indexId, String msg) {
+        super(StringUtils.isNotEmpty(indexId)? "[" + indexId + "] " + msg : msg);
     }
 
-    public SearchException(Throwable throwable) {
-        super(throwable);
+    public SearchException(String indexId, String msg, Throwable throwable) {
+        super(StringUtils.isNotEmpty(indexId)? "[" + indexId + "] " + msg : msg, throwable);
     }
 
 }

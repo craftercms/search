@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Context docBase="/Users/dejanbrkic/CrafterSoftware/Workspace/CrafterCMS-2-4-0/rendering/webapps/solr-crafter.war" debug="0" crossContext="true">
-	<Environment name="solr/home" type="java.lang.String" value="/Users/dejanbrkic/CrafterSoftware/Workspace/CrafterCMS-2-4-0/rendering/solr-crafter" override="true"/>
-
-	<Loader className="org.apache.catalina.loader.VirtualWebappLoader" virtualClasspath="@@TOMCAT_HOME@@/solr-crafter/lib/ext/*.jar;@@TOMCAT_HOME@@/solr-crafter/lib/extraction/*.jar;@@TOMCAT_HOME@@/solr-crafter/lib/ext/"/>
-  
-</Context>

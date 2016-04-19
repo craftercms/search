@@ -1,7 +1,9 @@
 package org.craftercms.search.service.impl;
 
 /**
- * Created by alfonsovasquez on 4/2/16.
+ * Converts an incoming string field value to the actual value that will be indexed.
+ *
+ * @author avasquez
  */
 public interface FieldValueConverter {
 

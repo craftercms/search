@@ -38,7 +38,8 @@
     adminPath: RequestHandler path to manage cores.
       If 'null' (or absent), cores will not be manageable via request handler
     -->
-    <cores adminPath="/admin/cores" defaultCoreName="crafterSearch">
-        <core name="crafterSearch" instanceDir="."/>
+    <cores adminPath="/admin/cores" defaultCoreName="default">
+        <core name="default" instanceDir="." dataDir="./data/default"/>
+        <core name="pluton" instanceDir="." dataDir="./data/pluton"/>
     </cores>
 </solr>

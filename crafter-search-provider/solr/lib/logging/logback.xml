@@ -1,37 +1,24 @@
-/Users/cortiz/dev/craftersoftware/main/engine<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
-<!-- For assistance related to logback-translator or configuration  -->
-<!-- files in general, please contact the logback user mailing list -->
-<!-- at http://www.qos.ch/mailman/listinfo/logback-user             -->
-<!--                                                                -->
-<!-- For professional support please see                            -->
-<!--    http://www.qos.ch/shop/products/professionalSupport         -->
-<!--                                                                -->
+        <!-- For assistance related to logback-translator or configuration  -->
+        <!-- files in general, please contact the logback user mailing list -->
+        <!-- at http://www.qos.ch/mailman/listinfo/logback-user             -->
+        <!--                                                                -->
+        <!-- For professional support please see                            -->
+        <!--    http://www.qos.ch/shop/products/professionalSupport         -->
+        <!--                                                                -->
 <configuration>
-  <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
-    <File>${CATALINA_HOME}/logs/solr.log</File>
-    <encoder>
-      <pattern>%-5p - %d{yyyy-MM-dd HH:mm:ss.SSS}; %C; %m</pattern>
-    </encoder>
-    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <maxIndex>9</maxIndex>
-      <FileNamePattern>${CATALINA_HOME}/logs/solr.log</FileNamePattern>
-    </rollingPolicy>
-    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-      <MaxFileSize>4MB</MaxFileSize>
-    </triggeringPolicy>
-  </appender>
-  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%-4r [%t] %-5p %c %x | %m%n</pattern>
-    </encoder>
-  </appender>
-  <logger name="org.apache.zookeeper" level="WARN"/>
-  <logger name="org.apache.hadoop" level="WARN"/>
-  <logger name="org.apache.solr.update.LoggingInfoStream" level="OFF"/>
-  <root level="INFO">
-    <appender-ref ref="file"/>
-    <appender-ref ref="CONSOLE"/>
-  </root>
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-4r [%t] %-5p %c %x | %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.apache.zookeeper" level="WARN"/>
+    <logger name="org.apache.hadoop" level="WARN"/>
+    <logger name="org.apache.solr.update.LoggingInfoStream" level="OFF"/>
+
+    <root level="INFO">
+        <appender-ref ref="console"/>
+    </root>
 </configuration>

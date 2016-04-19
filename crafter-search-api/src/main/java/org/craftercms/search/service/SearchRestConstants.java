@@ -27,16 +27,18 @@ public class SearchRestConstants {
     public static final String URL_ROOT = "/api/1/search";
     public static final String URL_SEARCH = "/search";
     public static final String URL_UPDATE = "/update";
-    public static final String URL_UPDATE_DOCUMENT = "/update-document";
-    public static final String URL_PARTIAL_DOCUMENT_UPDATE = "/partial-document-update";
+    public static final String URL_UPDATE_FILE= "/update-file";
+    @Deprecated public static final String URL_UPDATE_DOCUMENT = "/update-document";
+    @Deprecated public static final String URL_PARTIAL_DOCUMENT_UPDATE = "/partial-document-update";
     public static final String URL_DELETE = "/delete";
     public static final String URL_COMMIT = "/commit";
 
+    public static final String REQUEST_PARAM_INDEX_ID = "indexId";
     public static final String REQUEST_PARAM_SITE = "site";
     public static final String REQUEST_PARAM_ID = "id";
     public static final String REQUEST_PARAM_IGNORE_ROOT_IN_FIELD_NAMES = "stripRoot";
     public static final String REQUEST_PARAM_DOCUMENT = "document";
-    public static final String REQUEST_PARAM_DESCRIPTOR = "descriptor";
+    public static final String REQUEST_PARAM_FILE = "document";
 
     public static final String SOLR_CONTENT_STREAM_UPDATE_URL = "/update/extract";
 
