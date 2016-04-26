@@ -16,7 +16,7 @@
  */
 package org.craftercms.search.service.impl;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Search query for Solr.

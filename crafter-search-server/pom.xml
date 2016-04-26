@@ -10,9 +10,11 @@
         <artifactId>crafter-search</artifactId>
         <version>2.5.1-SNAPSHOT</version>
     </parent>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -22,12 +24,12 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>4.8.1</version>
+            <version>${solrj.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-cell</artifactId>
-            <version>4.8.1</version>
+            <version>${solrj.version}</version>
         </dependency>
 
         <!-- httpclient and httpmime are needed for use of HttpSolrServer For details
@@ -35,22 +37,30 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.3.1</version>
+            <version>${httpcomponents.httpclient.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>4.3.1</version>
+            <version>${httpcomponents.httpclient.version}</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.1</version>
+            <version>${jodatime.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.2</version>
+            <version>${commons.fileupload.version}</version>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -94,6 +104,7 @@
             </plugin>
         </plugins>
     </build>
+
     <profiles>
         <profile>
             <id>release-sign-artifacts</id>

@@ -101,16 +101,16 @@ public class SearchServiceIT {
         Map<String, Map<String, Object>> docsMap = new HashMap<String, Map<String, Object>>(3);
 
         for (Map<String, Object> doc : docs) {
-            docsMap.put((String) doc.get("localId"), doc);
+            docsMap.put((String)doc.get("localId"), doc);
         }
 
         long ipadDate = ISODateTimeFormat.dateTime().parseDateTime("2012-11-30T10:00:00.000Z").getMillis();
         long kindleDate = ISODateTimeFormat.dateTime().parseDateTime("2012-12-15T16:30:00.000Z").getMillis();
 
-        assertDoc(docsMap.get(IPAD_DOC_ID), "iPad", "Apple iPad MC705LL/A (16GB, Wi-Fi, Black) NEWEST MODEL",
-                1.4, 517.77, 4, ipadDate);
-        assertDoc(docsMap.get(KINDLE_DOC_ID), "Kindle Fire", "Kindle Fire, Full Color 7\" Multi-touch Display, " +
-                "Wi-Fi", 0.91, 199.0, 4, kindleDate);
+        assertDoc(docsMap.get(IPAD_DOC_ID), "iPad", "Apple iPad MC705LL/A (16GB, Wi-Fi, Black) NEWEST MODEL", 1.4,
+                  517.77, 4, ipadDate);
+        assertDoc(docsMap.get(KINDLE_DOC_ID), "Kindle Fire",
+                  "Kindle Fire, Full Color 7\" Multi-touch Display, Wi-Fi", 0.91, 199.0, 4, kindleDate);
 
         assertEquals(docsMap.get(WP_REASONS_PDF_ID).get("testField1"), "This is a test");
         assertEquals(docsMap.get(WP_REASONS_PDF_ID).get("testField2"), "This is another test");

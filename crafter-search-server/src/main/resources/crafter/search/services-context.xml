@@ -2,17 +2,19 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <context:annotation-config/>
 
-    <bean id="crafter.properties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <bean id="crafter.properties" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
         <property name="locations">
             <list>
                 <value>classpath:crafter/search/server-config.properties</value>
-                <value>classpath*:crafter/search/extension/server-config.properties</value>
+                <value>${crafter.search.extension.base}/server-config.properties</value>
             </list>
         </property>
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
@@ -28,18 +30,55 @@
     <bean id="crafter.solrDocumentBuilder" class="org.craftercms.search.service.impl.SolrDocumentBuilder">
         <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
         <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
+        <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
+        <property name="singleToMultiValueSuffixMappings" ref="crafter.singleToMultiValueSuffixMappings"/>
+    </bean>
+
+    <bean id="crafter.fieldValueConverter" class="org.craftercms.search.service.impl.CompositeSuffixBasedConverter">
+        <property name="converterMappings">
+            <map>
+                <entry key="${crafter.search.solr.field.type.html.suffix}"
+                       value-ref="crafter.htmlStrippingConverter"/>
+                <entry key="${crafter.search.solr.field.type.datetime.suffix}"
+                       value-ref="crafter.dateTimeConverter"/>
+                <entry key="${crafter.search.solr.field.type.datetime.multiValued.suffix}"
+                       value-ref="crafter.dateTimeConverter"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="crafter.htmlStrippingConverter" class="org.craftercms.search.service.impl.HtmlStrippingConverter"/>
+
+    <bean id="crafter.dateTimeConverter" class="org.craftercms.search.service.impl.DateTimeConverter">
         <property name="dateTimeFieldPattern" value="${crafter.search.solr.field.type.datetime.pattern}"/>
-        <property name="dateTimeFieldSuffix" value="${crafter.search.solr.field.type.datetime.suffix}"/>
-        <property name="dateTimeMultivaluedFieldSuffix" value="${crafter.search.solr.field.type.datetime.mulitvalued.suffix}"/>
-        <property name="htmlFieldSuffix" value="${crafter.search.solr.field.type.html.suffix}"/>
-        <property name="multivalueSeparator" value="${crafter.search.solr.field.multivalue.separator}"/>
     </bean>
 
     <bean id="crafter.searchService" class="org.craftercms.search.service.impl.SolrSearchService">
         <property name="solrServer" ref="crafter.solrServer"/>
         <property name="solrDocumentBuilder" ref="crafter.solrDocumentBuilder"/>
+        <property name="multiValueSeparator" value="${crafter.search.solr.field.multiValue.separator}"/>
+        <property name="multiValueIgnorePattern" value="${crafter.search.solr.field.multiValue.ignore.pattern}"/>
     </bean>
 
-    <import resource="classpath*:crafter/search/extension/services-context.xml"/>
+    <util:map id="crafter.singleToMultiValueSuffixMappings">
+        <entry key="${crafter.search.solr.field.type.int.suffix}"
+               value="${crafter.search.solr.field.type.int.multiValued.suffix}"/>
+        <entry key="${crafter.search.solr.field.type.string.suffix}"
+               value="${crafter.search.solr.field.type.string.multiValued.suffix}"/>
+        <entry key="${crafter.search.solr.field.type.long.suffix}"
+               value="${crafter.search.solr.field.type.long.multiValued.suffix}"/>
+        <entry key="${crafter.search.solr.field.type.text.suffix}"
+               value="${crafter.search.solr.field.type.text.multiValued.suffix}"/>
+        <entry key="${crafter.search.solr.field.type.boolean.suffix}"
+               value="${crafter.search.solr.field.type.boolean.multiValued.suffix}"/>
+        <entry key="${crafter.search.solr.field.type.float.suffix}"
+               value="${crafter.search.solr.field.type.float.multiValued.suffix}"/>
+        <entry key="${crafter.search.solr.field.type.double.suffix}"
+               value="${crafter.search.solr.field.type.double.multiValued.suffix}"/>
+        <entry key="${crafter.search.solr.field.type.datetime.suffix}"
+               value="${crafter.search.solr.field.type.datetime.multiValued.suffix}"/>
+    </util:map>
+
+    <import resource="${crafter.search.extension.base}/services-context.xml"/>
 
 </beans>
