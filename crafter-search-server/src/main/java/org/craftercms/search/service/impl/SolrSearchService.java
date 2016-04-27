@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.activation.MimetypesFileTypeMap;
+import javax.activation.FileTypeMap;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +47,7 @@ import org.craftercms.search.utils.SolrServerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -236,7 +237,7 @@ public class SolrSearchService implements SearchService {
                              Map<String, List<String>> additionalFields) throws SearchException {
         String finalId = site + ":" + id;
         String fileName = FilenameUtils.getName(id);
-        MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
+        FileTypeMap mimeTypesMap = new ConfigurableMimeFileTypeMap();
         String contentType = mimeTypesMap.getContentType(fileName);
         NamedList<Object> response;
 
