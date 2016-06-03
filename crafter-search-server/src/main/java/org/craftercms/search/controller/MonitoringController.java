@@ -16,9 +16,11 @@
  */
 package org.craftercms.search.controller;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,8 +31,6 @@ public class MonitoringController {
 
     public final static String URL_ROOT = "/api/1/monitoring";
 
-    public static final String ACTION_PATH_VAR = "action";
-
     private String statusMessage;
 
     @Required
@@ -38,9 +38,10 @@ public class MonitoringController {
         this.statusMessage = statusMessage;
     }
 
-    @RequestMapping(value = "/{" + ACTION_PATH_VAR + "}", method = RequestMethod.GET)
+    @RequestMapping(value = "/status", method = RequestMethod.GET)
     @ResponseBody
-    public String render(@PathVariable(ACTION_PATH_VAR) String action) {
-        return "{ status: \"" + statusMessage + "\" }";
+    public Map<String, String> getStatus() {
+        return Collections.singletonMap("status", statusMessage);
     }
+
 }

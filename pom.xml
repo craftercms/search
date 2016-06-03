@@ -46,6 +46,7 @@
         <module>crafter-search-server</module>
         <module>crafter-search-client</module>
         <module>crafter-search-itest</module>
+        <module>crafter-search-batch-indexer</module>
         <!--module>crafter-search-index-updater</module-->
     </modules>
 
@@ -63,10 +64,12 @@
         <slf4j.version>1.7.7</slf4j.version>
         <log4j.version>1.2.16</log4j.version>
         <dom4j.version>1.6.1</dom4j.version>
+        <jaxen.version>1.1.1</jaxen.version>
         <rome.version>0.9</rome.version>
         <solrj.version>4.8.1</solrj.version>
         <jodatime.version>2.1</jodatime.version>
         <junit.version>4.10</junit.version>
+        <mockito.version>1.9.5</mockito.version>
     </properties>
 
     <build>

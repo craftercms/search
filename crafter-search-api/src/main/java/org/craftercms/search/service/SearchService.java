@@ -116,7 +116,6 @@ public interface SearchService {
     @Deprecated
     String updateDocument(String site, String id, File document) throws SearchException;
 
-
     /**
      * Updates the search engine's index data of a structured document (PDF, Word, Office).
      *
