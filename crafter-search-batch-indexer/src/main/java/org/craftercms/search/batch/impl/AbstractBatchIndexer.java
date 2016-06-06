@@ -13,6 +13,7 @@ import org.craftercms.search.batch.BatchIndexer;
 import org.craftercms.search.batch.exception.BatchIndexingException;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.SearchService;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Created by alfonsovasquez on 2/6/16.
@@ -25,6 +26,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
     protected List<String> includeFileNamePatterns;
     protected List<String> excludeFileNamePatterns;
 
+    @Required
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
     }
