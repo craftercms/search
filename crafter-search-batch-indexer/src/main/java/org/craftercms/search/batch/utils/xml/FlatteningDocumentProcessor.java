@@ -42,17 +42,22 @@ public class FlatteningDocumentProcessor implements DocumentProcessor {
     public static final String DEFAULT_CHAR_ENCODING = CharEncoding.UTF_8;
     public static final String DEFAULT_INCLUDE_ELEMENT_XPATH_QUERY = "//include";
     public static final String DEFAULT_DISABLE_FLATTENING_ELEMENT  = "disabledFlattening";
+    public static final String PAGE_ROOT_ELEMENT_NAME = "page";
 
     private static final Log logger = LogFactory.getLog(FlatteningDocumentProcessor.class);
 
     protected String charEncoding;
     protected String includeElementXPathQuery;
     protected String disableFlatteningElement;
+    protected String pageRootElementName;
+    protected boolean disabledNestedPageFlattening;
 
     public FlatteningDocumentProcessor() {
         charEncoding = DEFAULT_CHAR_ENCODING;
         includeElementXPathQuery = DEFAULT_INCLUDE_ELEMENT_XPATH_QUERY;
         disableFlatteningElement = DEFAULT_DISABLE_FLATTENING_ELEMENT;
+        pageRootElementName = PAGE_ROOT_ELEMENT_NAME;
+        disabledNestedPageFlattening = true;
     }
 
     public void setIncludeElementXPathQuery(String includeElementXPathQuery) {
@@ -61,6 +66,14 @@ public class FlatteningDocumentProcessor implements DocumentProcessor {
 
     public void setDisableFlatteningElement(String disableFlatteningElement) {
         this.disableFlatteningElement = disableFlatteningElement;
+    }
+
+    public void setPageRootElementName(String pageRootElementName) {
+        this.pageRootElementName = pageRootElementName;
+    }
+
+    public void setDisabledNestedPageFlattening(boolean disabledNestedPageFlattening) {
+        this.disabledNestedPageFlattening = disabledNestedPageFlattening;
     }
 
     public void setCharEncoding(String charEncoding) {
@@ -108,14 +121,34 @@ public class FlatteningDocumentProcessor implements DocumentProcessor {
                 if (includeFile.exists()) {
                     if (!flattenedFiles.contains(includeFile)) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug("Include found in " + file + ": " + includeSrcPath);
+                            logger.debug("Include element found in " + file + ": " + includeFile);
                         }
 
                         try {
                             Document includeDocument = XmlUtils.readXml(includeFile, charEncoding);
-                            includeDocument = flattenXml(includeDocument, includeFile, rootFolder, flattenedFiles);
+                            boolean doInclude = false;
 
-                            doInclude(includeElement, includeDocument);
+                            if(disabledNestedPageFlattening){
+                                if(!isPage(includeDocument)) {
+                                    doInclude = true;
+                                }
+                            } else {
+                                doInclude = true;
+                            }
+
+                            if (doInclude) {
+                                includeDocument = flattenXml(includeDocument, includeFile, rootFolder, flattenedFiles);
+
+                                doInclude(includeElement, includeDocument);
+
+                                if (logger.isDebugEnabled()) {
+                                    logger.debug("XMl file " + includeFile + " included in " + file);
+                                }
+                            } else {
+                                if (logger.isDebugEnabled()) {
+                                    logger.debug("Ignoring include " + includeFile + "...");
+                                }
+                            }
                         } catch (Exception e) {
                             throw new DocumentException("Error while reading XML file " + includeFile, e);
                         }
@@ -141,6 +174,10 @@ public class FlatteningDocumentProcessor implements DocumentProcessor {
 
         // Add the src root element
         includeElementParentChildren.add(includeElementIdx, includeSrcRootElement);
+    }
+
+    protected boolean isPage(Document document) {
+        return document.getRootElement().getName().equalsIgnoreCase(pageRootElementName);
     }
 
 }

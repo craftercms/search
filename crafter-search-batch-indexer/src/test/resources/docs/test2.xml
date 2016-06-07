@@ -4,4 +4,5 @@
 	<title_s tokenize="true">Test</title_s>
 	<date>11/10/2015 00:00:00</date>
 	<include>component.xml</include>
+	<include>test.xml</include>
 </page>

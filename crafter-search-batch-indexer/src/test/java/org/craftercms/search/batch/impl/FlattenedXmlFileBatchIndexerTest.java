@@ -25,6 +25,7 @@ public class FlattenedXmlFileBatchIndexerTest extends XmlFileBatchIndexerTest {
                                                "<date>11/11/2015 10:00:00</date>" +
                                                "<title_t tokenize=\"true\">Test</title_t>" +
                                                "</component>" +
+                                               "<include>test.xml</include>" +
                                                "<title_t tokenize=\"true\">Test</title_t>" +
                                                "</page>";
 
