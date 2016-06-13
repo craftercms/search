@@ -50,14 +50,14 @@ public class FlatteningDocumentProcessor implements DocumentProcessor {
     protected String includeElementXPathQuery;
     protected String disableFlatteningElement;
     protected String pageRootElementName;
-    protected boolean disabledNestedPageFlattening;
+    protected boolean disableNestedPageFlattening;
 
     public FlatteningDocumentProcessor() {
         charEncoding = DEFAULT_CHAR_ENCODING;
         includeElementXPathQuery = DEFAULT_INCLUDE_ELEMENT_XPATH_QUERY;
         disableFlatteningElement = DEFAULT_DISABLE_FLATTENING_ELEMENT;
         pageRootElementName = PAGE_ROOT_ELEMENT_NAME;
-        disabledNestedPageFlattening = true;
+        disableNestedPageFlattening = true;
     }
 
     public void setIncludeElementXPathQuery(String includeElementXPathQuery) {
@@ -72,8 +72,8 @@ public class FlatteningDocumentProcessor implements DocumentProcessor {
         this.pageRootElementName = pageRootElementName;
     }
 
-    public void setDisabledNestedPageFlattening(boolean disabledNestedPageFlattening) {
-        this.disabledNestedPageFlattening = disabledNestedPageFlattening;
+    public void setDisableNestedPageFlattening(boolean disableNestedPageFlattening) {
+        this.disableNestedPageFlattening = disableNestedPageFlattening;
     }
 
     public void setCharEncoding(String charEncoding) {
@@ -128,7 +128,7 @@ public class FlatteningDocumentProcessor implements DocumentProcessor {
                             Document includeDocument = XmlUtils.readXml(includeFile, charEncoding);
                             boolean doInclude = false;
 
-                            if(disabledNestedPageFlattening){
+                            if(disableNestedPageFlattening){
                                 if(!isPage(includeDocument)) {
                                     doInclude = true;
                                 }
