@@ -16,7 +16,11 @@
  */
 package org.craftercms.search.batch.utils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
@@ -49,7 +53,14 @@ public class XmlUtils {
             reader.setEncoding(encoding);
         }
 
-        return reader.read(file);
+        Reader input;
+        try {
+            input = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), encoding);
+        } catch (Exception e) {
+            throw new DocumentException(e.getMessage(), e);
+        }
+
+        return reader.read(input);
     }
 
 }
