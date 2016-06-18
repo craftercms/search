@@ -47,7 +47,7 @@ public class BinaryFileBatchIndexerTest {
         assertEquals(1, updated);
         verify(searchService).updateFile(indexId, SITE_NAME, SUPPORTED_FILENAME, supportedFile);
 
-        batchIndexer.updateIndex(indexId, SITE_NAME, rootFolder, deletedFiles, true);
+        updated = batchIndexer.updateIndex(indexId, SITE_NAME, rootFolder, deletedFiles, true);
 
         assertEquals(0, updated);
         verify(searchService, never()).delete(indexId, SITE_NAME, NON_SUPPORTED_FILENAME);
