@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -53,14 +54,16 @@ public class XmlUtils {
             reader.setEncoding(encoding);
         }
 
-        Reader input;
+        Reader input = null;
         try {
             input = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), encoding);
+
+            return reader.read(input);
         } catch (Exception e) {
             throw new DocumentException(e.getMessage(), e);
+        } finally {
+            IOUtils.closeQuietly(input);
         }
-
-        return reader.read(input);
     }
 
 }
