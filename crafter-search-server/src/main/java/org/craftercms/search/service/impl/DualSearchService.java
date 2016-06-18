@@ -1,6 +1,7 @@
 package org.craftercms.search.service.impl;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -42,9 +43,24 @@ public class DualSearchService implements SearchService {
     }
 
     @Override
+    public Map<String, Object> search(String indexId, Query query) throws SearchException {
+        return readService.search(indexId, query);
+    }
+
+    @Override
     public String update(String site, String id, String xml, boolean ignoreRootInFieldNames) throws SearchException {
         if (writeService != null) {
             return writeService.update(site, id, xml, ignoreRootInFieldNames);
+        } else {
+            return handleNoWriteServiceProvided();
+        }
+    }
+
+    @Override
+    public String update(String indexId, String site, String id, String xml,
+                         boolean ignoreRootInFieldNames) throws SearchException {
+        if (writeService != null) {
+            return writeService.update(indexId, site, id, xml, ignoreRootInFieldNames);
         } else {
             return handleNoWriteServiceProvided();
         }
@@ -60,6 +76,15 @@ public class DualSearchService implements SearchService {
     }
 
     @Override
+    public String delete(String indexId, String site, String id) throws SearchException {
+        if (writeService != null) {
+            return writeService.delete(indexId, site, id);
+        } else {
+            return handleNoWriteServiceProvided();
+        }
+    }
+
+    @Override
     public String commit() throws SearchException {
         if (writeService != null) {
             return writeService.commit();
@@ -69,6 +94,16 @@ public class DualSearchService implements SearchService {
     }
 
     @Override
+    public String commit(String indexId) throws SearchException {
+        if (writeService != null) {
+            return writeService.commit(indexId);
+        } else {
+            return handleNoWriteServiceProvided();
+        }
+    }
+
+    @Override
+    @Deprecated
     public String updateDocument(String site, String id, File document) throws SearchException {
         if (writeService != null) {
             return writeService.updateDocument(site, id, document);
@@ -78,10 +113,49 @@ public class DualSearchService implements SearchService {
     }
 
     @Override
+    @Deprecated
     public String updateDocument(String site, String id, File document,
                                  Map<String, String> additionalFields) throws SearchException {
         if (writeService != null) {
             return writeService.updateDocument(site, id, document, additionalFields);
+        } else {
+            return handleNoWriteServiceProvided();
+        }
+    }
+
+    @Override
+    public String updateFile(String site, String id, File file) throws SearchException {
+        if (writeService != null) {
+            return writeService.updateFile(site, id, file);
+        } else {
+            return handleNoWriteServiceProvided();
+        }
+    }
+
+    @Override
+    public String updateFile(String indexId, String site, String id, File file) throws SearchException {
+        if (writeService != null) {
+            return writeService.updateFile(indexId, site, id, file);
+        } else {
+            return handleNoWriteServiceProvided();
+        }
+    }
+
+    @Override
+    public String updateFile(String site, String id, File file,
+                             Map<String, List<String>> additionalFields) throws SearchException {
+        if (writeService != null) {
+            return writeService.updateFile(site, id, file, additionalFields);
+        } else {
+            return handleNoWriteServiceProvided();
+        }
+    }
+
+    @Override
+    public String updateFile(String indexId, String site, String id, File file,
+                             Map<String, List<String>> additionalFields) throws SearchException {
+        if (writeService != null) {
+            return writeService.updateFile(indexId, site, id, file, additionalFields);
         } else {
             return handleNoWriteServiceProvided();
         }

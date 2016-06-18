@@ -45,8 +45,8 @@
         <module>crafter-search-api</module>
         <module>crafter-search-server</module>
         <module>crafter-search-client</module>
-        <!-- TODO: Fix Integration Tests -->
-        <!--module>crafter-search-itest</module-->
+        <module>crafter-search-itest</module>
+        <module>crafter-search-batch-indexer</module>
         <!--module>crafter-search-index-updater</module-->
     </modules>
 
@@ -56,6 +56,7 @@
         <commons.lang3.version>3.4</commons.lang3.version>
         <commons.collection4.version>4.1</commons.collection4.version>
         <commons.fileupload.version>1.2</commons.fileupload.version>
+        <commons.io.version>2.4</commons.io.version>
         <httpcomponents.httpclient.version>4.3.1</httpcomponents.httpclient.version>
         <httpcomponents.httpmime.version>4.3.1</httpcomponents.httpmime.version>
         <jackson.version>1.9.7</jackson.version>
@@ -63,10 +64,12 @@
         <slf4j.version>1.7.7</slf4j.version>
         <log4j.version>1.2.16</log4j.version>
         <dom4j.version>1.6.1</dom4j.version>
+        <jaxen.version>1.1.1</jaxen.version>
         <rome.version>0.9</rome.version>
         <solrj.version>4.8.1</solrj.version>
         <jodatime.version>2.1</jodatime.version>
         <junit.version>4.10</junit.version>
+        <mockito.version>1.9.5</mockito.version>
     </properties>
 
     <build>

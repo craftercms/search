@@ -20,10 +20,14 @@
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
     </bean>
 
-    <bean id="crafter.solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-        <constructor-arg type="java.lang.String" value="${crafter.search.solr.server.url}"/>
-        <property name="parser">
-            <bean class="org.apache.solr.client.solrj.impl.XMLResponseParser"/>
+    <bean id="crafter.solrServerFactory" class="org.craftercms.search.utils.CachedSolrServerFactory">
+        <property name="actualFactory">
+            <bean class="org.craftercms.search.utils.HttpSolrServerFactory">
+                <property name="baseUrl" value="${crafter.search.solr.server.url}"/>
+                <property name="parser">
+                    <bean class="org.apache.solr.client.solrj.impl.XMLResponseParser"/>
+                </property>
+            </bean>
         </property>
     </bean>
 
@@ -54,7 +58,7 @@
     </bean>
 
     <bean id="crafter.searchService" class="org.craftercms.search.service.impl.SolrSearchService">
-        <property name="solrServer" ref="crafter.solrServer"/>
+        <property name="solrServerFactory" ref="crafter.solrServerFactory"/>
         <property name="solrDocumentBuilder" ref="crafter.solrDocumentBuilder"/>
         <property name="multiValueSeparator" value="${crafter.search.solr.field.multiValue.separator}"/>
         <property name="multiValueIgnorePattern" value="${crafter.search.solr.field.multiValue.ignore.pattern}"/>

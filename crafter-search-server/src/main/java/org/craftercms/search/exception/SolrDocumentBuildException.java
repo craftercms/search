@@ -23,21 +23,12 @@ package org.craftercms.search.exception;
  */
 public class SolrDocumentBuildException extends SearchException {
 
-    private static final long serialVersionUID = 4541121996907246722L;
-
-    public SolrDocumentBuildException() {
+    public SolrDocumentBuildException(String msg) {
+        super(msg);
     }
 
-    public SolrDocumentBuildException(String s) {
-        super(s);
-    }
-
-    public SolrDocumentBuildException(String s, Throwable throwable) {
-        super(s, throwable);
-    }
-
-    public SolrDocumentBuildException(Throwable throwable) {
-        super(throwable);
+    public SolrDocumentBuildException(String msg, Throwable throwable) {
+        super(msg, throwable);
     }
 
 }

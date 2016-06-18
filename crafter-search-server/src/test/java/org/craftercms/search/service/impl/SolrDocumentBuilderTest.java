@@ -16,7 +16,9 @@ import org.springframework.util.MultiValueMap;
 import static org.junit.Assert.*;
 
 /**
- * Created by alfonsovasquez on 9/2/16.
+ * Unit tests for {@link SolrDocumentBuilder}.
+ *
+ * @author avasquez
  */
 public class SolrDocumentBuilderTest {
 

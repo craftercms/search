@@ -26,8 +26,6 @@ import java.util.Map;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.params.ModifiableSolrParams;
@@ -37,6 +35,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -72,7 +72,7 @@ public class SolrDocumentBuilder {
 
     public static final String ID_FIELD_NAME = "id";
 
-    private static final Log logger = LogFactory.getLog(SolrDocumentBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(SolrDocumentBuilder.class);
 
     protected String siteFieldName;
     protected String localIdFieldName;
@@ -130,9 +130,7 @@ public class SolrDocumentBuilder {
         SolrInputDocument solrDoc = new SolrInputDocument();
         String finalId = site + ":" + id;
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Building Solr doc for " + finalId);
-        }
+        logger.debug("Building Solr doc for {}", finalId);
 
         solrDoc.addField(ID_FIELD_NAME, finalId);
         solrDoc.addField(siteFieldName, site);
@@ -157,7 +155,7 @@ public class SolrDocumentBuilder {
         // Remap single value fields to multi value fields if they have more than one value
         for (Iterator<SolrInputField> iter = solrDoc.iterator(); iter.hasNext();) {
             SolrInputField field = iter.next();
-            SolrInputField renamedField = renameFieldIfMultiValue(finalId, solrDoc, field);
+            SolrInputField renamedField = renameSingleValueFieldIfMultiValue(finalId, field);
 
             if (renamedField != null) {
                 renamedFields.add(renamedField);
@@ -186,9 +184,7 @@ public class SolrDocumentBuilder {
         SolrInputDocument solrDoc = new SolrInputDocument();
         String finalId = site + ":" + id;
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Building Solr doc for " + finalId);
-        }
+        logger.debug("Building Solr doc for {}", finalId);
 
         solrDoc.addField(ID_FIELD_NAME, finalId);
         solrDoc.addField(siteFieldName, site);
@@ -227,9 +223,7 @@ public class SolrDocumentBuilder {
         prefix = prefix != null? prefix : "";
         suffix = suffix != null? suffix : "";
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Building params for update request for " + finalId);
-        }
+        logger.debug("Building params for update request for {}", finalId);
 
         params.set(prefix + ID_FIELD_NAME + suffix, finalId);
         params.set(prefix + siteFieldName + suffix, site);
@@ -275,8 +269,8 @@ public class SolrDocumentBuilder {
                     }
                 }
             }
-        } else if (logger.isDebugEnabled()) {
-            logger.debug("Element '" + branchName + "' is not indexable: it won't be added to the Solr doc");
+        } else  {
+            logger.debug("Element '{}' is not indexable: it won't be added to the Solr doc", branchName);
         }
     }
 
@@ -288,7 +282,7 @@ public class SolrDocumentBuilder {
         return reader;
     }
 
-    protected SolrInputField renameFieldIfMultiValue(String docId, SolrInputDocument doc, SolrInputField field) {
+    protected SolrInputField renameSingleValueFieldIfMultiValue(String docId, SolrInputField field) {
         if (field.getValue() instanceof Collection) {
             String fieldName = field.getName();
 
@@ -299,8 +293,8 @@ public class SolrDocumentBuilder {
                     String fieldWithoutSuffix = StringUtils.substringBefore(fieldName, singleValueSuffix);
                     String newFieldName = fieldWithoutSuffix + multiValueSuffix;
 
-                    logger.warn("Field '" + fieldName + "' is single value, but multiple values where provided in " +
-                                docId + ". Renaming to multi value field '" + newFieldName + "'");
+                    logger.warn("Field '{}' is single value, but multiple values where provided in {}. Renaming to " +
+                                "multi value field '{}'", fieldName, docId, newFieldName);
 
                     SolrInputField newField = new SolrInputField(newFieldName);
                     newField.setValue(field.getValue(), field.getBoost());

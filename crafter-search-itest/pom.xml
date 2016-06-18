@@ -3,8 +3,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>crafter-search-itest</artifactId>
-    <packaging>war</packaging>
     <name>Crafter Search Integration Tests</name>
+    <packaging>war</packaging>
 
     <parent>
         <artifactId>crafter-search</artifactId>
@@ -12,7 +12,28 @@
         <version>2.5.1-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <!-- Cargo -->
+        <cargo.container>jetty9x</cargo.container>
+        <cargo.container.url>http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.1.5.v20140505/jetty-distribution-9.1.5.v20140505.tar.gz</cargo.container.url>
+        <cargo.container.downloadDir>${user.home}/.m2/cargo/containers</cargo.container.downloadDir>
+        <cargo.port>8983</cargo.port>
+        <solr.war.exploded>${basedir}/target/exploded-wars/solr</solr.war.exploded>
+        <solr.home>${basedir}/target/solr</solr.home>
+        <solr.data.dir>${project.build.testOutputDirectory}/solr/data</solr.data.dir>
+        <log4j.configuration>file:///${project.build.outputDirectory}/log4j.xml</log4j.configuration>
+        <solr.context>/solr</solr.context>
+        <search.context>/crafter-search</search.context>
+    </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>crafter-search-server</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>crafter-search-client</artifactId>
@@ -20,18 +41,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>crafter-search-server</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr</artifactId>
+            <version>${solrj.version}</version>
             <type>war</type>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.1</version>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -41,21 +57,30 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.10</version>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.io.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.1</version>
+            <version>${jodatime.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
-
-
-        <!-- Run overlay of Crafter Search server to make it the current webapp -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -76,54 +101,19 @@
                     <revisionOnScmFailure>unknown</revisionOnScmFailure>
                 </configuration>
             </plugin>
+            <!-- Run overlay of Crafter Search server to make it the current webapp -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.4</version>
                 <configuration>
                     <overlays>
                         <overlay>
-                            <groupId>org.craftercms</groupId>
+                            <groupId>${project.groupId}</groupId>
                             <artifactId>crafter-search-server</artifactId>
                         </overlay>
                     </overlays>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                        </manifest>
-                        <manifestEntries>
-                            <Implementation-Build>${buildNumber}</Implementation-Build>
-                            <Build-On>${timestamp}</Build-On>
-                        </manifestEntries>
-                    </archive>
                 </configuration>
-            </plugin>
-            <!-- Copy the Crafter Search and Solr wars to deploy them later in Jetty. -->
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.7</version>
-                <executions>
-                    <execution>
-                        <id>copy-wars</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.solr</groupId>
-                                    <artifactId>solr</artifactId>
-                                    <version>4.8.1</version>
-                                    <type>war</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                    <destFileName>solr.war</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <!-- Skip Surefire so that our integration tests are not run as unit tests -->
             <plugin>
@@ -134,8 +124,7 @@
                     <skipTests>true</skipTests>
                 </configuration>
             </plugin>
-            <!-- Run Failsafe plugin ('integration-test' and 'verify') on JUnit test
-                classes -->
+            <!-- Run Failsafe plugin ('integration-test' and 'verify') on JUnit test classes -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -149,8 +138,35 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Copy Solr hom from crafter-search-provider/solr -->
+            <!-- Unpack Solr so the extraction jars can be copied to it -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>unpack-solr</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.solr</groupId>
+                                    <artifactId>solr</artifactId>
+                                    <version>${solrj.version}</version>
+                                    <type>war</type>
+                                    <outputDirectory>${solr.war.exploded}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Copy Solr home and Solr extraction jars from crafter-search-provider/solr -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.6</version>
                 <executions>
@@ -161,10 +177,38 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.testOutputDirectory}/solr</outputDirectory>
+                            <outputDirectory>${solr.home}</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>../crafter-search-provider/solr</directory>
+                                    <targetPath>conf</targetPath>
+                                    <directory>../crafter-search-provider/solr/conf</directory>
+                                    <filtering>false</filtering>
+                                </resource>>
+                                <resource>
+                                    <directory>src/test/resources/solr</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-solr-extraction</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${solr.war.exploded}/WEB-INF/lib</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>../crafter-search-provider/solr/lib</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>solr-cell-*.jar</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <directory>../crafter-search-provider/solr/lib/extraction</directory>
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>
@@ -172,62 +216,85 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Use Jetty plugin in pre-integration-test phase to start up Solr and
-                Crafter Search -->
+            <!-- Run the search server and Solr in Cargo -->
             <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>maven-jetty-plugin</artifactId>
-                <version>6.1.26</version>
-                <configuration>
-                    <webAppSourceDirectory>${project.build.directory}/${project.artifactId}-${project.version}
-                    </webAppSourceDirectory>
-                    <webXml>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/web.xml</webXml>
-                    <contextPath>/crafter-search</contextPath>
-                    <stopKey>STOP</stopKey>
-                    <stopPort>9999</stopPort>
-                    <connectors>
-                        <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-                            <port>8983</port>
-                        </connector>
-                    </connectors>
-                    <contextHandlers>
-                        <!-- Load Apache Solr WAR -->
-                        <contextHandler implementation="org.mortbay.jetty.webapp.WebAppContext">
-                            <war>${project.build.directory}/solr.war</war>
-                            <contextPath>/solr</contextPath>
-                        </contextHandler>
-                    </contextHandlers>
-                    <systemProperties>
-                        <!-- Set SOLR HOME property -->
-                        <systemProperty>
-                            <name>solr.solr.home</name>
-                            <value>${project.build.testOutputDirectory}/solr</value>
-                        </systemProperty>
-                    </systemProperties>
-                </configuration>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+                <version>1.4.19</version>
                 <executions>
                     <execution>
-                        <id>start-jetty</id>
+                        <id>start-container</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>start</goal>
                         </goals>
-                        <configuration>
-                            <scanIntervalSeconds>0</scanIntervalSeconds>
-                            <daemon>true</daemon>
-                        </configuration>
                     </execution>
                     <execution>
-                        <id>stop-jetty</id>
+                        <id>stop-container</id>
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>stop</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <configuration>
+                        <properties>
+                            <cargo.servlet.port>${cargo.port}</cargo.servlet.port>
+                            <!--<cargo.start.jvmargs>-->
+                                   <!-- -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8000-->
+                            <!--</cargo.start.jvmargs>-->
+                        </properties>
+                    </configuration>
+                    <container>
+                        <containerId>${cargo.container}</containerId>
+                        <zipUrlInstaller>
+                            <url>${cargo.container.url}</url>
+                            <downloadDir>${cargo.container.downloadDir}</downloadDir>
+                        </zipUrlInstaller>
+                        <systemProperties>
+                            <solr.solr.home>${solr.home}</solr.solr.home>
+                            <solr.data.dir>${solr.data.dir}</solr.data.dir>
+                            <log4j.configuration>${log4j.configuration}</log4j.configuration>
+                        </systemProperties>
+                        <dependencies>
+                            <dependency>
+                                <groupId>log4j</groupId>
+                                <artifactId>log4j</artifactId>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.slf4j</groupId>
+                                <artifactId>slf4j-api</artifactId>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.slf4j</groupId>
+                                <artifactId>slf4j-log4j12</artifactId>
+                            </dependency>
+                            <dependency>
+                                <groupId>commons-logging</groupId>
+                                <artifactId>commons-logging</artifactId>
+                            </dependency>
+                        </dependencies>
+                    </container>
+                    <deployables>
+                        <deployable>
+                            <groupId>org.apache.solr</groupId>
+                            <artifactId>solr</artifactId>
+                            <type>war</type>
+                            <location>${solr.war.exploded}</location>
+                            <properties>
+                                <context>${solr.context}</context>
+                            </properties>
+                        </deployable>
+                        <deployable>
+                            <properties>
+                                <context>${search.context}</context>
+                            </properties>
+                        </deployable>
+                    </deployables>
+                </configuration>
             </plugin>
         </plugins>
     </build>
-
 
 </project>

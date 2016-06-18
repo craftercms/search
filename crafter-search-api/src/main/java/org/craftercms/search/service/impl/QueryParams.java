@@ -34,11 +34,11 @@ public class QueryParams implements Query {
     private Map<String, String[]> params;
 
     public QueryParams() {
-        params = new LinkedHashMap<String, String[]>();
+        params = new LinkedHashMap<>();
     }
 
     public QueryParams(Map<String, String[]> params) {
-        this.params = new LinkedHashMap<String, String[]>(params);
+        this.params = new LinkedHashMap<>(params);
     }
 
     public boolean hasParam(String name) {
@@ -54,7 +54,7 @@ public class QueryParams implements Query {
         String[] values;
 
         if (ArrayUtils.isNotEmpty(oldValues)) {
-            values = (String[])ArrayUtils.add(oldValues, value);
+            values = ArrayUtils.add(oldValues, value);
         } else {
             values = new String[1];
             values[0] = value;
@@ -68,7 +68,7 @@ public class QueryParams implements Query {
     public QueryParams addParam(String name, String... values) {
         String[] oldValues = params.get(name);
         if (ArrayUtils.isNotEmpty(oldValues)) {
-            values = (String[])ArrayUtils.addAll(oldValues, values);
+            values = ArrayUtils.addAll(oldValues, values);
         }
 
         params.put(name, values);
