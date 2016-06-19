@@ -19,8 +19,10 @@ package org.craftercms.search.batch.utils;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,17 +54,19 @@ public class XmlUtils {
 
         if (StringUtils.isNotEmpty(encoding)) {
             reader.setEncoding(encoding);
-        }
 
-        Reader input = null;
-        try {
-            input = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), encoding);
+            Reader input = null;
+            try {
+                input = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), encoding);
 
-            return reader.read(input);
-        } catch (Exception e) {
-            throw new DocumentException(e.getMessage(), e);
-        } finally {
-            IOUtils.closeQuietly(input);
+                return reader.read(input);
+            } catch (FileNotFoundException | UnsupportedEncodingException e) {
+                throw new DocumentException(e.getMessage(), e);
+            } finally {
+                IOUtils.closeQuietly(input);
+            }
+        } else {
+            return reader.read(file);
         }
     }
 
