@@ -30,11 +30,11 @@ public class XmlFileBatchIndexer extends AbstractBatchIndexer {
     public static final List<String> DEFAULT_INCLUDE_FILENAME_PATTERNS = Collections.singletonList("^.*\\.xml$");
 
     protected DocumentProcessor documentProcessor;
-    protected String charEncoding;
+    protected String charset;
 
     public XmlFileBatchIndexer() {
         includeFileNamePatterns = DEFAULT_INCLUDE_FILENAME_PATTERNS;
-        charEncoding = "UTF-8";
+        charset = "UTF-8";
         documentProcessor = new DefaultDocumentProcessorChain();
     }
 
@@ -42,8 +42,8 @@ public class XmlFileBatchIndexer extends AbstractBatchIndexer {
         this.documentProcessor = documentProcessor;
     }
 
-    public void setCharEncoding(String charEncoding) {
-        this.charEncoding = charEncoding;
+    public void setCharset(String charset) {
+        this.charset = charset;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class XmlFileBatchIndexer extends AbstractBatchIndexer {
             logger.debug("Processing XML file " + file + " before indexing");
         }
 
-        Document document = processDocument(XmlUtils.readXml(file, charEncoding), file, root);
+        Document document = processDocument(XmlUtils.readXml(file, charset), file, root);
         String xml = documentToString(document);
 
         if (logger.isDebugEnabled()) {

@@ -68,7 +68,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
 
             return true;
         } catch (SearchException e) {
-            logger.error("Error while adding file " + file + " to index " + getIndexNameStr(indexId));
+            logger.error("Error while adding file " + file + " to index " + getIndexNameStr(indexId), e);
 
             return false;
         }
@@ -82,7 +82,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
 
             return true;
         } catch (SearchException e) {
-            logger.error("Error while adding file " + file + " to index " + getIndexNameStr(indexId));
+            logger.error("Error while adding file " + file + " to index " + getIndexNameStr(indexId), e);
 
             return false;
         }
@@ -97,7 +97,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
 
             return true;
         } catch (SearchException e) {
-            logger.error("Error while adding file " + file + " to index " + getIndexNameStr(indexId));
+            logger.error("Error while adding file " + file + " to index " + getIndexNameStr(indexId), e);
 
             return false;
         }
@@ -111,7 +111,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
 
             return true;
         } catch (SearchException e) {
-            logger.error("Error while deleting file " + file + " from index " + getIndexNameStr(indexId));
+            logger.error("Error while deleting file " + file + " from index " + getIndexNameStr(indexId), e);
 
             return false;
         }
