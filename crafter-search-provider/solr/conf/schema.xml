@@ -304,7 +304,7 @@
     <copyField source="content_type" dest="text"/>
     <copyField source="resourcename" dest="text"/>
     <copyField source="url" dest="text"/>
-
+    <copyField source="*" dest="text"/>
     <!-- Create a string version of author for faceting -->
     <copyField source="author" dest="author_s"/>
 
