@@ -50,12 +50,6 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
             }
         }
 
-        if (delete) {
-            logger.info(updateCount + " files deleted from index " + getIndexNameStr(indexId));
-        } else {
-            logger.info(updateCount + " files added to index " + getIndexNameStr(indexId));
-        }
-
         return updateCount;
     }
 
