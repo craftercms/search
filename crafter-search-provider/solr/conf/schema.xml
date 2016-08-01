@@ -146,7 +146,8 @@
         "content_type": From the HTTP headers of incoming stream
         "resourcename": From SolrCell request param resource.name
     -->
-    <field name="title" type="text_general" indexed="true" stored="true" multiValued="true"/>
+    <!-- Duplicate field -->
+    <!-- field name="title" type="text_general" indexed="true" stored="true" multiValued="true"/-->
     <field name="subject" type="text_general" indexed="true" stored="true"/>
     <field name="description" type="text_general" indexed="true" stored="true"/>
     <field name="comments" type="text_general" indexed="true" stored="true"/>
@@ -198,6 +199,14 @@
     <field name="localId" type="string" indexed="true" stored="true" multiValued="false"/>
     <!-- Used to store the content of indexed PDFs, HTMLs, etc. -->
     <field name="content" type="text_general" indexed="true" stored="true" multiValued="true"/>
+    <!-- Field to indicate internal name of the content used in Studio -->
+    <field name="internal-name" type="string" indexed="true" stored="true" multiValued="false"/>
+    <!-- Field to indicate title of the content -->
+    <field name="title" type="string" indexed="true" stored="true" multiValued="false"/>
+    <!-- Field to indicate file name of the content -->
+    <field name="file-name" type="string" indexed="true" stored="true" multiValued="false"/>
+    <!-- Field to indicate last modified of the content  -->
+    <field name="lastModifiedDate_dt" type="date" indexed="true" stored="true" multiValued="false"/>
 
     <!-- Dynamic field definitions allow using convention over configuration
         for fields via the specification of patterns to match field names.
