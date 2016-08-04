@@ -48,7 +48,7 @@ public class DefaultDocumentProcessorChain implements DocumentProcessor {
     }
 
     public void setTokenizeSubstitutionMap(Map<String, String> tokenizeSubstitutionMap) {
-        tokenizeAttributeParsingDocumentProcessor.setTokenizeFieldMappings(tokenizeSubstitutionMap);
+        tokenizeAttributeParsingDocumentProcessor.setFieldSuffixMappings(tokenizeSubstitutionMap);
     }
 
     @Override

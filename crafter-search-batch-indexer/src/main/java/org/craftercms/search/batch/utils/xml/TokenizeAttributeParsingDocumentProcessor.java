@@ -43,28 +43,28 @@ public class TokenizeAttributeParsingDocumentProcessor implements DocumentProces
     private static final Log logger = LogFactory.getLog(FlatteningDocumentProcessor.class);
 
     protected String tokenizeAttribute;
-    protected Map<String, String> tokenizeFieldMappings;
+    protected Map<String, String> fieldSuffixMappings;
 
     public TokenizeAttributeParsingDocumentProcessor() {
         tokenizeAttribute = DEFAULT_TOKENIZE_ATTRIBUTE;
-        tokenizeFieldMappings = new HashMap<>(2);
+        fieldSuffixMappings = new HashMap<>(2);
 
-        tokenizeFieldMappings.put("_s", "_t");
-        tokenizeFieldMappings.put("_smv", "_tmv");
+        fieldSuffixMappings.put("_s", "_t");
+        fieldSuffixMappings.put("_smv", "_tmv");
     }
 
     public void setTokenizeAttribute(String tokenizeAttribute) {
         this.tokenizeAttribute = tokenizeAttribute;
     }
 
-    public void setTokenizeFieldMappings(Map<String, String> tokenizeFieldMappings) {
-        this.tokenizeFieldMappings = tokenizeFieldMappings;
+    public void setFieldSuffixMappings(Map<String, String> fieldSuffixMappings) {
+        this.fieldSuffixMappings = fieldSuffixMappings;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Document process(Document document, File file, String rootFolder) throws DocumentException {
-        if (MapUtils.isNotEmpty(tokenizeFieldMappings)) {
+        if (MapUtils.isNotEmpty(fieldSuffixMappings)) {
             String tokenizeXpath = String.format("//*[@%s=\"true\"]", tokenizeAttribute);
             if (logger.isDebugEnabled()) {
                 logger.debug("Performing tokenize parsing with XPath " + tokenizeXpath + " for file " + file + "...");
@@ -87,10 +87,10 @@ public class TokenizeAttributeParsingDocumentProcessor implements DocumentProces
                     logger.debug("Parsing element " + tokenizeElement.getUniquePath());
                 }
 
-                for (String substitutionKey : tokenizeFieldMappings.keySet()) {
+                for (String substitutionKey : fieldSuffixMappings.keySet()) {
                     if (elemName.endsWith(substitutionKey)) {
                         String newElementName = elemName.substring(0, elemName.length() - substitutionKey.length()) +
-                                                tokenizeFieldMappings.get(substitutionKey);
+                                                fieldSuffixMappings.get(substitutionKey);
 
                         Element newElement = tokenizeElement.createCopy(newElementName);
                         parent.add(newElement);
