@@ -30,7 +30,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 
 /**
- * {@link DocumentProcessor} that parses elements that have a "tokenize" attribute. For every element with "tokenize",
+ * {@link DocumentProcessor} that parses elements that have a "tokenized" attribute. For every element with "tokenized",
  * a copy is created but with a slightly different suffix so that Solr understands that it has to be analyzed and
  * tokenized.
  *
@@ -38,32 +38,33 @@ import org.dom4j.Element;
  */
 public class TokenizeAttributeParsingDocumentProcessor implements DocumentProcessor {
 
-    public static final String DEFAULT_TOKENIZE_ATTRIBUTE = "tokenize";
+    public static final String DEFAULT_TOKENIZE_ATTRIBUTE = "tokenized";
 
     private static final Log logger = LogFactory.getLog(FlatteningDocumentProcessor.class);
 
     protected String tokenizeAttribute;
-    protected Map<String, String> tokenizeSubstitutionMap;
+    protected Map<String, String> fieldSuffixMappings;
 
     public TokenizeAttributeParsingDocumentProcessor() {
         tokenizeAttribute = DEFAULT_TOKENIZE_ATTRIBUTE;
-        tokenizeSubstitutionMap = new HashMap<>(2);
+        fieldSuffixMappings = new HashMap<>(2);
 
-        tokenizeSubstitutionMap.put("_s", "_t");
-        tokenizeSubstitutionMap.put("_smv", "_tmv");
+        fieldSuffixMappings.put("_s", "_t");
+        fieldSuffixMappings.put("_smv", "_tmv");
     }
 
     public void setTokenizeAttribute(String tokenizeAttribute) {
         this.tokenizeAttribute = tokenizeAttribute;
     }
 
-    public void setTokenizeSubstitutionMap(Map<String, String> tokenizeSubstitutionMap) {
-        this.tokenizeSubstitutionMap = tokenizeSubstitutionMap;
+    public void setFieldSuffixMappings(Map<String, String> fieldSuffixMappings) {
+        this.fieldSuffixMappings = fieldSuffixMappings;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Document process(Document document, File file, String rootFolder) throws DocumentException {
-        if (MapUtils.isNotEmpty(tokenizeSubstitutionMap)) {
+        if (MapUtils.isNotEmpty(fieldSuffixMappings)) {
             String tokenizeXpath = String.format("//*[@%s=\"true\"]", tokenizeAttribute);
             if (logger.isDebugEnabled()) {
                 logger.debug("Performing tokenize parsing with XPath " + tokenizeXpath + " for file " + file + "...");
@@ -86,10 +87,10 @@ public class TokenizeAttributeParsingDocumentProcessor implements DocumentProces
                     logger.debug("Parsing element " + tokenizeElement.getUniquePath());
                 }
 
-                for (String substitutionKey : tokenizeSubstitutionMap.keySet()) {
+                for (String substitutionKey : fieldSuffixMappings.keySet()) {
                     if (elemName.endsWith(substitutionKey)) {
                         String newElementName = elemName.substring(0, elemName.length() - substitutionKey.length()) +
-                                                tokenizeSubstitutionMap.get(substitutionKey);
+                                                fieldSuffixMappings.get(substitutionKey);
 
                         Element newElement = tokenizeElement.createCopy(newElementName);
                         parent.add(newElement);
