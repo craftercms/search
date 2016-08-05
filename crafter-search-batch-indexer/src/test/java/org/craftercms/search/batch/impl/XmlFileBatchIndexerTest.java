@@ -27,9 +27,9 @@ public class XmlFileBatchIndexerTest {
     private static final String EXPECTED_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                                                "<page>" +
                                                "<fileName>test.xml</fileName>" +
-                                               "<title_s tokenize=\"true\">Test</title_s>" +
+                                               "<title_s tokenized=\"true\">Test</title_s>" +
                                                "<date>11/10/2015 00:00:00</date>" +
-                                               "<title_t tokenize=\"true\">Test</title_t>" +
+                                               "<title_t tokenized=\"true\">Test</title_t>" +
                                                "</page>";
 
     private SearchService searchService;
