@@ -2,7 +2,6 @@ package org.craftercms.search.batch.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +13,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Unit tests for {@link BinaryFileWithMetadataBatchIndexer}.
@@ -63,10 +63,10 @@ public class BinaryFileWithMetadataBatchIndexerTest {
 
     protected BinaryFileWithMetadataBatchIndexer getBatchIndexer(SearchService searchService) throws Exception {
         BinaryFileWithMetadataBatchIndexer batchIndexer = new BinaryFileWithMetadataBatchIndexer();
-        batchIndexer.setMetadataPathPatterns(Arrays.asList(".*\\.xml$"));
-        batchIndexer.setBinaryPathPatterns(Arrays.asList(".*\\.jpg$"));
-        batchIndexer.setExcludeMetadataProperties(Arrays.asList("objectId"));
-        batchIndexer.setReferenceXPaths(Arrays.asList("//attachment"));
+        batchIndexer.setMetadataPathPatterns(Collections.singletonList(".*\\.xml$"));
+        batchIndexer.setBinaryPathPatterns(Collections.singletonList(".*\\.jpg$"));
+        batchIndexer.setExcludeMetadataProperties(Collections.singletonList("objectId"));
+        batchIndexer.setReferenceXPaths(Collections.singletonList("//attachment"));
         batchIndexer.setSearchService(searchService);
 
         return batchIndexer;
@@ -79,9 +79,8 @@ public class BinaryFileWithMetadataBatchIndexerTest {
     protected Map<String, List<String>> getExpectedMetadata() {
         MultiValueMap<String, String> metadata = new LinkedMultiValueMap<>();
         metadata.add("fileName", "metadata.xml");
-        metadata.add("attachmentText_s", "Logo");
+        metadata.add("attachmentText", "Logo");
         metadata.add("attachment", "logo.jpg");
-        metadata.add("attachmentText_t", "Logo");
 
         return metadata;
     }

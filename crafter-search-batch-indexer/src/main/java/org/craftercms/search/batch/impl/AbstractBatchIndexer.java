@@ -53,16 +53,16 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         return updateCount;
     }
 
-    protected boolean doUpdate(String indexId, String siteName, String id, File file,
-                               String xml) throws SearchException {
+    protected boolean doUpdate(String indexId, String siteName, String id, String xml) throws SearchException {
         try {
             searchService.update(indexId, siteName, id, xml, true);
 
-            logger.info("File " + file + " added to index " + getIndexNameStr(indexId));
+            logger.info("File " + getSiteBasedFileName(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
             return true;
         } catch (SearchException e) {
-            logger.error("Error while adding file " + file + " to index " + getIndexNameStr(indexId), e);
+            logger.error("Error while adding file " + getSiteBasedFileName(siteName, id) + " to index " +
+                         getIndexNameStr(indexId), e);
 
             return false;
         }
@@ -72,11 +72,12 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         try {
             searchService.updateFile(indexId, siteName, id, file);
 
-            logger.info("File " + file + " added to index " + getIndexNameStr(indexId));
+            logger.info("File " + getSiteBasedFileName(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
             return true;
         } catch (SearchException e) {
-            logger.error("Error while adding file " + file + " to index " + getIndexNameStr(indexId), e);
+            logger.error("Error while adding file " + getSiteBasedFileName(siteName, id) + " to index " +
+                         getIndexNameStr(indexId), e);
 
             return false;
         }
@@ -87,28 +88,35 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         try {
             searchService.updateFile(indexId, siteName, id, file, additionalFields);
 
-            logger.info("File " + file + " added to index " + getIndexNameStr(indexId));
+            logger.info("File " + getSiteBasedFileName(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
             return true;
         } catch (SearchException e) {
-            logger.error("Error while adding file " + file + " to index " + getIndexNameStr(indexId), e);
+            logger.error("Error while adding file " + getSiteBasedFileName(siteName, id)+ " to index " +
+                         getIndexNameStr(indexId), e);
 
             return false;
         }
     }
 
-    protected boolean doDelete(String indexId, String siteName, String id, File file) throws SearchException {
+    protected boolean doDelete(String indexId, String siteName, String id) throws SearchException {
         try {
             searchService.delete(indexId, siteName, id);
 
-            logger.info("File " + file + " deleted from index " + getIndexNameStr(indexId));
+            logger.info("File " + getSiteBasedFileName(siteName, id) + " deleted from index " +
+                        getIndexNameStr(indexId));
 
             return true;
         } catch (SearchException e) {
-            logger.error("Error while deleting file " + file + " from index " + getIndexNameStr(indexId), e);
+            logger.error("Error while deleting file " + getSiteBasedFileName(siteName, id) + " from index " +
+                         getIndexNameStr(indexId), e);
 
             return false;
         }
+    }
+
+    protected String getSiteBasedFileName(String siteName, String fileName) {
+        return siteName + ":" + fileName;
     }
 
     protected String getIndexNameStr(String indexId) {

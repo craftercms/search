@@ -1,4 +1,4 @@
-package org.craftercms.search.service.impl;
+package org.craftercms.search.service;
 
 /**
  * Converts an incoming string field value to the actual value that will be indexed.

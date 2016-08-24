@@ -6,11 +6,11 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.craftercms.search.batch.exception.BatchIndexingException;
 import org.craftercms.search.batch.utils.XmlUtils;
-import org.craftercms.search.batch.utils.xml.DefaultDocumentProcessorChain;
 import org.craftercms.search.batch.utils.xml.DocumentProcessor;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -18,8 +18,7 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
 /**
- * {@link org.craftercms.search.batch.BatchIndexer} that updates/deletes XML files from a search index. The XML files
- * are first processed by the default document processor chain.
+ * {@link org.craftercms.search.batch.BatchIndexer} that updates/deletes XML files from a search index.
  *
  * @author avasquez
  */
@@ -29,17 +28,16 @@ public class XmlFileBatchIndexer extends AbstractBatchIndexer {
 
     public static final List<String> DEFAULT_INCLUDE_FILENAME_PATTERNS = Collections.singletonList("^.*\\.xml$");
 
-    protected DocumentProcessor documentProcessor;
+    protected List<DocumentProcessor> documentProcessors;
     protected String charset;
 
     public XmlFileBatchIndexer() {
         includeFileNamePatterns = DEFAULT_INCLUDE_FILENAME_PATTERNS;
         charset = "UTF-8";
-        documentProcessor = new DefaultDocumentProcessorChain();
     }
 
-    public void setDocumentProcessor(DocumentProcessor documentProcessor) {
-        this.documentProcessor = documentProcessor;
+    public void setDocumentProcessors(List<DocumentProcessor> documentProcessors) {
+        this.documentProcessors = documentProcessors;
     }
 
     public void setCharset(String charset) {
@@ -52,46 +50,43 @@ public class XmlFileBatchIndexer extends AbstractBatchIndexer {
         File file = new File(rootFolder, fileName);
 
         if (delete) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Deleting XML file " + file + " from index " + getIndexNameStr(indexId));
-            }
-
-            return doDelete(indexId, siteName, fileName, file);
+            return doDelete(indexId, siteName, fileName);
         } else {
             try {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Adding XML file " + file + " to index " + getIndexNameStr(indexId));
-                }
-
                 String xml = processXml(rootFolder, file);
 
-                return doUpdate(indexId, siteName, fileName, file, xml);
+                return doUpdate(indexId, siteName, fileName, xml);
             } catch (DocumentException e) {
-                logger.warn("Cannot process XML file " + file + ". Continuing index update...", e);
+                logger.warn("Cannot process XML file " + siteName + ":" + fileName + ". Continuing index update...", e);
             }
         }
 
         return false;
     }
 
-    protected String processXml(String root, File file) throws DocumentException {
+    protected String processXml(String rootFolder, File file) throws DocumentException {
         if (logger.isDebugEnabled()) {
             logger.debug("Processing XML file " + file + " before indexing");
         }
 
-        Document document = processDocument(XmlUtils.readXml(file, charset), file, root);
+        Document document = processDocument(XmlUtils.readXml(file, charset), file, rootFolder);
         String xml = documentToString(document);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("XML file " + file + " processed successfully:");
-            logger.debug(xml);
+            logger.debug("XML file " + file + " processed successfully:\n" + xml);
         }
 
         return xml;
     }
 
-    protected Document processDocument(Document document, File file, String root) throws DocumentException {
-        return documentProcessor.process(document, file, root);
+    protected Document processDocument(Document document, File file, String rootFolder) throws DocumentException {
+        if (CollectionUtils.isNotEmpty(documentProcessors)) {
+            for (DocumentProcessor processor : documentProcessors) {
+                document = processor.process(document, file, rootFolder);
+            }
+        }
+
+        return document;
     }
 
     protected String documentToString(Document document) {

@@ -44,6 +44,7 @@ public class FieldRenamingDocumentProcessor implements DocumentProcessor {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Document process(Document document, File file, String rootFolder) {
         if (MapUtils.isNotEmpty(fieldMappings)) {
             for (Map.Entry<String, String> entry : fieldMappings.entrySet()) {

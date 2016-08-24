@@ -1,9 +1,5 @@
 package org.craftercms.search.batch.impl;
 
-import java.util.Collections;
-
-import org.craftercms.search.batch.utils.xml.DefaultFlatteningDocumentProcessorChain;
-import org.craftercms.search.batch.utils.xml.DocumentProcessor;
 import org.craftercms.search.service.SearchService;
 
 /**
@@ -17,28 +13,19 @@ public class FlattenedXmlFileBatchIndexerTest extends XmlFileBatchIndexerTest {
     private static final String EXPECTED_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                                                "<page>" +
                                                "<fileName>test2.xml</fileName>" +
-                                               "<title_s tokenized=\"true\">Test</title_s>" +
-                                               "<date>11/10/2015 00:00:00</date>" +
+                                               "<title>Test</title>" +
+                                               "<date format=\"MM/DD/YYY HH:MM:SS\">11/10/2015 00:00:00</date>" +
                                                "<component>" +
                                                "<fileName>component.xml</fileName>" +
-                                               "<title_s tokenized=\"true\">Test</title_s>" +
-                                               "<date>11/11/2015 10:00:00</date>" +
-                                               "<title_t tokenized=\"true\">Test</title_t>" +
+                                               "<title>Test</title>" +
+                                               "<date format=\"MM/DD/YYY HH:MM:SS\">11/11/2015 10:00:00</date>" +
                                                "</component>" +
                                                "<include>test.xml</include>" +
-                                               "<title_t tokenized=\"true\">Test</title_t>" +
                                                "</page>";
 
-    protected DocumentProcessor getDocumentProcessor() throws Exception {
-        DefaultFlatteningDocumentProcessorChain processor = new DefaultFlatteningDocumentProcessorChain();
-        processor.setFieldMappings(Collections.singletonMap("//name", "fileName"));
-
-        return processor;
-    }
-
     protected XmlFileBatchIndexer getBatchIndexer(SearchService searchService) throws Exception {
-        XmlFileBatchIndexer batchIndexer = new FlattenedXmlFileBatchIndexer();
-        batchIndexer.setDocumentProcessor(getDocumentProcessor());
+        FlattenedXmlFileBatchIndexer batchIndexer = new FlattenedXmlFileBatchIndexer();
+        batchIndexer.setDocumentProcessors(getDocumentProcessors());
         batchIndexer.setSearchService(searchService);
 
         return batchIndexer;
