@@ -39,33 +39,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * <p/>
- * The purpose of this class is to convert a generic XML document:<br>
- * <pre>
- *     &lt;page&gt;
- *      &lt;file-name&gt;index.xml&lt;/file-name&gt;
- *      &lt;showAboutAuthor&gt;false&lt;/showAboutAuthor&gt;
- *      &lt;showSearchBox&gt;true&lt;/showSearchBox&gt;
- *     &lt;/page&gt;
- * </pre>
- * into a Solr Document:
- * <pre>
- *     &lt;add&gt;
- *      &lt;doc&gt;
- *          &lt;field name="file-name"&gt;index.xml&lt;/field&gt;
- *          &lt;field name="showAboutAuthor"&gt;false&lt;/field&gt;
- *          &lt;field name="showSearchBox"&gt;true&lt;/field&gt;
- *      &lt;/doc&gt;
- *     &lt;/add&gt;
- * </pre>
- * <p/>
- * The Solr document is represent in Java as a {@link SolrInputDocument} object, which then can be sent to the server
- * with
- * {@link org.apache.solr.client.solrj.SolrServer#add(SolrInputDocument)}
- * <p/>
+ * Default implementation of {@link SolrDocumentBuilder}.
  *
- * @author Michael Chen
- * @author Alfonso Vásquez
+ * @author avasquez
  */
 public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
 

@@ -19,10 +19,17 @@ package org.craftercms.search.service;
 import org.apache.solr.common.SolrInputDocument;
 
 /**
- * Created by alfonsovasquez on 19/8/16.
+ * Used to modify or enhance a Solr document after it's built.
+ *
+ * @author
  */
 public interface SolrDocumentPostProcessor {
 
+    /**
+     * Processes the specified document to modify or enhance it.
+     *
+     * @param solrDoc the Solr document to process
+     */
     void postProcess(SolrInputDocument solrDoc);
 
 }

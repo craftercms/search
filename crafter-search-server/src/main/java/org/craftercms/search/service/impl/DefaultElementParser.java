@@ -28,7 +28,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Created by alfonsovasquez on 18/8/16.
+ * Default implementation of {@link ElementParser}. For text only fields it adds the field with the provided field
+ * name. For elements with children is uses the {@link ElementParserService} to parse the children.
+ *
+ * @author avasquez
  */
 public class DefaultElementParser implements ElementParser {
 

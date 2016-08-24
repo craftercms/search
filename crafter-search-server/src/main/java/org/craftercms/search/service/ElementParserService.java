@@ -20,10 +20,20 @@ import org.apache.solr.common.SolrInputDocument;
 import org.dom4j.Element;
 
 /**
- * Created by alfonsovasquez on 18/8/16.
+ * Implementations normally use several {@link ElementParser}s to parse the elements and it's sub-elements to generate
+ * a Solr fields.
+ *
+ * @author avasquez
  */
 public interface ElementParserService {
 
+    /**
+     * Parses the given element, generating one or more Solr fields and adding them to the given document.
+     *
+     * @param element           the element to parse
+     * @param parentFieldName   the field name of the parent
+     * @param solrDoc           the Solr document to add the generated fields
+     */
     void parse(Element element, String parentFieldName, SolrInputDocument solrDoc);
 
 }

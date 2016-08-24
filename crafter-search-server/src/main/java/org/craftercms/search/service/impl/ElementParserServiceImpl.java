@@ -30,7 +30,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Created by alfonsovasquez on 18/8/16.
+ * Default implementation of the {@link ElementParserService}. Parses the element using a list of
+ * {@link ElementParser}s. If first parser returns false (the element was not handled), it calls the second one and
+ * so on. It also handles elements tagged with the "indexable" attribute. If the attribute is present, and it's
+ * false, the element is not parsed.
+ *
+ * @author avasquez
  */
 public class ElementParserServiceImpl implements ElementParserService {
 

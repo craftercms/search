@@ -17,7 +17,13 @@ import org.springframework.beans.factory.annotation.Required;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ID_FIELD_NAME;
 
 /**
- * Created by alfonsovasquez on 19/8/16.
+ * Implementation of {@link SolrDocumentPostProcessor} that renames fields that are defined as single value
+ * but that actually have several values, based on a series of suffix mappings. For example, the field {@code name_s}
+ * should be single value because of the "_s" suffix. It's multi-value version is "_smv". If the mapping for
+ * _s -> _smv is provided, and there's a {@code name_s} field in the Solr document with multiple values, the field
+ * is renamed to {@code name_smv}.
+ *
+ * @author avasquez
  */
 public class RenameFieldsIfMultiValuePostProcessor implements SolrDocumentPostProcessor {
 

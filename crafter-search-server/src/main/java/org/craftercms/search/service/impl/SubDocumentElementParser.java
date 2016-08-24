@@ -33,7 +33,10 @@ import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_SITE_FIELD_NAME;
 
 /**
- * Created by alfonsovasquez on 18/8/16.
+ * {@link ElementParser} implementation that parses elements that ara tagged with an attribute that indicates
+ * that it's sub-elements should be treated as sub-documents or child documents.
+ *
+ * @author avasquez
  */
 public class SubDocumentElementParser implements ElementParser {
 

@@ -34,7 +34,12 @@ import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAUL
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_PARENT_ID_FIELD_NAME;
 
 /**
- * Created by alfonsovasquez on 19/8/16.
+ * Implementation of {@link SolrDocumentPostProcessor} that can "denormalize" the parent and it's children documents,
+ * that means, it copies the fields from the parent to the children and the fields of the children to the parent. This
+ * is very helpful, for example, when you're doing a search on the children, but you need also certain fields from
+ * the parent.
+ *
+ * @author avasquez
  */
 public class DenormalizingPostProcessor implements SolrDocumentPostProcessor {
 

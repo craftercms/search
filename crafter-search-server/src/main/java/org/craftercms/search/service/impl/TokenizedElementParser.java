@@ -14,7 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by alfonsovasquez on 23/8/16.
+ * Implementation of {@link ElementParser} that parses elements marked with a "tokenized" attribute. This attribute
+ * indicates that the field should be tokenized and analyzed by Solr, and by definition it isn't (like _s fields)
+ * so a copy of the field is created with a field name that can actualy be tokenized (like those ending with _t).
+ *
+ * @author Dejan Brkic
+ * @author Alfonso Vásqiuez
  */
 public class TokenizedElementParser implements ElementParser {
 

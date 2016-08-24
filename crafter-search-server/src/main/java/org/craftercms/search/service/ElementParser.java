@@ -20,10 +20,24 @@ import org.apache.solr.common.SolrInputDocument;
 import org.dom4j.Element;
 
 /**
- * Created by alfonsovasquez on 18/8/16.
+ * Implementations parse the specified element to generate fields for the document.
+ *
+ * @author avasquez
  */
 public interface ElementParser {
 
+    /**
+     * Parses the given element, generating one or more Solr fields and adding them to the given document.
+     *
+     * @param element           the element to parse
+     * @param fieldName         the field name that should be used for the main Solr field (by default will be the
+     *                          path of the element in the tree plus the element name)
+     * @param parentFieldName   the field name of the parent element
+     * @param solrDoc           the Solr document to add the generated fields
+     * @param parserService     the parser service used normally to parse sub elements
+     *
+     * @return true if the element was parsed or handled, false otherwise
+     */
     boolean parse(Element element, String fieldName, String parentFieldName, SolrInputDocument solrDoc,
                   ElementParserService parserService);
 
