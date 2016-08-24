@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2013 Crafter Software Corporation.
+ * Copyright (C) 2007-2016 Crafter Software Corporation.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,25 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.utils;
+package org.craftercms.search.service;
+
+import org.apache.solr.common.SolrInputDocument;
+import org.dom4j.Element;
 
 /**
- * Extension of Apache Common's {@link org.apache.commons.lang3.BooleanUtils} thats adds some new methods.
- *
- * @author Alfonso Vásquez
+ * Created by alfonsovasquez on 18/8/16.
  */
-public class BooleanUtils extends org.apache.commons.lang3.BooleanUtils {
+public interface ElementParserService {
 
-    /**
-     * Just as {@link #toBoolean(String)}, except that true will be returned if str = null when {@code trueIfNull} is
-     * true, false otherwise.
-     */
-    public static final boolean toBoolean(String str, boolean trueIfNull) {
-        if (str == null && trueIfNull) {
-            return true;
-        }
-
-        return toBoolean(str);
-    }
+    void parse(Element element, String parentFieldName, SolrInputDocument solrDoc);
 
 }

@@ -16,18 +16,32 @@
  */
 package org.craftercms.search.batch.impl;
 
-import org.craftercms.search.batch.utils.xml.DefaultFlatteningDocumentProcessorChain;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.craftercms.search.batch.utils.xml.DocumentProcessor;
+import org.craftercms.search.batch.utils.xml.FlatteningDocumentProcessor;
 
 /**
  * {@link org.craftercms.search.batch.BatchIndexer} that updates/deletes XML files from a search index. The XML files
- * are first processed by the XML flattening document processor chain.
+ * are first processed by the XML flattening document processor.
  *
  * @author avasquez
  */
 public class FlattenedXmlFileBatchIndexer extends XmlFileBatchIndexer {
 
     public FlattenedXmlFileBatchIndexer() {
-        documentProcessor = new DefaultFlatteningDocumentProcessorChain();
+       this(new FlatteningDocumentProcessor());
+    }
+
+    public FlattenedXmlFileBatchIndexer(FlatteningDocumentProcessor flatteningDocumentProcessor) {
+        documentProcessors = new ArrayList<>();
+        documentProcessors.add(flatteningDocumentProcessor);
+    }
+
+    @Override
+    public void setDocumentProcessors(List<DocumentProcessor> documentProcessors) {
+        this.documentProcessors.addAll(documentProcessors);
     }
 
 }

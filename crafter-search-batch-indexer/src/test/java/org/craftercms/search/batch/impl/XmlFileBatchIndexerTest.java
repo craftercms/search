@@ -1,18 +1,22 @@
 package org.craftercms.search.batch.impl;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import org.craftercms.search.batch.utils.xml.DefaultDocumentProcessorChain;
+import org.craftercms.search.batch.utils.xml.AttributeAddingDocumentProcessor;
 import org.craftercms.search.batch.utils.xml.DocumentProcessor;
+import org.craftercms.search.batch.utils.xml.FieldRenamingDocumentProcessor;
 import org.craftercms.search.service.SearchService;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Unit tests for {@link XmlFileBatchIndexer}.
@@ -27,9 +31,8 @@ public class XmlFileBatchIndexerTest {
     private static final String EXPECTED_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                                                "<page>" +
                                                "<fileName>test.xml</fileName>" +
-                                               "<title_s tokenized=\"true\">Test</title_s>" +
-                                               "<date>11/10/2015 00:00:00</date>" +
-                                               "<title_t tokenized=\"true\">Test</title_t>" +
+                                               "<title>Test</title>" +
+                                               "<date format=\"MM/DD/YYY HH:MM:SS\">11/10/2015 00:00:00</date>" +
                                                "</page>";
 
     private SearchService searchService;
@@ -57,11 +60,16 @@ public class XmlFileBatchIndexerTest {
         verify(searchService).delete(getIndexId(), getSiteName(), getDeleteFilename());
     }
 
-    protected DocumentProcessor getDocumentProcessor() throws Exception {
-        DefaultDocumentProcessorChain processor = new DefaultDocumentProcessorChain();
-        processor.setFieldMappings(Collections.singletonMap("//name", "fileName"));
+    protected List<DocumentProcessor> getDocumentProcessors() throws Exception {
+        FieldRenamingDocumentProcessor proc1 = new FieldRenamingDocumentProcessor();
+        proc1.setFieldMappings(Collections.singletonMap("//name", "fileName"));
 
-        return processor;
+        Map<String, String> attributes = Collections.singletonMap("format", "MM/DD/YYY HH:MM:SS");
+
+        AttributeAddingDocumentProcessor proc2 = new AttributeAddingDocumentProcessor();
+        proc2.setAttributeMappings(Collections.singletonMap("//date", attributes));
+
+        return Arrays.asList(proc1, proc2);
     }
 
     protected SearchService getSearchService() throws Exception {
@@ -70,7 +78,7 @@ public class XmlFileBatchIndexerTest {
 
     protected XmlFileBatchIndexer getBatchIndexer(SearchService searchService) throws Exception {
         XmlFileBatchIndexer batchIndexer = new XmlFileBatchIndexer();
-        batchIndexer.setDocumentProcessor(getDocumentProcessor());
+        batchIndexer.setDocumentProcessors(getDocumentProcessors());
         batchIndexer.setSearchService(searchService);
 
         return batchIndexer;

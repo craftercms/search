@@ -1,12 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <product>
     <code indexable="false">c7d25f90-ebb0-11e1-aff1-0800200c9a66</code>
-    <name>iPad Air 64GB</name>
-    <description fieldName="description_html">&lt;p&gt;Apple MH182LL/A iPad Air 9.7-Inch Retina Display 64GB, Wi-Fi (Gold)&lt;/p&gt;</description>
+    <content-type>product</content-type>
+    <name_s tokenized="true">iPad Air 64GB</name_s>
+    <description_html>&lt;p&gt;Apple MH182LL/A iPad Air 9.7-Inch Retina Display 64GB, Wi-Fi (Gold)&lt;/p&gt;</description_html>
     <availableDate_dt>10/01/2014 0:00:00</availableDate_dt>
     <tags>
         <value_s>Apple</value_s>
         <value_s>iPad</value_s>
         <value_s>Tablet</value_s>
     </tags>
+    <accessories sub-docs="true">
+        <item>
+            <name_s>Case</name_s>
+            <description_html>&lt;p&gt;Silicon case with stand for iPad Air 64GB&lt;/p&gt;</description_html>
+            <colors>
+                <color_s>Black</color_s>
+                <color_s>Blue</color_s>
+                <color_s>Red</color_s>
+            </colors>
+        </item>
+        <item>
+            <name_s>Lighting Cable</name_s>
+            <description_html>&lt;p&gt;Lighting cable for iPad&lt;/p&gt;</description_html>
+        </item>
+    </accessories>
 </product>
