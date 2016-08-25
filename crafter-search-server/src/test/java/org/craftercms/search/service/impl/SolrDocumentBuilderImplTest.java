@@ -179,7 +179,7 @@ public class SolrDocumentBuilderImplTest {
     private FieldValueConverter createFieldValueConverter() {
         HtmlStrippingConverter htmlConverter = new HtmlStrippingConverter();
 
-        IsoDateTimeConverter dateTimeConverter = new IsoDateTimeConverter();
+        DateTimeConverter dateTimeConverter = new DateTimeConverter();
         dateTimeConverter.setDateTimeFieldPattern("MM/dd/yyyy HH:mm:ss");
 
         Map<String, FieldValueConverter> mappings = new HashMap<>(2);
