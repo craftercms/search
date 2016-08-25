@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Required;
  *
  * @author avasquez
  */
-public class IsoDateTimeConverter implements FieldValueConverter {
+public class DateTimeConverter implements FieldValueConverter {
 
     private String dateTimeFieldPattern;
 
