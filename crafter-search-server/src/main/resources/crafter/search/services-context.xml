@@ -108,7 +108,7 @@
 
     <bean id="crafter.htmlStrippingConverter" class="org.craftercms.search.service.impl.HtmlStrippingConverter"/>
 
-    <bean id="crafter.dateTimeConverter" class="org.craftercms.search.service.impl.IsoDateTimeConverter">
+    <bean id="crafter.dateTimeConverter" class="org.craftercms.search.service.impl.DateTimeConverter">
         <property name="dateTimeFieldPattern" value="${crafter.search.solr.field.type.datetime.pattern}"/>
     </bean>
 
