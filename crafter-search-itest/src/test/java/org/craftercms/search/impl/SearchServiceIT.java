@@ -258,6 +258,7 @@ public class SearchServiceIT {
     private void assertIPadDocCommonFields(Map<String, Object> doc, String site) {
         long date = ISODateTimeFormat.dateTime().parseDateTime("2014-10-01T00:00:00.000Z").getMillis();
 
+        assertNotNull(doc.get("publishedDate_dt"));
         assertEquals(site, doc.get("crafterSite"));
         assertEquals("iPad Air 64GB", doc.get("name_s"));
         assertEquals("iPad Air 64GB", doc.get("name_t"));
