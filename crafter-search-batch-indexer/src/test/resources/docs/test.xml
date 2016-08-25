@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <page>
 	<name>test.xml</name>
-	<title_s tokenized="true">Test</title_s>
+	<title>Test</title>
 	<date>11/10/2015 00:00:00</date>
 </page>

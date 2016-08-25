@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import org.craftercms.commons.lang.RegexUtils;
 import org.craftercms.search.batch.exception.BatchIndexingException;
 import org.craftercms.search.batch.utils.XmlUtils;
-import org.craftercms.search.batch.utils.xml.DefaultDocumentProcessorChain;
 import org.craftercms.search.batch.utils.xml.DocumentProcessor;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -52,7 +51,7 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
 
     private static final Log logger = LogFactory.getLog(BinaryFileWithMetadataBatchIndexer.class);
 
-    protected DocumentProcessor documentProcessor;
+    protected List<DocumentProcessor> documentProcessors;
     protected String charEncoding;
     protected List<String> metadataPathPatterns;
     protected List<String> binaryPathPatterns;
@@ -61,11 +60,10 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
 
     public BinaryFileWithMetadataBatchIndexer() {
         charEncoding = "UTF-8";
-        documentProcessor = new DefaultDocumentProcessorChain();
     }
 
-    public void setDocumentProcessor(DocumentProcessor documentProcessor) {
-        this.documentProcessor = documentProcessor;
+    public void setDocumentProcessors(List<DocumentProcessor> documentProcessors) {
+        this.documentProcessors = documentProcessors;
     }
 
     public void setMetadataPathPatterns(List<String> metadataPathPatterns) {
@@ -146,17 +144,9 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
 
         if (doUpdate) {
             if (!delete) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Deleting file " + file + " from index " + getIndexNameStr(indexId));
-                }
-
                 return doUpdateFile(indexId, siteName, updateFileName, updateFile, metadata);
             } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Adding file " + file + " to index " + getIndexNameStr(indexId));
-                }
-
-                return doDelete(indexId, siteName, updateFileName, updateFile);
+                return doDelete(indexId, siteName, updateFileName);
             }
         }
 
@@ -188,7 +178,13 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
     }
 
     protected Document processDocument(Document document, File file, String root) throws DocumentException {
-        return documentProcessor.process(document, file, root);
+        if (CollectionUtils.isNotEmpty(documentProcessors)) {
+            for (DocumentProcessor processor : documentProcessors) {
+                document = processor.process(document, file, root);
+            }
+        }
+
+        return document;
     }
 
     protected Map<String, List<String>> extractMetadata(Document document) {
@@ -200,6 +196,7 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
         return metadata;
     }
 
+    @SuppressWarnings("unchecked")
     protected void extractMetadataFromChildren(Element element, String key, MultiValueMap<String, String> metadata) {
         for (Iterator<Node> iter = element.nodeIterator(); iter.hasNext();) {
             Node node = iter.next();

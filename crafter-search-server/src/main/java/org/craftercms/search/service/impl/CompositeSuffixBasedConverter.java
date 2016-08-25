@@ -3,6 +3,7 @@ package org.craftercms.search.service.impl;
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
+import org.craftercms.search.service.FieldValueConverter;
 
 /**
  * Based on the suffix of a field, picks an actual {@link FieldValueConverter} from a set of suffix -> converter

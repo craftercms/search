@@ -18,7 +18,9 @@ package org.craftercms.search.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +58,8 @@ public class SearchServiceIT {
     private static final String PLUTON_SITE = "pluton";
     private static final String PLUTON_INDEX_ID = "pluton";
     private static final String IPAD_DOC_ID = "ipad.xml";
+    private static final String IPAD_DOC_ID_ACCESSORIES0 = IPAD_DOC_ID + "_accessories_0";
+    private static final String IPAD_DOC_ID_ACCESSORIES1 = IPAD_DOC_ID + "_accessories_1";
     private static final String WP_REASONS_PDF_DOC_ID = "crafter-wp-7-reasons.pdf";
 
     private static final List<String> WP_REASONS_PDF_TAGS = Arrays.asList("Crafter", "reasons", "white paper");
@@ -89,10 +93,11 @@ public class SearchServiceIT {
         assertNotNull(results);
 
         response = getQueryResponse(results);
-        assertEquals(2, getNumDocs(response));
+        assertEquals(4, getNumDocs(response));
 
         Map<String, Map<String, Object>> docs = getDocs(response);
         Map<String, Object> ipadDoc = docs.get(IPAD_DOC_ID);
+
         Map<String, Object> wpReasonsPdfDoc = docs.get(WP_REASONS_PDF_DOC_ID);
 
         assertNotNull(ipadDoc);
@@ -113,7 +118,7 @@ public class SearchServiceIT {
         assertNotNull(results);
 
         response = getQueryResponse(results);
-        assertEquals(2, getNumDocs(response));
+        assertEquals(4, getNumDocs(response));
 
         docs = getDocs(response);
         ipadDoc = docs.get(IPAD_DOC_ID);
@@ -166,15 +171,20 @@ public class SearchServiceIT {
         assertNotNull(results);
 
         response = getQueryResponse(results);
-        assertEquals(2, getNumDocs(response));
+        assertEquals(4, getNumDocs(response));
 
         Map<String, Map<String, Object>> docs = getDocs(response);
         Map<String, Object> ipadDoc = docs.get(IPAD_DOC_ID);
+        Map<String, Object> ipadAccessoriesSubDoc1 = docs.get(IPAD_DOC_ID_ACCESSORIES0);
+        Map<String, Object> ipadAccessoriesSubDoc2 = docs.get(IPAD_DOC_ID_ACCESSORIES1);
         Map<String, Object> wpReasonsPdfDoc = docs.get(WP_REASONS_PDF_DOC_ID);
 
         assertNotNull(ipadDoc);
+        assertNotNull(ipadAccessoriesSubDoc1);
         assertNotNull(wpReasonsPdfDoc);
         assertIPadDoc(ipadDoc, PLUTON_SITE);
+        assertIPadAccessoriesSubDoc1(ipadAccessoriesSubDoc1, PLUTON_SITE);
+        assertIPadAccessoriesSubDoc2(ipadAccessoriesSubDoc2, PLUTON_SITE);
         assertWpReasonsPdfDoc(wpReasonsPdfDoc, PLUTON_SITE);
 
         MultiValueMap<String, String> additionalFields = new LinkedMultiValueMap<>();
@@ -191,7 +201,7 @@ public class SearchServiceIT {
         assertNotNull(results);
 
         response = getQueryResponse(results);
-        assertEquals(2, getNumDocs(response));
+        assertEquals(4, getNumDocs(response));
 
         docs = getDocs(response);
         ipadDoc = docs.get(IPAD_DOC_ID);
@@ -245,17 +255,52 @@ public class SearchServiceIT {
         return docs;
     }
 
-    private void assertIPadDoc(Map<String, Object> doc, String site) {
+    private void assertIPadDocCommonFields(Map<String, Object> doc, String site) {
         long date = ISODateTimeFormat.dateTime().parseDateTime("2014-10-01T00:00:00.000Z").getMillis();
 
         assertEquals(site, doc.get("crafterSite"));
-        assertEquals(site + ":" + IPAD_DOC_ID, doc.get("id"));
-        assertEquals(IPAD_DOC_ID, doc.get("localId"));
-        assertEquals("iPad Air 64GB", doc.get("name"));
+        assertEquals("iPad Air 64GB", doc.get("name_s"));
+        assertEquals("iPad Air 64GB", doc.get("name_t"));
         assertEquals("Apple MH182LL/A iPad Air 9.7-Inch Retina Display 64GB, Wi-Fi (Gold)",
                      doc.get("description_html").toString().trim());
         assertEquals(date, doc.get("availableDate_dt"));
         assertEquals(Arrays.asList("Apple", "iPad", "Tablet"), doc.get("tags.value_smv"));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void assertIPadDoc(Map<String, Object> doc, String site) {
+        assertIPadDocCommonFields(doc, site);
+        assertEquals(site + ":" + IPAD_DOC_ID, doc.get("id"));
+        assertEquals(IPAD_DOC_ID, doc.get("localId"));
+        assertEquals("product", doc.get("content-type"));
+        assertEquals(Arrays.asList("Apple", "iPad", "Tablet"), doc.get("tags.value_smv"));
+        assertEquals(Arrays.asList("Silicon case with stand for iPad Air 64GB", "Lighting cable for iPad"),
+                     trimValues((Collection<Object>)doc.get("accessories.item.description_html")));
+        assertEquals(Arrays.asList("Case", "Lighting Cable"), doc.get("accessories.item.name_smv"));
+        assertEquals(Arrays.asList("Black", "Blue", "Red"), doc.get("accessories.item.colors.color_smv"));
+    }
+
+    private void assertIPadAccessoriesSubDoc1(Map<String, Object> doc, String site) {
+        assertIPadDocCommonFields(doc, site);
+        assertEquals(site + ":" + IPAD_DOC_ID_ACCESSORIES0, doc.get("id"));
+        assertEquals(IPAD_DOC_ID_ACCESSORIES0, doc.get("localId"));
+        assertEquals(site + ":" + IPAD_DOC_ID, doc.get("parentId"));
+        assertEquals("product_accessories", doc.get("content-type"));
+        assertEquals("Case", doc.get("accessories.item.name_s"));
+        assertEquals("Silicon case with stand for iPad Air 64GB",
+                     doc.get("accessories.item.description_html").toString().trim());
+        assertEquals(Arrays.asList("Black", "Blue", "Red"), doc.get("accessories.item.colors.color_smv"));
+    }
+
+    private void assertIPadAccessoriesSubDoc2(Map<String, Object> doc, String site) {
+        assertIPadDocCommonFields(doc, site);
+        assertEquals(site + ":" + IPAD_DOC_ID_ACCESSORIES1, doc.get("id"));
+        assertEquals(IPAD_DOC_ID_ACCESSORIES1, doc.get("localId"));
+        assertEquals(site + ":" + IPAD_DOC_ID, doc.get("parentId"));
+        assertEquals("product_accessories", doc.get("content-type"));
+        assertEquals("Lighting Cable", doc.get("accessories.item.name_s"));
+        assertEquals("Lighting cable for iPad",
+                     doc.get("accessories.item.description_html").toString().trim());
     }
 
     private void assertWpReasonsPdfDoc(Map<String, Object> doc, String site) {
@@ -269,6 +314,15 @@ public class SearchServiceIT {
         assertWpReasonsPdfDoc(doc, site);
 
         assertEquals(WP_REASONS_PDF_TAGS, doc.get("tags.value_smv"));
+    }
+
+    private Collection<String> trimValues(Collection<Object> values) {
+        List<String> trimmedValues = new ArrayList<>(values.size());
+        for (Object value : values) {
+            trimmedValues.add(value.toString().trim());
+        }
+
+        return trimmedValues;
     }
 
 }

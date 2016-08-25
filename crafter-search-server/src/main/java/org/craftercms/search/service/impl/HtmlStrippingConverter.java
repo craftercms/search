@@ -5,6 +5,7 @@ import java.io.StringReader;
 
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilter;
 import org.craftercms.search.exception.SolrDocumentBuildException;
+import org.craftercms.search.service.FieldValueConverter;
 
 /**
  * {@link FieldValueConverter} that strips all HTML tags from a field.

@@ -31,11 +31,60 @@
         </property>
     </bean>
 
-    <bean id="crafter.solrDocumentBuilder" class="org.craftercms.search.service.impl.SolrDocumentBuilder">
+    <bean id="crafter.tokenizedElementParser" class="org.craftercms.search.service.impl.TokenizedElementParser"/>
+
+    <bean id="crafter.subDocumentElementParser" class="org.craftercms.search.service.impl.SubDocumentElementParser">
+        <property name="containsSubDocumentsAttributeName"
+                  value="${crafter.search.xml.element.containsSubDocuments.name}"/>
+        <property name="subDocumentElementName"
+                  value="${crafter.search.xml.element.subDocument.name}"/>
+        <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
+        <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
+        <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
+        <property name="contentTypeFieldName" value="${crafter.search.solr.field.contentType.name}"/>
+    </bean>
+
+    <bean id="crafter.defaultElementParser" class="org.craftercms.search.service.impl.DefaultElementParser">
+        <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
+    </bean>
+
+    <bean id="crafter.elementParserService" class="org.craftercms.search.service.impl.ElementParserServiceImpl">
+        <property name="parsers">
+            <list>
+                <ref bean="crafter.tokenizedElementParser"/>
+                <ref bean="crafter.subDocumentElementParser"/>
+                <ref bean="crafter.defaultElementParser"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="crafter.renameFieldsIfMultiValuePostProcessor"
+          class="org.craftercms.search.service.impl.RenameFieldsIfMultiValuePostProcessor">
+        <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
+        <property name="singleToMultiValueSuffixMappings" ref="crafter.singleToMultiValueSuffixMappings"/>
+    </bean>
+
+    <bean id="crafter.denormalizingPostProcessor" class="org.craftercms.search.service.impl.DenormalizingPostProcessor">
+        <property name="fieldsToIgnore"
+                  value="${crafter.search.solr.document.postProcessor.denormalizing.fieldsToIgnore}"/>
+        <property name="copyChildrenFieldsToParent"
+                  value="${crafter.search.solr.document.postProcessor.denormalizing.copyChildrenFieldsToParent}"/>
+        <property name="copyParentFieldsToChildren"
+                  value="${crafter.search.solr.document.postProcessor.denormalizing.copyParentFieldsToChildren}"/>
+    </bean>
+
+    <bean id="crafter.solrDocumentBuilder" class="org.craftercms.search.service.impl.SolrDocumentBuilderImpl">
+        <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
         <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
         <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
         <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
-        <property name="singleToMultiValueSuffixMappings" ref="crafter.singleToMultiValueSuffixMappings"/>
+        <property name="parserService" ref="crafter.elementParserService"/>
+        <property name="postProcessors">
+            <list>
+                <ref bean="crafter.denormalizingPostProcessor"/>
+                <ref bean="crafter.renameFieldsIfMultiValuePostProcessor"/>
+            </list>
+        </property>
     </bean>
 
     <bean id="crafter.fieldValueConverter" class="org.craftercms.search.service.impl.CompositeSuffixBasedConverter">
@@ -58,10 +107,16 @@
     </bean>
 
     <bean id="crafter.searchService" class="org.craftercms.search.service.impl.SolrSearchService">
+        <property name="fileNameFieldName" value="${crafter.search.solr.field.fileName.name}"/>
         <property name="solrServerFactory" ref="crafter.solrServerFactory"/>
         <property name="solrDocumentBuilder" ref="crafter.solrDocumentBuilder"/>
         <property name="multiValueSeparator" value="${crafter.search.solr.field.multiValue.separator}"/>
         <property name="multiValueIgnorePattern" value="${crafter.search.solr.field.multiValue.ignore.pattern}"/>
+        <property name="deleteQueryMappings">
+            <map>
+                <entry key="${crafter.search.xml.delete.regex}" value="${crafter.search.xml.delete.query}"/>
+            </map>
+        </property>
     </bean>
 
     <util:map id="crafter.singleToMultiValueSuffixMappings">
