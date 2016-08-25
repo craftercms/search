@@ -1,5 +1,6 @@
 package org.craftercms.search.service.impl;
 
+import org.craftercms.search.service.FieldValueConverter;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;

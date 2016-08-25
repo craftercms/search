@@ -2,7 +2,6 @@ package org.craftercms.search.batch.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,8 +10,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * Unit tests for {@link BinaryFileBatchIndexer}.
@@ -59,7 +60,7 @@ public class BinaryFileBatchIndexerTest {
 
     protected BinaryFileBatchIndexer getBatchIndexer(SearchService searchService) throws Exception {
         BinaryFileBatchIndexer batchIndexer = new BinaryFileBatchIndexer();
-        batchIndexer.setSupportedMimeTypes(Arrays.asList("application/pdf"));
+        batchIndexer.setSupportedMimeTypes(Collections.singletonList("application/pdf"));
         batchIndexer.setSearchService(searchService);
 
         return batchIndexer;

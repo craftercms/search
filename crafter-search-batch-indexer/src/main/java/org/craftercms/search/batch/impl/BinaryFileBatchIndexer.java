@@ -65,16 +65,8 @@ public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
 
         if (doUpdate) {
             if (delete) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Deleting file " + file + " from index " + getIndexNameStr(indexId));
-                }
-
-                return doDelete(indexId, siteName, fileName, file);
+                return doDelete(indexId, siteName, fileName);
             } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Adding file " + file + " to index " + getIndexNameStr(indexId));
-                }
-
                 return doUpdateFile(indexId, siteName, fileName, file);
             }
         }

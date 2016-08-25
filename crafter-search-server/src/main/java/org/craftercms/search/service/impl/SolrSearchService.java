@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import javax.activation.FileTypeMap;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrResponse;
@@ -43,6 +44,7 @@ import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.exception.SolrDocumentBuildException;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
+import org.craftercms.search.service.SolrDocumentBuilder;
 import org.craftercms.search.utils.SolrServerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,10 +64,14 @@ import static org.craftercms.search.service.SearchRestConstants.SOLR_CONTENT_STR
  */
 public class SolrSearchService implements SearchService {
 
-    public static final String FILE_NAME_FIELD_NAME = "file-name";
+    public static final String DEFAULT_FILE_NAME_FIELD_NAME = "file-name";
 
     private static final Logger logger = LoggerFactory.getLogger(SolrSearchService.class);
 
+    /**
+     * The file name field name (default is file-name).
+     */
+    protected String fileNameFieldName;
     /**
      * Factory that creates index specific SolrServers.
      */
@@ -82,6 +88,22 @@ public class SolrSearchService implements SearchService {
      * The regex pattern used to ignore those additional fields that shouldn't be parsed for multi value.
      */
     protected String multiValueIgnorePattern;
+    /**
+     * ID regex/delete query mappings that can be used to specify special delete queries for certain files,
+     * e.g. delete XML documents with their sub-documents.
+     */
+    protected Map<String, String> deleteQueryMappings;
+
+    public SolrSearchService() {
+        fileNameFieldName = DEFAULT_FILE_NAME_FIELD_NAME;
+    }
+
+    /**
+     * Sets the file name field (default is file-name).
+     */
+    public void setFileNameFieldName(String fileNameFieldName) {
+        this.fileNameFieldName = fileNameFieldName;
+    }
 
     /**
      * Sets the factory that creates index specific SolrServers.
@@ -113,6 +135,14 @@ public class SolrSearchService implements SearchService {
     @Required
     public void setMultiValueIgnorePattern(String multiValueIgnorePattern) {
         this.multiValueIgnorePattern = multiValueIgnorePattern;
+    }
+
+    /**
+     * Sets ID regex/delete query mappings that can be used to specify special delete queries for certain
+     * files, e.g. delete XML documents with their sub-documents.
+     */
+    public void setDeleteQueryMappings(Map<String, String> deleteQueryMappings) {
+        this.deleteQueryMappings = deleteQueryMappings;
     }
 
     /**
@@ -159,6 +189,10 @@ public class SolrSearchService implements SearchService {
                          boolean ignoreRootInFieldNames) throws SearchException {
         String finalId = site + ":" + id;
 
+        // This is done because when a document is updated, and it had children before but not now, the children
+        // will be orphaned (SOLR-6096)
+        delete(indexId, site, id);
+
         try {
             SolrInputDocument solrDoc = solrDocumentBuilder.build(site, id, xml, ignoreRootInFieldNames);
             NamedList<Object> response = getSolrServer(indexId).add(solrDoc).getResponse();
@@ -169,11 +203,11 @@ public class SolrSearchService implements SearchService {
 
             return msg;
         } catch (SolrDocumentBuildException e) {
-            throw new SearchException(indexId, "Unable to build Solr document for '" + finalId + "'", e);
+            throw new SearchException(indexId, "Unable to build Solr document for " + finalId, e);
         } catch (IOException e) {
-            throw new SearchException(indexId,  "I/O error while executing update for '" + finalId + "'", e);
+            throw new SearchException(indexId,  "I/O error while executing update for " + finalId, e);
         } catch (Exception e) {
-            throw new SearchException(indexId, e.getMessage(), e);
+            throw new SearchException(indexId, "Error executing update for " + finalId, e);
         }
     }
 
@@ -187,19 +221,34 @@ public class SolrSearchService implements SearchService {
     @Override
     public String delete(String indexId, String site, String id) throws SearchException {
         String finalId = site + ":" + id;
+        String query = getDeleteQuery(finalId);
+        NamedList<Object> response;
+        String msg;
 
         try {
-            NamedList<Object> response = getSolrServer(indexId).deleteById(finalId).getResponse();
-
-            String msg = getSuccessfulMessage(indexId, finalId, "Delete", response);
+            if (StringUtils.isNotEmpty(query)) {
+                response = getSolrServer(indexId).deleteByQuery(query).getResponse();
+                msg = getSuccessfulMessage(indexId, query, "Delete", response);
+            } else {
+                response = getSolrServer(indexId).deleteById(finalId).getResponse();
+                msg = getSuccessfulMessage(indexId, finalId, "Delete", response);
+            }
 
             logger.info(msg);
 
             return msg;
         } catch (IOException e) {
-            throw new SearchException(indexId, "I/O error while executing delete for '" + finalId + "'", e);
+            if (StringUtils.isNotEmpty(query)) {
+                throw new SearchException(indexId, "I/O error while executing delete for " + query, e);
+            } else {
+                throw new SearchException(indexId, "I/O error while executing delete for " + finalId, e);
+            }
         } catch (Exception e) {
-            throw new SearchException(indexId, e.getMessage(), e);
+            if (StringUtils.isNotEmpty(query)) {
+                throw new SearchException(indexId, "Error executing delete for " + query, e);
+            } else {
+                throw new SearchException(indexId, "Error executing delete for " + finalId, e);
+            }
         }
     }
 
@@ -245,7 +294,7 @@ public class SolrSearchService implements SearchService {
         try {
             ModifiableSolrParams params = solrDocumentBuilder.buildParams(site, id, ExtractingParams.LITERALS_PREFIX,
                                                                           null, additionalFields);
-            params.set(ExtractingParams.LITERALS_PREFIX + FILE_NAME_FIELD_NAME, fileName);
+            params.set(ExtractingParams.LITERALS_PREFIX + fileNameFieldName, fileName);
 
             request.setParams(params);
             request.addFile(file, contentType);
@@ -258,16 +307,16 @@ public class SolrSearchService implements SearchService {
 
             try {
                 SolrInputDocument inputDocument = solrDocumentBuilder.build(site, id, additionalFields);
-                inputDocument.setField(FILE_NAME_FIELD_NAME, fileName);
+                inputDocument.setField(fileNameFieldName, fileName);
 
                 response = getSolrServer(indexId).add(inputDocument).getResponse();
             } catch (IOException e1) {
-                throw new SearchException(indexId, "I/O error while executing update file for '" + finalId + "'", e1);
+                throw new SearchException(indexId, "I/O error while executing update file for " + finalId, e1);
             } catch (SolrServerException e1) {
                 throw new SearchException(indexId, e1.getMessage(), e1);
             }
         } catch (IOException e) {
-            throw new SearchException(indexId, "I/O error while executing update file for '" + finalId + "'", e);
+            throw new SearchException(indexId, "I/O error while executing update file for " + finalId, e);
         }
 
         String msg = getSuccessfulMessage(indexId, finalId, "Update file", response);
@@ -297,7 +346,7 @@ public class SolrSearchService implements SearchService {
         } catch (IOException e) {
             throw new SearchException(indexId, "I/O error while executing commit", e);
         } catch (Exception e) {
-            throw new SearchException(indexId, e.getMessage(), e);
+            throw new SearchException(indexId, "Error executing commit", e);
         }
     }
 
@@ -305,6 +354,7 @@ public class SolrSearchService implements SearchService {
         return new ModifiableSolrParams(queryParams.getParams());
     }
 
+    @SuppressWarnings("unchecked")
     protected Map<String, Object> toMap(NamedList<Object> namedList) {
         Map<String, Object> map = new LinkedHashMap<String, Object>();
 
@@ -333,6 +383,7 @@ public class SolrSearchService implements SearchService {
         return map;
     }
 
+    @SuppressWarnings("unchecked")
     protected Object toSerializableValue(Object namedListValue) {
         // The value can also be a NamedList, so convert it to map.
         if (namedListValue instanceof NamedList) {
@@ -374,12 +425,24 @@ public class SolrSearchService implements SearchService {
         return solrServerFactory.getSolrServer(indexId);
     }
 
-    protected String getSuccessfulMessage(String indexId, String finalId, String operation, Object solrResponse) {
-        return String.format("%s%s for '%s' successful: %s", getIndexPrefix(indexId), operation, finalId, solrResponse);
+    protected String getSuccessfulMessage(String indexId, String idOrQuery, String operation, Object solrResponse) {
+        return String.format("%s%s for %s successful: %s", getIndexPrefix(indexId), operation, idOrQuery, solrResponse);
     }
 
     protected String getIndexPrefix(String indexId) {
         return StringUtils.isNotEmpty(indexId)? "[" + indexId + "] " : "";
+    }
+
+    protected String getDeleteQuery(String id) {
+        if (MapUtils.isNotEmpty(deleteQueryMappings)) {
+            for (Map.Entry<String, String> mapping : deleteQueryMappings.entrySet()) {
+                if (id.matches(mapping.getKey())) {
+                    return String.format(mapping.getValue(), id);
+                }
+            }
+        }
+
+        return null;
     }
 
 }
