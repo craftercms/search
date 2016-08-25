@@ -23,7 +23,7 @@ import org.craftercms.search.service.FieldValueConverter;
 
 /**
  * Based on the suffix of a field, picks an actual {@link FieldValueConverter} from a set of suffix -> converter
- * mappings. For example, if a field ends with _dt, this converter can delegate to a {@link IsoDateTimeConverter} to
+ * mappings. For example, if a field ends with _dt, this converter can delegate to a {@link DateTimeConverter} to
  * convert the field.
  *
  * @author avasquez
