@@ -305,6 +305,7 @@ public class SearchServiceIT {
     }
 
     private void assertWpReasonsPdfDoc(Map<String, Object> doc, String site) {
+        assertNotNull(doc.get("publishedDate_dt"));
         assertEquals(site, doc.get("crafterSite"));
         assertEquals(site + ":" + WP_REASONS_PDF_DOC_ID, doc.get("id"));
         assertEquals(WP_REASONS_PDF_DOC_ID, doc.get("localId"));

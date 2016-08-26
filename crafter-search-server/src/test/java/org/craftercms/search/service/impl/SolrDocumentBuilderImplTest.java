@@ -19,10 +19,16 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.*;
-import static org.craftercms.search.service.impl.SubDocumentElementParser.*;
-import static org.craftercms.search.service.impl.AddIndexingDatePostProcessor.*;
-import static org.junit.Assert.*;
+import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ID_FIELD_NAME;
+import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_INDEXING_DATE_FIELD_NAME;
+import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_LOCAL_ID_FIELD_NAME;
+import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_SITE_FIELD_NAME;
+import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_CONTENT_TYPE_FIELD_NAME;
+import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_PARENT_ID_FIELD_NAME;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * Unit tests for {@link SolrDocumentBuilderImpl}.
@@ -140,6 +146,8 @@ public class SolrDocumentBuilderImplTest {
         SolrInputDocument doc = builder.build(SITE, TAB_ID, fields);
 
         assertNotNull(doc);
+        assertEquals(8, doc.size());
+        assertNotNull(doc.getFieldValue(DEFAULT_INDEXING_DATE_FIELD_NAME));
         assertEquals(SITE, doc.getFieldValue(DEFAULT_SITE_FIELD_NAME));
         assertEquals(SITE + ":" + TAB_ID, doc.getFieldValue("id"));
         assertEquals(TAB_ID, doc.getFieldValue(DEFAULT_LOCAL_ID_FIELD_NAME));
@@ -165,6 +173,7 @@ public class SolrDocumentBuilderImplTest {
         ModifiableSolrParams params = builder.buildParams(SITE, TAB_ID, prefix, suffix, fields);
 
         assertNotNull(params);
+        assertNotNull(params.get(prefix + DEFAULT_INDEXING_DATE_FIELD_NAME + suffix));
         assertEquals(SITE, params.get(prefix + DEFAULT_SITE_FIELD_NAME + suffix));
         assertEquals(SITE + ":" + TAB_ID, params.get(prefix + "id" + suffix));
         assertEquals(TAB_ID, params.get(prefix + DEFAULT_LOCAL_ID_FIELD_NAME + suffix));
@@ -210,13 +219,12 @@ public class SolrDocumentBuilderImplTest {
     }
 
     private List<SolrDocumentPostProcessor> createPostProcessors() {
-        AddIndexingDatePostProcessor addIndexingDatePostProcessor = new AddIndexingDatePostProcessor();
         DenormalizingPostProcessor denormalizingPostProcessor = new DenormalizingPostProcessor();
         RenameFieldsIfMultiValuePostProcessor renamePostProcessor = new RenameFieldsIfMultiValuePostProcessor();
 
         renamePostProcessor.setSingleToMultiValueSuffixMappings(createSingleToMultiValueSuffixMappings());
 
-        return Arrays.asList(addIndexingDatePostProcessor, denormalizingPostProcessor, renamePostProcessor);
+        return Arrays.asList(denormalizingPostProcessor, renamePostProcessor);
     }
 
     private Map<String, String> createSingleToMultiValueSuffixMappings() {

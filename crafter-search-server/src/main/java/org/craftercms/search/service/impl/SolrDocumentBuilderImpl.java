@@ -34,6 +34,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -50,10 +52,12 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
     public static final String DEFAULT_ID_FIELD_NAME = "id";
     public static final String DEFAULT_SITE_FIELD_NAME = "crafterSite";
     public static final String DEFAULT_LOCAL_ID_FIELD_NAME = "localId";
+    public static final String DEFAULT_INDEXING_DATE_FIELD_NAME = "indexingDate_dt";
 
     protected String idFieldName;
     protected String siteFieldName;
     protected String localIdFieldName;
+    protected String indexingDateFieldName;
     protected ElementParserService parserService;
     protected FieldValueConverter fieldValueConverter;
     protected List<SolrDocumentPostProcessor> postProcessors;
@@ -62,6 +66,7 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         idFieldName = DEFAULT_ID_FIELD_NAME;
         siteFieldName = DEFAULT_SITE_FIELD_NAME;
         localIdFieldName = DEFAULT_LOCAL_ID_FIELD_NAME;
+        indexingDateFieldName = DEFAULT_INDEXING_DATE_FIELD_NAME;
     }
 
     public void setIdFieldName(String idFieldName) {
@@ -74,6 +79,10 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
 
     public void setLocalIdFieldName(String localIdFieldName) {
         this.localIdFieldName = localIdFieldName;
+    }
+
+    public void setIndexingDateFieldName(String indexingDateFieldName) {
+        this.indexingDateFieldName = indexingDateFieldName;
     }
 
     @Required
@@ -102,6 +111,7 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         solrDoc.addField(idFieldName, finalId);
         solrDoc.addField(siteFieldName, site);
         solrDoc.addField(localIdFieldName, id);
+        solrDoc.addField(indexingDateFieldName, formatAsIso(DateTime.now()));
 
         Document document;
         try {
@@ -131,6 +141,7 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         solrDoc.addField(idFieldName, finalId);
         solrDoc.addField(siteFieldName, site);
         solrDoc.addField(localIdFieldName, id);
+        solrDoc.addField(indexingDateFieldName, formatAsIso(DateTime.now()));
 
         if (MapUtils.isNotEmpty(fields)) {
             for (Map.Entry<String, List<String>> field : fields.entrySet()) {
@@ -159,6 +170,7 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         params.set(prefix + idFieldName + suffix, finalId);
         params.set(prefix + siteFieldName + suffix, site);
         params.set(prefix + localIdFieldName + suffix, id);
+        params.set(prefix + indexingDateFieldName + suffix, formatAsIso(DateTime.now()));
 
         if (MapUtils.isNotEmpty(fields)) {
             for (Map.Entry<String, List<String>> field : fields.entrySet()) {
@@ -191,6 +203,10 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         reader.setMergeAdjacentText(true);
 
         return reader;
+    }
+
+    protected String formatAsIso(DateTime dateTime) {
+        return ISODateTimeFormat.dateTime().withZoneUTC().print(dateTime);
     }
 
 }
