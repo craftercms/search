@@ -41,6 +41,8 @@
         <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
         <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
         <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
+        <property name="publishingDateFieldName" value="${crafter.search.solr.field.publishedDate.name}"/>
+        <property name="publishingDateAltFieldName" value="${crafter.search.solr.field.publishedDate.alt.name}"/>
         <property name="contentTypeFieldName" value="${crafter.search.solr.field.contentType.name}"/>
     </bean>
 
@@ -56,11 +58,6 @@
                 <ref bean="crafter.defaultElementParser"/>
             </list>
         </property>
-    </bean>
-
-    <bean name="crafter.addIndexingDatePostProcessor"
-          class="org.craftercms.search.service.impl.AddIndexingDatePostProcessor">
-        <property name="indexingDateFieldName" value="${crafter.search.solr.field.indexingDate.name}"/>
     </bean>
 
     <bean id="crafter.renameFieldsIfMultiValuePostProcessor"
@@ -82,11 +79,12 @@
         <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
         <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
         <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
+        <property name="publishingDateFieldName" value="${crafter.search.solr.field.publishedDate.name}"/>
+        <property name="publishingDateAltFieldName" value="${crafter.search.solr.field.publishedDate.alt.name}"/>
         <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
         <property name="parserService" ref="crafter.elementParserService"/>
         <property name="postProcessors">
             <list>
-                <ref bean="crafter.addIndexingDatePostProcessor"/>
                 <ref bean="crafter.denormalizingPostProcessor"/>
                 <ref bean="crafter.renameFieldsIfMultiValuePostProcessor"/>
             </list>
