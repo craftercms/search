@@ -34,6 +34,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -50,10 +52,14 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
     public static final String DEFAULT_ID_FIELD_NAME = "id";
     public static final String DEFAULT_SITE_FIELD_NAME = "crafterSite";
     public static final String DEFAULT_LOCAL_ID_FIELD_NAME = "localId";
+    public static final String DEFAULT_PUBLISHING_DATE_FIELD_NAME = "publishingDate";
+    public static final String DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME = "publishingDate_dt";
 
     protected String idFieldName;
     protected String siteFieldName;
     protected String localIdFieldName;
+    protected String publishingDateFieldName;
+    protected String publishingDateAltFieldName;
     protected ElementParserService parserService;
     protected FieldValueConverter fieldValueConverter;
     protected List<SolrDocumentPostProcessor> postProcessors;
@@ -62,6 +68,8 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         idFieldName = DEFAULT_ID_FIELD_NAME;
         siteFieldName = DEFAULT_SITE_FIELD_NAME;
         localIdFieldName = DEFAULT_LOCAL_ID_FIELD_NAME;
+        publishingDateFieldName = DEFAULT_PUBLISHING_DATE_FIELD_NAME;
+        publishingDateAltFieldName = DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME;
     }
 
     public void setIdFieldName(String idFieldName) {
@@ -74,6 +82,14 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
 
     public void setLocalIdFieldName(String localIdFieldName) {
         this.localIdFieldName = localIdFieldName;
+    }
+
+    public void setPublishingDateFieldName(String publishingDateFieldName) {
+        this.publishingDateFieldName = publishingDateFieldName;
+    }
+
+    public void setPublishingDateAltFieldName(String publishingDateAltFieldName) {
+        this.publishingDateAltFieldName = publishingDateAltFieldName;
     }
 
     @Required
@@ -99,9 +115,13 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
 
         logger.debug("Building Solr doc for {}", finalId);
 
+        String now = formatAsIso(DateTime.now());
+
         solrDoc.addField(idFieldName, finalId);
         solrDoc.addField(siteFieldName, site);
         solrDoc.addField(localIdFieldName, id);
+        solrDoc.addField(publishingDateFieldName, now);
+        solrDoc.addField(publishingDateAltFieldName, now);
 
         Document document;
         try {
@@ -128,9 +148,13 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
 
         logger.debug("Building Solr doc for {}", finalId);
 
+        String now = formatAsIso(DateTime.now());
+
         solrDoc.addField(idFieldName, finalId);
         solrDoc.addField(siteFieldName, site);
         solrDoc.addField(localIdFieldName, id);
+        solrDoc.addField(publishingDateFieldName, now);
+        solrDoc.addField(publishingDateAltFieldName, now);
 
         if (MapUtils.isNotEmpty(fields)) {
             for (Map.Entry<String, List<String>> field : fields.entrySet()) {
@@ -156,9 +180,13 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
 
         logger.debug("Building params for update request for {}", finalId);
 
+        String now = formatAsIso(DateTime.now());
+
         params.set(prefix + idFieldName + suffix, finalId);
         params.set(prefix + siteFieldName + suffix, site);
         params.set(prefix + localIdFieldName + suffix, id);
+        params.set(prefix + publishingDateFieldName + suffix, now);
+        params.set(prefix + publishingDateAltFieldName + suffix, now);
 
         if (MapUtils.isNotEmpty(fields)) {
             for (Map.Entry<String, List<String>> field : fields.entrySet()) {
@@ -191,6 +219,10 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         reader.setMergeAdjacentText(true);
 
         return reader;
+    }
+
+    protected String formatAsIso(DateTime dateTime) {
+        return ISODateTimeFormat.dateTime().withZoneUTC().print(dateTime);
     }
 
 }
