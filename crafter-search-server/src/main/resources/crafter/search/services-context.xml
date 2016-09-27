@@ -41,7 +41,8 @@
         <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
         <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
         <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
-        <property name="indexingDateFieldName" value="${crafter.search.solr.field.indexingDate.name}"/>
+        <property name="publishingDateFieldName" value="${crafter.search.solr.field.publishedDate.name}"/>
+        <property name="publishingDateAltFieldName" value="${crafter.search.solr.field.publishedDate.alt.name}"/>
         <property name="contentTypeFieldName" value="${crafter.search.solr.field.contentType.name}"/>
     </bean>
 
@@ -78,7 +79,8 @@
         <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
         <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
         <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
-        <property name="indexingDateFieldName" value="${crafter.search.solr.field.indexingDate.name}"/>
+        <property name="publishingDateFieldName" value="${crafter.search.solr.field.publishedDate.name}"/>
+        <property name="publishingDateAltFieldName" value="${crafter.search.solr.field.publishedDate.alt.name}"/>
         <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
         <property name="parserService" ref="crafter.elementParserService"/>
         <property name="postProcessors">
