@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ID_FIELD_NAME;
+import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_INDEXING_DATE_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_LOCAL_ID_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_SITE_FIELD_NAME;
 
@@ -51,6 +52,7 @@ public class SubDocumentElementParser implements ElementParser {
     protected String idFieldName;
     protected String siteFieldName;
     protected String localIdFieldName;
+    protected String indexingDateFieldName;
     protected String parentIdFieldName;
     protected String contentTypeFieldName;
     protected String containsSubDocumentsAttributeName;
@@ -60,6 +62,7 @@ public class SubDocumentElementParser implements ElementParser {
         idFieldName = DEFAULT_ID_FIELD_NAME;
         siteFieldName = DEFAULT_SITE_FIELD_NAME;
         localIdFieldName = DEFAULT_LOCAL_ID_FIELD_NAME;
+        indexingDateFieldName = DEFAULT_INDEXING_DATE_FIELD_NAME;
         parentIdFieldName = DEFAULT_PARENT_ID_FIELD_NAME;
         contentTypeFieldName = DEFAULT_CONTENT_TYPE_FIELD_NAME;
         containsSubDocumentsAttributeName = DEFAULT_CONTAINS_SUB_DOCUMENTS_ATTRIBUTE_NAME;
@@ -76,6 +79,10 @@ public class SubDocumentElementParser implements ElementParser {
 
     public void setLocalIdFieldName(String localIdFieldName) {
         this.localIdFieldName = localIdFieldName;
+    }
+
+    public void setIndexingDateFieldName(String indexingDateFieldName) {
+        this.indexingDateFieldName = indexingDateFieldName;
     }
 
     public void setContentTypeFieldName(String contentTypeFieldName) {
@@ -104,6 +111,7 @@ public class SubDocumentElementParser implements ElementParser {
             String site = (String)solrDoc.getFieldValue(siteFieldName);
             String parentId = (String)solrDoc.getFieldValue(idFieldName);
             String parentLocalId = (String)solrDoc.getFieldValue(localIdFieldName);
+            String parentIndexingDate = (String)solrDoc.getFieldValue(indexingDateFieldName);
             String parentContentType = (String)solrDoc.getFieldValue(contentTypeFieldName);
 
             List<Element> subDocElements = element.elements(subDocumentElementName);
@@ -121,6 +129,7 @@ public class SubDocumentElementParser implements ElementParser {
                     subSolrDoc.addField(siteFieldName, site);
                     subSolrDoc.addField(idFieldName, id);
                     subSolrDoc.addField(localIdFieldName, localId);
+                    subSolrDoc.addField(indexingDateFieldName, parentIndexingDate);
                     subSolrDoc.addField(parentIdFieldName, parentId);
 
                     if (StringUtils.isNotEmpty(parentContentType)) {
