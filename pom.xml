@@ -7,7 +7,8 @@
     <version>2.5.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Crafter Search</name>
-    <description>Crafter Search</description>
+    <description>Crafter Search Abstraction Layer</description>
+    <url>https://github.com/craftercms/search</url>
 
     <parent>
         <groupId>org.sonatype.oss</groupId>
