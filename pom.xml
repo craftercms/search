@@ -7,13 +7,8 @@
     <version>2.6.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Crafter Search</name>
-    <description>Crafter Search</description>
-
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
+    <description>Crafter Search Abstraction Layer</description>
+    <url>https://github.com/craftercms/search</url>
 
     <organization>
         <name>CrafterCMS</name>
@@ -297,4 +292,14 @@
         </profile>
     </profiles>
 
+    <distributionManagement>
+    			  <snapshotRepository>
+    			    <id>sonatype-nexus-snapshots</id>
+    			    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    			  </snapshotRepository>
+    			  <repository>
+    			    <id>sonatype-nexus-staging</id>
+    			    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    			  </repository>
+    	</distributionManagement>
 </project>
