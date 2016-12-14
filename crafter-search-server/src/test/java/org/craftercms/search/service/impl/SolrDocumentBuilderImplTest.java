@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2007-2013 Crafter Software Corporation.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.search.service.impl;
 
 import java.util.ArrayList;
@@ -26,6 +42,7 @@ import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_SITE_FIELD_NAME;
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_CONTENT_TYPE_FIELD_NAME;
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_PARENT_ID_FIELD_NAME;
+import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_ROOT_PARENT_ID_FIELD_NAME;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -95,13 +112,14 @@ public class SolrDocumentBuilderImplTest {
         // Assert first doc
         SolrInputDocument subDoc1 = subDocs.get(0);
 
-        assertEquals(15, subDoc1.size());
+        assertEquals(16, subDoc1.size());
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_FIELD_NAME));
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME));
         assertEquals(SITE, subDoc1.getFieldValue(DEFAULT_SITE_FIELD_NAME));
         assertEquals(SITE + ":" + IPAD_ID_ACCESSORIES0, subDoc1.getFieldValue(DEFAULT_ID_FIELD_NAME));
         assertEquals(IPAD_ID_ACCESSORIES0, subDoc1.getFieldValue(DEFAULT_LOCAL_ID_FIELD_NAME));
         assertEquals(SITE + ":" + IPAD_ID, subDoc1.getFieldValue(DEFAULT_PARENT_ID_FIELD_NAME));
+        assertEquals(SITE + ":" + IPAD_ID, subDoc1.getFieldValue(DEFAULT_ROOT_PARENT_ID_FIELD_NAME));
         assertEquals("product_accessories", subDoc1.getFieldValue(DEFAULT_CONTENT_TYPE_FIELD_NAME));
         assertEquals("Case", subDoc1.getFieldValue("accessories.item.name_s"));
         assertEquals("Silicon case with stand for iPad Air 64GB",
@@ -118,13 +136,14 @@ public class SolrDocumentBuilderImplTest {
         // Assert second doc
         SolrInputDocument subDoc2 = subDocs.get(1);
 
-        assertEquals(14, subDoc2.size());
+        assertEquals(15, subDoc2.size());
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_FIELD_NAME));
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME));
         assertEquals(SITE, subDoc2.getFieldValue(DEFAULT_SITE_FIELD_NAME));
         assertEquals(SITE + ":" + IPAD_ID_ACCESSORIES1, subDoc2.getFieldValue(DEFAULT_ID_FIELD_NAME));
         assertEquals(IPAD_ID_ACCESSORIES1, subDoc2.getFieldValue(DEFAULT_LOCAL_ID_FIELD_NAME));
         assertEquals(SITE + ":" + IPAD_ID, subDoc2.getFieldValue(DEFAULT_PARENT_ID_FIELD_NAME));
+        assertEquals(SITE + ":" + IPAD_ID, subDoc1.getFieldValue(DEFAULT_ROOT_PARENT_ID_FIELD_NAME));
         assertEquals("product_accessories", subDoc2.getFieldValue(DEFAULT_CONTENT_TYPE_FIELD_NAME));
         assertEquals("Lighting Cable", subDoc2.getFieldValue("accessories.item.name_s"));
         assertEquals("Lighting cable for iPad",

@@ -287,6 +287,7 @@ public class SearchServiceIT {
         assertEquals(site + ":" + IPAD_DOC_ID_ACCESSORIES0, doc.get("id"));
         assertEquals(IPAD_DOC_ID_ACCESSORIES0, doc.get("localId"));
         assertEquals(site + ":" + IPAD_DOC_ID, doc.get("parentId"));
+        assertEquals(site + ":" + IPAD_DOC_ID, doc.get("rootParentId"));
         assertEquals("product_accessories", doc.get("content-type"));
         assertEquals("Case", doc.get("accessories.item.name_s"));
         assertEquals("Silicon case with stand for iPad Air 64GB",
@@ -299,6 +300,7 @@ public class SearchServiceIT {
         assertEquals(site + ":" + IPAD_DOC_ID_ACCESSORIES1, doc.get("id"));
         assertEquals(IPAD_DOC_ID_ACCESSORIES1, doc.get("localId"));
         assertEquals(site + ":" + IPAD_DOC_ID, doc.get("parentId"));
+        assertEquals(site + ":" + IPAD_DOC_ID, doc.get("rootParentId"));
         assertEquals("product_accessories", doc.get("content-type"));
         assertEquals("Lighting Cable", doc.get("accessories.item.name_s"));
         assertEquals("Lighting cable for iPad",
