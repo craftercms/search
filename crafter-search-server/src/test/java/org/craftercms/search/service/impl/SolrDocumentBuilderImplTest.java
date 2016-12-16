@@ -36,13 +36,13 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ID_FIELD_NAME;
+import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_LOCAL_ID_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_PUBLISHING_DATE_FIELD_NAME;
-import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_LOCAL_ID_FIELD_NAME;
+import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ROOT_ID_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_SITE_FIELD_NAME;
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_CONTENT_TYPE_FIELD_NAME;
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_PARENT_ID_FIELD_NAME;
-import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_ROOT_PARENT_ID_FIELD_NAME;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -84,12 +84,13 @@ public class SolrDocumentBuilderImplTest {
         SolrInputDocument doc = builder.build(SITE, IPAD_ID, xml, true);
 
         assertNotNull(doc);
-        assertEquals(14, doc.size());
+        assertEquals(15, doc.size());
         assertNull(doc.getFieldValue("code"));
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_FIELD_NAME));
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME));
         assertEquals(SITE, doc.getFieldValue(DEFAULT_SITE_FIELD_NAME));
         assertEquals(SITE + ":" + IPAD_ID, doc.getFieldValue(DEFAULT_ID_FIELD_NAME));
+        assertEquals(SITE + ":" + IPAD_ID, doc.getFieldValue(DEFAULT_ROOT_ID_FIELD_NAME));
         assertEquals(IPAD_ID, doc.getFieldValue(DEFAULT_LOCAL_ID_FIELD_NAME));
         assertEquals("product", doc.getFieldValue(DEFAULT_CONTENT_TYPE_FIELD_NAME));
         assertEquals("iPad Air 64GB", doc.getFieldValue("name_s"));
@@ -119,7 +120,7 @@ public class SolrDocumentBuilderImplTest {
         assertEquals(SITE + ":" + IPAD_ID_ACCESSORIES0, subDoc1.getFieldValue(DEFAULT_ID_FIELD_NAME));
         assertEquals(IPAD_ID_ACCESSORIES0, subDoc1.getFieldValue(DEFAULT_LOCAL_ID_FIELD_NAME));
         assertEquals(SITE + ":" + IPAD_ID, subDoc1.getFieldValue(DEFAULT_PARENT_ID_FIELD_NAME));
-        assertEquals(SITE + ":" + IPAD_ID, subDoc1.getFieldValue(DEFAULT_ROOT_PARENT_ID_FIELD_NAME));
+        assertEquals(SITE + ":" + IPAD_ID, subDoc1.getFieldValue(DEFAULT_ROOT_ID_FIELD_NAME));
         assertEquals("product_accessories", subDoc1.getFieldValue(DEFAULT_CONTENT_TYPE_FIELD_NAME));
         assertEquals("Case", subDoc1.getFieldValue("accessories.item.name_s"));
         assertEquals("Silicon case with stand for iPad Air 64GB",
@@ -143,7 +144,7 @@ public class SolrDocumentBuilderImplTest {
         assertEquals(SITE + ":" + IPAD_ID_ACCESSORIES1, subDoc2.getFieldValue(DEFAULT_ID_FIELD_NAME));
         assertEquals(IPAD_ID_ACCESSORIES1, subDoc2.getFieldValue(DEFAULT_LOCAL_ID_FIELD_NAME));
         assertEquals(SITE + ":" + IPAD_ID, subDoc2.getFieldValue(DEFAULT_PARENT_ID_FIELD_NAME));
-        assertEquals(SITE + ":" + IPAD_ID, subDoc1.getFieldValue(DEFAULT_ROOT_PARENT_ID_FIELD_NAME));
+        assertEquals(SITE + ":" + IPAD_ID, subDoc1.getFieldValue(DEFAULT_ROOT_ID_FIELD_NAME));
         assertEquals("product_accessories", subDoc2.getFieldValue(DEFAULT_CONTENT_TYPE_FIELD_NAME));
         assertEquals("Lighting Cable", subDoc2.getFieldValue("accessories.item.name_s"));
         assertEquals("Lighting cable for iPad",
@@ -169,11 +170,12 @@ public class SolrDocumentBuilderImplTest {
         SolrInputDocument doc = builder.build(SITE, TAB_ID, fields);
 
         assertNotNull(doc);
-        assertEquals(9, doc.size());
+        assertEquals(10, doc.size());
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_FIELD_NAME));
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME));
         assertEquals(SITE, doc.getFieldValue(DEFAULT_SITE_FIELD_NAME));
-        assertEquals(SITE + ":" + TAB_ID, doc.getFieldValue("id"));
+        assertEquals(SITE + ":" + TAB_ID, doc.getFieldValue(DEFAULT_ID_FIELD_NAME));
+        assertEquals(SITE + ":" + TAB_ID, doc.getFieldValue(DEFAULT_ROOT_ID_FIELD_NAME));
         assertEquals(TAB_ID, doc.getFieldValue(DEFAULT_LOCAL_ID_FIELD_NAME));
         assertEquals("Samsung Galaxy Tab 4", doc.getFieldValue("name"));
         assertEquals("Samsung Galaxy Tab 4 (7-Inch, White)", doc.getFieldValue("description_html").toString().trim());
@@ -200,7 +202,8 @@ public class SolrDocumentBuilderImplTest {
         assertNotNull(params.get(prefix + DEFAULT_PUBLISHING_DATE_FIELD_NAME + suffix));
         assertNotNull(params.get(prefix + DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME + suffix));
         assertEquals(SITE, params.get(prefix + DEFAULT_SITE_FIELD_NAME + suffix));
-        assertEquals(SITE + ":" + TAB_ID, params.get(prefix + "id" + suffix));
+        assertEquals(SITE + ":" + TAB_ID, params.get(prefix + DEFAULT_ID_FIELD_NAME + suffix));
+        assertEquals(SITE + ":" + TAB_ID, params.get(prefix + DEFAULT_ROOT_ID_FIELD_NAME + suffix));
         assertEquals(TAB_ID, params.get(prefix + DEFAULT_LOCAL_ID_FIELD_NAME + suffix));
         assertEquals("Samsung Galaxy Tab 4", params.get(prefix + "name" + suffix));
         assertEquals("Samsung Galaxy Tab 4 (7-Inch, White)",
