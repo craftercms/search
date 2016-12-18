@@ -15,7 +15,7 @@
     <properties>
         <!-- Cargo -->
         <cargo.container>jetty9x</cargo.container>
-        <cargo.container.url>http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.1.5.v20140505/jetty-distribution-9.1.5.v20140505.tar.gz</cargo.container.url>
+        <cargo.container.url>http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.3.9.v20160517/jetty-distribution-9.3.9.v20160517.tar.gz</cargo.container.url>
         <cargo.container.downloadDir>${user.home}/.m2/cargo/containers</cargo.container.downloadDir>
         <cargo.port>8983</cargo.port>
         <solr.war.exploded>${basedir}/target/exploded-wars/solr</solr.war.exploded>
@@ -220,7 +220,7 @@
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.4.19</version>
+                <version>1.6.1</version>
                 <executions>
                     <execution>
                         <id>start-container</id>
