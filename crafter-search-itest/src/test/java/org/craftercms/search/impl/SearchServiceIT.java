@@ -273,6 +273,7 @@ public class SearchServiceIT {
     private void assertIPadDoc(Map<String, Object> doc, String site) {
         assertIPadDocCommonFields(doc, site);
         assertEquals(site + ":" + IPAD_DOC_ID, doc.get("id"));
+        assertEquals(site + ":" + IPAD_DOC_ID, doc.get("rootId"));
         assertEquals(IPAD_DOC_ID, doc.get("localId"));
         assertEquals("product", doc.get("content-type"));
         assertEquals(Arrays.asList("Apple", "iPad", "Tablet"), doc.get("tags.value_smv"));
@@ -287,6 +288,7 @@ public class SearchServiceIT {
         assertEquals(site + ":" + IPAD_DOC_ID_ACCESSORIES0, doc.get("id"));
         assertEquals(IPAD_DOC_ID_ACCESSORIES0, doc.get("localId"));
         assertEquals(site + ":" + IPAD_DOC_ID, doc.get("parentId"));
+        assertEquals(site + ":" + IPAD_DOC_ID, doc.get("rootId"));
         assertEquals("product_accessories", doc.get("content-type"));
         assertEquals("Case", doc.get("accessories.item.name_s"));
         assertEquals("Silicon case with stand for iPad Air 64GB",
@@ -299,6 +301,7 @@ public class SearchServiceIT {
         assertEquals(site + ":" + IPAD_DOC_ID_ACCESSORIES1, doc.get("id"));
         assertEquals(IPAD_DOC_ID_ACCESSORIES1, doc.get("localId"));
         assertEquals(site + ":" + IPAD_DOC_ID, doc.get("parentId"));
+        assertEquals(site + ":" + IPAD_DOC_ID, doc.get("rootId"));
         assertEquals("product_accessories", doc.get("content-type"));
         assertEquals("Lighting Cable", doc.get("accessories.item.name_s"));
         assertEquals("Lighting cable for iPad",
@@ -310,6 +313,7 @@ public class SearchServiceIT {
         assertNotNull(doc.get("crafterPublishedDate_dt"));
         assertEquals(site, doc.get("crafterSite"));
         assertEquals(site + ":" + WP_REASONS_PDF_DOC_ID, doc.get("id"));
+        assertEquals(site + ":" + WP_REASONS_PDF_DOC_ID, doc.get("rootId"));
         assertEquals(WP_REASONS_PDF_DOC_ID, doc.get("localId"));
         assertNotNull(doc.get("content"));
     }
