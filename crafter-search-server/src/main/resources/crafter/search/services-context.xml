@@ -77,6 +77,7 @@
 
     <bean id="crafter.solrDocumentBuilder" class="org.craftercms.search.service.impl.SolrDocumentBuilderImpl">
         <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
+        <property name="rootIdFieldName" value="${crafter.search.solr.field.rootId.name}"/>
         <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
         <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
         <property name="publishingDateFieldName" value="${crafter.search.solr.field.publishedDate.name}"/>
