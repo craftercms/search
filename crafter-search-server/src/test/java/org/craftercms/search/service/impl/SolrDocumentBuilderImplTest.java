@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2007-2013 Crafter Software Corporation.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.search.service.impl;
 
 import java.util.ArrayList;
@@ -20,9 +36,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ID_FIELD_NAME;
+import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_LOCAL_ID_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_PUBLISHING_DATE_FIELD_NAME;
-import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_LOCAL_ID_FIELD_NAME;
+import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ROOT_ID_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_SITE_FIELD_NAME;
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_CONTENT_TYPE_FIELD_NAME;
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_PARENT_ID_FIELD_NAME;
@@ -67,12 +84,13 @@ public class SolrDocumentBuilderImplTest {
         SolrInputDocument doc = builder.build(SITE, IPAD_ID, xml, true);
 
         assertNotNull(doc);
-        assertEquals(14, doc.size());
+        assertEquals(15, doc.size());
         assertNull(doc.getFieldValue("code"));
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_FIELD_NAME));
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME));
         assertEquals(SITE, doc.getFieldValue(DEFAULT_SITE_FIELD_NAME));
         assertEquals(SITE + ":" + IPAD_ID, doc.getFieldValue(DEFAULT_ID_FIELD_NAME));
+        assertEquals(SITE + ":" + IPAD_ID, doc.getFieldValue(DEFAULT_ROOT_ID_FIELD_NAME));
         assertEquals(IPAD_ID, doc.getFieldValue(DEFAULT_LOCAL_ID_FIELD_NAME));
         assertEquals("product", doc.getFieldValue(DEFAULT_CONTENT_TYPE_FIELD_NAME));
         assertEquals("iPad Air 64GB", doc.getFieldValue("name_s"));
@@ -95,11 +113,12 @@ public class SolrDocumentBuilderImplTest {
         // Assert first doc
         SolrInputDocument subDoc1 = subDocs.get(0);
 
-        assertEquals(15, subDoc1.size());
+        assertEquals(16, subDoc1.size());
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_FIELD_NAME));
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME));
         assertEquals(SITE, subDoc1.getFieldValue(DEFAULT_SITE_FIELD_NAME));
         assertEquals(SITE + ":" + IPAD_ID_ACCESSORIES0, subDoc1.getFieldValue(DEFAULT_ID_FIELD_NAME));
+        assertEquals(SITE + ":" + IPAD_ID, subDoc1.getFieldValue(DEFAULT_ROOT_ID_FIELD_NAME));
         assertEquals(IPAD_ID_ACCESSORIES0, subDoc1.getFieldValue(DEFAULT_LOCAL_ID_FIELD_NAME));
         assertEquals(SITE + ":" + IPAD_ID, subDoc1.getFieldValue(DEFAULT_PARENT_ID_FIELD_NAME));
         assertEquals("product_accessories", subDoc1.getFieldValue(DEFAULT_CONTENT_TYPE_FIELD_NAME));
@@ -118,11 +137,12 @@ public class SolrDocumentBuilderImplTest {
         // Assert second doc
         SolrInputDocument subDoc2 = subDocs.get(1);
 
-        assertEquals(14, subDoc2.size());
+        assertEquals(15, subDoc2.size());
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_FIELD_NAME));
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME));
         assertEquals(SITE, subDoc2.getFieldValue(DEFAULT_SITE_FIELD_NAME));
         assertEquals(SITE + ":" + IPAD_ID_ACCESSORIES1, subDoc2.getFieldValue(DEFAULT_ID_FIELD_NAME));
+        assertEquals(SITE + ":" + IPAD_ID, subDoc1.getFieldValue(DEFAULT_ROOT_ID_FIELD_NAME));
         assertEquals(IPAD_ID_ACCESSORIES1, subDoc2.getFieldValue(DEFAULT_LOCAL_ID_FIELD_NAME));
         assertEquals(SITE + ":" + IPAD_ID, subDoc2.getFieldValue(DEFAULT_PARENT_ID_FIELD_NAME));
         assertEquals("product_accessories", subDoc2.getFieldValue(DEFAULT_CONTENT_TYPE_FIELD_NAME));
@@ -150,11 +170,12 @@ public class SolrDocumentBuilderImplTest {
         SolrInputDocument doc = builder.build(SITE, TAB_ID, fields);
 
         assertNotNull(doc);
-        assertEquals(9, doc.size());
+        assertEquals(10, doc.size());
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_FIELD_NAME));
         assertNotNull(doc.getFieldValue(DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME));
         assertEquals(SITE, doc.getFieldValue(DEFAULT_SITE_FIELD_NAME));
-        assertEquals(SITE + ":" + TAB_ID, doc.getFieldValue("id"));
+        assertEquals(SITE + ":" + TAB_ID, doc.getFieldValue(DEFAULT_ID_FIELD_NAME));
+        assertEquals(SITE + ":" + TAB_ID, doc.getFieldValue(DEFAULT_ROOT_ID_FIELD_NAME));
         assertEquals(TAB_ID, doc.getFieldValue(DEFAULT_LOCAL_ID_FIELD_NAME));
         assertEquals("Samsung Galaxy Tab 4", doc.getFieldValue("name"));
         assertEquals("Samsung Galaxy Tab 4 (7-Inch, White)", doc.getFieldValue("description_html").toString().trim());
@@ -181,7 +202,8 @@ public class SolrDocumentBuilderImplTest {
         assertNotNull(params.get(prefix + DEFAULT_PUBLISHING_DATE_FIELD_NAME + suffix));
         assertNotNull(params.get(prefix + DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME + suffix));
         assertEquals(SITE, params.get(prefix + DEFAULT_SITE_FIELD_NAME + suffix));
-        assertEquals(SITE + ":" + TAB_ID, params.get(prefix + "id" + suffix));
+        assertEquals(SITE + ":" + TAB_ID, params.get(prefix + DEFAULT_ID_FIELD_NAME + suffix));
+        assertEquals(SITE + ":" + TAB_ID, params.get(prefix + DEFAULT_ROOT_ID_FIELD_NAME + suffix));
         assertEquals(TAB_ID, params.get(prefix + DEFAULT_LOCAL_ID_FIELD_NAME + suffix));
         assertEquals("Samsung Galaxy Tab 4", params.get(prefix + "name" + suffix));
         assertEquals("Samsung Galaxy Tab 4 (7-Inch, White)",
