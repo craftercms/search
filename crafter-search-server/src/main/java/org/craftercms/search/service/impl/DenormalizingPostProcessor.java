@@ -29,6 +29,7 @@ import org.craftercms.search.service.SolrDocumentPostProcessor;
 
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ID_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_LOCAL_ID_FIELD_NAME;
+import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ROOT_ID_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_SITE_FIELD_NAME;
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_CONTENT_TYPE_FIELD_NAME;
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_PARENT_ID_FIELD_NAME;
@@ -43,7 +44,7 @@ import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAUL
  */
 public class DenormalizingPostProcessor implements SolrDocumentPostProcessor {
 
-    public static final String[] DEFAULT_FIELDS_TO_IGNORE = { DEFAULT_ID_FIELD_NAME, DEFAULT_SITE_FIELD_NAME,
+    public static final String[] DEFAULT_FIELDS_TO_IGNORE = { DEFAULT_ID_FIELD_NAME, DEFAULT_ROOT_ID_FIELD_NAME, DEFAULT_SITE_FIELD_NAME,
         DEFAULT_LOCAL_ID_FIELD_NAME, DEFAULT_CONTENT_TYPE_FIELD_NAME, DEFAULT_PARENT_ID_FIELD_NAME };
 
     protected String[] fieldsToIgnore;
