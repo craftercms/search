@@ -9,7 +9,7 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.craftercms.search.batch.exception.BatchIndexingException;
+import org.craftercms.search.batch.IndexingStatus;
 import org.craftercms.search.batch.utils.XmlUtils;
 import org.craftercms.search.batch.utils.xml.DocumentProcessor;
 import org.dom4j.Document;
@@ -45,23 +45,23 @@ public class XmlFileBatchIndexer extends AbstractBatchIndexer {
     }
 
     @Override
-    protected boolean doSingleFileUpdate(String indexId, String siteName, String rootFolder, String fileName,
-                                         boolean delete) throws BatchIndexingException {
+    protected void doSingleFileUpdate(String indexId, String siteName, String rootFolder, String fileName, boolean delete,
+                                      IndexingStatus status) {
         File file = new File(rootFolder, fileName);
 
         if (delete) {
-            return doDelete(indexId, siteName, fileName);
+            doDelete(indexId, siteName, fileName, status);
         } else {
             try {
                 String xml = processXml(rootFolder, file);
 
-                return doUpdate(indexId, siteName, fileName, xml);
+                doUpdate(indexId, siteName, fileName, xml, status);
             } catch (DocumentException e) {
-                logger.warn("Cannot process XML file " + siteName + ":" + fileName + ". Continuing index update...", e);
+                logger.error("Cannot process XML file " + file, e);
+
+                status.addFailedUpdate(fileName);
             }
         }
-
-        return false;
     }
 
     protected String processXml(String rootFolder, File file) throws DocumentException {

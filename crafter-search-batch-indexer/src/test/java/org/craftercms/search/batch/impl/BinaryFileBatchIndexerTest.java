@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import org.craftercms.search.batch.IndexingStatus;
 import org.craftercms.search.service.SearchService;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,15 +43,18 @@ public class BinaryFileBatchIndexerTest {
         File supportedFile = new File(rootFolder, SUPPORTED_FILENAME);
         List<String> updatedFiles = Collections.singletonList(SUPPORTED_FILENAME);
         List<String> deletedFiles = Collections.singletonList(NON_SUPPORTED_FILENAME);
+        IndexingStatus status = new IndexingStatus();
 
-        int updated = batchIndexer.updateIndex(indexId, SITE_NAME, rootFolder, updatedFiles, false);
+        batchIndexer.updateIndex(indexId, SITE_NAME, rootFolder, updatedFiles, false, status);
 
-        assertEquals(1, updated);
+        assertEquals(1, status.getAttemptedUpdatesAndDeletes());
         verify(searchService).updateFile(indexId, SITE_NAME, SUPPORTED_FILENAME, supportedFile);
 
-        updated = batchIndexer.updateIndex(indexId, SITE_NAME, rootFolder, deletedFiles, true);
+        status = new IndexingStatus();
 
-        assertEquals(0, updated);
+        batchIndexer.updateIndex(indexId, SITE_NAME, rootFolder, deletedFiles, true, status);
+
+        assertEquals(0, status.getAttemptedUpdatesAndDeletes());
         verify(searchService, never()).delete(indexId, SITE_NAME, NON_SUPPORTED_FILENAME);
     }
 

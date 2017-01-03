@@ -2,8 +2,6 @@ package org.craftercms.search.batch;
 
 import java.util.List;
 
-import org.craftercms.search.batch.exception.BatchIndexingException;
-
 /**
  * Classes that implement this interface update or delete batches of files from a specified search index.
  *
@@ -19,10 +17,11 @@ public interface BatchIndexer {
      * @param rootFolder    the root folder in the file system where the files are
      * @param fileNames     the names or paths of the files to update/delete, relative to the root folder
      * @param delete        if the given files should be deleted from the index, otherwise they're added
+     * @param status        status object used to track index updates and deletes
      *
      * @return the number of files that where actually added/deleted
      */
-    int updateIndex(String indexId, String siteName, String rootFolder, List<String> fileNames,
-                    boolean delete) throws BatchIndexingException;
+    void updateIndex(String indexId, String siteName, String rootFolder, List<String> fileNames, boolean delete,
+                     IndexingStatus status);
 
 }
