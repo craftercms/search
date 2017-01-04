@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.craftercms.search.batch.IndexingStatus;
 import org.craftercms.search.service.SearchService;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,15 +46,18 @@ public class BinaryFileWithMetadataBatchIndexerTest {
         File binaryFile = new File(rootFolder, BINARY_FILENAME);
         List<String> updatedFiles = Collections.singletonList(METADATA_FILENAME);
         List<String> deletedFiles = Collections.singletonList(DELETE_FILENAME);
+        IndexingStatus status = new IndexingStatus();
 
-        int updated = batchIndexer.updateIndex(indexId, SITE_NAME, rootFolder, updatedFiles, false);
+        batchIndexer.updateIndex(indexId, SITE_NAME, rootFolder, updatedFiles, false, status);
 
-        assertEquals(1, updated);
+        assertEquals(1, status.getAttemptedUpdatesAndDeletes());
         verify(searchService).updateFile(indexId, SITE_NAME, BINARY_FILENAME, binaryFile, getExpectedMetadata());
 
-        updated = batchIndexer.updateIndex(indexId, SITE_NAME, rootFolder, deletedFiles, true);
+        status = new IndexingStatus();
 
-        assertEquals(1, updated);
+        batchIndexer.updateIndex(indexId, SITE_NAME, rootFolder, deletedFiles, true, status);
+
+        assertEquals(1, status.getAttemptedUpdatesAndDeletes());
         verify(searchService).delete(indexId, SITE_NAME, DELETE_FILENAME);
     }
 

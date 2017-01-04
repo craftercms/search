@@ -21,9 +21,7 @@ import java.util.List;
 import javax.activation.FileTypeMap;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.craftercms.search.batch.exception.BatchIndexingException;
+import org.craftercms.search.batch.IndexingStatus;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
 /**
@@ -34,8 +32,6 @@ import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
  * @author avasquez
  */
 public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
-
-    private static final Log logger = LogFactory.getLog(BinaryFileBatchIndexer.class);
 
     protected List<String> supportedMimeTypes;
     protected FileTypeMap mimeTypesMap;
@@ -49,8 +45,8 @@ public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
     }
 
     @Override
-    protected boolean doSingleFileUpdate(String indexId, String siteName, String rootFolder, String fileName,
-                                         boolean delete) throws BatchIndexingException {
+    protected void doSingleFileUpdate(String indexId, String siteName, String rootFolder, String fileName, boolean delete,
+                                      IndexingStatus status) {
         File file = new File(rootFolder, fileName);
         String mimeType = mimeTypesMap.getContentType(fileName);
         boolean doUpdate = false;
@@ -65,13 +61,11 @@ public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
 
         if (doUpdate) {
             if (delete) {
-                return doDelete(indexId, siteName, fileName);
+                doDelete(indexId, siteName, fileName, status);
             } else {
-                return doUpdateFile(indexId, siteName, fileName, file);
+                doUpdateFile(indexId, siteName, fileName, file, status);
             }
         }
-
-        return false;
     }
 
 }

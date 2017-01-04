@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.craftercms.search.batch.IndexingStatus;
 import org.craftercms.search.batch.utils.xml.AttributeAddingDocumentProcessor;
 import org.craftercms.search.batch.utils.xml.DocumentProcessor;
 import org.craftercms.search.batch.utils.xml.FieldRenamingDocumentProcessor;
@@ -48,15 +49,18 @@ public class XmlFileBatchIndexerTest {
     public void testUpdateIndex() throws Exception {
         List<String> updatedFiles = Collections.singletonList(getUpdateFilename());
         List<String> deletedFiles = Collections.singletonList(getDeleteFilename());
+        IndexingStatus status = new IndexingStatus();
 
-        int updated = batchIndexer.updateIndex(getIndexId(), getSiteName(), getRootFolder(), updatedFiles, false);
+        batchIndexer.updateIndex(getIndexId(), getSiteName(), getRootFolder(), updatedFiles, false, status);
 
-        assertEquals(1, updated);
+        assertEquals(1, status.getAttemptedUpdatesAndDeletes());
         verify(searchService).update(getIndexId(), getSiteName(), getUpdateFilename(), getExpectedXml(), true);
 
-        updated = batchIndexer.updateIndex(getIndexId(), getSiteName(), getRootFolder(), deletedFiles, true);
+        status = new IndexingStatus();
 
-        assertEquals(1, updated);
+        batchIndexer.updateIndex(getIndexId(), getSiteName(), getRootFolder(), deletedFiles, true, status);
+
+        assertEquals(1, status.getAttemptedUpdatesAndDeletes());
         verify(searchService).delete(getIndexId(), getSiteName(), getDeleteFilename());
     }
 

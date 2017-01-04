@@ -28,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.craftercms.commons.lang.RegexUtils;
-import org.craftercms.search.batch.exception.BatchIndexingException;
+import org.craftercms.search.batch.IndexingStatus;
 import org.craftercms.search.batch.utils.XmlUtils;
 import org.craftercms.search.batch.utils.xml.DocumentProcessor;
 import org.dom4j.Document;
@@ -83,8 +83,8 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
     }
 
     @Override
-    protected boolean doSingleFileUpdate(String indexId, String siteName, String rootFolder, String fileName,
-                                         boolean delete) throws BatchIndexingException {
+    protected void doSingleFileUpdate(String indexId, String siteName, String rootFolder, String fileName, boolean delete,
+                                      IndexingStatus status) {
         boolean doUpdate = false;
         File file = new File(rootFolder, fileName);
         File updateFile = file;
@@ -93,7 +93,7 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
 
         if (isMetadataFile(fileName)) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Metadata file found: " + file + ". Processing started...");
+                logger.debug("Metadata file found: " + file);
             }
 
             try {
@@ -101,56 +101,64 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
                 updateFileName = getBinaryFileName(metadataDoc);
 
                 if (StringUtils.isNotBlank(updateFileName)) {
-                    updateFile = new File(rootFolder, updateFileName);
-
                     if (logger.isDebugEnabled()) {
                         logger.debug("Binary file for metadata file " + file + ": " + updateFile);
                     }
 
-                    metadataDoc = processDocument(metadataDoc, file, rootFolder);
-                    metadata = extractMetadata(metadataDoc);
+                    updateFile = new File(rootFolder, updateFileName);
 
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Extracted metadata: " + metadata);
-                    }
+                    if (!delete) {
+                        metadataDoc = processDocument(metadataDoc, file, rootFolder);
+                        metadata = extractMetadata(metadataDoc);
 
-                    if (!updateFile.exists()) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug("Binary file " + updateFile + " doesn't exist. Creating it...");
+                            logger.debug("Extracted metadata: " + metadata);
                         }
 
-                        FileUtils.forceMkdir(updateFile.getParentFile());
+                        if (!updateFile.exists()) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("Binary file " + updateFile + " doesn't exist. Creating it...");
+                            }
 
-                        boolean created = updateFile.createNewFile();
-                        if (!created) {
-                            throw new IOException("Unable to create binary file " + updateFile);
+                            FileUtils.forceMkdir(updateFile.getParentFile());
+
+                            boolean created = updateFile.createNewFile();
+                            if (!created) {
+                                throw new IOException("Unable to create binary file " + updateFile);
+                            }
                         }
                     }
 
                     doUpdate = true;
                 }
             } catch (DocumentException e) {
-                logger.warn("Cannot process XML file " + file + ". Continuing index update...", e);
-            } catch (IOException e) {
-                throw new BatchIndexingException(e.getMessage(), e);
-            }
+                logger.error("Cannot process metadata file " + file, e);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Processing of metadata file " + file + " finished");
+                if (delete) {
+                    status.addFailedDelete(fileName);
+                } else {
+                    status.addFailedUpdate(fileName);
+                }
+            } catch (IOException e) {
+                logger.error("IO error while processing metadata file " + file, e);
+
+                if (delete) {
+                    status.addFailedDelete(fileName);
+                } else {
+                    status.addFailedUpdate(fileName);
+                }
             }
         } else if (isBinaryFile(fileName)) {
             doUpdate = true;
         }
 
         if (doUpdate) {
-            if (!delete) {
-                return doUpdateFile(indexId, siteName, updateFileName, updateFile, metadata);
+            if (delete) {
+                doDelete(indexId, siteName, updateFileName, status);
             } else {
-                return doDelete(indexId, siteName, updateFileName);
+                doUpdateFile(indexId, siteName, updateFileName, updateFile, metadata, status);
             }
         }
-
-        return false;
     }
 
     protected boolean isMetadataFile(String filePath) {
@@ -218,7 +226,7 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
                 String value = node.getText();
                 if (StringUtils.isNotBlank(value)) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug(String.format("Adding value [%s] for property [%s].", value, key));
+                        logger.debug(String.format("Adding value [%s] for property [%s]", value, key));
                     }
 
                     metadata.add(key, StringUtils.trim(value));
