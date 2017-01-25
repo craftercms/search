@@ -29,8 +29,11 @@ import org.craftercms.search.service.SolrDocumentPostProcessor;
 
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ID_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_LOCAL_ID_FIELD_NAME;
+<<<<<<< HEAD
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_PUBLISHING_DATE_FIELD_NAME;
+=======
+>>>>>>> d986a8d90508cab5939578719631f7cbadb9d0cd
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ROOT_ID_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_SITE_FIELD_NAME;
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_CONTENT_TYPE_FIELD_NAME;
@@ -45,7 +48,7 @@ import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAUL
  * @author avasquez
  */
 public class DenormalizingPostProcessor implements SolrDocumentPostProcessor {
-
+	
     public static final String[] DEFAULT_FIELDS_TO_IGNORE = { DEFAULT_ID_FIELD_NAME, DEFAULT_SITE_FIELD_NAME,
         DEFAULT_LOCAL_ID_FIELD_NAME, DEFAULT_CONTENT_TYPE_FIELD_NAME, DEFAULT_PARENT_ID_FIELD_NAME, DEFAULT_ROOT_ID_FIELD_NAME,
         DEFAULT_PUBLISHING_DATE_FIELD_NAME, DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME };
