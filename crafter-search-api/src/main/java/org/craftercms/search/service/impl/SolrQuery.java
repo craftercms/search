@@ -16,7 +16,10 @@
  */
 package org.craftercms.search.service.impl;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  * Search query for Solr.
@@ -32,8 +35,20 @@ public class SolrQuery extends QueryParams {
     public static final String HIGHLIGHT_SNIPPETS_PARAM = "hl.snippets";
     public static final String HIGHLIGHT_SNIPPET_SIZE_PARAM = "hl.fragsize";
     public static final String QUERY_PARAM = "q";
+    public static final String FILTER_QUERY_PARAM = "fq";
     public static final String START_PARAM = "start";
     public static final String ROWS_PARAM = "rows";
+
+    public SolrQuery() {
+    }
+
+    public SolrQuery(QueryParams queryParams) {
+        super(queryParams.getParams());
+    }
+
+    public String[] getFieldsToReturn() {
+        return getParam(FIELDS_TO_RETURN);
+    }
 
     public SolrQuery setFieldsToReturn(String... fields) {
         addParam(FIELDS_TO_RETURN, StringUtils.join(fields, MULTIVALUE_SEPARATOR));
@@ -41,10 +56,18 @@ public class SolrQuery extends QueryParams {
         return this;
     }
 
+    public boolean isHighlight() {
+        return BooleanUtils.toBoolean(getSingleValue(HIGHLIGHT_PARAM));
+    }
+
     public SolrQuery setHighlight(boolean highlight) {
         addParam(HIGHLIGHT_PARAM, Boolean.toString(highlight));
 
         return this;
+    }
+
+    public String[] getHighlightFields() {
+        return StringUtils.split(getSingleValue(HIGHLIGHT_FIELDS_PARAM), MULTIVALUE_SEPARATOR);
     }
 
     public SolrQuery setHighlightFields(String... fields) {
@@ -57,6 +80,10 @@ public class SolrQuery extends QueryParams {
         return this;
     }
 
+    public String[] getHighlightSnippets() {
+        return StringUtils.split(getSingleValue(HIGHLIGHT_SNIPPETS_PARAM), MULTIVALUE_SEPARATOR);
+    }
+
     public SolrQuery setHighlightSnippets(int snippets) {
         if (!hasParam(HIGHLIGHT_PARAM)) {
             addParam(HIGHLIGHT_PARAM, "true");
@@ -65,6 +92,10 @@ public class SolrQuery extends QueryParams {
         addParam(HIGHLIGHT_SNIPPETS_PARAM, Integer.toString(snippets));
 
         return this;
+    }
+
+    public int getHighlightSnippetSize() {
+        return NumberUtils.toInt(getSingleValue(HIGHLIGHT_SNIPPET_SIZE_PARAM));
     }
 
     public SolrQuery setHighlightSnippetSize(int size) {
@@ -77,10 +108,28 @@ public class SolrQuery extends QueryParams {
         return this;
     }
 
+    public String getQuery() {
+        return getSingleValue(QUERY_PARAM);
+    }
+
     public SolrQuery setQuery(String query) {
         addParam(QUERY_PARAM, query);
 
         return this;
+    }
+
+    public String[] getFilterQueries() {
+        return getParam(FILTER_QUERY_PARAM);
+    }
+
+    public SolrQuery addFilterQuery(String query) {
+        addParam(FILTER_QUERY_PARAM, query);
+
+        return this;
+    }
+
+    public int getStart() {
+        return NumberUtils.toInt(getSingleValue(START_PARAM));
     }
 
     public SolrQuery setStart(int start) {
@@ -89,10 +138,25 @@ public class SolrQuery extends QueryParams {
         return this;
     }
 
+    public int getRows() {
+        return NumberUtils.toInt(getSingleValue(ROWS_PARAM));
+    }
+
     public SolrQuery setRows(int rows) {
         addParam(ROWS_PARAM, Integer.toString(rows));
 
         return this;
+    }
+
+    protected String getSingleValue(String param) {
+        if (hasParam(param)) {
+            String[] values = getParam(param);
+            if (ArrayUtils.isNotEmpty(values)) {
+                return values[0];
+            }
+        }
+
+        return null;
     }
 
 }
