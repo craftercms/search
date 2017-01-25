@@ -28,6 +28,7 @@ import javax.activation.FileTypeMap;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrResponse;
 import org.apache.solr.client.solrj.SolrServer;
@@ -93,6 +94,10 @@ public class SolrSearchService implements SearchService {
      * e.g. delete XML documents with their sub-documents.
      */
     protected Map<String, String> deleteQueryMappings;
+    /**
+     * Set of additional filter queries that should be used on all search requests
+     */
+    protected String[] additionalFilterQueries;
 
     public SolrSearchService() {
         fileNameFieldName = DEFAULT_FILE_NAME_FIELD_NAME;
@@ -146,6 +151,13 @@ public class SolrSearchService implements SearchService {
     }
 
     /**
+     * Sets the set of additional filter queries that should be used on all search requests
+     */
+    public void setAdditionalFilterQueries(String[] additionalFilterQueries) {
+        this.additionalFilterQueries = additionalFilterQueries;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public Map<String, Object> search(Query query) {
@@ -154,11 +166,15 @@ public class SolrSearchService implements SearchService {
 
     @Override
     public Map<String, Object> search(String indexId, Query query) throws SearchException {
-        logger.info("{}Executing query {}", getIndexPrefix(indexId), query);
-
+        SolrQuery expandedQuery = new SolrQuery((QueryParams)query);
         SolrResponse response;
+
+        addAdditionalFilterQueries(expandedQuery);
+
+        logger.info("{}Executing query {}", getIndexPrefix(indexId), expandedQuery);
+
         try {
-            response = getSolrServer(indexId).query(toSolrQuery((QueryParams)query));
+            response = getSolrServer(indexId).query(toSolrQuery(expandedQuery));
         } catch (SolrServerException e) {
             throw new SearchException(indexId, "Search for query " + query + " failed", e);
         }
@@ -443,6 +459,34 @@ public class SolrSearchService implements SearchService {
         }
 
         return null;
+    }
+
+    protected void addAdditionalFilterQueries(SolrQuery solrQuery) {
+        String query = solrQuery.getQuery();
+        String[] filterQueries = solrQuery.getFilterQueries();
+
+        for (String additionalFilterQuery : additionalFilterQueries) {
+            boolean add = true;
+
+            if (StringUtils.isNotEmpty(query)) {
+                if (query.contains(additionalFilterQuery)) {
+                    add = false;
+                }
+            }
+
+            if (ArrayUtils.isNotEmpty(filterQueries)) {
+                for (String filterQuery : filterQueries) {
+                    if (filterQuery.contains(additionalFilterQuery)) {
+                        add = false;
+                        break;
+                    }
+                }
+            }
+
+            if (add) {
+                solrQuery.addFilterQuery(additionalFilterQuery);
+            }
+        }
     }
 
 }

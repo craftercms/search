@@ -52,7 +52,9 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         try {
             searchService.update(indexId, siteName, id, xml, true);
 
-            logger.info("File " + getSiteBasedFileName(siteName, id) + " added to index " + getIndexNameStr(indexId));
+            if (logger.isDebugEnabled()) {
+                logger.info("File " + getSiteBasedFileName(siteName, id) + " added to index " + getIndexNameStr(indexId));
+            }
 
             status.addSuccessfulUpdate(id);
         } catch (Exception e) {
@@ -66,7 +68,9 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         try {
             searchService.updateFile(indexId, siteName, id, file);
 
-            logger.info("File " + getSiteBasedFileName(siteName, id) + " added to index " + getIndexNameStr(indexId));
+            if (logger.isDebugEnabled()) {
+                logger.info("File " + getSiteBasedFileName(siteName, id) + " added to index " + getIndexNameStr(indexId));
+            }
 
             status.addSuccessfulUpdate(id);
         } catch (Exception e) {
@@ -81,7 +85,9 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         try {
             searchService.updateFile(indexId, siteName, id, file, additionalFields);
 
-            logger.info("File " + getSiteBasedFileName(siteName, id) + " added to index " + getIndexNameStr(indexId));
+            if (logger.isDebugEnabled()) {
+                logger.debug("File " + getSiteBasedFileName(siteName, id) + " added to index " + getIndexNameStr(indexId));
+            }
 
             status.addSuccessfulUpdate(id);
         } catch (Exception e) {
@@ -95,7 +101,9 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         try {
             searchService.delete(indexId, siteName, id);
 
-            logger.info("File " + getSiteBasedFileName(siteName, id) + " deleted from index " + getIndexNameStr(indexId));
+            if (logger.isDebugEnabled()) {
+                logger.debug("File " + getSiteBasedFileName(siteName, id) + " deleted from index " + getIndexNameStr(indexId));
+            }
 
             status.addSuccessfulDelete(id);
         } catch (Exception e) {

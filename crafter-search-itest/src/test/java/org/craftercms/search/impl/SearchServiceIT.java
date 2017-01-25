@@ -58,6 +58,8 @@ public class SearchServiceIT {
     private static final String PLUTON_SITE = "pluton";
     private static final String PLUTON_INDEX_ID = "pluton";
     private static final String IPAD_DOC_ID = "ipad.xml";
+    private static final String DISABLED_DOC_ID = "disabled.xml";
+    private static final String EXPIRED_DOC_ID = "expired.xml";
     private static final String IPAD_DOC_ID_ACCESSORIES0 = IPAD_DOC_ID + "_accessories_0";
     private static final String IPAD_DOC_ID_ACCESSORIES1 = IPAD_DOC_ID + "_accessories_1";
     private static final String WP_REASONS_PDF_DOC_ID = "crafter-wp-7-reasons.pdf";
@@ -68,85 +70,7 @@ public class SearchServiceIT {
     private SolrRestClientSearchService searchService;
 
     @Test
-    public void testMethodsWithNoIndexId() throws Exception {
-        SolrQuery query = searchService.createQuery();
-        query.setQuery("*:*");
-
-        Map<String, Object> results = searchService.search(query);
-        assertNotNull(results);
-
-        Map<String, Object> response = getQueryResponse(results);
-        assertEquals(0, getNumDocs(response));
-
-        String xml = getClasspathFileContent("docs/" + IPAD_DOC_ID);
-        String updateResponse = searchService.update(DEFAULT_SITE, IPAD_DOC_ID, xml, true);
-        logger.info(updateResponse);
-
-        File file = getClasspathFile("docs/" + WP_REASONS_PDF_DOC_ID);
-        updateResponse = searchService.updateFile(DEFAULT_SITE, WP_REASONS_PDF_DOC_ID, file);
-        logger.info(updateResponse);
-
-        String commitResponse = searchService.commit();
-        logger.info(commitResponse);
-
-        results = searchService.search(query);
-        assertNotNull(results);
-
-        response = getQueryResponse(results);
-        assertEquals(4, getNumDocs(response));
-
-        Map<String, Map<String, Object>> docs = getDocs(response);
-        Map<String, Object> ipadDoc = docs.get(IPAD_DOC_ID);
-
-        Map<String, Object> wpReasonsPdfDoc = docs.get(WP_REASONS_PDF_DOC_ID);
-
-        assertNotNull(ipadDoc);
-        assertNotNull(wpReasonsPdfDoc);
-        assertIPadDoc(ipadDoc, DEFAULT_SITE);
-        assertWpReasonsPdfDoc(wpReasonsPdfDoc, DEFAULT_SITE);
-
-        MultiValueMap<String, String> additionalFields = new LinkedMultiValueMap<>();
-        additionalFields.put("tags.value_smv", WP_REASONS_PDF_TAGS);
-
-        updateResponse = searchService.updateFile(DEFAULT_SITE, WP_REASONS_PDF_DOC_ID, file, additionalFields);
-        logger.info(updateResponse);
-
-        commitResponse = searchService.commit();
-        logger.info(commitResponse);
-
-        results = searchService.search(query);
-        assertNotNull(results);
-
-        response = getQueryResponse(results);
-        assertEquals(4, getNumDocs(response));
-
-        docs = getDocs(response);
-        ipadDoc = docs.get(IPAD_DOC_ID);
-        wpReasonsPdfDoc = docs.get(WP_REASONS_PDF_DOC_ID);
-
-        assertNotNull(ipadDoc);
-        assertNotNull(wpReasonsPdfDoc);
-        assertIPadDoc(ipadDoc, DEFAULT_SITE);
-        assertWpReasonsPdfDocWithAdditionalFields(wpReasonsPdfDoc, DEFAULT_SITE);
-
-        String deleteResponse = searchService.delete(DEFAULT_SITE, IPAD_DOC_ID);
-        logger.info(deleteResponse);
-
-        deleteResponse = searchService.delete(DEFAULT_SITE, WP_REASONS_PDF_DOC_ID);
-        logger.info(deleteResponse);
-
-        commitResponse = searchService.commit();
-        logger.info(commitResponse);
-
-        results = searchService.search(query);
-        assertNotNull(results);
-
-        response = getQueryResponse(results);
-        assertEquals(0, getNumDocs(response));
-    }
-
-    @Test
-    public void testMethodsWithIndexId() throws Exception {
+    public void testMethods() throws Exception {
         SolrQuery query = searchService.createQuery();
         query.setQuery("*:*");
 
@@ -158,6 +82,14 @@ public class SearchServiceIT {
 
         String xml = getClasspathFileContent("docs/" + IPAD_DOC_ID);
         String updateResponse = searchService.update(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID, xml, true);
+        logger.info(updateResponse);
+
+        xml = getClasspathFileContent("docs/" + DISABLED_DOC_ID);
+        updateResponse = searchService.update(DEFAULT_SITE, DISABLED_DOC_ID, xml, true);
+        logger.info(updateResponse);
+
+        xml = getClasspathFileContent("docs/" + EXPIRED_DOC_ID);
+        updateResponse = searchService.update(DEFAULT_SITE, EXPIRED_DOC_ID, xml, true);
         logger.info(updateResponse);
 
         File file = getClasspathFile("docs/" + WP_REASONS_PDF_DOC_ID);
@@ -271,6 +203,8 @@ public class SearchServiceIT {
 
     @SuppressWarnings("unchecked")
     private void assertIPadDoc(Map<String, Object> doc, String site) {
+        System.out.println(doc);
+
         assertIPadDocCommonFields(doc, site);
         assertEquals(site + ":" + IPAD_DOC_ID, doc.get("id"));
         assertEquals(site + ":" + IPAD_DOC_ID, doc.get("rootId"));

@@ -39,6 +39,7 @@
         <property name="subDocumentElementName"
                   value="${crafter.search.xml.element.subDocument.name}"/>
         <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
+        <property name="parentIdFieldName" value="${crafter.search.solr.field.parentId.name}"/>
         <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
         <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
         <property name="publishingDateFieldName" value="${crafter.search.solr.field.publishedDate.name}"/>
@@ -86,7 +87,6 @@
         <property name="parserService" ref="crafter.elementParserService"/>
         <property name="postProcessors">
             <list>
-                <ref bean="crafter.denormalizingPostProcessor"/>
                 <ref bean="crafter.renameFieldsIfMultiValuePostProcessor"/>
             </list>
         </property>
@@ -122,6 +122,7 @@
                 <entry key="${crafter.search.xml.delete.regex}" value="${crafter.search.xml.delete.query}"/>
             </map>
         </property>
+        <property name="additionalFilterQueries" value="${crafter.search.filter.additional.queries}"/>
     </bean>
 
     <util:map id="crafter.singleToMultiValueSuffixMappings">
