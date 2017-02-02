@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * Created by alfonsovasquez on 12/28/16.
  */
@@ -40,18 +42,22 @@ public class IndexingStatus {
         listLock = new ReentrantLock();
     }
 
+    @JsonProperty("successful_updates")
     public List<String> getSuccessfulUpdates() {
         return synchronizedCopy(successfulUpdates);
     }
 
+    @JsonProperty("successful_deletes")
     public List<String> getSuccessfulDeletes() {
         return synchronizedCopy(successfulDeletes);
     }
 
+    @JsonProperty("failed_updates")
     public List<String> getFailedUpdates() {
         return synchronizedCopy(failedUpdates);
     }
 
+    @JsonProperty("failed_deletes")
     public List<String> getFailedDeletes() {
         return synchronizedCopy(failedDeletes);
     }
@@ -72,6 +78,7 @@ public class IndexingStatus {
         synchronizedAdd(failedDeletes, filename);
     }
 
+    @JsonProperty("attempted_updates_and_deletes")
     public int getAttemptedUpdatesAndDeletes() {
         listLock.lock();
         try {
