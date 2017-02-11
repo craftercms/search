@@ -15,14 +15,12 @@
     <properties>
         <!-- Cargo -->
         <cargo.container>jetty9x</cargo.container>
-        <cargo.container.url>http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.3.9.v20160517/jetty-distribution-9.3.9.v20160517.tar.gz</cargo.container.url>
+        <cargo.container.url>http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.1.v20170120/jetty-distribution-9.4.1.v20170120.tar.gz</cargo.container.url>
         <cargo.container.downloadDir>${user.home}/.m2/cargo/containers</cargo.container.downloadDir>
-        <cargo.port>8983</cargo.port>
-        <solr.war.exploded>${basedir}/target/exploded-wars/solr</solr.war.exploded>
-        <solr.home>${basedir}/target/solr</solr.home>
-        <solr.data.dir>${project.build.testOutputDirectory}/solr/data</solr.data.dir>
-        <log4j.configuration>file:///${project.build.outputDirectory}/log4j.xml</log4j.configuration>
-        <solr.context>/solr</solr.context>
+        <cargo.port>7070</cargo.port>
+        <!-- Solr -->
+        <solr.home>${project.build.directory}/classes/solr</solr.home>
+        <!-- Search -->
         <search.context>/crafter-search</search.context>
     </properties>
 
@@ -33,21 +31,13 @@
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>crafter-search-client</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr</artifactId>
-            <version>${solrj.version}</version>
-            <type>war</type>
-            <scope>test</scope>
-        </dependency>
-
+        
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -81,6 +71,12 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -138,32 +134,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Unpack Solr so the extraction jars can be copied to it -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
-                <executions>
-                    <execution>
-                        <id>unpack-solr</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.solr</groupId>
-                                    <artifactId>solr</artifactId>
-                                    <version>${solrj.version}</version>
-                                    <type>war</type>
-                                    <outputDirectory>${solr.war.exploded}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- Copy Solr home and Solr extraction jars from crafter-search-provider/solr -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -172,7 +142,7 @@
                 <executions>
                     <execution>
                         <id>copy-solr-home</id>
-                        <phase>process-test-resources</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -180,35 +150,8 @@
                             <outputDirectory>${solr.home}</outputDirectory>
                             <resources>
                                 <resource>
-                                    <targetPath>conf</targetPath>
-                                    <directory>../crafter-search-provider/solr/conf</directory>
-                                    <filtering>false</filtering>
-                                </resource>>
-                                <resource>
-                                    <directory>src/test/resources/solr</directory>
-                                    <filtering>false</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-solr-extraction</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${solr.war.exploded}/WEB-INF/lib</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>../crafter-search-provider/solr/lib</directory>
-                                    <filtering>false</filtering>
-                                    <includes>
-                                        <include>solr-cell-*.jar</include>
-                                    </includes>
-                                </resource>
-                                <resource>
-                                    <directory>../crafter-search-provider/solr/lib/extraction</directory>
+                                    <targetPath>configsets</targetPath>
+                                    <directory>../crafter-search-provider/solr/configsets</directory>
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>
@@ -216,11 +159,11 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Run the search server and Solr in Cargo -->
+            <!-- Run the search server in Cargo -->
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.6.1</version>
+                <version>1.6.2</version>
                 <executions>
                     <execution>
                         <id>start-container</id>
@@ -241,9 +184,7 @@
                     <configuration>
                         <properties>
                             <cargo.servlet.port>${cargo.port}</cargo.servlet.port>
-                            <!--<cargo.start.jvmargs>-->
-                                   <!-- -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8000-->
-                            <!--</cargo.start.jvmargs>-->
+                            <!--<cargo.start.jvmargs>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</cargo.start.jvmargs>-->
                         </properties>
                     </configuration>
                     <container>
@@ -252,40 +193,8 @@
                             <url>${cargo.container.url}</url>
                             <downloadDir>${cargo.container.downloadDir}</downloadDir>
                         </zipUrlInstaller>
-                        <systemProperties>
-                            <solr.solr.home>${solr.home}</solr.solr.home>
-                            <solr.data.dir>${solr.data.dir}</solr.data.dir>
-                            <log4j.configuration>${log4j.configuration}</log4j.configuration>
-                        </systemProperties>
-                        <dependencies>
-                            <dependency>
-                                <groupId>log4j</groupId>
-                                <artifactId>log4j</artifactId>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.slf4j</groupId>
-                                <artifactId>slf4j-api</artifactId>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.slf4j</groupId>
-                                <artifactId>slf4j-log4j12</artifactId>
-                            </dependency>
-                            <dependency>
-                                <groupId>commons-logging</groupId>
-                                <artifactId>commons-logging</artifactId>
-                            </dependency>
-                        </dependencies>
                     </container>
                     <deployables>
-                        <deployable>
-                            <groupId>org.apache.solr</groupId>
-                            <artifactId>solr</artifactId>
-                            <type>war</type>
-                            <location>${solr.war.exploded}</location>
-                            <properties>
-                                <context>${solr.context}</context>
-                            </properties>
-                        </deployable>
                         <deployable>
                             <properties>
                                 <context>${search.context}</context>

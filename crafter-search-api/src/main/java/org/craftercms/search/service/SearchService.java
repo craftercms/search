@@ -78,8 +78,7 @@ public interface SearchService {
      * @return a success string
      * @throws SearchException
      */
-    String update(String indexId, String site, String id, String xml,
-                  boolean ignoreRootInFieldNames) throws SearchException;
+    String update(String indexId, String site, String id, String xml, boolean ignoreRootInFieldNames) throws SearchException;
 
     /**
      * Deletes the search engine's index data of an XML document.
@@ -129,8 +128,7 @@ public interface SearchService {
      * @deprecated use {@link #updateFile(String, String, File, Map<String, List<String>>)} instead
      */
     @Deprecated
-    String updateDocument(String site, String id, File document,
-                          Map<String, String> additionalFields) throws SearchException;
+    String updateDocument(String site, String id, File document, Map<String, String> additionalFields) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -168,8 +166,7 @@ public interface SearchService {
      * @return a success string
      * @throws SearchException
      */
-    String updateFile(String site, String id, File file,
-                      Map<String, List<String>> additionalFields) throws SearchException;
+    String updateFile(String site, String id, File file, Map<String, List<String>> additionalFields) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -184,8 +181,7 @@ public interface SearchService {
      * @return a success string
      * @throws SearchException
      */
-    String updateFile(String indexId, String site, String id, File file,
-                      Map<String, List<String>> additionalFields) throws SearchException;
+    String updateFile(String indexId, String site, String id, File file, Map<String, List<String>> additionalFields) throws SearchException;
 
     /**
      * Commits any pending changes made to the search engine's default index.

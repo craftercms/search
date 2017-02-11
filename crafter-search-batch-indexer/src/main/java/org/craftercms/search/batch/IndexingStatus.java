@@ -16,12 +16,12 @@
  */
 package org.craftercms.search.batch;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Created by alfonsovasquez on 12/28/16.

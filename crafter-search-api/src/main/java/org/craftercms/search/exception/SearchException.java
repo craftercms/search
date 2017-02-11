@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class SearchException extends RuntimeException {
 
+    protected String indexId;
+
     public SearchException(String msg) {
         super(msg);
     }
@@ -35,10 +37,18 @@ public class SearchException extends RuntimeException {
 
     public SearchException(String indexId, String msg) {
         super(StringUtils.isNotEmpty(indexId)? "[" + indexId + "] " + msg : msg);
+
+        this.indexId = indexId;
     }
 
     public SearchException(String indexId, String msg, Throwable throwable) {
         super(StringUtils.isNotEmpty(indexId)? "[" + indexId + "] " + msg : msg, throwable);
+
+        this.indexId = indexId;
+    }
+
+    public String getIndexId() {
+        return indexId;
     }
 
 }
