@@ -36,7 +36,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import static org.craftercms.search.service.SearchRestConstants.*;
+import static org.craftercms.search.rest.SearchRestApiConstants.*;
 
 /**
  * Client implementation of {@link SearchService}, which uses REST to communicate with the server
@@ -94,9 +94,9 @@ public class RestClientSearchService implements SearchService {
     public String update(String indexId, String site, String id, String xml,
                          boolean ignoreRootInFieldNames) throws SearchException {
         String updateUrl = createBaseUrl(URL_UPDATE, indexId);
-        updateUrl = addParam(updateUrl, REQUEST_PARAM_SITE, site);
-        updateUrl = addParam(updateUrl, REQUEST_PARAM_ID, id);
-        updateUrl = addParam(updateUrl, REQUEST_PARAM_IGNORE_ROOT_IN_FIELD_NAMES, ignoreRootInFieldNames);
+        updateUrl = addParam(updateUrl, PARAM_SITE, site);
+        updateUrl = addParam(updateUrl, PARAM_ID, id);
+        updateUrl = addParam(updateUrl, PARAM_IGNORE_ROOT_IN_FIELD_NAMES, ignoreRootInFieldNames);
 
         try {
             return restTemplate.postForObject(new URI(updateUrl), xml, String.class);
@@ -117,8 +117,8 @@ public class RestClientSearchService implements SearchService {
     @Override
     public String delete(String indexId, String site, String id) throws SearchException {
         String deleteUrl = createBaseUrl(URL_DELETE, indexId);
-        deleteUrl = addParam(deleteUrl, REQUEST_PARAM_SITE, site);
-        deleteUrl = addParam(deleteUrl, REQUEST_PARAM_ID, id);
+        deleteUrl = addParam(deleteUrl, PARAM_SITE, site);
+        deleteUrl = addParam(deleteUrl, PARAM_ID, id);
 
         try {
             return restTemplate.postForObject(new URI(deleteUrl), null, String.class);
@@ -165,20 +165,19 @@ public class RestClientSearchService implements SearchService {
         FileSystemResource fsr = new FileSystemResource(document);
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
 
-        form.add(REQUEST_PARAM_SITE, site);
-        form.add(REQUEST_PARAM_ID, id);
-        form.add(REQUEST_PARAM_DOCUMENT, fsr);
+        form.add(PARAM_SITE, site);
+        form.add(PARAM_ID, id);
+        form.add(PARAM_DOCUMENT, fsr);
 
         if (MapUtils.isNotEmpty(additionalFields)) {
             for (Map.Entry<String, String> additionalField : additionalFields.entrySet()) {
                 String fieldName = additionalField.getKey();
 
-                if (fieldName.equals(REQUEST_PARAM_SITE) ||
-                    fieldName.equals(REQUEST_PARAM_ID) ||
-                    fieldName.equals(REQUEST_PARAM_DOCUMENT)) {
+                if (fieldName.equals(PARAM_SITE) ||
+                    fieldName.equals(PARAM_ID) ||
+                    fieldName.equals(PARAM_DOCUMENT)) {
                     throw new SearchException(String.format("An additional field shouldn't have the " +
-                                                            "following names: %s, %s, %s", REQUEST_PARAM_SITE,
-                                                            REQUEST_PARAM_ID, REQUEST_PARAM_DOCUMENT));
+                                                            "following names: %s, %s, %s", PARAM_SITE, PARAM_ID, PARAM_DOCUMENT));
                 }
 
                 form.add(fieldName, additionalField.getValue());
@@ -222,24 +221,23 @@ public class RestClientSearchService implements SearchService {
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
 
         if (StringUtils.isNotEmpty(indexId)) {
-            form.set(REQUEST_PARAM_INDEX_ID, indexId);
+            form.set(PARAM_INDEX_ID, indexId);
         }
-        form.set(REQUEST_PARAM_SITE, site);
-        form.set(REQUEST_PARAM_ID, id);
-        form.set(REQUEST_PARAM_FILE, fsr);
+        form.set(PARAM_SITE, site);
+        form.set(PARAM_ID, id);
+        form.set(PARAM_FILE, fsr);
 
         if (MapUtils.isNotEmpty(additionalFields)) {
             for (Map.Entry<String, List<String>> additionalField : additionalFields.entrySet()) {
                 String fieldName = additionalField.getKey();
 
-                if (fieldName.equals(REQUEST_PARAM_INDEX_ID) ||
-                    fieldName.equals(REQUEST_PARAM_SITE) ||
-                    fieldName.equals(REQUEST_PARAM_ID) ||
-                    fieldName.equals(REQUEST_PARAM_DOCUMENT)) {
+                if (fieldName.equals(PARAM_INDEX_ID) ||
+                    fieldName.equals(PARAM_SITE) ||
+                    fieldName.equals(PARAM_ID) ||
+                    fieldName.equals(PARAM_DOCUMENT)) {
                     throw new SearchException(String.format("An additional field shouldn't have the " +
-                                                            "following names: %s, %s, %s, %s",
-                                                            REQUEST_PARAM_INDEX_ID, REQUEST_PARAM_SITE,
-                                                            REQUEST_PARAM_ID, REQUEST_PARAM_DOCUMENT));
+                                                            "following names: %s, %s, %s, %s", PARAM_INDEX_ID, PARAM_SITE, PARAM_ID,
+                                                            PARAM_DOCUMENT));
                 }
 
                 form.put(fieldName, (List) additionalField.getValue());
@@ -261,14 +259,14 @@ public class RestClientSearchService implements SearchService {
     }
 
     protected String createBaseUrl(String serviceUrl) {
-        return serverUrl + URL_ROOT + serviceUrl;
+        return UrlUtils.concat(serverUrl, URL_ROOT, serviceUrl);
     }
 
     protected String createBaseUrl(String serviceUrl, String indexId) {
         String url = createBaseUrl(serviceUrl);
 
         if (StringUtils.isNotEmpty(indexId)) {
-            url = addParam(url, REQUEST_PARAM_INDEX_ID, indexId);
+            url = addParam(url, PARAM_INDEX_ID, indexId);
         }
 
         return url;

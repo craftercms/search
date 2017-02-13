@@ -44,10 +44,7 @@ import org.craftercms.search.exception.SolrDocumentBuildException;
  *     &lt;/add&gt;
  * </pre>
  * <p/>
- * The Solr document is represent in Java as a {@link SolrInputDocument} object, which then can be sent to the server
- * with
- * {@link org.apache.solr.client.solrj.SolrServer#add(SolrInputDocument)}
- * <p/>
+ * The Solr document is represent in Java as a {@link SolrInputDocument} object, which then can be sent to the server.
  *
  * @author Michael Chen
  * @author Alfonso Vásquez
@@ -91,7 +88,6 @@ public interface SolrDocumentBuilder {
      *
      * @return the Solr document
      */
-    ModifiableSolrParams buildParams(String site, String id, String prefix, String suffix,
-                                     Map<String, List<String>> fields);
+    ModifiableSolrParams buildParams(String site, String id, String prefix, String suffix, Map<String, List<String>> fields);
 
 }

@@ -18,11 +18,17 @@
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
     </bean>
 
-    <bean id="crafter.searchRestController" class="org.craftercms.search.controller.SearchRestController">
+    <bean id="crafter.exceptionHandlers" class="org.craftercms.search.rest.controller.ExceptionHandlers"/>
+
+    <bean id="crafter.adminRestController" class="org.craftercms.search.rest.controller.AdminRestController">
+        <property name="adminService" ref="crafter.adminService"/>
+    </bean>
+
+    <bean id="crafter.searchRestController" class="org.craftercms.search.rest.controller.SearchRestController">
         <property name="searchService" ref="crafter.searchService"/>
     </bean>
 
-    <bean id="crafter.searchMonitoringController" class="org.craftercms.search.controller.MonitoringController">
+    <bean id="crafter.searchMonitoringController" class="org.craftercms.search.rest.controller.MonitoringController">
         <property name="statusMessage">
             <value>${crafter.search.monitoring.statusMessage}</value>
         </property>
