@@ -42,6 +42,7 @@
         <module>crafter-search-client</module>
         <module>crafter-search-itest</module>
         <module>crafter-search-batch-indexer</module>
+        <module>crafter-search-server-elasticsearch</module>
     </modules>
 
     <properties>
