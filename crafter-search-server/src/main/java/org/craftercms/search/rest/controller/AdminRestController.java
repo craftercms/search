@@ -18,6 +18,7 @@ package org.craftercms.search.rest.controller;
 
 import javax.validation.Valid;
 
+import org.craftercms.commons.rest.OkResult;
 import org.craftercms.search.rest.requests.CreateIndexRequest;
 import org.craftercms.search.rest.requests.DeleteIndexRequest;
 import org.craftercms.search.service.AdminService;
@@ -53,15 +54,19 @@ public class AdminRestController {
 
     @RequestMapping(value = URL_CREATE_INDEX, method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public void createIndex(@Valid @RequestBody CreateIndexRequest request) {
+    public OkResult createIndex(@Valid @RequestBody CreateIndexRequest request) {
         adminService.createIndex(request.getId());
+
+        return OkResult.INSTANCE;
     }
 
     @RequestMapping(value = URL_DELETE_INDEX, method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteIndex(@PathVariable(PATH_VAR_ID) String id,
-                            @Valid @RequestBody(required = false) DeleteIndexRequest request) {
+    public OkResult deleteIndex(@PathVariable(PATH_VAR_ID) String id,
+                                @Valid @RequestBody(required = false) DeleteIndexRequest request) {
         adminService.deleteIndex(id, request != null? request.getDeleteMode() : null);
+
+        return OkResult.INSTANCE;
     }
 
 }
