@@ -1,7 +1,6 @@
 package org.craftercms.search.service.impl.elasticsearch;
 
 import org.apache.commons.lang3.StringUtils;
-import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.impl.QueryParams;
 import org.elasticsearch.action.search.SearchResponse;
@@ -20,7 +19,7 @@ import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 @Component
 class QueryComponent {
     static final String QUERY_PARAMETER = "q";
-    private static final String ALL_INDICES = "_all";
+    static final String ALL_INDICES = "_all";
     static final String DOCUMENTS_RESULT = "documents";
 
     private final Client client;
@@ -30,11 +29,11 @@ class QueryComponent {
         this.client = client;
     }
 
-    Map<String, Object> search(Query query) throws SearchException {
+    Map<String, Object> search(Query query) {
         return search(ALL_INDICES, query);
     }
 
-    Map<String, Object> search(String indexId, Query query) throws SearchException {
+    Map<String, Object> search(String indexId, Query query) {
         String finalIndexId = StringUtils.isNoneBlank(indexId) ? indexId : ALL_INDICES;
         QueryParams queryParams = (QueryParams) query;
         String queryString = String.join(StringUtils.EMPTY, queryParams.getParam(QUERY_PARAMETER));
