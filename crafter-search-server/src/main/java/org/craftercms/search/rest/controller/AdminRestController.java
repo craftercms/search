@@ -71,7 +71,7 @@ public class AdminRestController {
     @RequestMapping(value = URL_DELETE_INDEX, method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteIndex(@PathVariable(PATH_VAR_ID) String id,
-                                @Valid @RequestBody(required = false) DeleteIndexRequest request) {
+                            @Valid @RequestBody(required = false) DeleteIndexRequest request) {
         adminService.deleteIndex(id, request != null? request.getDeleteMode() : null);
     }
 
