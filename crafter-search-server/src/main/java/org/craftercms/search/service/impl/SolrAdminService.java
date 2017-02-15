@@ -17,11 +17,17 @@
 package org.craftercms.search.service.impl;
 
 import java.io.IOException;
+import java.util.Map;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
+import org.apache.solr.client.solrj.response.CoreAdminResponse;
+import org.apache.solr.common.params.CoreAdminParams;
+import org.apache.solr.common.util.NamedList;
+import org.craftercms.search.exception.IndexNotFoundException;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.AdminService;
 import org.slf4j.Logger;
@@ -90,46 +96,74 @@ public class SolrAdminService implements AdminService {
 
     @Override
     public void createIndex(String id) throws SearchException {
-        CoreAdminRequest.Create create = new CoreAdminRequest.Create();
-        create.setCoreName(id);
+        CoreAdminRequest.Create request = new CoreAdminRequest.Create();
+        request.setCoreName(id);
 
         if (StringUtils.isNotEmpty(defaultInstanceDir)) {
-            create.setInstanceDir(defaultInstanceDir);
+            request.setInstanceDir(defaultInstanceDir);
         }
         if (StringUtils.isNotEmpty(defaultConfigName)) {
-            create.setConfigName(defaultConfigName);
+            request.setConfigName(defaultConfigName);
         }
         if (StringUtils.isNotEmpty(defaultSchemaName)) {
-            create.setSchemaName(defaultSchemaName);
+            request.setSchemaName(defaultSchemaName);
         }
         if (StringUtils.isNotEmpty(defaultDataDir)) {
-            create.setDataDir(defaultDataDir);
+            request.setDataDir(defaultDataDir);
         }
         if (StringUtils.isNotEmpty(defaultConfigSet)) {
-            create.setConfigSet(defaultConfigSet);
+            request.setConfigSet(defaultConfigSet);
         }
 
         logger.info("Creating Solr core = " + id + ", instanceDir = " + defaultInstanceDir + ", configName = " + defaultConfigName +
                     ", schemaName = " + defaultSchemaName + ", dataDir = " + defaultDataDir + ", configSet = " + defaultConfigSet);
 
         try {
-            create.process(solrClient);
+            request.process(solrClient);
         } catch (SolrServerException | IOException e) {
             throw new SearchException(id, "Failed to create core", e);
         }
     }
 
     @Override
+    public Map<String, Object> getIndexInfo(String id) throws SearchException {
+        CoreAdminRequest request = new CoreAdminRequest();
+        request.setCoreName(id);
+        request.setIndexInfoNeeded(true);
+        request.setAction(CoreAdminParams.CoreAdminAction.STATUS);
+
+        try {
+            CoreAdminResponse response = request.process(solrClient);
+            Map<String, Object> info = null;
+
+            if (response != null) {
+                NamedList<Object> status = response.getCoreStatus(id);
+                if (status != null) {
+                    info = status.asShallowMap();
+                }
+            }
+
+            if (MapUtils.isNotEmpty(info)) {
+                return info;
+            } else {
+                throw new IndexNotFoundException("Index '" + id + "' not ");
+            }
+        } catch (SolrServerException | IOException e) {
+            throw new SearchException(id, "Failed to get core info", e);
+        }
+    }
+
+    @Override
     public void deleteIndex(String id, IndexDeleteMode mode) throws SearchException {
-        CoreAdminRequest.Unload unload = new CoreAdminRequest.Unload(true);
-        unload.setCoreName(id);
-        unload.setDeleteDataDir(mode == IndexDeleteMode.ALL_DATA);
-        unload.setDeleteInstanceDir(mode == IndexDeleteMode.ALL_DATA_AND_CONFIG);
+        CoreAdminRequest.Unload request = new CoreAdminRequest.Unload(true);
+        request.setCoreName(id);
+        request.setDeleteDataDir(mode == IndexDeleteMode.ALL_DATA);
+        request.setDeleteInstanceDir(mode == IndexDeleteMode.ALL_DATA_AND_CONFIG);
 
         logger.info("Deleting Solr core = " + id + ", mode = " + mode);
 
         try {
-            unload.process(solrClient);
+            request.process(solrClient);
         } catch (SolrServerException | IOException e) {
             throw new SearchException(id, "Failed to delete core", e);
         }

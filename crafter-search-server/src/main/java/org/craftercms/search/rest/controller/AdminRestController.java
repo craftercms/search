@@ -16,8 +16,10 @@
  */
 package org.craftercms.search.rest.controller;
 
+import java.util.Map;
 import javax.validation.Valid;
 
+import org.craftercms.commons.rest.OkResult;
 import org.craftercms.search.rest.requests.CreateIndexRequest;
 import org.craftercms.search.rest.requests.DeleteIndexRequest;
 import org.craftercms.search.service.AdminService;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.craftercms.search.rest.AdminRestApiConstants.PATH_VAR_ID;
 import static org.craftercms.search.rest.AdminRestApiConstants.URL_CREATE_INDEX;
 import static org.craftercms.search.rest.AdminRestApiConstants.URL_DELETE_INDEX;
+import static org.craftercms.search.rest.AdminRestApiConstants.URL_GET_INDEX_INFO;
 import static org.craftercms.search.rest.AdminRestApiConstants.URL_ROOT;
 
 /**
@@ -53,8 +56,16 @@ public class AdminRestController {
 
     @RequestMapping(value = URL_CREATE_INDEX, method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public void createIndex(@Valid @RequestBody CreateIndexRequest request) {
+    public OkResult createIndex(@Valid @RequestBody CreateIndexRequest request) {
         adminService.createIndex(request.getId());
+
+        return OkResult.INSTANCE;
+    }
+
+    @RequestMapping(value = URL_GET_INDEX_INFO, method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Object> getIndexInfo(@PathVariable(PATH_VAR_ID) String id) {
+        return adminService.getIndexInfo(id);
     }
 
     @RequestMapping(value = URL_DELETE_INDEX, method = RequestMethod.POST)

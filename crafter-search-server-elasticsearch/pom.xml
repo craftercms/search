@@ -5,13 +5,15 @@
     <parent>
         <artifactId>crafter-search</artifactId>
         <groupId>org.craftercms</groupId>
-        <version>2.6.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>crafter-search-server-elasticsearch</artifactId>
     <packaging>war</packaging>
     <name>Crafter Search Server &#8212; Elasticsearch</name>
     <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <elasticsearch.version>5.2.0</elasticsearch.version>
         <log4j2.version>2.8</log4j2.version>
