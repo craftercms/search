@@ -18,6 +18,7 @@ package org.craftercms.search.service.impl;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.craftercms.commons.lang.UrlUtils;
@@ -31,6 +32,7 @@ import org.springframework.web.client.RestTemplate;
 
 import static org.craftercms.search.rest.AdminRestApiConstants.URL_CREATE_INDEX;
 import static org.craftercms.search.rest.AdminRestApiConstants.URL_DELETE_INDEX;
+import static org.craftercms.search.rest.AdminRestApiConstants.URL_GET_INDEX_INFO;
 import static org.craftercms.search.rest.AdminRestApiConstants.URL_ROOT;
 
 /**
@@ -71,6 +73,20 @@ public class RestClientAdminService implements AdminService {
             throw new SearchException(id, "Create index '" + id + "' failed: [" + e.getStatusText() + "] " + e.getResponseBodyAsString());
         } catch (Exception e) {
             throw new SearchException(id, "Create index '" + id + "' failed: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Map<String, Object> getIndexInfo(String id) throws SearchException {
+        String getUrl = createBaseUrl(URL_GET_INDEX_INFO);
+
+        try {
+            return restTemplate.getForObject(getUrl, Map.class, id);
+        } catch (HttpStatusCodeException e) {
+            throw new SearchException(id, "Get info for index '" + id + "' failed: [" + e.getStatusText() + "] " +
+                                          e.getResponseBodyAsString());
+        } catch (Exception e) {
+            throw new SearchException(id, "Get info for index '" + id + "' failed: " + e.getMessage(), e);
         }
     }
 

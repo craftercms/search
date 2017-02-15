@@ -22,6 +22,7 @@ import java.util.Collections;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.craftercms.commons.validation.ValidationResult;
+import org.craftercms.search.exception.IndexNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
  */
 @ControllerAdvice
 public class ExceptionHandlers extends ResponseEntityExceptionHandler {
-    
+
+    @ExceptionHandler(IndexNotFoundException.class)
+    public ResponseEntity<Object> handleIndexNotFoundException(IndexNotFoundException ex, WebRequest request) {
+        return handleExceptionInternal(ex, "Index not found", new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneralException(Exception ex, WebRequest request) {

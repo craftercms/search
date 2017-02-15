@@ -14,26 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.service;
-
-import java.util.Map;
-
-import org.craftercms.search.exception.SearchException;
+package org.craftercms.search.exception;
 
 /**
- * Created by alfonsovasquez on 2/3/17.
+ * Created by alfonsovasquez on 2/14/17.
  */
-public interface AdminService {
+public class IndexNotFoundException extends SearchException {
 
-    enum IndexDeleteMode {
-        ALL_DATA,
-        ALL_DATA_AND_CONFIG;
+    public IndexNotFoundException(String indexId) {
+        super("Target '" + indexId + "' not found");
+
+        this.indexId = indexId;
     }
-
-    void createIndex(String id) throws SearchException;
-
-    Map<String, Object> getIndexInfo(String id) throws SearchException;
-
-    void deleteIndex(String id, IndexDeleteMode mode) throws SearchException;
-
+    
 }
