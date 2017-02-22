@@ -18,8 +18,8 @@ package org.craftercms.search.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,8 +53,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 /**
  * Implementation of {@link SearchService} using Solr as the underlying search engine.
@@ -108,9 +106,14 @@ public class SolrSearchService implements SearchService {
      * Set of additional filter queries that should be used on all search requests
      */
     protected String[] additionalFilterQueries;
+    /**
+     * Mime type map used to retrieve the mime types of files when submitting binary/structured content for indexing.
+     */
+    protected FileTypeMap mimeTypesMap;
 
     public SolrSearchService() {
         fileNameFieldName = DEFAULT_FILE_NAME_FIELD_NAME;
+        mimeTypesMap = new ConfigurableMimeFileTypeMap();
     }
 
     /**
@@ -217,13 +220,12 @@ public class SolrSearchService implements SearchService {
     /**
      * {@inheritDoc}
      */
-    public String update(String site, String id, String xml, boolean ignoreRootInFieldNames) throws SearchException {
-        return update(null, site, id, xml, ignoreRootInFieldNames);
+    public void update(String site, String id, String xml, boolean ignoreRootInFieldNames) throws SearchException {
+        update(null, site, id, xml, ignoreRootInFieldNames);
     }
 
     @Override
-    public String update(String indexId, String site, String id, String xml,
-                         boolean ignoreRootInFieldNames) throws SearchException {
+    public void update(String indexId, String site, String id, String xml, boolean ignoreRootInFieldNames) throws SearchException {
         if (StringUtils.isEmpty(indexId)) {
             indexId = defaultIndexId;
         }
@@ -238,11 +240,7 @@ public class SolrSearchService implements SearchService {
             SolrInputDocument solrDoc = solrDocumentBuilder.build(site, id, xml, ignoreRootInFieldNames);
             NamedList<Object> response = solrClient.add(indexId, solrDoc).getResponse();
 
-            String msg = getSuccessfulMessage(indexId, finalId, "Update", response);
-
-            logger.info(msg);
-
-            return msg;
+            logger.info(getSuccessfulMessage(indexId, finalId, "Update", response));
         } catch (SolrDocumentBuildException e) {
             throw new SearchException(indexId, "Unable to build Solr document for " + finalId, e);
         } catch (IOException e) {
@@ -255,12 +253,12 @@ public class SolrSearchService implements SearchService {
     /**
      * {@inheritDoc}
      */
-    public String delete(String site, String id) throws SearchException {
-        return delete(null, site, id);
+    public void delete(String site, String id) throws SearchException {
+        delete(null, site, id);
     }
 
     @Override
-    public String delete(String indexId, String site, String id) throws SearchException {
+    public void delete(String indexId, String site, String id) throws SearchException {
         if (StringUtils.isEmpty(indexId)) {
             indexId = defaultIndexId;
         }
@@ -280,8 +278,6 @@ public class SolrSearchService implements SearchService {
             }
 
             logger.info(msg);
-
-            return msg;
         } catch (IOException e) {
             if (StringUtils.isNotEmpty(query)) {
                 throw new SearchException(indexId, "I/O error while executing delete for " + query, e);
@@ -298,48 +294,34 @@ public class SolrSearchService implements SearchService {
     }
 
     @Override
-    @Deprecated
-    public String updateDocument(String site, String id, File document) throws SearchException {
-        return updateFile(site, id, document);
+    public void updateFile(String site, String id, File file) throws SearchException {
+        updateFile(null, site, id, file, null);
     }
 
     @Override
-    @Deprecated
-    public String updateDocument(String site, String id, File document,
-                                 Map<String, String> additionalFields) throws SearchException {
-        return updateFile(site, id, document, getAdditionalFieldMapAsMultiValueMap(additionalFields));
+    public void updateFile(String indexId, String site, String id, File file) throws SearchException {
+        updateFile(indexId, site, id, file, null);
     }
 
     @Override
-    public String updateFile(String site, String id, File file) throws SearchException {
-        return updateFile(null, site, id, file, null);
-    }
-
-    @Override
-    public String updateFile(String indexId, String site, String id, File file) throws SearchException {
-        return updateFile(indexId, site, id, file, null);
-    }
-
-    @Override
-    public String updateFile(String site, String id, File file,
+    public void updateFile(String site, String id, File file,
                              Map<String, List<String>> additionalFields) throws SearchException {
-        return updateFile(null, site, id, file, additionalFields);
+        updateFile(null, site, id, file, additionalFields);
     }
 
     @Override
-    public String updateFile(String indexId, String site, String id, File file,
-                             Map<String, List<String>> additionalFields) throws SearchException {
+    public void updateFile(String indexId, String site, String id, File file,
+                           Map<String, List<String>> additionalFields) throws SearchException {
         if (StringUtils.isEmpty(indexId)) {
             indexId = defaultIndexId;
         }
 
         String finalId = site + ":" + id;
         String fileName = FilenameUtils.getName(id);
-        FileTypeMap mimeTypesMap = new ConfigurableMimeFileTypeMap();
         String contentType = mimeTypesMap.getContentType(fileName);
+        ContentStreamUpdateRequest request = new ContentStreamUpdateRequest(SOLR_CONTENT_STREAM_UPDATE_URL);
         NamedList<Object> response;
 
-        ContentStreamUpdateRequest request = new ContentStreamUpdateRequest(SOLR_CONTENT_STREAM_UPDATE_URL);
         try {
             ModifiableSolrParams params = solrDocumentBuilder.buildParams(site, id, ExtractingParams.LITERALS_PREFIX,
                                                                           null, additionalFields);
@@ -368,22 +350,37 @@ public class SolrSearchService implements SearchService {
             throw new SearchException(indexId, "I/O error while executing update file for " + finalId, e);
         }
 
-        String msg = getSuccessfulMessage(indexId, finalId, "Update file", response);
-
-        logger.info(msg);
-
-        return msg;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String commit() throws SearchException {
-        return commit(null);
+        logger.info(getSuccessfulMessage(indexId, finalId, "Update file", response));
     }
 
     @Override
-    public String commit(String indexId) throws SearchException {
+    public void updateContent(String site, String id, InputStream content) throws SearchException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void updateContent(String indexId, String site, String id, InputStream content) throws SearchException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void updateContent(String site, String id, InputStream content,
+                              Map<String, List<String>> additionalFields) throws SearchException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void updateContent(String indexId, String site, String id, InputStream content,
+                              Map<String, List<String>> additionalFields) throws SearchException {
+        throw new UnsupportedOperationException();
+    }
+
+    public void commit() throws SearchException {
+        commit(null);
+    }
+
+    @Override
+    public void commit(String indexId) throws SearchException {
         if (StringUtils.isEmpty(indexId)) {
             indexId = defaultIndexId;
         }
@@ -391,11 +388,7 @@ public class SolrSearchService implements SearchService {
         try {
             NamedList<Object> response = solrClient.commit(indexId).getResponse();
 
-            String msg = String.format("%sCommit successful: %s", getIndexPrefix(indexId), response);
-
-            logger.info(msg);
-
-            return msg;
+            logger.info(String.format("%sCommit successful: %s", getIndexPrefix(indexId), response));
         } catch (IOException e) {
             throw new SearchException(indexId, "I/O error while executing commit", e);
         } catch (Exception e) {
@@ -486,22 +479,6 @@ public class SolrSearchService implements SearchService {
         }
 
         return docs;
-    }
-
-    protected Map<String, List<String>> getAdditionalFieldMapAsMultiValueMap(Map<String, String> originalMap) {
-        MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>(originalMap.size());
-        for (Map.Entry<String, String> entry : originalMap.entrySet()) {
-            String fieldName = entry.getKey();
-            String fieldValue = entry.getValue();
-
-            if (!fieldName.matches(multiValueIgnorePattern)) {
-                multiValueMap.put(fieldName, Arrays.asList(fieldValue.split(multiValueSeparator)));
-            } else {
-                multiValueMap.add(fieldName, fieldValue);
-            }
-        }
-
-        return multiValueMap;
     }
 
     protected String getSuccessfulMessage(String indexId, String idOrQuery, String operation, Object solrResponse) {

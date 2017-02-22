@@ -77,6 +77,7 @@ public class RestClientAdminService implements AdminService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getIndexInfo(String id) throws SearchException {
         String getUrl = createBaseUrl(URL_GET_INDEX_INFO);
 

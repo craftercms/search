@@ -21,6 +21,10 @@ import java.util.List;
 import javax.activation.FileTypeMap;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.craftercms.core.exception.CrafterException;
+import org.craftercms.core.service.Content;
+import org.craftercms.core.service.ContentStoreService;
+import org.craftercms.core.service.Context;
 import org.craftercms.search.batch.IndexingStatus;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
@@ -45,10 +49,9 @@ public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
     }
 
     @Override
-    protected void doSingleFileUpdate(String indexId, String siteName, String rootFolder, String fileName, boolean delete,
-                                      IndexingStatus status) {
-        File file = new File(rootFolder, fileName);
-        String mimeType = mimeTypesMap.getContentType(fileName);
+    protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
+                                      String path, boolean delete, IndexingStatus status) throws Exception {
+        String mimeType = mimeTypesMap.getContentType(path);
         boolean doUpdate = false;
 
         if (CollectionUtils.isNotEmpty(supportedMimeTypes)) {
@@ -61,9 +64,10 @@ public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
 
         if (doUpdate) {
             if (delete) {
-                doDelete(indexId, siteName, fileName, status);
+                doDelete(indexId, siteName, path, status);
             } else {
-                doUpdateFile(indexId, siteName, fileName, file, status);
+                Content binaryContent = contentStoreService.getContent(context, path);
+                doUpdateContent(indexId, siteName, path, binaryContent, status);
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2016 Crafter Software Corporation.
+ * Copyright (C) 2007-2017 Crafter Software Corporation.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,29 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.batch.utils.xml;
+package org.craftercms.search.batch.exception;
 
-import java.io.File;
-
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
+import org.craftercms.search.exception.SearchException;
 
 /**
- * Processes an XML DOM to modify or enhance it.
+ * Exception thrown when a batch indexing operation fails.
  *
  * @author avasquez
  */
-public interface DocumentProcessor {
+public class BatchIndexingException extends SearchException {
 
-    /**
-     * Processes the specified XML DOM.
-     *
-     * @param document      the DOM
-     * @param file          the XML file
-     * @param rootFolder    the root folder where this file is located
-     *
-     * @return the processed DOM
-     */
-    Document process(Document document, File file, String rootFolder) throws DocumentException;
+    public BatchIndexingException(String msg) {
+        super(msg);
+    }
+
+    public BatchIndexingException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 
 }

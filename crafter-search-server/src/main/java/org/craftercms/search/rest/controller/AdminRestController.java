@@ -19,7 +19,7 @@ package org.craftercms.search.rest.controller;
 import java.util.Map;
 import javax.validation.Valid;
 
-import org.craftercms.commons.rest.OkResult;
+import org.craftercms.commons.rest.Result;
 import org.craftercms.search.rest.requests.CreateIndexRequest;
 import org.craftercms.search.rest.requests.DeleteIndexRequest;
 import org.craftercms.search.service.AdminService;
@@ -56,10 +56,10 @@ public class AdminRestController {
 
     @RequestMapping(value = URL_CREATE_INDEX, method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public OkResult createIndex(@Valid @RequestBody CreateIndexRequest request) {
+    public Result createIndex(@Valid @RequestBody CreateIndexRequest request) {
         adminService.createIndex(request.getId());
 
-        return OkResult.INSTANCE;
+        return Result.OK;
     }
 
     @RequestMapping(value = URL_GET_INDEX_INFO, method = RequestMethod.GET)
