@@ -103,4 +103,8 @@ public class XmlFileBatchIndexerTest extends BatchIndexerTestBase {
         return batchIndexer;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

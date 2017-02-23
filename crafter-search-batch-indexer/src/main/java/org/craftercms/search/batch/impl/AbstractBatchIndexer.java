@@ -85,7 +85,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         searchService.update(indexId, siteName, id, xml, true);
 
         if (logger.isDebugEnabled()) {
-            logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+            logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
         }
 
         status.addSuccessfulUpdate(id);
@@ -96,7 +96,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
             searchService.updateContent(indexId, siteName, id, is);
 
             if (logger.isDebugEnabled()) {
-                logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+                logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
             }
 
             status.addSuccessfulUpdate(id);
