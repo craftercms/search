@@ -294,24 +294,24 @@ public class SolrSearchService implements SearchService {
     }
 
     @Override
-    public void updateFile(String site, String id, File file) throws SearchException {
-        updateFile(null, site, id, file, null);
+    public void updateContent(String site, String id, File file) throws SearchException {
+        updateContent(null, site, id, file, null);
     }
 
     @Override
-    public void updateFile(String indexId, String site, String id, File file) throws SearchException {
-        updateFile(indexId, site, id, file, null);
+    public void updateContent(String indexId, String site, String id, File file) throws SearchException {
+        updateContent(indexId, site, id, file, null);
     }
 
     @Override
-    public void updateFile(String site, String id, File file,
-                             Map<String, List<String>> additionalFields) throws SearchException {
-        updateFile(null, site, id, file, additionalFields);
+    public void updateContent(String site, String id, File file,
+                              Map<String, List<String>> additionalFields) throws SearchException {
+        updateContent(null, site, id, file, additionalFields);
     }
 
     @Override
-    public void updateFile(String indexId, String site, String id, File file,
-                           Map<String, List<String>> additionalFields) throws SearchException {
+    public void updateContent(String indexId, String site, String id, File file,
+                              Map<String, List<String>> additionalFields) throws SearchException {
         if (StringUtils.isEmpty(indexId)) {
             indexId = defaultIndexId;
         }

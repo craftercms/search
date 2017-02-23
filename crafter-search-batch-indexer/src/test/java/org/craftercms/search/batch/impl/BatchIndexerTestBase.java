@@ -2,9 +2,7 @@ package org.craftercms.search.batch.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.craftercms.core.exception.PathNotFoundException;
 import org.craftercms.core.processors.ItemProcessor;
 import org.craftercms.core.service.CachingOptions;
@@ -18,18 +16,17 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.junit.Before;
-import org.mockito.ArgumentMatcher;
 import org.springframework.core.io.ClassPathResource;
 
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by alfonso on 2/21/17.
+ * Base class for {@link org.craftercms.search.batch.BatchIndexer} tests.
+ *
+ * @author avasquez
  */
 public class BatchIndexerTestBase {
 

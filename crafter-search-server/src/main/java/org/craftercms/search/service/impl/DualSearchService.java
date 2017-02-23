@@ -120,38 +120,38 @@ public class DualSearchService implements SearchService {
     }
 
     @Override
-    public void updateFile(String site, String id, File file) throws SearchException {
+    public void updateContent(String site, String id, File file) throws SearchException {
         if (writeService != null) {
-            writeService.updateFile(site, id, file);
+            writeService.updateContent(site, id, file);
         } else {
             handleNoWriteServiceProvided();
         }
     }
 
     @Override
-    public void updateFile(String indexId, String site, String id, File file) throws SearchException {
+    public void updateContent(String indexId, String site, String id, File file) throws SearchException {
         if (writeService != null) {
-            writeService.updateFile(indexId, site, id, file);
+            writeService.updateContent(indexId, site, id, file);
         } else {
             handleNoWriteServiceProvided();
         }
     }
 
     @Override
-    public void updateFile(String site, String id, File file,
-                           Map<String, List<String>> additionalFields) throws SearchException {
+    public void updateContent(String site, String id, File file,
+                              Map<String, List<String>> additionalFields) throws SearchException {
         if (writeService != null) {
-            writeService.updateFile(site, id, file, additionalFields);
+            writeService.updateContent(site, id, file, additionalFields);
         } else {
             handleNoWriteServiceProvided();
         }
     }
 
     @Override
-    public void updateFile(String indexId, String site, String id, File file,
-                             Map<String, List<String>> additionalFields) throws SearchException {
+    public void updateContent(String indexId, String site, String id, File file,
+                              Map<String, List<String>> additionalFields) throws SearchException {
         if (writeService != null) {
-            writeService.updateFile(indexId, site, id, file, additionalFields);
+            writeService.updateContent(indexId, site, id, file, additionalFields);
         } else {
             handleNoWriteServiceProvided();
         }

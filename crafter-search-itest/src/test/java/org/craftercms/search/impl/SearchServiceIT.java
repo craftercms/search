@@ -107,7 +107,7 @@ public class SearchServiceIT {
         searchService.update(PLUTON_INDEX_ID, PLUTON_SITE, EXPIRED_DOC_ID, xml, true);
 
         File file = getClasspathFile("docs/" + WP_REASONS_PDF_DOC_ID);
-        searchService.updateFile(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file);
+        searchService.updateContent(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file);
 
         searchService.commit(PLUTON_INDEX_ID);
 
@@ -135,7 +135,7 @@ public class SearchServiceIT {
         MultiValueMap<String, String> additionalFields = new LinkedMultiValueMap<>();
         additionalFields.put("tags.value_smv", WP_REASONS_PDF_TAGS);
 
-        searchService.updateFile(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file, additionalFields);
+        searchService.updateContent(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file, additionalFields);
         searchService.commit(PLUTON_INDEX_ID);
 
         query = searchService.createQuery();
