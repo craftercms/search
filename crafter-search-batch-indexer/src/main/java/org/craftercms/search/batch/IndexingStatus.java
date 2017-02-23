@@ -24,7 +24,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Created by alfonsovasquez on 12/28/16.
+ * Class that is used to hold the progress of a single batch index update operation.
+ *
+ * @author avasquez
  */
 public class IndexingStatus {
 

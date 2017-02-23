@@ -18,7 +18,8 @@ public interface BatchIndexer {
      *
      * @param indexId               the ID of the index, or null to use a default index
      * @param siteName              the name of the site the files belong to
-     * @param contentStoreService   the Content Store Service used to retrieve the files and content to index
+     * @param contentStoreService   the content store service used to retrieve the files and content to index
+     * @param context               the context of the file store being used
      * @param paths                 the paths in the content store of the files to index
      * @param delete                if the given files should be deleted from the index, otherwise they're added
      * @param status                status object used to track index updates and deletes

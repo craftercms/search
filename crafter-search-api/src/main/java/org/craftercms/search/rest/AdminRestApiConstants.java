@@ -27,7 +27,7 @@ public class AdminRestApiConstants {
     public static final String PATH_VAR_ID = "id";
     public static final String PARAM_DELETE_MODE = "delete_mode";
 
-    public static final String URL_ROOT = "/api/1/admin";
+    public static final String URL_ROOT = "/api/2/admin";
     public static final String URL_CREATE_INDEX = "/index/create";
     public static final String URL_GET_INDEX_INFO = "/index/info/{" + PATH_VAR_ID + "}";
     public static final String URL_DELETE_INDEX = "/index/delete/{" + PATH_VAR_ID + "}";

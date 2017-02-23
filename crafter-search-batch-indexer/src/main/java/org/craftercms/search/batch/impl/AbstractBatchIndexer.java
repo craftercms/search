@@ -36,7 +36,9 @@ import org.craftercms.search.service.SearchService;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Created by alfonsovasquez on 2/6/16.
+ * Base class for {@link BatchIndexer}s. Basically sub-classes only need to provide the processing of each of the files to be indexed.
+ *
+ * @author avasquez
  */
 public abstract class AbstractBatchIndexer implements BatchIndexer {
 
