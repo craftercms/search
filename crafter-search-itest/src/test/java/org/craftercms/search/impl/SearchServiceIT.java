@@ -86,6 +86,7 @@ public class SearchServiceIT {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testMethods() throws Exception {
         SolrQuery query = searchService.createQuery();
         query.setQuery("*:*");
@@ -97,23 +98,18 @@ public class SearchServiceIT {
         assertEquals(0, getNumDocs(response));
 
         String xml = getClasspathFileContent("docs/" + IPAD_DOC_ID);
-        String updateResponse = searchService.update(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID, xml, true);
-        logger.info(updateResponse);
+        searchService.update(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID, xml, true);
 
         xml = getClasspathFileContent("docs/" + DISABLED_DOC_ID);
-        updateResponse = searchService.update(PLUTON_INDEX_ID, PLUTON_SITE, DISABLED_DOC_ID, xml, true);
-        logger.info(updateResponse);
+        searchService.update(PLUTON_INDEX_ID, PLUTON_SITE, DISABLED_DOC_ID, xml, true);
 
         xml = getClasspathFileContent("docs/" + EXPIRED_DOC_ID);
-        updateResponse = searchService.update(PLUTON_INDEX_ID, PLUTON_SITE, EXPIRED_DOC_ID, xml, true);
-        logger.info(updateResponse);
+        searchService.update(PLUTON_INDEX_ID, PLUTON_SITE, EXPIRED_DOC_ID, xml, true);
 
         File file = getClasspathFile("docs/" + WP_REASONS_PDF_DOC_ID);
-        updateResponse = searchService.updateFile(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file);
-        logger.info(updateResponse);
+        searchService.updateFile(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file);
 
-        String commitResponse = searchService.commit(PLUTON_INDEX_ID);
-        logger.info(commitResponse);
+        searchService.commit(PLUTON_INDEX_ID);
 
         results = searchService.search(PLUTON_INDEX_ID, query);
         assertNotNull(results);
@@ -139,11 +135,8 @@ public class SearchServiceIT {
         MultiValueMap<String, String> additionalFields = new LinkedMultiValueMap<>();
         additionalFields.put("tags.value_smv", WP_REASONS_PDF_TAGS);
 
-        updateResponse = searchService.updateFile(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file, additionalFields);
-        logger.info(updateResponse);
-
-        commitResponse = searchService.commit(PLUTON_INDEX_ID);
-        logger.info(commitResponse);
+        searchService.updateFile(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file, additionalFields);
+        searchService.commit(PLUTON_INDEX_ID);
 
         query = searchService.createQuery();
         query.setQuery("localId:\"" + WP_REASONS_PDF_DOC_ID + "\"");
@@ -160,14 +153,9 @@ public class SearchServiceIT {
         assertNotNull(wpReasonsPdfDoc);
         assertWpReasonsPdfDocWithAdditionalFields(wpReasonsPdfDoc);
 
-        String deleteResponse = searchService.delete(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID);
-        logger.info(deleteResponse);
-
-        deleteResponse = searchService.delete(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID);
-        logger.info(deleteResponse);
-
-        commitResponse = searchService.commit(PLUTON_INDEX_ID);
-        logger.info(commitResponse);
+        searchService.delete(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID);
+        searchService.delete(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID);
+        searchService.commit(PLUTON_INDEX_ID);
 
         query = searchService.createQuery();
         query.setQuery("*:*");
@@ -187,6 +175,7 @@ public class SearchServiceIT {
         return IOUtils.toString(new ClassPathResource(path).getInputStream());
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> getQueryResponse(Map<String, Object> results) {
         return (Map<String, Object>)results.get("response");
     }
@@ -195,6 +184,7 @@ public class SearchServiceIT {
         return (Integer)response.get("numFound");
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Map<String, Object>> getDocs(Map<String, Object> response) {
         List<Map<String, Object>> docList = (List<Map<String, Object>>)response.get("documents");
         Map<String, Map<String, Object>> docs = new HashMap<>(3);
@@ -221,8 +211,6 @@ public class SearchServiceIT {
 
     @SuppressWarnings("unchecked")
     private void assertIPadDoc(Map<String, Object> doc) {
-        System.out.println(doc);
-
         assertIPadDocCommonFields(doc);
         assertEquals(PLUTON_SITE + ":" + IPAD_DOC_ID, doc.get("id"));
         assertEquals(PLUTON_SITE + ":" + IPAD_DOC_ID, doc.get("rootId"));

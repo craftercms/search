@@ -27,19 +27,17 @@ public class SearchRestApiConstants {
     private SearchRestApiConstants() {
     }
 
-    public static final String PARAM_INDEX_ID = "indexId";
+    public static final String PARAM_INDEX_ID = "index_id";
+
     public static final String PARAM_SITE = "site";
     public static final String PARAM_ID = "id";
-    public static final String PARAM_IGNORE_ROOT_IN_FIELD_NAMES = "stripRoot";
-    public static final String PARAM_DOCUMENT = "document";
-    public static final String PARAM_FILE = "file";
+    public static final String PARAM_IGNORE_ROOT_IN_FIELD_NAMES = "strip_root";
+    public static final String PARAM_CONTENT = "content";
 
-    public static final String URL_ROOT = "/api/1/search";
+    public static final String URL_ROOT = "/api/2/search";
     public static final String URL_SEARCH = "/search";
     public static final String URL_UPDATE = "/update";
-    public static final String URL_UPDATE_FILE= "/update-file";
-    @Deprecated public static final String URL_UPDATE_DOCUMENT = "/update-document";
-    @Deprecated public static final String URL_PARTIAL_DOCUMENT_UPDATE = "/partial-document-update";
+    public static final String URL_UPDATE_CONTENT = "/update-content";
     public static final String URL_DELETE = "/delete";
     public static final String URL_COMMIT = "/commit";
 

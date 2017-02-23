@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import java.util.Collections;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.craftercms.commons.rest.Result;
 import org.craftercms.commons.validation.ValidationResult;
 import org.craftercms.search.exception.IndexNotFoundException;
 import org.springframework.http.HttpHeaders;
@@ -84,7 +85,7 @@ public class ExceptionHandlers extends ResponseEntityExceptionHandler {
 
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, String message, HttpHeaders headers, HttpStatus status,
                                                              WebRequest request) {
-        return handleExceptionInternal(ex, Collections.singletonMap("message", message), headers, status, request);
+        return handleExceptionInternal(ex, new Result(message), headers, status, request);
     }
 
     @Override
@@ -93,7 +94,7 @@ public class ExceptionHandlers extends ResponseEntityExceptionHandler {
         logger.error("Request " + ((ServletWebRequest) request).getRequest().getRequestURI() + " failed with status " + status, ex);
 
         if (body == null) {
-            body = Collections.singletonMap("message", ex.getMessage());
+            body = new Result(ex.getMessage());
         }
 
         return new ResponseEntity<>(body, headers, status);
