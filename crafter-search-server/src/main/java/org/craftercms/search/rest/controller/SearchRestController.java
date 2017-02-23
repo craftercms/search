@@ -29,8 +29,6 @@ import org.craftercms.commons.rest.Result;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.QueryParams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -120,7 +118,7 @@ public class SearchRestController {
             file.transferTo(tmpFile);
 
             try {
-                searchService.updateFile(indexId, site, id, tmpFile, additionalFields);
+                searchService.updateContent(indexId, site, id, tmpFile, additionalFields);
 
                 return Result.OK;
             } finally {

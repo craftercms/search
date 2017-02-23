@@ -103,10 +103,10 @@ public interface SearchService {
      *
      * @param site  the Crafter site name the content belongs to
      * @param id    the id of the file, within the site
-     * @param file  the file to update in the index
+     * @param file  the file content to update in the index
      * @throws SearchException
      */
-    void updateFile(String site, String id, File file) throws SearchException;
+    void updateContent(String site, String id, File file) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -114,22 +114,22 @@ public interface SearchService {
      * @param indexId   the index ID (core in Solr terminology). Use null for default index.
      * @param site      the Crafter site name the content belongs to
      * @param id        the id of the file, within the site
-     * @param file      the file to update in the index
+     * @param file      the file content to update in the index
      * @throws SearchException
      */
-    void updateFile(String indexId, String site, String id, File file) throws SearchException;
+    void updateContent(String indexId, String site, String id, File file) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
      *
      * @param site              the Crafter site name the content belongs to
      * @param id                the id of the file, within the site
-     * @param file              the file to update in the index
+     * @param file              the file content to update in the index
      * @param additionalFields  additional metadata fields to be indexed (shouldn't have the name site, id or
      *                          document)
      * @throws SearchException
      */
-    void updateFile(String site, String id, File file, Map<String, List<String>> additionalFields) throws SearchException;
+    void updateContent(String site, String id, File file, Map<String, List<String>> additionalFields) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -137,19 +137,19 @@ public interface SearchService {
      * @param indexId           the index ID (core in Solr terminology). Use null for default index.
      * @param site              the Crafter site name the content belongs to
      * @param id                the id of the XML document, within the site
-     * @param file              the file to update in the index
+     * @param file              the file content to update in the index
      * @param additionalFields  additional metadata fields to be indexed (shouldn't have the name site, id or
      *                          document)
      * @throws SearchException
      */
-    void updateFile(String indexId, String site, String id, File file, Map<String, List<String>> additionalFields) throws SearchException;
+    void updateContent(String indexId, String site, String id, File file, Map<String, List<String>> additionalFields) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
      *
      * @param site      the Crafter site name the content belongs to
      * @param id        the id of the file, within the site
-     * @param content   the content to update in the index
+     * @param content   the file content to update in the index
      * @throws SearchException
      */
     void updateContent(String site, String id, InputStream content) throws SearchException;
@@ -160,7 +160,7 @@ public interface SearchService {
      * @param indexId   the index ID (core in Solr terminology). Use null for default index.
      * @param site      the Crafter site name the content belongs to
      * @param id        the id of the file, within the site
-     * @param content   the content to update in the index
+     * @param content   the file content to update in the index
      * @throws SearchException
      */
     void updateContent(String indexId, String site, String id, InputStream content) throws SearchException;
@@ -170,7 +170,7 @@ public interface SearchService {
      *
      * @param site              the Crafter site name the content belongs to
      * @param id                the id of the file, within the site
-     * @param content           the content to update in the index
+     * @param content           the file content to update in the index
      * @param additionalFields  additional metadata fields to be indexed (shouldn't have the name site, id or
      *                          document)
      * @throws SearchException
@@ -183,7 +183,7 @@ public interface SearchService {
      * @param indexId           the index ID (core in Solr terminology). Use null for default index.
      * @param site              the Crafter site name the content belongs to
      * @param id                the id of the XML document, within the site
-     * @param content           the content to update in the index
+     * @param content           the file content to update in the index
      * @param additionalFields  additional metadata fields to be indexed (shouldn't have the name site, id or
      *                          document)
      * @throws SearchException
