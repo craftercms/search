@@ -17,6 +17,7 @@
 package org.craftercms.search.service;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -185,6 +186,61 @@ public interface SearchService {
      * @throws SearchException
      */
     String updateFile(String indexId, String site, String id, File file,
+                      Map<String, List<String>> additionalFields) throws SearchException;
+
+    /**
+     * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
+     *
+     * @param site      the Crafter site name the content belongs to
+     * @param id        the id of the file, within the site
+     * @param content   the file content to update in the index
+     *
+     * @return a success string
+     * @throws SearchException
+     */
+    String updateFile(String site, String id, InputStream content) throws SearchException;
+
+    /**
+     * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
+     *
+     * @param indexId   the index ID (core in Solr terminology). Use null for default index.
+     * @param site      the Crafter site name the content belongs to
+     * @param id        the id of the file, within the site
+     * @param content   the file content to update in the index
+     *
+     * @return a success string
+     * @throws SearchException
+     */
+    String updateFile(String indexId, String site, String id, InputStream content) throws SearchException;
+
+    /**
+     * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
+     *
+     * @param site              the Crafter site name the content belongs to
+     * @param id                the id of the file, within the site
+     * @param content           the file content to update in the index
+     * @param additionalFields  additional metadata fields to be indexed (shouldn't have the name site, id or
+     *                          document)
+     *
+     * @return a success string
+     * @throws SearchException
+     */
+    String updateFile(String site, String id, InputStream content, Map<String, List<String>> additionalFields) throws SearchException;
+
+    /**
+     * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
+     *
+     * @param indexId           the index ID (core in Solr terminology). Use null for default index.
+     * @param site              the Crafter site name the content belongs to
+     * @param id                the id of the XML document, within the site
+     * @param content           the file content to update in the index
+     * @param additionalFields  additional metadata fields to be indexed (shouldn't have the name site, id or
+     *                          document)
+     *
+     * @return a success string
+     * @throws SearchException
+     */
+    String updateFile(String indexId, String site, String id, InputStream content,
                       Map<String, List<String>> additionalFields) throws SearchException;
 
     /**

@@ -1,19 +1,21 @@
 package org.craftercms.search.batch.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.craftercms.search.batch.exception.BatchIndexingException;
-import org.craftercms.search.batch.utils.XmlUtils;
-import org.craftercms.search.batch.utils.xml.DocumentProcessor;
+import org.craftercms.core.exception.CrafterException;
+import org.craftercms.core.exception.XmlException;
+import org.craftercms.core.processors.ItemProcessor;
+import org.craftercms.core.processors.impl.ItemProcessorPipeline;
+import org.craftercms.core.service.ContentStoreService;
+import org.craftercms.core.service.Context;
+import org.craftercms.core.service.Item;
+import org.craftercms.search.batch.IndexingStatus;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
@@ -28,65 +30,50 @@ public class XmlFileBatchIndexer extends AbstractBatchIndexer {
 
     public static final List<String> DEFAULT_INCLUDE_FILENAME_PATTERNS = Collections.singletonList("^.*\\.xml$");
 
-    protected List<DocumentProcessor> documentProcessors;
-    protected String charset;
+    protected ItemProcessor itemProcessor;
 
     public XmlFileBatchIndexer() {
         includeFileNamePatterns = DEFAULT_INCLUDE_FILENAME_PATTERNS;
-        charset = "UTF-8";
     }
 
-    public void setDocumentProcessors(List<DocumentProcessor> documentProcessors) {
-        this.documentProcessors = documentProcessors;
+    public void setItemProcessor(ItemProcessor itemProcessor) {
+        this.itemProcessor = itemProcessor;
     }
 
-    public void setCharset(String charset) {
-        this.charset = charset;
+    public void setItemProcessors(List<ItemProcessor> itemProcessors) {
+        this.itemProcessor = new ItemProcessorPipeline(itemProcessors);
     }
 
     @Override
-    protected boolean doSingleFileUpdate(String indexId, String siteName, String rootFolder, String fileName,
-                                         boolean delete) throws BatchIndexingException {
-        File file = new File(rootFolder, fileName);
-
+    protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
+                                      String path, boolean delete, IndexingStatus status) throws Exception {
         if (delete) {
-            return doDelete(indexId, siteName, fileName);
+            doDelete(indexId, siteName, path, status);
         } else {
-            try {
-                String xml = processXml(rootFolder, file);
-
-                return doUpdate(indexId, siteName, fileName, xml);
-            } catch (DocumentException e) {
-                logger.warn("Cannot process XML file " + siteName + ":" + fileName + ". Continuing index update...", e);
-            }
+            doUpdate(indexId, siteName, path, processXml(siteName, contentStoreService, context, path), status);
         }
-
-        return false;
     }
 
-    protected String processXml(String rootFolder, File file) throws DocumentException {
+    protected String processXml(String siteName, ContentStoreService contentStoreService, Context context,
+                                String path) throws CrafterException {
         if (logger.isDebugEnabled()) {
-            logger.debug("Processing XML file " + file + " before indexing");
+            logger.debug("Processing XML @ " + getSiteBasedPath(siteName, path) + " before indexing");
         }
 
-        Document document = processDocument(XmlUtils.readXml(file, charset), file, rootFolder);
-        String xml = documentToString(document);
+        Item item = contentStoreService.getItem(context, null, path, itemProcessor);
+        Document doc = item.getDescriptorDom();
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("XML file " + file + " processed successfully:\n" + xml);
-        }
+        if (doc != null) {
+            String xml = documentToString(item.getDescriptorDom());
 
-        return xml;
-    }
-
-    protected Document processDocument(Document document, File file, String rootFolder) throws DocumentException {
-        if (CollectionUtils.isNotEmpty(documentProcessors)) {
-            for (DocumentProcessor processor : documentProcessors) {
-                document = processor.process(document, file, rootFolder);
+            if (logger.isDebugEnabled()) {
+                logger.debug("XML @ " + getSiteBasedPath(siteName, path) + " processed successfully:\n" + xml);
             }
-        }
 
-        return document;
+            return xml;
+        } else {
+            throw new XmlException("Item @ " + getSiteBasedPath(siteName, path) + " doesn't seem to be an XML file");
+        }
     }
 
     protected String documentToString(Document document) {

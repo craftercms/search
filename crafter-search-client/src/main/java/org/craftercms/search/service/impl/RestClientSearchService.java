@@ -17,6 +17,7 @@
 package org.craftercms.search.service.impl;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,6 +32,8 @@ import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -70,6 +73,7 @@ public class RestClientSearchService implements SearchService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map<String, Object> search(String indexId, Query query) throws SearchException {
         String searchUrl = createBaseUrl(URL_SEARCH, indexId);
         searchUrl = UrlUtils.addQueryStringFragment(searchUrl, query.toQueryString());
@@ -176,9 +180,8 @@ public class RestClientSearchService implements SearchService {
                 if (fieldName.equals(REQUEST_PARAM_SITE) ||
                     fieldName.equals(REQUEST_PARAM_ID) ||
                     fieldName.equals(REQUEST_PARAM_DOCUMENT)) {
-                    throw new SearchException(String.format("An additional field shouldn't have the " +
-                                                            "following names: %s, %s, %s", REQUEST_PARAM_SITE,
-                                                            REQUEST_PARAM_ID, REQUEST_PARAM_DOCUMENT));
+                    throw new SearchException(String.format("An additional field shouldn't have the following names: %s, %s, %s",
+                                                            REQUEST_PARAM_SITE, REQUEST_PARAM_ID, REQUEST_PARAM_DOCUMENT));
                 }
 
                 form.add(fieldName, additionalField.getValue());
@@ -218,7 +221,34 @@ public class RestClientSearchService implements SearchService {
     @Override
     public String updateFile(String indexId, String site, String id, File file,
                              Map<String, List<String>> additionalFields) throws SearchException {
-        FileSystemResource fsr = new FileSystemResource(file);
+        return updateFile(indexId, site, id, new FileSystemResource(file), additionalFields);
+    }
+
+    @Override
+    public String updateFile(String site, String id, InputStream content) throws SearchException {
+        return updateFile(null, site, id, content, null);
+    }
+
+    @Override
+    public String updateFile(String indexId, String site, String id, InputStream content) throws SearchException {
+        return updateFile(indexId, site, id, content, null);
+    }
+
+    @Override
+    public String updateFile(String site, String id, InputStream content,
+                             Map<String, List<String>> additionalFields) throws SearchException {
+        return updateFile(null, site, id, content, additionalFields);
+    }
+
+    @Override
+    public String updateFile(String indexId, String site, String id, InputStream content,
+                             Map<String, List<String>> additionalFields) throws SearchException {
+        return updateFile(indexId, site, id, new InputStreamResource(content), additionalFields);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected String updateFile(String indexId, String site, String id, Resource resource,
+                                Map<String, List<String>> additionalFields) throws SearchException {
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
 
         if (StringUtils.isNotEmpty(indexId)) {
@@ -226,7 +256,7 @@ public class RestClientSearchService implements SearchService {
         }
         form.set(REQUEST_PARAM_SITE, site);
         form.set(REQUEST_PARAM_ID, id);
-        form.set(REQUEST_PARAM_FILE, fsr);
+        form.set(REQUEST_PARAM_FILE, resource);
 
         if (MapUtils.isNotEmpty(additionalFields)) {
             for (Map.Entry<String, List<String>> additionalField : additionalFields.entrySet()) {
@@ -235,23 +265,22 @@ public class RestClientSearchService implements SearchService {
                 if (fieldName.equals(REQUEST_PARAM_INDEX_ID) ||
                     fieldName.equals(REQUEST_PARAM_SITE) ||
                     fieldName.equals(REQUEST_PARAM_ID) ||
-                    fieldName.equals(REQUEST_PARAM_DOCUMENT)) {
-                    throw new SearchException(String.format("An additional field shouldn't have the " +
-                                                            "following names: %s, %s, %s, %s",
-                                                            REQUEST_PARAM_INDEX_ID, REQUEST_PARAM_SITE,
-                                                            REQUEST_PARAM_ID, REQUEST_PARAM_DOCUMENT));
+                    fieldName.endsWith(REQUEST_PARAM_FILE)) {
+                    throw new SearchException(String.format("An additional field shouldn't have the following names: %s, %s, %s, %s",
+                                                            REQUEST_PARAM_INDEX_ID, REQUEST_PARAM_SITE, REQUEST_PARAM_ID,
+                                                            REQUEST_PARAM_FILE));
                 }
 
                 form.put(fieldName, (List) additionalField.getValue());
             }
         }
 
-        String updateFileUrl = createBaseUrl(URL_UPDATE_FILE);
+        String updateUrl = createBaseUrl(URL_UPDATE_FILE);
 
         try {
-            return restTemplate.postForObject(new URI(updateFileUrl), form, String.class);
+            return restTemplate.postForObject(new URI(updateUrl), form, String.class);
         } catch (URISyntaxException e) {
-            throw new SearchException(indexId, "Invalid URI: " + updateFileUrl, e);
+            throw new SearchException(indexId, "Invalid URI: " + updateUrl, e);
         } catch (HttpStatusCodeException e) {
             throw new SearchException(indexId, "Update for file '" + id + "' failed: [" + e.getStatusText() + "] " +
                                                e.getResponseBodyAsString());

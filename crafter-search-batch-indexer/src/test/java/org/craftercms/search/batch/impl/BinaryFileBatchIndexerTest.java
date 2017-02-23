@@ -1,17 +1,17 @@
 package org.craftercms.search.batch.impl;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
+import org.craftercms.search.batch.IndexingStatus;
 import org.craftercms.search.service.SearchService;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -20,42 +20,40 @@ import static org.mockito.Mockito.verify;
  *
  * @author avasquez
  */
-public class BinaryFileBatchIndexerTest {
+public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
 
     private static final String SITE_NAME = "test";
-    private static final String SUPPORTED_FILENAME = "document.pdf";
+    private static final String SUPPORTED_FILENAME = "crafter-wp-7-reasons.pdf";
     private static final String NON_SUPPORTED_FILENAME = "image.jpg";
 
-    private SearchService searchService;
     private BinaryFileBatchIndexer batchIndexer;
 
     @Before
     public void setUp() throws Exception {
-        searchService = getSearchService();
+        super.setUp();
+
         batchIndexer = getBatchIndexer(searchService);
     }
 
     @Test
     public void testProcess() throws Exception {
-        String rootFolder = getRootFolder();
-        String indexId = SITE_NAME + "-default";
-        File supportedFile = new File(rootFolder, SUPPORTED_FILENAME);
+        String indexId = SITE_NAME;
         List<String> updatedFiles = Collections.singletonList(SUPPORTED_FILENAME);
         List<String> deletedFiles = Collections.singletonList(NON_SUPPORTED_FILENAME);
+        IndexingStatus status = new IndexingStatus();
 
-        int updated = batchIndexer.updateIndex(indexId, SITE_NAME, rootFolder, updatedFiles, false);
+        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, updatedFiles, false, status);
 
-        assertEquals(1, updated);
-        verify(searchService).updateFile(indexId, SITE_NAME, SUPPORTED_FILENAME, supportedFile);
+        assertEquals(1, status.getAttemptedUpdatesAndDeletes());
+        assertEquals(SUPPORTED_FILENAME, status.getSuccessfulUpdates().get(0));
+        verify(searchService).updateFile(eq(indexId), eq(SITE_NAME), eq(SUPPORTED_FILENAME), any(InputStream.class));
 
-        updated = batchIndexer.updateIndex(indexId, SITE_NAME, rootFolder, deletedFiles, true);
+        status = new IndexingStatus();
 
-        assertEquals(0, updated);
+        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, deletedFiles, true, status);
+
+        assertEquals(0, status.getAttemptedUpdatesAndDeletes());
         verify(searchService, never()).delete(indexId, SITE_NAME, NON_SUPPORTED_FILENAME);
-    }
-
-    protected SearchService getSearchService() throws Exception {
-        return mock(SearchService.class);
     }
 
     protected BinaryFileBatchIndexer getBatchIndexer(SearchService searchService) throws Exception {
@@ -66,8 +64,6 @@ public class BinaryFileBatchIndexerTest {
         return batchIndexer;
     }
 
-    protected String getRootFolder() throws IOException {
-        return new ClassPathResource("/docs").getFile().getAbsolutePath();
-    }
+
 
 }
