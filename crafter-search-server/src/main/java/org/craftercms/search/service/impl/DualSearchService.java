@@ -17,6 +17,7 @@
 package org.craftercms.search.service.impl;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -172,6 +173,44 @@ public class DualSearchService implements SearchService {
                              Map<String, List<String>> additionalFields) throws SearchException {
         if (writeService != null) {
             return writeService.updateFile(indexId, site, id, file, additionalFields);
+        } else {
+            return handleNoWriteServiceProvided();
+        }
+    }
+
+    @Override
+    public String updateFile(String site, String id, InputStream content) throws SearchException {
+        if (writeService != null) {
+            return writeService.updateFile(site, id, content);
+        } else {
+            return handleNoWriteServiceProvided();
+        }
+    }
+
+    @Override
+    public String updateFile(String indexId, String site, String id, InputStream content) throws SearchException {
+        if (writeService != null) {
+            return writeService.updateFile(indexId, site, id, content);
+        } else {
+            return handleNoWriteServiceProvided();
+        }
+    }
+
+    @Override
+    public String updateFile(String site, String id, InputStream content,
+                             Map<String, List<String>> additionalFields) throws SearchException {
+        if (writeService != null) {
+            return writeService.updateFile(site, id, content, additionalFields);
+        } else {
+            return handleNoWriteServiceProvided();
+        }
+    }
+
+    @Override
+    public String updateFile(String indexId, String site, String id, InputStream content,
+                             Map<String, List<String>> additionalFields) throws SearchException {
+        if (writeService != null) {
+            return writeService.updateFile(indexId, site, id, content, additionalFields);
         } else {
             return handleNoWriteServiceProvided();
         }

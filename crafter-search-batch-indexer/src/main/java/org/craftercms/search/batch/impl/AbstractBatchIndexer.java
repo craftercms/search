@@ -1,6 +1,23 @@
+/*
+ * Copyright (C) 2007-2016 Crafter Software Corporation.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.search.batch.impl;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -9,14 +26,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.craftercms.commons.lang.RegexUtils;
+import org.craftercms.core.service.Content;
+import org.craftercms.core.service.ContentStoreService;
+import org.craftercms.core.service.Context;
 import org.craftercms.search.batch.BatchIndexer;
+import org.craftercms.search.batch.IndexingStatus;
 import org.craftercms.search.batch.exception.BatchIndexingException;
-import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.SearchService;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Created by alfonsovasquez on 2/6/16.
+ * Base class for {@link BatchIndexer}s. Basically sub-classes only need to provide the processing of each of the files to be indexed.
+ *
+ * @author avasquez
  */
 public abstract class AbstractBatchIndexer implements BatchIndexer {
 
@@ -40,83 +62,74 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
     }
 
     @Override
-    public int updateIndex(String indexId, String siteName, String rootFolder, List<String> fileNames,
-                           boolean delete) throws BatchIndexingException {
-        int updateCount = 0;
+    public void updateIndex(String indexId, String siteName, ContentStoreService contentStoreService, Context context, List<String> paths,
+                            boolean delete, IndexingStatus status) throws BatchIndexingException {
+        for (String path : paths) {
+            if (include(path)) {
+                try {
+                    doSingleFileUpdate(indexId, siteName, contentStoreService, context, path, delete, status);
+                } catch (Exception e) {
+                    if (delete) {
+                        logger.error("Error while trying to perform delete of file " + getSiteBasedPath(siteName, path), e);
 
-        for (String fileName : fileNames) {
-            if (include(fileName) && doSingleFileUpdate(indexId, siteName, rootFolder, fileName, delete)) {
-                updateCount++;
+                        status.addFailedDelete(path);
+                    } else {
+                        logger.error("Error while trying to perform update of file " + getSiteBasedPath(siteName, path), e);
+
+                        status.addFailedUpdate(path);
+                    }
+                }
             }
         }
-
-        return updateCount;
     }
 
-    protected boolean doUpdate(String indexId, String siteName, String id, String xml) throws SearchException {
-        try {
-            searchService.update(indexId, siteName, id, xml, true);
+    protected void doUpdate(String indexId, String siteName, String id, String xml, IndexingStatus status) {
+        searchService.update(indexId, siteName, id, xml, true);
 
-            logger.info("File " + getSiteBasedFileName(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        if (logger.isDebugEnabled()) {
+            logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        }
 
-            return true;
-        } catch (SearchException e) {
-            logger.error("Error while adding file " + getSiteBasedFileName(siteName, id) + " to index " +
-                         getIndexNameStr(indexId), e);
+        status.addSuccessfulUpdate(id);
+    }
 
-            return false;
+    protected void doUpdateContent(String indexId, String siteName, String id, Content content, IndexingStatus status) throws IOException {
+        try (InputStream is = content.getInputStream()) {
+            searchService.updateFile(indexId, siteName, id, is);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+            }
+
+            status.addSuccessfulUpdate(id);
         }
     }
 
-    protected boolean doUpdateFile(String indexId, String siteName, String id, File file) throws SearchException {
-        try {
-            searchService.updateFile(indexId, siteName, id, file);
+    protected void doUpdateContent(String indexId, String siteName, String id, Content content, Map<String, List<String>> additionalFields,
+                                   IndexingStatus status) throws IOException {
+        try (InputStream is = content.getInputStream()) {
+            searchService.updateFile(indexId, siteName, id, is, additionalFields);
 
-            logger.info("File " + getSiteBasedFileName(siteName, id) + " added to index " + getIndexNameStr(indexId));
+            if (logger.isDebugEnabled()) {
+                logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+            }
 
-            return true;
-        } catch (SearchException e) {
-            logger.error("Error while adding file " + getSiteBasedFileName(siteName, id) + " to index " +
-                         getIndexNameStr(indexId), e);
-
-            return false;
+            status.addSuccessfulUpdate(id);
         }
     }
 
-    protected boolean doUpdateFile(String indexId, String siteName, String id, File file,
-                                   Map<String, List<String>> additionalFields) throws SearchException {
-        try {
-            searchService.updateFile(indexId, siteName, id, file, additionalFields);
+    protected void doDelete(String indexId, String siteName, String id, IndexingStatus status) {
+        searchService.delete(indexId, siteName, id);
 
-            logger.info("File " + getSiteBasedFileName(siteName, id) + " added to index " + getIndexNameStr(indexId));
-
-            return true;
-        } catch (SearchException e) {
-            logger.error("Error while adding file " + getSiteBasedFileName(siteName, id)+ " to index " +
-                         getIndexNameStr(indexId), e);
-
-            return false;
+        if (logger.isDebugEnabled()) {
+            logger.debug("File " + getSiteBasedPath(siteName, id) + " deleted from index " + getIndexNameStr(indexId));
         }
+
+        status.addSuccessfulDelete(id);
     }
 
-    protected boolean doDelete(String indexId, String siteName, String id) throws SearchException {
-        try {
-            searchService.delete(indexId, siteName, id);
-
-            logger.info("File " + getSiteBasedFileName(siteName, id) + " deleted from index " +
-                        getIndexNameStr(indexId));
-
-            return true;
-        } catch (SearchException e) {
-            logger.error("Error while deleting file " + getSiteBasedFileName(siteName, id) + " from index " +
-                         getIndexNameStr(indexId), e);
-
-            return false;
-        }
-    }
-
-    protected String getSiteBasedFileName(String siteName, String fileName) {
-        return siteName + ":" + fileName;
+    protected String getSiteBasedPath(String siteName, String path) {
+        return siteName + ":" + path;
     }
 
     protected String getIndexNameStr(String indexId) {
@@ -138,7 +151,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         return update;
     }
 
-    protected abstract boolean doSingleFileUpdate(String indexId, String siteName, String rootFolder,
-                                                  String fileName, boolean delete) throws BatchIndexingException;
+    protected abstract void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
+                                               String path, boolean delete, IndexingStatus status) throws Exception;
 
 }

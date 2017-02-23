@@ -16,23 +16,26 @@
  */
 package org.craftercms.search.batch.impl;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.craftercms.commons.lang.RegexUtils;
-import org.craftercms.search.batch.exception.BatchIndexingException;
-import org.craftercms.search.batch.utils.XmlUtils;
-import org.craftercms.search.batch.utils.xml.DocumentProcessor;
+import org.craftercms.core.processors.ItemProcessor;
+import org.craftercms.core.processors.impl.ItemProcessorPipeline;
+import org.craftercms.core.service.Content;
+import org.craftercms.core.service.ContentStoreService;
+import org.craftercms.core.service.Context;
+import org.craftercms.core.service.Item;
+import org.craftercms.search.batch.IndexingStatus;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.springframework.util.LinkedMultiValueMap;
@@ -51,19 +54,18 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
 
     private static final Log logger = LogFactory.getLog(BinaryFileWithMetadataBatchIndexer.class);
 
-    protected List<DocumentProcessor> documentProcessors;
-    protected String charEncoding;
+    protected ItemProcessor itemProcessor;
     protected List<String> metadataPathPatterns;
     protected List<String> binaryPathPatterns;
     protected List<String> referenceXPaths;
     protected List<String> excludeMetadataProperties;
 
-    public BinaryFileWithMetadataBatchIndexer() {
-        charEncoding = "UTF-8";
+    public void setItemProcessor(ItemProcessor itemProcessor) {
+        this.itemProcessor = itemProcessor;
     }
 
-    public void setDocumentProcessors(List<DocumentProcessor> documentProcessors) {
-        this.documentProcessors = documentProcessors;
+    public void setItemProcessors(List<ItemProcessor> itemProcessors) {
+        this.itemProcessor = new ItemProcessorPipeline(itemProcessors);
     }
 
     public void setMetadataPathPatterns(List<String> metadataPathPatterns) {
@@ -83,85 +85,83 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
     }
 
     @Override
-    protected boolean doSingleFileUpdate(String indexId, String siteName, String rootFolder, String fileName,
-                                         boolean delete) throws BatchIndexingException {
+    protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
+                                      String path, boolean delete, IndexingStatus status) throws Exception {
         boolean doUpdate = false;
-        File file = new File(rootFolder, fileName);
-        File updateFile = file;
-        String updateFileName = fileName;
+        String binaryPath = path;
+        Content binaryContent = null;
         Map<String, List<String>> metadata = null;
 
-        if (isMetadataFile(fileName)) {
+        if (isMetadataFile(path)) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Metadata file found: " + file + ". Processing started...");
+                logger.debug("Match for metadata file found @ " + getSiteBasedPath(siteName, path));
             }
 
-            try {
-                Document metadataDoc = XmlUtils.readXml(file, charEncoding);
-                updateFileName = getBinaryFileName(metadataDoc);
+            Item metadataItem = contentStoreService.getItem(context, null, path, itemProcessor);
+            Document metadataDoc = metadataItem.getDescriptorDom();
 
-                if (StringUtils.isNotBlank(updateFileName)) {
-                    updateFile = new File(rootFolder, updateFileName);
+            if (metadataDoc != null) {
+                binaryPath = getBinaryFilePath(metadataDoc);
 
+                if (StringUtils.isNoneEmpty(binaryPath)) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Binary file for metadata file " + file + ": " + updateFile);
+                        logger.debug("Binary file found for metadata file " + getSiteBasedPath(siteName, path) + ": " +
+                                     getSiteBasedPath(siteName, binaryPath));
                     }
 
-                    metadataDoc = processDocument(metadataDoc, file, rootFolder);
-                    metadata = extractMetadata(metadataDoc);
+                    if (!delete) {
+                        metadata = extractMetadata(metadataDoc);
 
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Extracted metadata: " + metadata);
-                    }
-
-                    if (!updateFile.exists()) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug("Binary file " + updateFile + " doesn't exist. Creating it...");
+                            logger.debug("Extracted metadata: " + metadata);
                         }
 
-                        FileUtils.forceMkdir(updateFile.getParentFile());
+                        binaryContent = contentStoreService.findContent(context, binaryPath);
+                        if (binaryContent == null) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("Binary file " + getSiteBasedPath(siteName, path) + " doesn't exist. Empty content will " +
+                                             "be used for the update");
+                            }
 
-                        boolean created = updateFile.createNewFile();
-                        if (!created) {
-                            throw new IOException("Unable to create binary file " + updateFile);
+                            binaryContent = new EmptyContent();
                         }
                     }
 
                     doUpdate = true;
                 }
-            } catch (DocumentException e) {
-                logger.warn("Cannot process XML file " + file + ". Continuing index update...", e);
-            } catch (IOException e) {
-                throw new BatchIndexingException(e.getMessage(), e);
+            } else {
+                logger.error("File " + getSiteBasedPath(siteName, path) + " identified as metadata but is not an actual XML descriptor");
+            }
+        } else if (isBinaryFile(path)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Match for binary file found @ " + getSiteBasedPath(siteName, path));
             }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Processing of metadata file " + file + " finished");
+            if (!delete) {
+                binaryContent = contentStoreService.getContent(context, binaryPath);
             }
-        } else if (isBinaryFile(fileName)) {
+
             doUpdate = true;
         }
 
         if (doUpdate) {
-            if (!delete) {
-                return doUpdateFile(indexId, siteName, updateFileName, updateFile, metadata);
+            if (delete) {
+                doDelete(indexId, siteName, binaryPath, status);
             } else {
-                return doDelete(indexId, siteName, updateFileName);
+                doUpdateContent(indexId, siteName, binaryPath, binaryContent, metadata, status);
             }
         }
-
-        return false;
     }
 
-    protected boolean isMetadataFile(String filePath) {
-        return RegexUtils.matchesAny(filePath, metadataPathPatterns);
+    protected boolean isMetadataFile(String path) {
+        return RegexUtils.matchesAny(path, metadataPathPatterns);
     }
 
-    protected boolean isBinaryFile(String filePath) {
-        return RegexUtils.matchesAny(filePath, binaryPathPatterns);
+    protected boolean isBinaryFile(String path) {
+        return RegexUtils.matchesAny(path, binaryPathPatterns);
     }
 
-    protected String getBinaryFileName(Document document) {
+    protected String getBinaryFilePath(Document document) {
         if (CollectionUtils.isNotEmpty(referenceXPaths)) {
             for (String refXpath : referenceXPaths) {
                 Node reference = document.selectSingleNode(refXpath);
@@ -175,16 +175,6 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
         }
 
         return null;
-    }
-
-    protected Document processDocument(Document document, File file, String root) throws DocumentException {
-        if (CollectionUtils.isNotEmpty(documentProcessors)) {
-            for (DocumentProcessor processor : documentProcessors) {
-                document = processor.process(document, file, root);
-            }
-        }
-
-        return document;
     }
 
     protected Map<String, List<String>> extractMetadata(Document document) {
@@ -218,13 +208,32 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
                 String value = node.getText();
                 if (StringUtils.isNotBlank(value)) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug(String.format("Adding value [%s] for property [%s].", value, key));
+                        logger.debug(String.format("Adding value [%s] for property [%s]", value, key));
                     }
 
                     metadata.add(key, StringUtils.trim(value));
                 }
             }
         }
+    }
+
+    public static class EmptyContent implements Content {
+
+        @Override
+        public long getLastModified() {
+            return System.currentTimeMillis();
+        }
+
+        @Override
+        public long getLength() {
+            return 0;
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return new ByteArrayInputStream(new byte[0]);
+        }
+
     }
 
 }

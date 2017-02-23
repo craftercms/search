@@ -124,6 +124,19 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <name>sonatype Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -232,31 +245,31 @@
 
     <profiles>
         <profile>
-        <id>JDK8</id>
-        <activation>
-            <jdk>[1.8,)</jdk>
-        </activation>
-        <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.10.4</version>
-                    <executions>
-                        <execution>
-                            <id>attach-javadocs</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                            <configuration>
-                                <additionalparam>-Xdoclint:none</additionalparam>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </build>
-    </profile>
+            <id>JDK8</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.4</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <additionalparam>-Xdoclint:none</additionalparam>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
         <profile>
             <id>release-sign-artifacts</id>
@@ -292,13 +305,13 @@
         </profile>
     </profiles>
     <distributionManagement>
-    			  <snapshotRepository>
-    			    <id>sonatype-nexus-snapshots</id>
-    			    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    			  </snapshotRepository>
-    			  <repository>
-    			    <id>sonatype-nexus-staging</id>
-    			    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    			  </repository>
-    	</distributionManagement>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 </project>

@@ -18,6 +18,7 @@ package org.craftercms.search.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -340,6 +341,28 @@ public class SolrSearchService implements SearchService {
         logger.info(msg);
 
         return msg;
+    }
+
+    @Override
+    public String updateFile(String site, String id, InputStream content) throws SearchException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String updateFile(String indexId, String site, String id, InputStream content) throws SearchException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String updateFile(String site, String id, InputStream content,
+                             Map<String, List<String>> additionalFields) throws SearchException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String updateFile(String indexId, String site, String id, InputStream content,
+                             Map<String, List<String>> additionalFields) throws SearchException {
+        throw new UnsupportedOperationException();
     }
 
     /**
