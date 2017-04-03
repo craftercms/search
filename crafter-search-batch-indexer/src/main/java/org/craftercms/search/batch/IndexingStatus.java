@@ -37,11 +37,11 @@ public class IndexingStatus {
     protected Lock listLock;
 
     public IndexingStatus() {
-        successfulUpdates = new ArrayList<>();
-        successfulDeletes = new ArrayList<>();
-        failedUpdates = new ArrayList<>();
-        failedDeletes = new ArrayList<>();
-        listLock = new ReentrantLock();
+        this.successfulUpdates = new ArrayList<>();
+        this.successfulDeletes = new ArrayList<>();
+        this.failedUpdates = new ArrayList<>();
+        this.failedDeletes = new ArrayList<>();
+        this.listLock = new ReentrantLock();
     }
 
     @JsonProperty("successful_updates")
@@ -78,6 +78,26 @@ public class IndexingStatus {
 
     public void addFailedDelete(String filename) {
         synchronizedAdd(failedDeletes, filename);
+    }
+
+    @JsonProperty("failed_updates_and_deletes")
+    public int getFailedUpdatesAndDeletes() {
+        listLock.lock();
+        try {
+            return failedUpdates.size() + failedDeletes.size();
+        } finally {
+            listLock.unlock();
+        }
+    }
+
+    @JsonProperty("successful_updates_and_deletes")
+    public int getSuccessfulUpdatesAndDeletes() {
+        listLock.lock();
+        try {
+            return successfulUpdates.size() + successfulDeletes.size();
+        } finally {
+            listLock.unlock();
+        }
     }
 
     @JsonProperty("attempted_updates_and_deletes")
