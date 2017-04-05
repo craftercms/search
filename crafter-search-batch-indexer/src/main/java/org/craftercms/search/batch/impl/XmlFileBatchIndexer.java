@@ -18,7 +18,6 @@ import org.craftercms.search.batch.IndexingStatus;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * {@link org.craftercms.search.batch.BatchIndexer} that updates/deletes XML files from a search index.
@@ -34,7 +33,7 @@ public class XmlFileBatchIndexer extends AbstractBatchIndexer {
     protected ItemProcessor itemProcessor;
 
     public XmlFileBatchIndexer() {
-        includeFileNamePatterns = DEFAULT_INCLUDE_FILENAME_PATTERNS;
+        includePathPatterns = DEFAULT_INCLUDE_FILENAME_PATTERNS;
     }
 
     public void setItemProcessor(ItemProcessor itemProcessor) {

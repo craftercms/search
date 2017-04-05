@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,20 +46,20 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
     private static final Log logger = LogFactory.getLog(AbstractBatchIndexer.class);
 
     protected SearchService searchService;
-    protected List<String> includeFileNamePatterns;
-    protected List<String> excludeFileNamePatterns;
+    protected List<String> includePathPatterns;
+    protected List<String> excludePathPatterns;
 
     @Required
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
     }
 
-    public void setIncludeFileNamePatterns(List<String> includeFileNamePatterns) {
-        this.includeFileNamePatterns = includeFileNamePatterns;
+    public void setIncludePathPatterns(List<String> includePathPatterns) {
+        this.includePathPatterns = includePathPatterns;
     }
 
-    public void setExcludeFileNamePatterns(List<String> excludeFileNamePatterns) {
-        this.excludeFileNamePatterns = excludeFileNamePatterns;
+    public void setExcludePathPatterns(List<String> excludePathPatterns) {
+        this.excludePathPatterns = excludePathPatterns;
     }
 
     @Override
@@ -86,9 +87,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
     protected void doUpdate(String indexId, String siteName, String id, String xml, IndexingStatus status) {
         searchService.update(indexId, siteName, id, xml, true);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
-        }
+        logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
         status.addSuccessfulUpdate(id);
     }
@@ -97,9 +96,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         try (InputStream is = content.getInputStream()) {
             searchService.updateContent(indexId, siteName, id, is);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
-            }
+            logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
             status.addSuccessfulUpdate(id);
         }
@@ -110,9 +107,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         try (InputStream is = content.getInputStream()) {
             searchService.updateContent(indexId, siteName, id, is, additionalFields);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
-            }
+            logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
             status.addSuccessfulUpdate(id);
         }
@@ -121,9 +116,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
     protected void doDelete(String indexId, String siteName, String id, IndexingStatus status) {
         searchService.delete(indexId, siteName, id);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("File " + getSiteBasedPath(siteName, id) + " deleted from index " + getIndexNameStr(indexId));
-        }
+        logger.info("File " + getSiteBasedPath(siteName, id) + " deleted from index " + getIndexNameStr(indexId));
 
         status.addSuccessfulDelete(id);
     }
@@ -136,19 +129,9 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         return StringUtils.isNotEmpty(indexId)? "'" + indexId + "'": "default";
     }
 
-    protected boolean include(String fileName) {
-        boolean update = true;
-
-        if (CollectionUtils.isNotEmpty(includeFileNamePatterns) &&
-            !RegexUtils.matchesAny(fileName, includeFileNamePatterns)) {
-            update = false;
-        }
-        if (CollectionUtils.isNotEmpty(excludeFileNamePatterns) &&
-            RegexUtils.matchesAny(fileName, excludeFileNamePatterns)) {
-            update = false;
-        }
-
-        return update;
+    protected boolean include(String path) {
+        return (CollectionUtils.isEmpty(includePathPatterns) || RegexUtils.matchesAny(path, includePathPatterns)) &&
+               (CollectionUtils.isEmpty(excludePathPatterns) || !RegexUtils.matchesAny(path, excludePathPatterns));
     }
 
     protected abstract void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,

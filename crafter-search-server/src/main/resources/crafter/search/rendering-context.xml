@@ -20,15 +20,21 @@
 
     <bean id="crafter.exceptionHandlers" class="org.craftercms.search.rest.controller.ExceptionHandlers"/>
 
-    <bean id="crafter.adminRestController" class="org.craftercms.search.rest.controller.AdminRestController">
+    <bean id="crafter.adminRestController" class="org.craftercms.search.rest.controller.v2.AdminRestController">
         <property name="adminService" ref="crafter.adminService"/>
     </bean>
 
-    <bean id="crafter.searchRestController" class="org.craftercms.search.rest.controller.SearchRestController">
+    <bean id="crafter.searchRestController" class="org.craftercms.search.rest.controller.v2.SearchRestController">
         <property name="searchService" ref="crafter.searchService"/>
     </bean>
 
-    <bean id="crafter.searchMonitoringController" class="org.craftercms.search.rest.controller.MonitoringController">
+    <bean id="crafter.searchRestControllerV1" class="org.craftercms.search.rest.controller.v1.SearchRestController">
+        <property name="searchService" ref="crafter.searchService"/>
+        <property name="multiValueSeparator" value="${crafter.search.solr.field.multiValue.separator}"/>
+        <property name="multiValueIgnorePattern" value="${crafter.search.solr.field.multiValue.ignore.pattern}"/>
+    </bean>
+
+    <bean id="crafter.searchMonitoringController" class="org.craftercms.search.rest.controller.v1.MonitoringController">
         <property name="statusMessage">
             <value>${crafter.search.monitoring.statusMessage}</value>
         </property>

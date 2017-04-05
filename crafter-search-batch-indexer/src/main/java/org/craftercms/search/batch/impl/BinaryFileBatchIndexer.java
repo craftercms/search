@@ -51,25 +51,28 @@ public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
     @Override
     protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
                                       String path, boolean delete, IndexingStatus status) throws Exception {
-        String mimeType = mimeTypesMap.getContentType(path);
-        boolean doUpdate = false;
-
-        if (CollectionUtils.isNotEmpty(supportedMimeTypes)) {
-            if (supportedMimeTypes.contains(mimeType)) {
-                doUpdate = true;
-            }
+        if (delete) {
+            doDelete(indexId, siteName, path, status);
         } else {
-            doUpdate = true;
+            Content binaryContent = contentStoreService.getContent(context, path);
+            doUpdateContent(indexId, siteName, path, binaryContent, status);
         }
+    }
 
-        if (doUpdate) {
-            if (delete) {
-                doDelete(indexId, siteName, path, status);
+    @Override
+    protected boolean include(String path) {
+        if (super.include(path)) {
+            if (CollectionUtils.isNotEmpty(supportedMimeTypes)) {
+                String mimeType = mimeTypesMap.getContentType(path);
+                if (supportedMimeTypes.contains(mimeType)) {
+                    return true;
+                }
             } else {
-                Content binaryContent = contentStoreService.getContent(context, path);
-                doUpdateContent(indexId, siteName, path, binaryContent, status);
+                return true;
             }
         }
+
+        return false;
     }
 
 }

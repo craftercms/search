@@ -37,7 +37,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
- * Created by alfonsovasquez on 12/19/16.
+ * Contains all the REST exception handlers.
+ *
+ * @author avasquez
  */
 @ControllerAdvice
 public class ExceptionHandlers extends ResponseEntityExceptionHandler {
