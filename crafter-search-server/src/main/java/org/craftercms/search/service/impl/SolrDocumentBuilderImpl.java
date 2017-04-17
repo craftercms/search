@@ -50,12 +50,14 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
     private static final Logger logger = LoggerFactory.getLogger(SolrDocumentBuilderImpl.class);
 
     public static final String DEFAULT_ID_FIELD_NAME = "id";
+    public static final String DEFAULT_ROOT_ID_FIELD_NAME = "rootId";
     public static final String DEFAULT_SITE_FIELD_NAME = "crafterSite";
     public static final String DEFAULT_LOCAL_ID_FIELD_NAME = "localId";
     public static final String DEFAULT_PUBLISHING_DATE_FIELD_NAME = "publishingDate";
     public static final String DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME = "publishingDate_dt";
 
     protected String idFieldName;
+    protected String rootIdFieldName;
     protected String siteFieldName;
     protected String localIdFieldName;
     protected String publishingDateFieldName;
@@ -66,6 +68,7 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
 
     public SolrDocumentBuilderImpl() {
         idFieldName = DEFAULT_ID_FIELD_NAME;
+        rootIdFieldName = DEFAULT_ROOT_ID_FIELD_NAME;
         siteFieldName = DEFAULT_SITE_FIELD_NAME;
         localIdFieldName = DEFAULT_LOCAL_ID_FIELD_NAME;
         publishingDateFieldName = DEFAULT_PUBLISHING_DATE_FIELD_NAME;
@@ -74,6 +77,10 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
 
     public void setIdFieldName(String idFieldName) {
         this.idFieldName = idFieldName;
+    }
+
+    public void setRootIdFieldName(String rootIdFieldName) {
+        this.rootIdFieldName = rootIdFieldName;
     }
 
     public void setSiteFieldName(String siteFieldName) {
@@ -118,6 +125,7 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         String now = formatAsIso(DateTime.now());
 
         solrDoc.addField(idFieldName, finalId);
+        solrDoc.addField(rootIdFieldName, finalId);
         solrDoc.addField(siteFieldName, site);
         solrDoc.addField(localIdFieldName, id);
         solrDoc.addField(publishingDateFieldName, now);
@@ -151,6 +159,7 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         String now = formatAsIso(DateTime.now());
 
         solrDoc.addField(idFieldName, finalId);
+        solrDoc.addField(rootIdFieldName, finalId);
         solrDoc.addField(siteFieldName, site);
         solrDoc.addField(localIdFieldName, id);
         solrDoc.addField(publishingDateFieldName, now);
@@ -183,6 +192,7 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         String now = formatAsIso(DateTime.now());
 
         params.set(prefix + idFieldName + suffix, finalId);
+        params.set(prefix + rootIdFieldName + suffix, finalId);
         params.set(prefix + siteFieldName + suffix, site);
         params.set(prefix + localIdFieldName + suffix, id);
         params.set(prefix + publishingDateFieldName + suffix, now);

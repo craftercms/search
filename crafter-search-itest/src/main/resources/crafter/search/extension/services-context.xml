@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="crafter.solrClient" class="org.apache.solr.client.solrj.embedded.EmbeddedSolrServer">
+        <constructor-arg value="#{T(java.nio.file.Paths).get('${solr.home}')}"/>
+        <constructor-arg value="default"/>
+    </bean>
+
+    <bean id="crafter.solrDocumentBuilder" class="org.craftercms.search.service.impl.SolrDocumentBuilderImpl">
+        <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
+        <property name="rootIdFieldName" value="${crafter.search.solr.field.rootId.name}"/>
+        <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
+        <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
+        <property name="publishingDateFieldName" value="${crafter.search.solr.field.publishedDate.name}"/>
+        <property name="publishingDateAltFieldName" value="${crafter.search.solr.field.publishedDate.alt.name}"/>
+        <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
+        <property name="parserService" ref="crafter.elementParserService"/>
+        <property name="postProcessors">
+            <list>
+                <ref bean="crafter.denormalizingPostProcessor"/>
+                <ref bean="crafter.renameFieldsIfMultiValuePostProcessor"/>
+            </list>
+        </property>
+    </bean>
+
+</beans>

@@ -21,9 +21,11 @@ import java.util.List;
 import javax.activation.FileTypeMap;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.craftercms.search.batch.exception.BatchIndexingException;
+import org.craftercms.core.exception.CrafterException;
+import org.craftercms.core.service.Content;
+import org.craftercms.core.service.ContentStoreService;
+import org.craftercms.core.service.Context;
+import org.craftercms.search.batch.IndexingStatus;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
 /**
@@ -34,8 +36,6 @@ import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
  * @author avasquez
  */
 public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
-
-    private static final Log logger = LogFactory.getLog(BinaryFileBatchIndexer.class);
 
     protected List<String> supportedMimeTypes;
     protected FileTypeMap mimeTypesMap;
@@ -49,25 +49,26 @@ public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
     }
 
     @Override
-    protected boolean doSingleFileUpdate(String indexId, String siteName, String rootFolder, String fileName,
-                                         boolean delete) throws BatchIndexingException {
-        File file = new File(rootFolder, fileName);
-        String mimeType = mimeTypesMap.getContentType(fileName);
-        boolean doUpdate = false;
-
-        if (CollectionUtils.isNotEmpty(supportedMimeTypes)) {
-            if (supportedMimeTypes.contains(mimeType)) {
-                doUpdate = true;
-            }
+    protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
+                                      String path, boolean delete, IndexingStatus status) throws Exception {
+        if (delete) {
+            doDelete(indexId, siteName, path, status);
         } else {
-            doUpdate = true;
+            Content binaryContent = contentStoreService.getContent(context, path);
+            doUpdateContent(indexId, siteName, path, binaryContent, status);
         }
+    }
 
-        if (doUpdate) {
-            if (delete) {
-                return doDelete(indexId, siteName, fileName);
+    @Override
+    protected boolean include(String path) {
+        if (super.include(path)) {
+            if (CollectionUtils.isNotEmpty(supportedMimeTypes)) {
+                String mimeType = mimeTypesMap.getContentType(path);
+                if (supportedMimeTypes.contains(mimeType)) {
+                    return true;
+                }
             } else {
-                return doUpdateFile(indexId, siteName, fileName, file);
+                return true;
             }
         }
 

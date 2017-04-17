@@ -26,9 +26,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.craftercms.search.service.AdminService;
+import org.craftercms.search.service.impl.RestClientAdminService;
 import org.craftercms.search.service.impl.SolrQuery;
 import org.craftercms.search.service.impl.SolrRestClientSearchService;
 import org.joda.time.format.ISODateTimeFormat;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -54,99 +58,36 @@ public class SearchServiceIT {
 
     private static final Logger logger = LoggerFactory.getLogger(SearchServiceIT.class);
 
-    private static final String DEFAULT_SITE = "default";
+    private static final String DEFAULT_INDEX_ID = "default";
     private static final String PLUTON_SITE = "pluton";
     private static final String PLUTON_INDEX_ID = "pluton";
     private static final String IPAD_DOC_ID = "ipad.xml";
+    private static final String DISABLED_DOC_ID = "disabled.xml";
+    private static final String EXPIRED_DOC_ID = "expired.xml";
     private static final String IPAD_DOC_ID_ACCESSORIES0 = IPAD_DOC_ID + "_accessories_0";
     private static final String IPAD_DOC_ID_ACCESSORIES1 = IPAD_DOC_ID + "_accessories_1";
     private static final String WP_REASONS_PDF_DOC_ID = "crafter-wp-7-reasons.pdf";
 
     private static final List<String> WP_REASONS_PDF_TAGS = Arrays.asList("Crafter", "reasons", "white paper");
-
+    
     @Autowired
     private SolrRestClientSearchService searchService;
+    @Autowired
+    private RestClientAdminService adminService;
 
-    @Test
-    public void testMethodsWithNoIndexId() throws Exception {
-        SolrQuery query = searchService.createQuery();
-        query.setQuery("*:*");
+    @Before
+    public void setUp() throws Exception {
+        adminService.createIndex(PLUTON_INDEX_ID);
+    }
 
-        Map<String, Object> results = searchService.search(query);
-        assertNotNull(results);
-
-        Map<String, Object> response = getQueryResponse(results);
-        assertEquals(0, getNumDocs(response));
-
-        String xml = getClasspathFileContent("docs/" + IPAD_DOC_ID);
-        String updateResponse = searchService.update(DEFAULT_SITE, IPAD_DOC_ID, xml, true);
-        logger.info(updateResponse);
-
-        File file = getClasspathFile("docs/" + WP_REASONS_PDF_DOC_ID);
-        updateResponse = searchService.updateFile(DEFAULT_SITE, WP_REASONS_PDF_DOC_ID, file);
-        logger.info(updateResponse);
-
-        String commitResponse = searchService.commit();
-        logger.info(commitResponse);
-
-        results = searchService.search(query);
-        assertNotNull(results);
-
-        response = getQueryResponse(results);
-        assertEquals(4, getNumDocs(response));
-
-        Map<String, Map<String, Object>> docs = getDocs(response);
-        Map<String, Object> ipadDoc = docs.get(IPAD_DOC_ID);
-
-        Map<String, Object> wpReasonsPdfDoc = docs.get(WP_REASONS_PDF_DOC_ID);
-
-        assertNotNull(ipadDoc);
-        assertNotNull(wpReasonsPdfDoc);
-        assertIPadDoc(ipadDoc, DEFAULT_SITE);
-        assertWpReasonsPdfDoc(wpReasonsPdfDoc, DEFAULT_SITE);
-
-        MultiValueMap<String, String> additionalFields = new LinkedMultiValueMap<>();
-        additionalFields.put("tags.value_smv", WP_REASONS_PDF_TAGS);
-
-        updateResponse = searchService.updateFile(DEFAULT_SITE, WP_REASONS_PDF_DOC_ID, file, additionalFields);
-        logger.info(updateResponse);
-
-        commitResponse = searchService.commit();
-        logger.info(commitResponse);
-
-        results = searchService.search(query);
-        assertNotNull(results);
-
-        response = getQueryResponse(results);
-        assertEquals(4, getNumDocs(response));
-
-        docs = getDocs(response);
-        ipadDoc = docs.get(IPAD_DOC_ID);
-        wpReasonsPdfDoc = docs.get(WP_REASONS_PDF_DOC_ID);
-
-        assertNotNull(ipadDoc);
-        assertNotNull(wpReasonsPdfDoc);
-        assertIPadDoc(ipadDoc, DEFAULT_SITE);
-        assertWpReasonsPdfDocWithAdditionalFields(wpReasonsPdfDoc, DEFAULT_SITE);
-
-        String deleteResponse = searchService.delete(DEFAULT_SITE, IPAD_DOC_ID);
-        logger.info(deleteResponse);
-
-        deleteResponse = searchService.delete(DEFAULT_SITE, WP_REASONS_PDF_DOC_ID);
-        logger.info(deleteResponse);
-
-        commitResponse = searchService.commit();
-        logger.info(commitResponse);
-
-        results = searchService.search(query);
-        assertNotNull(results);
-
-        response = getQueryResponse(results);
-        assertEquals(0, getNumDocs(response));
+    @After
+    public void tearDown() throws Exception {
+        adminService.deleteIndex(PLUTON_INDEX_ID, AdminService.IndexDeleteMode.ALL_DATA_AND_CONFIG);
     }
 
     @Test
-    public void testMethodsWithIndexId() throws Exception {
+    @SuppressWarnings("unchecked")
+    public void testMethods() throws Exception {
         SolrQuery query = searchService.createQuery();
         query.setQuery("*:*");
 
@@ -157,15 +98,18 @@ public class SearchServiceIT {
         assertEquals(0, getNumDocs(response));
 
         String xml = getClasspathFileContent("docs/" + IPAD_DOC_ID);
-        String updateResponse = searchService.update(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID, xml, true);
-        logger.info(updateResponse);
+        searchService.update(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID, xml, true);
+
+        xml = getClasspathFileContent("docs/" + DISABLED_DOC_ID);
+        searchService.update(PLUTON_INDEX_ID, PLUTON_SITE, DISABLED_DOC_ID, xml, true);
+
+        xml = getClasspathFileContent("docs/" + EXPIRED_DOC_ID);
+        searchService.update(PLUTON_INDEX_ID, PLUTON_SITE, EXPIRED_DOC_ID, xml, true);
 
         File file = getClasspathFile("docs/" + WP_REASONS_PDF_DOC_ID);
-        updateResponse = searchService.updateFile(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file);
-        logger.info(updateResponse);
+        searchService.updateContent(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file);
 
-        String commitResponse = searchService.commit(PLUTON_INDEX_ID);
-        logger.info(commitResponse);
+        searchService.commit(PLUTON_INDEX_ID);
 
         results = searchService.search(PLUTON_INDEX_ID, query);
         assertNotNull(results);
@@ -181,47 +125,42 @@ public class SearchServiceIT {
 
         assertNotNull(ipadDoc);
         assertNotNull(ipadAccessoriesSubDoc1);
+        assertNotNull(ipadAccessoriesSubDoc2);
         assertNotNull(wpReasonsPdfDoc);
-        assertIPadDoc(ipadDoc, PLUTON_SITE);
-        assertIPadAccessoriesSubDoc1(ipadAccessoriesSubDoc1, PLUTON_SITE);
-        assertIPadAccessoriesSubDoc2(ipadAccessoriesSubDoc2, PLUTON_SITE);
-        assertWpReasonsPdfDoc(wpReasonsPdfDoc, PLUTON_SITE);
+        assertIPadDoc(ipadDoc);
+        assertIPadAccessoriesSubDoc1(ipadAccessoriesSubDoc1);
+        assertIPadAccessoriesSubDoc2(ipadAccessoriesSubDoc2);
+        assertWpReasonsPdfDoc(wpReasonsPdfDoc);
 
         MultiValueMap<String, String> additionalFields = new LinkedMultiValueMap<>();
         additionalFields.put("tags.value_smv", WP_REASONS_PDF_TAGS);
 
-        updateResponse = searchService.updateFile(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file,
-                                                  additionalFields);
-        logger.info(updateResponse);
+        searchService.updateContent(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file, additionalFields);
+        searchService.commit(PLUTON_INDEX_ID);
 
-        commitResponse = searchService.commit(PLUTON_INDEX_ID);
-        logger.info(commitResponse);
+        query = searchService.createQuery();
+        query.setQuery("localId:\"" + WP_REASONS_PDF_DOC_ID + "\"");
 
         results = searchService.search(PLUTON_INDEX_ID, query);
         assertNotNull(results);
-
+        
         response = getQueryResponse(results);
-        assertEquals(4, getNumDocs(response));
+        assertEquals(1, getNumDocs(response));
 
         docs = getDocs(response);
-        ipadDoc = docs.get(IPAD_DOC_ID);
         wpReasonsPdfDoc = docs.get(WP_REASONS_PDF_DOC_ID);
 
-        assertNotNull(ipadDoc);
         assertNotNull(wpReasonsPdfDoc);
-        assertIPadDoc(ipadDoc, PLUTON_SITE);
-        assertWpReasonsPdfDocWithAdditionalFields(wpReasonsPdfDoc, PLUTON_SITE);
+        assertWpReasonsPdfDocWithAdditionalFields(wpReasonsPdfDoc);
 
-        String deleteResponse = searchService.delete(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID);
-        logger.info(deleteResponse);
+        searchService.delete(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID);
+        searchService.delete(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID);
+        searchService.commit(PLUTON_INDEX_ID);
 
-        deleteResponse = searchService.delete(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID);
-        logger.info(deleteResponse);
+        query = searchService.createQuery();
+        query.setQuery("*:*");
 
-        commitResponse = searchService.commit(PLUTON_INDEX_ID);
-        logger.info(commitResponse);
-
-        results = searchService.search(query);
+        results = searchService.search(query.setQuery("*:*"));
         assertNotNull(results);
 
         response = getQueryResponse(results);
@@ -236,6 +175,7 @@ public class SearchServiceIT {
         return IOUtils.toString(new ClassPathResource(path).getInputStream());
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> getQueryResponse(Map<String, Object> results) {
         return (Map<String, Object>)results.get("response");
     }
@@ -244,6 +184,7 @@ public class SearchServiceIT {
         return (Integer)response.get("numFound");
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Map<String, Object>> getDocs(Map<String, Object> response) {
         List<Map<String, Object>> docList = (List<Map<String, Object>>)response.get("documents");
         Map<String, Map<String, Object>> docs = new HashMap<>(3);
@@ -255,24 +196,24 @@ public class SearchServiceIT {
         return docs;
     }
 
-    private void assertIPadDocCommonFields(Map<String, Object> doc, String site) {
+    private void assertIPadDocCommonFields(Map<String, Object> doc) {
         long date = ISODateTimeFormat.dateTime().parseDateTime("2014-10-01T00:00:00.000Z").getMillis();
 
         assertNotNull(doc.get("crafterPublishedDate"));
         assertNotNull(doc.get("crafterPublishedDate_dt"));
-        assertEquals(site, doc.get("crafterSite"));
+        assertEquals(PLUTON_SITE, doc.get("crafterSite"));
         assertEquals("iPad Air 64GB", doc.get("name_s"));
         assertEquals("iPad Air 64GB", doc.get("name_t"));
-        assertEquals("Apple MH182LL/A iPad Air 9.7-Inch Retina Display 64GB, Wi-Fi (Gold)",
-                     doc.get("description_html").toString().trim());
+        assertEquals("Apple MH182LL/A iPad Air 9.7-Inch Retina Display 64GB, Wi-Fi (Gold)", doc.get("description_html").toString().trim());
         assertEquals(date, doc.get("availableDate_dt"));
         assertEquals(Arrays.asList("Apple", "iPad", "Tablet"), doc.get("tags.value_smv"));
     }
 
     @SuppressWarnings("unchecked")
-    private void assertIPadDoc(Map<String, Object> doc, String site) {
-        assertIPadDocCommonFields(doc, site);
-        assertEquals(site + ":" + IPAD_DOC_ID, doc.get("id"));
+    private void assertIPadDoc(Map<String, Object> doc) {
+        assertIPadDocCommonFields(doc);
+        assertEquals(PLUTON_SITE + ":" + IPAD_DOC_ID, doc.get("id"));
+        assertEquals(PLUTON_SITE + ":" + IPAD_DOC_ID, doc.get("rootId"));
         assertEquals(IPAD_DOC_ID, doc.get("localId"));
         assertEquals("product", doc.get("content-type"));
         assertEquals(Arrays.asList("Apple", "iPad", "Tablet"), doc.get("tags.value_smv"));
@@ -282,40 +223,41 @@ public class SearchServiceIT {
         assertEquals(Arrays.asList("Black", "Blue", "Red"), doc.get("accessories.item.colors.color_smv"));
     }
 
-    private void assertIPadAccessoriesSubDoc1(Map<String, Object> doc, String site) {
-        assertIPadDocCommonFields(doc, site);
-        assertEquals(site + ":" + IPAD_DOC_ID_ACCESSORIES0, doc.get("id"));
+    private void assertIPadAccessoriesSubDoc1(Map<String, Object> doc) {
+        assertIPadDocCommonFields(doc);
+        assertEquals(PLUTON_SITE + ":" + IPAD_DOC_ID_ACCESSORIES0, doc.get("id"));
         assertEquals(IPAD_DOC_ID_ACCESSORIES0, doc.get("localId"));
-        assertEquals(site + ":" + IPAD_DOC_ID, doc.get("parentId"));
+        assertEquals(PLUTON_SITE + ":" + IPAD_DOC_ID, doc.get("parentId"));
+        assertEquals(PLUTON_SITE + ":" + IPAD_DOC_ID, doc.get("rootId"));
         assertEquals("product_accessories", doc.get("content-type"));
         assertEquals("Case", doc.get("accessories.item.name_s"));
-        assertEquals("Silicon case with stand for iPad Air 64GB",
-                     doc.get("accessories.item.description_html").toString().trim());
+        assertEquals("Silicon case with stand for iPad Air 64GB", doc.get("accessories.item.description_html").toString().trim());
         assertEquals(Arrays.asList("Black", "Blue", "Red"), doc.get("accessories.item.colors.color_smv"));
     }
 
-    private void assertIPadAccessoriesSubDoc2(Map<String, Object> doc, String site) {
-        assertIPadDocCommonFields(doc, site);
-        assertEquals(site + ":" + IPAD_DOC_ID_ACCESSORIES1, doc.get("id"));
+    private void assertIPadAccessoriesSubDoc2(Map<String, Object> doc) {
+        assertIPadDocCommonFields(doc);
+        assertEquals(PLUTON_SITE + ":" + IPAD_DOC_ID_ACCESSORIES1, doc.get("id"));
         assertEquals(IPAD_DOC_ID_ACCESSORIES1, doc.get("localId"));
-        assertEquals(site + ":" + IPAD_DOC_ID, doc.get("parentId"));
+        assertEquals(PLUTON_SITE + ":" + IPAD_DOC_ID, doc.get("parentId"));
+        assertEquals(PLUTON_SITE + ":" + IPAD_DOC_ID, doc.get("rootId"));
         assertEquals("product_accessories", doc.get("content-type"));
         assertEquals("Lighting Cable", doc.get("accessories.item.name_s"));
-        assertEquals("Lighting cable for iPad",
-                     doc.get("accessories.item.description_html").toString().trim());
+        assertEquals("Lighting cable for iPad", doc.get("accessories.item.description_html").toString().trim());
     }
 
-    private void assertWpReasonsPdfDoc(Map<String, Object> doc, String site) {
+    private void assertWpReasonsPdfDoc(Map<String, Object> doc) {
         assertNotNull(doc.get("crafterPublishedDate"));
         assertNotNull(doc.get("crafterPublishedDate_dt"));
-        assertEquals(site, doc.get("crafterSite"));
-        assertEquals(site + ":" + WP_REASONS_PDF_DOC_ID, doc.get("id"));
+        assertEquals(PLUTON_SITE, doc.get("crafterSite"));
+        assertEquals(PLUTON_SITE + ":" + WP_REASONS_PDF_DOC_ID, doc.get("id"));
+        assertEquals(PLUTON_SITE + ":" + WP_REASONS_PDF_DOC_ID, doc.get("rootId"));
         assertEquals(WP_REASONS_PDF_DOC_ID, doc.get("localId"));
         assertNotNull(doc.get("content"));
     }
 
-    private void assertWpReasonsPdfDocWithAdditionalFields(Map<String, Object> doc, String site) {
-        assertWpReasonsPdfDoc(doc, site);
+    private void assertWpReasonsPdfDocWithAdditionalFields(Map<String, Object> doc) {
+        assertWpReasonsPdfDoc(doc);
 
         assertEquals(WP_REASONS_PDF_TAGS, doc.get("tags.value_smv"));
     }
