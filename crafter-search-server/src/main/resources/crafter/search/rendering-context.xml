@@ -28,7 +28,7 @@
         <property name="searchService" ref="crafter.searchService"/>
     </bean>
 
-    <bean id="crafter.searchRestControllerV1" class="org.craftercms.search.rest.controller.v1.SearchRestController">
+    <bean id="crafter.v1.searchRestController" class="org.craftercms.search.rest.controller.v1.SearchRestController">
         <property name="searchService" ref="crafter.searchService"/>
         <property name="multiValueSeparator" value="${crafter.search.solr.field.multiValue.separator}"/>
         <property name="multiValueIgnorePattern" value="${crafter.search.solr.field.multiValue.ignore.pattern}"/>
