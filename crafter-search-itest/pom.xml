@@ -15,7 +15,7 @@
     <properties>
         <!-- Cargo -->
         <cargo.container>jetty9x</cargo.container>
-        <cargo.container.url>http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.1.v20170120/jetty-distribution-9.4.1.v20170120.tar.gz</cargo.container.url>
+        <cargo.container.url>http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.4.v20170414/jetty-distribution-9.4.4.v20170414 .tar.gz</cargo.container.url>
         <cargo.container.downloadDir>${user.home}/.m2/cargo/containers</cargo.container.downloadDir>
         <cargo.port>7070</cargo.port>
         <!-- Solr -->
