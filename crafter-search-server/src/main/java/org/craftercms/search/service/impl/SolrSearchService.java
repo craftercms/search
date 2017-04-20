@@ -204,8 +204,7 @@ public class SolrSearchService implements SearchService {
         }
 
         // Solr search result is a List<Map.Entry<String,Object>>, where every entry is a (name,value) pair,
-        // and there can be
-        // duplicate names in the list.
+        // and there can be duplicate names in the list.
         NamedList<Object> list = response.getResponse();
         // Convert this list into a map where values of the same name are grouped into a list.
         Map<String, Object> map = toMap(list);
@@ -233,7 +232,7 @@ public class SolrSearchService implements SearchService {
         String finalId = site + ":" + id;
 
         // This is done because when a document is updated, and it had children before but not now, the children
-        // will be orphaned (SOLR-6096)
+        // would be orphaned (SOLR-6096)
         delete(indexId, site, id);
 
         try {
