@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import java.util.Collections;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.craftercms.commons.rest.BaseRestExceptionHandlers;
 import org.craftercms.commons.rest.Result;
 import org.craftercms.commons.validation.ValidationResult;
 import org.craftercms.search.exception.IndexNotFoundException;
@@ -42,64 +43,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
  * @author avasquez
  */
 @ControllerAdvice
-public class ExceptionHandlers extends ResponseEntityExceptionHandler {
+public class ExceptionHandlers extends BaseRestExceptionHandlers {
 
     @ExceptionHandler(IndexNotFoundException.class)
     public ResponseEntity<Object> handleIndexNotFoundException(IndexNotFoundException ex, WebRequest request) {
         return handleExceptionInternal(ex, "Index not found", new HttpHeaders(), HttpStatus.NOT_FOUND, request);
-    }
-
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleGeneralException(Exception ex, WebRequest request) {
-        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
-    }
-
-    @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers,
-                                                                  HttpStatus status, WebRequest request) {
-        Throwable cause = ExceptionUtils.getRootCause(ex);
-        if (cause instanceof UnrecognizedPropertyException) {
-            UnrecognizedPropertyException upe = (UnrecognizedPropertyException)cause;
-            String field = upe.getPropertyName();
-
-            ValidationResult result = new ValidationResult();
-            result.addFieldError(field, "Unrecognized field");
-
-            return handleExceptionInternal(ex, result, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
-        } else {
-            return handleExceptionInternal(ex, "Invalid or missing request body", new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR,
-                                           request);
-        }
-    }
-
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
-                                                                  HttpStatus status, WebRequest request) {
-        ValidationResult result = new ValidationResult();
-
-        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
-            result.addFieldError(fieldError.getField(), "Missing required field");
-        }
-
-        return handleExceptionInternal(ex, result, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
-    }
-
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, String message, HttpHeaders headers, HttpStatus status,
-                                                             WebRequest request) {
-        return handleExceptionInternal(ex, new Result(message), headers, status, request);
-    }
-
-    @Override
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status,
-                                                             WebRequest request) {
-        logger.error("Request " + ((ServletWebRequest) request).getRequest().getRequestURI() + " failed with status " + status, ex);
-
-        if (body == null) {
-            body = new Result(ex.getMessage());
-        }
-
-        return new ResponseEntity<>(body, headers, status);
     }
 
 }

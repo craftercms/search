@@ -64,20 +64,20 @@ public class IndexingStatus {
         return synchronizedCopy(failedDeletes);
     }
 
-    public void addSuccessfulUpdate(String filename) {
-        synchronizedAdd(successfulUpdates, filename);
+    public void addSuccessfulUpdate(String path) {
+        synchronizedAdd(successfulUpdates, path);
     }
 
-    public void addSuccessfulDelete(String filename) {
-        synchronizedAdd(successfulDeletes, filename);
+    public void addSuccessfulDelete(String path) {
+        synchronizedAdd(successfulDeletes, path);
     }
 
-    public void addFailedUpdate(String filename) {
-        synchronizedAdd(failedUpdates, filename);
+    public void addFailedUpdate(String path) {
+        synchronizedAdd(failedUpdates, path);
     }
 
-    public void addFailedDelete(String filename) {
-        synchronizedAdd(failedDeletes, filename);
+    public void addFailedDelete(String path) {
+        synchronizedAdd(failedDeletes, path);
     }
 
     @JsonProperty("failed_updates_and_deletes")
@@ -110,6 +110,18 @@ public class IndexingStatus {
         }
     }
 
+    public boolean hasBeenUpdatedOrDeleted(String path) {
+        listLock.lock();
+        try {
+            return successfulUpdates.contains(path) ||
+                   successfulDeletes.contains(path) ||
+                   failedUpdates.contains(path) ||
+                   failedDeletes.contains(path);
+        } finally {
+            listLock.unlock();
+        }
+    }
+
     protected List<String> synchronizedCopy(List<String> list) {
         listLock.lock();
         try {
@@ -119,10 +131,10 @@ public class IndexingStatus {
         }
     }
 
-    protected void synchronizedAdd(List<String> list, String filename) {
+    protected void synchronizedAdd(List<String> list, String path) {
         listLock.lock();
         try {
-            list.add(filename);
+            list.add(path);
         } finally {
             listLock.unlock();
         }

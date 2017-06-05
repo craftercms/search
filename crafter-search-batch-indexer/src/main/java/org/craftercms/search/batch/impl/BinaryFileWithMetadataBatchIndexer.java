@@ -117,7 +117,7 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
                         }
 
                         binaryContent = contentStoreService.findContent(context, binaryPath);
-                        if (binaryContent == null) {
+                        if (binaryContent != null) {
                             if (logger.isDebugEnabled()) {
                                 logger.debug("Binary file " + getSiteBasedPath(siteName, path) + " doesn't exist. Empty content will " +
                                              "be used for the update");
@@ -133,15 +133,21 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
                 logger.error("File " + getSiteBasedPath(siteName, path) + " identified as metadata but is not an actual XML descriptor");
             }
         } else if (isBinaryFile(path)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Match for binary file found @ " + getSiteBasedPath(siteName, path));
-            }
+            if (!status.hasBeenUpdatedOrDeleted(path)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Match for binary file found @ " + getSiteBasedPath(siteName, path));
+                }
 
-            if (!delete) {
-                binaryContent = contentStoreService.getContent(context, binaryPath);
-            }
+                if (!delete) {
+                    binaryContent = contentStoreService.getContent(context, binaryPath);
+                }
 
-            doUpdate = true;
+                doUpdate = true;
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Binary file @ " + path + " already updated/deleted with metadata");
+                }
+            }
         }
 
         if (doUpdate) {
