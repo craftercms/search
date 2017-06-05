@@ -106,8 +106,8 @@ public class SearchRestController {
 
     @RequestMapping(value = URL_UPDATE_CONTENT, method = RequestMethod.POST)
     public Result updateContent(@RequestParam(value = PARAM_INDEX_ID, required = false) String indexId,
-                                @RequestPart(PARAM_SITE) String site,
-                                @RequestPart(PARAM_ID) String id,
+                                @RequestParam(PARAM_SITE) String site,
+                                @RequestParam(PARAM_ID) String id,
                                 @RequestPart(PARAM_CONTENT) MultipartFile file,
                                 HttpServletRequest request) throws SearchException {
 

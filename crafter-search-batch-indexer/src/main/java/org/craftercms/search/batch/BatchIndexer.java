@@ -23,8 +23,6 @@ public interface BatchIndexer {
      * @param paths                 the paths in the content store of the files to index
      * @param delete                if the given files should be deleted from the index, otherwise they're added
      * @param status                status object used to track index updates and deletes
-     *
-     * @return the number of files that where actually added/deleted
      */
     void updateIndex(String indexId, String siteName, ContentStoreService contentStoreService, Context context, List<String> paths,
                      boolean delete, IndexingStatus status) throws BatchIndexingException;
