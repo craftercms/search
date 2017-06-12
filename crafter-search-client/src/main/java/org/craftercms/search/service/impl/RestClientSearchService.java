@@ -95,7 +95,7 @@ public class RestClientSearchService implements SearchService {
             throw new SearchException(indexId, "Invalid URI: " + searchUrl, e);
         } catch (HttpStatusCodeException e) {
             throw new SearchException(indexId, "Search for query " + query + " failed: [" + e.getStatusText() + "] " +
-                                               e.getResponseBodyAsString());
+                                               e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(indexId, "Search for query " + query + " failed: " + e.getMessage(), e);
         }
@@ -121,7 +121,7 @@ public class RestClientSearchService implements SearchService {
             throw new SearchException(indexId, "Invalid URI: " + updateUrl, e);
         } catch (HttpStatusCodeException e) {
             throw new SearchException(indexId, "Update for XML '" + id + "' failed: [" + e.getStatusText() + "] " +
-                                               e.getResponseBodyAsString());
+                                               e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(indexId, "Update for XML '" + id + "' failed: " + e.getMessage(), e);
         }
@@ -145,7 +145,7 @@ public class RestClientSearchService implements SearchService {
             throw new SearchException(indexId, "Invalid URI: " + deleteUrl, e);
         } catch (HttpStatusCodeException e) {
             throw new SearchException(indexId, "Delete for XML '" + id + "' failed: [" + e.getStatusText() + "] " +
-                                               e.getResponseBodyAsString());
+                                               e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(indexId, "Delete for XML '" + id + "' failed: " + e.getMessage(), e);
         }
@@ -166,7 +166,7 @@ public class RestClientSearchService implements SearchService {
         } catch (URISyntaxException e) {
             throw new SearchException(indexId, "Invalid URI: " + commitUrl, e);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException(indexId, "Commit failed: [" + e.getStatusText() + "] " + e.getResponseBodyAsString());
+            throw new SearchException(indexId, "Commit failed: [" + e.getStatusText() + "] " + e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(indexId, "Commit failed: " + e.getMessage(), e);
         }
@@ -253,7 +253,7 @@ public class RestClientSearchService implements SearchService {
             throw new SearchException(indexId, "Invalid URI: " + updateUrl, e);
         } catch (HttpStatusCodeException e) {
             throw new SearchException(indexId, "Update for content '" + id + "' failed: [" + e.getStatusText() + "] " +
-                                               e.getResponseBodyAsString());
+                                               e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(indexId, "Update for content '" + id + "' failed: " + e.getMessage(), e);
         }
