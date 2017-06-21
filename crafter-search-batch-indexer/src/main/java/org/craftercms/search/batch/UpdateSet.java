@@ -17,7 +17,6 @@
 package org.craftercms.search.batch;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Set of files to add or delete from the index.
