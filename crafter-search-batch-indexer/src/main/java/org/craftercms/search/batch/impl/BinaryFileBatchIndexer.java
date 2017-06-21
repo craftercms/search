@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2016 Crafter Software Corporation.
+ * Copyright (C) 2007-2017 Crafter Software Corporation.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +16,14 @@
  */
 package org.craftercms.search.batch.impl;
 
-import java.io.File;
 import java.util.List;
 import javax.activation.FileTypeMap;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.craftercms.core.exception.CrafterException;
 import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
-import org.craftercms.search.batch.IndexingStatus;
+import org.craftercms.search.batch.UpdateStatus;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
 /**
@@ -50,7 +48,7 @@ public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
 
     @Override
     protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
-                                      String path, boolean delete, IndexingStatus status) throws Exception {
+                                      String path, boolean delete, UpdateStatus status) throws Exception {
         if (delete) {
             doDelete(indexId, siteName, path, status);
         } else {

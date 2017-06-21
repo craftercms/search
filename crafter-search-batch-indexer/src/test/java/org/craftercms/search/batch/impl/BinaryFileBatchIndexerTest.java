@@ -4,7 +4,8 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
-import org.craftercms.search.batch.IndexingStatus;
+import org.craftercms.search.batch.UpdateSet;
+import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.service.SearchService;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,21 +39,14 @@ public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
     @Test
     public void testProcess() throws Exception {
         String indexId = SITE_NAME;
-        List<String> updatedFiles = Collections.singletonList(SUPPORTED_FILENAME);
-        List<String> deletedFiles = Collections.singletonList(NON_SUPPORTED_FILENAME);
-        IndexingStatus status = new IndexingStatus();
+        UpdateSet updateSet = new UpdateSet(Collections.singletonList(SUPPORTED_FILENAME), Collections.singletonList(NON_SUPPORTED_FILENAME));
+        UpdateStatus updateStatus = new UpdateStatus();
 
-        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, updatedFiles, false, status);
+        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
-        assertEquals(1, status.getAttemptedUpdatesAndDeletes());
-        assertEquals(SUPPORTED_FILENAME, status.getSuccessfulUpdates().get(0));
+        assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
+        assertEquals(SUPPORTED_FILENAME, updateStatus.getSuccessfulUpdates().get(0));
         verify(searchService).updateContent(eq(indexId), eq(SITE_NAME), eq(SUPPORTED_FILENAME), any(InputStream.class));
-
-        status = new IndexingStatus();
-
-        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, deletedFiles, true, status);
-
-        assertEquals(0, status.getAttemptedUpdatesAndDeletes());
         verify(searchService, never()).delete(indexId, SITE_NAME, NON_SUPPORTED_FILENAME);
     }
 
@@ -63,7 +57,5 @@ public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
 
         return batchIndexer;
     }
-
-
 
 }

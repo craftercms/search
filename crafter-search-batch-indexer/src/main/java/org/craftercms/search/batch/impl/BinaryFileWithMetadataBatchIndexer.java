@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2016 Crafter Software Corporation.
+ * Copyright (C) 2007-2017 Crafter Software Corporation.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.core.service.Item;
-import org.craftercms.search.batch.IndexingStatus;
+import org.craftercms.search.batch.UpdateStatus;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -86,7 +86,7 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
 
     @Override
     protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
-                                      String path, boolean delete, IndexingStatus status) throws Exception {
+                                      String path, boolean delete, UpdateStatus status) throws Exception {
         boolean doUpdate = false;
         String binaryPath = path;
         Content binaryContent = null;
