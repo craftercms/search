@@ -5,7 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.craftercms.search.batch.IndexingStatus;
+import org.craftercms.search.batch.UpdateSet;
+import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.service.SearchService;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
     private static final String SITE_NAME = "test";
     private static final String METADATA_FILENAME = "metadata.xml";
     private static final String BINARY_FILENAME = "crafter-wp-7-reasons.pdf";
-    private static final String DELETE_FILENAME = BINARY_FILENAME;
+    private static final String DELETE_FILENAME = "myfilename.pdf";
 
     private BinaryFileWithMetadataBatchIndexer batchIndexer;
 
@@ -42,23 +43,16 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
     @Test
     public void testProcess() throws Exception {
         String indexId = SITE_NAME;
-        List<String> updatedFiles = Collections.singletonList(METADATA_FILENAME);
-        List<String> deletedFiles = Collections.singletonList(DELETE_FILENAME);
-        IndexingStatus status = new IndexingStatus();
+        UpdateSet updateSet = new UpdateSet(Collections.singletonList(METADATA_FILENAME), Collections.singletonList(DELETE_FILENAME));
+        UpdateStatus updateStatus = new UpdateStatus();
 
-        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, updatedFiles, false, status);
+        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
-        assertEquals(1, status.getAttemptedUpdatesAndDeletes());
-        assertEquals(BINARY_FILENAME, status.getSuccessfulUpdates().get(0));
+        assertEquals(2, updateStatus.getAttemptedUpdatesAndDeletes());
+        assertEquals(BINARY_FILENAME, updateStatus.getSuccessfulUpdates().get(0));
+        assertEquals(DELETE_FILENAME, updateStatus.getSuccessfulDeletes().get(0));
         verify(searchService).updateContent(eq(indexId), eq(SITE_NAME), eq(BINARY_FILENAME), any(InputStream.class),
                                             eq(getExpectedMetadata()));
-
-        status = new IndexingStatus();
-
-        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, deletedFiles, true, status);
-
-        assertEquals(1, status.getAttemptedUpdatesAndDeletes());
-        assertEquals(DELETE_FILENAME, status.getSuccessfulDeletes().get(0));
         verify(searchService).delete(indexId, SITE_NAME, DELETE_FILENAME);
     }
 

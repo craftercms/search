@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2016 Crafter Software Corporation.
+ * Copyright (C) 2007-2017 Crafter Software Corporation.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author avasquez
  */
-public class IndexingStatus {
+public class UpdateStatus {
 
     protected List<String> successfulUpdates;
     protected List<String> successfulDeletes;
@@ -36,7 +36,7 @@ public class IndexingStatus {
     protected List<String> failedDeletes;
     protected Lock listLock;
 
-    public IndexingStatus() {
+    public UpdateStatus() {
         this.successfulUpdates = new ArrayList<>();
         this.successfulDeletes = new ArrayList<>();
         this.failedUpdates = new ArrayList<>();

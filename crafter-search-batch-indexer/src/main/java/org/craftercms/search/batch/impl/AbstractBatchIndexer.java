@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2016 Crafter Software Corporation.
+ * Copyright (C) 2007-2017 Crafter Software Corporation.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,7 +30,8 @@ import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.search.batch.BatchIndexer;
-import org.craftercms.search.batch.IndexingStatus;
+import org.craftercms.search.batch.UpdateSet;
+import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.exception.BatchIndexingException;
 import org.craftercms.search.service.SearchService;
 import org.springframework.beans.factory.annotation.Required;
@@ -63,28 +63,34 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
     }
 
     @Override
-    public void updateIndex(String indexId, String siteName, ContentStoreService contentStoreService, Context context, List<String> paths,
-                           boolean delete, IndexingStatus status) throws BatchIndexingException {
-        for (String path : paths) {
+    public void updateIndex(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
+                            UpdateSet updateSet, UpdateStatus updateStatus) throws BatchIndexingException {
+        for (String path : updateSet.getUpdatePaths()) {
             if (include(path)) {
                 try {
-                    doSingleFileUpdate(indexId, siteName, contentStoreService, context, path, delete, status);
+                    doSingleFileUpdate(indexId, siteName, contentStoreService, context, path, false, updateStatus);
                 } catch (Exception e) {
-                    if (delete) {
-                        logger.error("Error while trying to perform delete of file " + getSiteBasedPath(siteName, path), e);
+                    logger.error("Error while trying to perform update of file " + getSiteBasedPath(siteName, path), e);
 
-                        status.addFailedDelete(path);
-                    } else {
-                        logger.error("Error while trying to perform update of file " + getSiteBasedPath(siteName, path), e);
+                    updateStatus.addFailedUpdate(path);
+                }
+            }
+        }
 
-                        status.addFailedUpdate(path);
-                    }
+        for (String path : updateSet.getDeletePaths()) {
+            if (include(path)) {
+                try {
+                    doSingleFileUpdate(indexId, siteName, contentStoreService, context, path, true, updateStatus);
+                } catch (Exception e) {
+                    logger.error("Error while trying to perform delete of file " + getSiteBasedPath(siteName, path), e);
+
+                    updateStatus.addFailedDelete(path);
                 }
             }
         }
     }
 
-    protected void doUpdate(String indexId, String siteName, String id, String xml, IndexingStatus status) {
+    protected void doUpdate(String indexId, String siteName, String id, String xml, UpdateStatus status) {
         searchService.update(indexId, siteName, id, xml, true);
 
         logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
@@ -92,7 +98,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         status.addSuccessfulUpdate(id);
     }
 
-    protected void doUpdateContent(String indexId, String siteName, String id, Content content, IndexingStatus status) throws IOException {
+    protected void doUpdateContent(String indexId, String siteName, String id, Content content, UpdateStatus status) throws IOException {
         try (InputStream is = content.getInputStream()) {
             searchService.updateContent(indexId, siteName, id, is);
 
@@ -103,7 +109,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
     }
 
     protected void doUpdateContent(String indexId, String siteName, String id, Content content, Map<String, List<String>> additionalFields,
-                                   IndexingStatus status) throws IOException {
+                                   UpdateStatus status) throws IOException {
         try (InputStream is = content.getInputStream()) {
             searchService.updateContent(indexId, siteName, id, is, additionalFields);
 
@@ -113,7 +119,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         }
     }
 
-    protected void doDelete(String indexId, String siteName, String id, IndexingStatus status) {
+    protected void doDelete(String indexId, String siteName, String id, UpdateStatus status) {
         searchService.delete(indexId, siteName, id);
 
         logger.info("File " + getSiteBasedPath(siteName, id) + " deleted from index " + getIndexNameStr(indexId));
@@ -135,6 +141,6 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
     }
 
     protected abstract void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
-                                               String path, boolean delete, IndexingStatus status) throws Exception;
+                                               String path, boolean delete, UpdateStatus status) throws Exception;
 
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2007-2017 Crafter Software Corporation.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.search.batch;
 
 import java.util.List;
@@ -20,11 +36,10 @@ public interface BatchIndexer {
      * @param siteName              the name of the site the files belong to
      * @param contentStoreService   the content store service used to retrieve the files and content to index
      * @param context               the context of the file store being used
-     * @param paths                 the paths in the content store of the files to index
-     * @param delete                if the given files should be deleted from the index, otherwise they're added
-     * @param status                status object used to track index updates and deletes
+     * @param updateSet             the set of files to update/delete
+     * @param updateStatus          status object used to track index updates and deletes
      */
-    void updateIndex(String indexId, String siteName, ContentStoreService contentStoreService, Context context, List<String> paths,
-                     boolean delete, IndexingStatus status) throws BatchIndexingException;
+    void updateIndex(String indexId, String siteName, ContentStoreService contentStoreService, Context context, UpdateSet updateSet,
+                     UpdateStatus updateStatus) throws BatchIndexingException;
 
 }

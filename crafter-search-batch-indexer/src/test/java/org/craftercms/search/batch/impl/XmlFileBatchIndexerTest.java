@@ -9,7 +9,8 @@ import org.craftercms.core.processors.ItemProcessor;
 import org.craftercms.core.processors.impl.AttributeAddingProcessor;
 import org.craftercms.core.processors.impl.FieldRenamingProcessor;
 import org.craftercms.core.processors.impl.PageAwareIncludeDescriptorsProcessor;
-import org.craftercms.search.batch.IndexingStatus;
+import org.craftercms.search.batch.UpdateSet;
+import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.service.SearchService;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,22 +54,15 @@ public class XmlFileBatchIndexerTest extends BatchIndexerTestBase {
     @Test
     public void testUpdateIndex() throws Exception {
         String indexId = SITE_NAME;
-        List<String> updatedFiles = Collections.singletonList(UPDATE_FILENAME);
-        List<String> deletedFiles = Collections.singletonList(DELETE_FILENAME);
-        IndexingStatus status = new IndexingStatus();
+        UpdateSet updateSet = new UpdateSet(Collections.singletonList(UPDATE_FILENAME), Collections.singletonList(DELETE_FILENAME));
+        UpdateStatus updateStatus = new UpdateStatus();
 
-        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, updatedFiles, false, status);
+        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
-        assertEquals(1, status.getAttemptedUpdatesAndDeletes());
-        assertEquals(UPDATE_FILENAME, status.getSuccessfulUpdates().get(0));
+        assertEquals(2, updateStatus.getAttemptedUpdatesAndDeletes());
+        assertEquals(UPDATE_FILENAME, updateStatus.getSuccessfulUpdates().get(0));
+        assertEquals(DELETE_FILENAME, updateStatus.getSuccessfulDeletes().get(0));
         verify(searchService).update(indexId, SITE_NAME, UPDATE_FILENAME, EXPECTED_XML, true);
-
-        status = new IndexingStatus();
-
-        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, deletedFiles, true, status);
-
-        assertEquals(1, status.getAttemptedUpdatesAndDeletes());
-        assertEquals(DELETE_FILENAME, status.getSuccessfulDeletes().get(0));
         verify(searchService).delete(indexId, SITE_NAME, DELETE_FILENAME);
     }
 
