@@ -29,7 +29,7 @@ import org.craftercms.search.service.Query;
  *
  * @author Alfonso Vásquez
  */
-public class QueryParams implements Query {
+public abstract class QueryParams implements Query {
 
     private Map<String, String[]> params;
 
@@ -81,7 +81,7 @@ public class QueryParams implements Query {
     }
 
 
-    public String toQueryString() {
+    public String toUrlQueryString() {
         StringBuilder queryStr = new StringBuilder();
 
         for (Map.Entry<String, String[]> param : params.entrySet()) {
@@ -106,7 +106,7 @@ public class QueryParams implements Query {
 
     @Override
     public String toString() {
-        return toQueryString();
+        return toUrlQueryString();
     }
 
 }

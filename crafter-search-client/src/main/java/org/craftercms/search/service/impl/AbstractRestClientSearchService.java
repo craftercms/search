@@ -55,18 +55,18 @@ import static org.craftercms.search.rest.SearchRestApiConstants.URL_UPDATE;
 import static org.craftercms.search.rest.SearchRestApiConstants.URL_UPDATE_CONTENT;
 
 /**
- * Client implementation of {@link SearchService}, which uses REST to communicate with the server
+ * Abstract class that contains the base client implementation of {@link SearchService}, which uses REST to communicate with the server
  *
  * @author Alfonso Vásquez
  */
-public class RestClientSearchService implements SearchService {
+public abstract class AbstractRestClientSearchService<T extends Query> implements SearchService<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(RestClientSearchService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractRestClientSearchService.class);
 
     protected String serverUrl;
     protected RestTemplate restTemplate;
 
-    public RestClientSearchService() {
+    public AbstractRestClientSearchService() {
         restTemplate = new RestTemplate();
     }
 
@@ -87,7 +87,7 @@ public class RestClientSearchService implements SearchService {
     @SuppressWarnings("unchecked")
     public Map<String, Object> search(String indexId, Query query) throws SearchException {
         String searchUrl = createBaseUrl(URL_SEARCH, indexId);
-        searchUrl = UrlUtils.addQueryStringFragment(searchUrl, query.toQueryString());
+        searchUrl = UrlUtils.addQueryStringFragment(searchUrl, query.toUrlQueryString());
 
         try {
             return restTemplate.getForObject(new URI(searchUrl), Map.class);

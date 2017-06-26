@@ -61,7 +61,7 @@ import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
  * @author Alfonso Vasquez
  * @author Dejan Brkic
  */
-public class SolrSearchService implements SearchService {
+public class SolrSearchService implements SearchService<SolrQuery> {
 
     public static final String DEFAULT_FILE_NAME_FIELD_NAME = "file-name";
     public static final String SOLR_CONTENT_STREAM_UPDATE_URL = "/update/extract";
@@ -177,28 +177,36 @@ public class SolrSearchService implements SearchService {
         this.additionalFilterQueries = additionalFilterQueries;
     }
 
+    @Override
+    public SolrQuery createQuery() {
+        return new SolrQuery();
+    }
+
+    @Override
+    public SolrQuery createQuery(Map<String, String[]> params) {
+        return new SolrQuery(params);
+    }
+
     /**
      * {@inheritDoc}
      */
-    public Map<String, Object> search(Query query) {
+    public Map<String, Object> search(SolrQuery query) {
         return search(null, query);
     }
 
     @Override
-    public Map<String, Object> search(String indexId, Query query) throws SearchException {
+    public Map<String, Object> search(String indexId, SolrQuery query) throws SearchException {
         if (StringUtils.isEmpty(indexId)) {
             indexId = defaultIndexId;
         }
 
-        SolrQuery expandedQuery = new SolrQuery((QueryParams)query);
+        addAdditionalFilterQueries(query);
+
+        logger.info("{}Executing query {}", getIndexPrefix(indexId), query);
+
         SolrResponse response;
-
-        addAdditionalFilterQueries(expandedQuery);
-
-        logger.info("{}Executing query {}", getIndexPrefix(indexId), expandedQuery);
-
         try {
-            response = solrClient.query(indexId, toSolrQuery(expandedQuery));
+            response = solrClient.query(indexId, toActualSolrQuery(query));
         } catch (SolrServerException | IOException e) {
             throw new SearchException(indexId, "Search for query " + query + " failed", e);
         }
@@ -395,7 +403,7 @@ public class SolrSearchService implements SearchService {
         }
     }
 
-    protected SolrParams toSolrQuery(QueryParams queryParams) {
+    protected SolrParams toActualSolrQuery(QueryParams queryParams) {
         return new ModifiableSolrParams(queryParams.getParams());
     }
 

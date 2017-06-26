@@ -16,6 +16,8 @@
  */
 package org.craftercms.search.service;
 
+import java.util.Map;
+
 /**
  * Factory for creating specific types of {@link Query}s
  *
@@ -24,5 +26,7 @@ package org.craftercms.search.service;
 public interface QueryFactory<T extends Query> {
 
     T createQuery();
+
+    T createQuery(Map<String, String[]> params);
 
 }

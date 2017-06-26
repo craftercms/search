@@ -35,23 +35,33 @@ import org.springframework.beans.factory.annotation.Required;
  *
  * @author avasquez
  */
-public class DualSearchService implements SearchService {
+public class DualSearchService implements SearchService<Query> {
 
     public static final String NO_WRITE_SERVICE_PROVIDED_MSG = "No write service provided. All updates and commits " +
                                                                "are ignored";
 
     private static final Log logger = LogFactory.getLog(SolrSearchService.class);
 
-    private SearchService readService;
-    private SearchService writeService;
+    private SearchService<Query> readService;
+    private SearchService<Query> writeService;
 
     @Required
-    public void setReadService(SearchService readService) {
+    public void setReadService(SearchService<Query> readService) {
         this.readService = readService;
     }
 
-    public void setWriteService(SearchService writeService) {
+    public void setWriteService(SearchService<Query> writeService) {
         this.writeService = writeService;
+    }
+
+    @Override
+    public Query createQuery() {
+        return readService.createQuery();
+    }
+
+    @Override
+    public Query createQuery(Map<String, String[]> params) {
+        return readService.createQuery(params);
     }
 
     @Override

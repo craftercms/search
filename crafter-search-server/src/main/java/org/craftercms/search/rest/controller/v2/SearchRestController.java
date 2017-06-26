@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.craftercms.commons.rest.Result;
 import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.QueryParams;
 import org.springframework.beans.factory.annotation.Required;
@@ -72,9 +73,12 @@ public class SearchRestController {
     }
 
     @RequestMapping(value = URL_SEARCH, method = RequestMethod.GET)
+    @SuppressWarnings("unchecked")
     public Map<String, Object> search(@RequestParam(value = PARAM_INDEX_ID, required = false) String indexId,
                                       HttpServletRequest request) throws SearchException {
-        return searchService.search(indexId, new QueryParams(request.getParameterMap()));
+        Query query = searchService.createQuery(request.getParameterMap());
+
+        return searchService.search(indexId, query);
     }
 
     @RequestMapping(value = URL_UPDATE, method = RequestMethod.POST)

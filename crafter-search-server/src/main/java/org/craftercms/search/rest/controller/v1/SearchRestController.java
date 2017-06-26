@@ -30,6 +30,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.QueryParams;
 import org.slf4j.Logger;
@@ -97,9 +98,12 @@ public class SearchRestController {
 
     @RequestMapping(value = URL_SEARCH, method = RequestMethod.GET)
     @ResponseBody
+    @SuppressWarnings("unchecked")
     public Map<String, Object> search(@RequestParam(value = REQUEST_PARAM_INDEX_ID, required = false) String indexId,
                                       HttpServletRequest request) throws SearchException {
-        return searchService.search(indexId, new QueryParams(request.getParameterMap()));
+        Query query = searchService.createQuery(request.getParameterMap());
+
+        return searchService.search(indexId, query);
     }
 
     @RequestMapping(value = URL_UPDATE, method = RequestMethod.POST)
