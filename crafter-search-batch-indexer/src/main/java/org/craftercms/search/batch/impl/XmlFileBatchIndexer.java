@@ -16,7 +16,9 @@
  */
 package org.craftercms.search.batch.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
@@ -27,13 +29,17 @@ import org.craftercms.core.exception.CrafterException;
 import org.craftercms.core.exception.XmlException;
 import org.craftercms.core.processors.ItemProcessor;
 import org.craftercms.core.processors.impl.ItemProcessorPipeline;
+import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.core.service.Item;
 import org.craftercms.search.batch.UpdateStatus;
+import org.craftercms.search.service.SearchService;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+
+import static org.craftercms.search.batch.utils.IndexingUtils.*;
 
 /**
  * {@link org.craftercms.search.batch.BatchIndexer} that updates/deletes XML files from a search index.
@@ -61,12 +67,15 @@ public class XmlFileBatchIndexer extends AbstractBatchIndexer {
     }
 
     @Override
-    protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
-                                      String path, boolean delete, UpdateStatus status) throws Exception {
+    protected void doSingleFileUpdate(SearchService searchService, String indexId, String siteName,
+                                      ContentStoreService contentStoreService, Context context,
+                                      String path, boolean delete, UpdateStatus updateStatus) throws Exception {
         if (delete) {
-            doDelete(indexId, siteName, path, status);
+            doDelete(searchService, indexId, siteName, path, updateStatus);
         } else {
-            doUpdate(indexId, siteName, path, processXml(siteName, contentStoreService, context, path), status);
+            String xml = processXml(siteName, contentStoreService, context, path);
+
+            doUpdate(searchService, indexId, siteName, path, xml, updateStatus);
         }
     }
 
@@ -104,6 +113,25 @@ public class XmlFileBatchIndexer extends AbstractBatchIndexer {
         }
 
         return stringWriter.toString();
+    }
+
+    public static class EmptyContent implements Content {
+
+        @Override
+        public long getLastModified() {
+            return System.currentTimeMillis();
+        }
+
+        @Override
+        public long getLength() {
+            return 0;
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return new ByteArrayInputStream(new byte[0]);
+        }
+
     }
 
 }

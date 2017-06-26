@@ -16,17 +16,25 @@
  */
 package org.craftercms.search.service.impl;
 
-import org.craftercms.search.service.QueryFactory;
+import java.util.Map;
+
+import org.craftercms.search.service.Query;
 
 /**
- * Extension of {@link RestClientSearchService} that uses {@link SolrQuery}s.
+ * Extension of {@link AbstractRestClientSearchService} that uses {@link SolrQuery}s.
  *
  * @author Alfonso Vásquez
  */
-public class SolrRestClientSearchService extends RestClientSearchService implements QueryFactory<SolrQuery> {
+public class SolrRestClientSearchService extends AbstractRestClientSearchService<SolrQuery> {
 
+    @Override
     public SolrQuery createQuery() {
         return new SolrQuery();
+    }
+
+    @Override
+    public SolrQuery createQuery(Map<String, String[]> params) {
+        return new SolrQuery(params);
     }
 
 }

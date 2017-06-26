@@ -33,7 +33,7 @@ public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        batchIndexer = getBatchIndexer(searchService);
+        batchIndexer = getBatchIndexer();
     }
 
     @Test
@@ -42,7 +42,7 @@ public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
         UpdateSet updateSet = new UpdateSet(Collections.singletonList(SUPPORTED_FILENAME), Collections.singletonList(NON_SUPPORTED_FILENAME));
         UpdateStatus updateStatus = new UpdateStatus();
 
-        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
+        batchIndexer.updateIndex(searchService, indexId, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
         assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
         assertEquals(SUPPORTED_FILENAME, updateStatus.getSuccessfulUpdates().get(0));
@@ -50,10 +50,9 @@ public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
         verify(searchService, never()).delete(indexId, SITE_NAME, NON_SUPPORTED_FILENAME);
     }
 
-    protected BinaryFileBatchIndexer getBatchIndexer(SearchService searchService) throws Exception {
+    protected BinaryFileBatchIndexer getBatchIndexer() throws Exception {
         BinaryFileBatchIndexer batchIndexer = new BinaryFileBatchIndexer();
         batchIndexer.setSupportedMimeTypes(Collections.singletonList("application/pdf"));
-        batchIndexer.setSearchService(searchService);
 
         return batchIndexer;
     }

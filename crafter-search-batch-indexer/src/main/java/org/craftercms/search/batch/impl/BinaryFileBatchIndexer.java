@@ -24,7 +24,10 @@ import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.search.batch.UpdateStatus;
+import org.craftercms.search.service.SearchService;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
+
+import static org.craftercms.search.batch.utils.IndexingUtils.*;
 
 /**
  * {@link org.craftercms.search.batch.BatchIndexer} that updates/deletes binary or structured document files (PDF,
@@ -47,13 +50,14 @@ public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
     }
 
     @Override
-    protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
-                                      String path, boolean delete, UpdateStatus status) throws Exception {
+    protected void doSingleFileUpdate(SearchService searchService,String indexId, String siteName,
+                                      ContentStoreService contentStoreService, Context context,
+                                      String path, boolean delete, UpdateStatus updateStatus) throws Exception {
         if (delete) {
-            doDelete(indexId, siteName, path, status);
+            doDelete(searchService, indexId, siteName, path, updateStatus);
         } else {
             Content binaryContent = contentStoreService.getContent(context, path);
-            doUpdateContent(indexId, siteName, path, binaryContent, status);
+            doUpdateContent(searchService, indexId, siteName, path, binaryContent, updateStatus);
         }
     }
 

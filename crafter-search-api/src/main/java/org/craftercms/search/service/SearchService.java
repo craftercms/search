@@ -29,7 +29,7 @@ import org.craftercms.search.exception.SearchException;
  * @author Alfonso Vásquez
  * @author Dejan Brkic
  */
-public interface SearchService {
+public interface SearchService<T extends Query> extends QueryFactory<T> {
 
     /**
      * Does a full-text search and returns a Map model.
@@ -41,7 +41,7 @@ public interface SearchService {
      *
      * @throws SearchException if any error occurs that makes the search fail
      */
-    Map<String, Object> search(Query query) throws SearchException;
+    Map<String, Object> search(T query) throws SearchException;
 
     /**
      * Does a full-text search and returns a Map model.
@@ -54,7 +54,7 @@ public interface SearchService {
      *
      * @throws SearchException if any error occurs that makes the search fail
      */
-    Map<String, Object> search(String indexId, Query query) throws SearchException;
+    Map<String, Object> search(String indexId, T query) throws SearchException;
 
     /**
      * Updates the search engine's index data of an XML document.
