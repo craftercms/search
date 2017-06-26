@@ -18,8 +18,6 @@ package org.craftercms.search.service.impl;
 
 import java.util.Map;
 
-import org.craftercms.search.service.Query;
-
 /**
  * Extension of {@link AbstractRestClientSearchService} that uses {@link SolrQuery}s.
  *
