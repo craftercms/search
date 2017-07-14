@@ -101,8 +101,8 @@ public class RenameFieldsIfMultiValuePostProcessor implements SolrDocumentPostPr
                     String fieldWithoutSuffix = StringUtils.substringBefore(fieldName, singleValueSuffix);
                     String newFieldName = fieldWithoutSuffix + multiValueSuffix;
 
-                    logger.warn("Field '{}' is declared as single value, but multiple values where provided in {}. " +
-                                "Renaming to multi value field '{}'", fieldName, docId, newFieldName);
+                    logger.debug("Field '{}' is declared as single value, but multiple values where provided in {}. " +
+                                 "Renaming to multi value field '{}'", fieldName, docId, newFieldName);
 
                     SolrInputField newField = new SolrInputField(newFieldName);
                     newField.setValue(field.getValue(), field.getBoost());
