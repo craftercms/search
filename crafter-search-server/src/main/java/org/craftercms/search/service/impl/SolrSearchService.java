@@ -202,7 +202,9 @@ public class SolrSearchService implements SearchService<SolrQuery> {
 
         addAdditionalFilterQueries(query);
 
-        logger.info("{}Executing query {}", getIndexPrefix(indexId), query);
+        if (logger.isDebugEnabled()) {
+            logger.debug("{}Executing query {}", getIndexPrefix(indexId), query);
+        }
 
         SolrResponse response;
         try {
@@ -247,7 +249,9 @@ public class SolrSearchService implements SearchService<SolrQuery> {
             SolrInputDocument solrDoc = solrDocumentBuilder.build(site, id, xml, ignoreRootInFieldNames);
             NamedList<Object> response = solrClient.add(indexId, solrDoc).getResponse();
 
-            logger.info(getSuccessfulMessage(indexId, finalId, "Update", response));
+            if (logger.isDebugEnabled()) {
+                logger.debug(getSuccessfulMessage(indexId, finalId, "Update", response));
+            }
         } catch (SolrDocumentBuildException e) {
             throw new SearchException(indexId, "Unable to build Solr document for " + finalId, e);
         } catch (IOException e) {
@@ -273,18 +277,21 @@ public class SolrSearchService implements SearchService<SolrQuery> {
         String finalId = site + ":" + id;
         String query = getDeleteQuery(finalId);
         NamedList<Object> response;
-        String msg;
 
         try {
             if (StringUtils.isNotEmpty(query)) {
                 response = solrClient.deleteByQuery(indexId, query).getResponse();
-                msg = getSuccessfulMessage(indexId, query, "Delete", response);
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug(getSuccessfulMessage(indexId, query, "Delete", response));
+                }
             } else {
                 response = solrClient.deleteById(indexId, finalId).getResponse();
-                msg = getSuccessfulMessage(indexId, finalId, "Delete", response);
-            }
 
-            logger.info(msg);
+                if (logger.isDebugEnabled()) {
+                    logger.debug(getSuccessfulMessage(indexId, finalId, "Delete", response));
+                }
+            }
         } catch (IOException e) {
             if (StringUtils.isNotEmpty(query)) {
                 throw new SearchException(indexId, "I/O error while executing delete for " + query, e);
@@ -357,7 +364,9 @@ public class SolrSearchService implements SearchService<SolrQuery> {
             throw new SearchException(indexId, "I/O error while executing update file for " + finalId, e);
         }
 
-        logger.info(getSuccessfulMessage(indexId, finalId, "Update file", response));
+        if (logger.isDebugEnabled()) {
+            logger.debug(getSuccessfulMessage(indexId, finalId, "Update file", response));
+        }
     }
 
     @Override
@@ -395,7 +404,9 @@ public class SolrSearchService implements SearchService<SolrQuery> {
         try {
             NamedList<Object> response = solrClient.commit(indexId).getResponse();
 
-            logger.info(String.format("%sCommit successful: %s", getIndexPrefix(indexId), response));
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("%sCommit successful: %s", getIndexPrefix(indexId), response));
+            }
         } catch (IOException e) {
             throw new SearchException(indexId, "I/O error while executing commit", e);
         } catch (Exception e) {
