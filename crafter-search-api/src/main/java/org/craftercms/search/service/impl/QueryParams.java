@@ -32,9 +32,11 @@ import org.craftercms.search.service.Query;
 public abstract class QueryParams implements Query {
 
     private Map<String, String[]> params;
+    private boolean useAdditionalFilters;
 
     public QueryParams() {
         params = new LinkedHashMap<>();
+        useAdditionalFilters = true;
     }
 
     public QueryParams(Map<String, String[]> params) {
@@ -80,6 +82,15 @@ public abstract class QueryParams implements Query {
         return params;
     }
 
+    @Override
+    public void setUseAddtionalFilters(final boolean useAddtionalFilters) {
+        this.useAdditionalFilters = useAddtionalFilters;
+    }
+
+    @Override
+    public boolean getUseAdditionalFilters() {
+        return useAdditionalFilters;
+    }
 
     public String toUrlQueryString() {
         StringBuilder queryStr = new StringBuilder();

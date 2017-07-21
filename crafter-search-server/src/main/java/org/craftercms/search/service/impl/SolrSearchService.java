@@ -520,6 +520,9 @@ public class SolrSearchService implements SearchService<SolrQuery> {
     }
 
     protected void addAdditionalFilterQueries(SolrQuery solrQuery) {
+        if(!solrQuery.getUseAdditionalFilters()) {
+            return;
+        }
         String query = solrQuery.getQuery();
         String[] filterQueries = solrQuery.getFilterQueries();
 
