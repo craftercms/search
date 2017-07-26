@@ -44,6 +44,13 @@ public interface Query {
     Query setQuery(String query);
 
     /**
+     * Indicates if additional filters should be added.
+     */
+    void setUseAdditionalFilters(boolean useAdditionalFilters);
+
+    boolean getUseAdditionalFilters();
+
+    /**
      * Converts this query to an URL query string.
      */
     String toUrlQueryString();
