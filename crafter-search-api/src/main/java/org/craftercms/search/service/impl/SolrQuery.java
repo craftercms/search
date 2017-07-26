@@ -31,7 +31,6 @@ import org.craftercms.search.service.Query;
  */
 public class SolrQuery extends QueryParams {
 
-    public static final String MULTIVALUE_SEPARATOR = ",";
     public static final String FIELDS_TO_RETURN = "fl";
     public static final String HIGHLIGHT_PARAM = "hl";
     public static final String HIGHLIGHT_FIELDS_PARAM = "hl.fl";
@@ -55,26 +54,40 @@ public class SolrQuery extends QueryParams {
     }
 
     @Override
+    public int getOffset() {
+        return getStart();
+    }
+
+    @Override
     public Query setNumResults(int numResults) {
         return setRows(numResults);
     }
 
-    public String[] getFieldsToReturn() {
-        return getParam(FIELDS_TO_RETURN);
+    @Override
+    public int getNumResults() {
+        return getRows();
     }
 
+    @Override
     public SolrQuery setFieldsToReturn(String... fields) {
-        addParam(FIELDS_TO_RETURN, StringUtils.join(fields, MULTIVALUE_SEPARATOR));
+        addParam(FIELDS_TO_RETURN, fields);
 
         return this;
     }
 
+    @Override
+    public String[] getFieldsToReturn() {
+        return getParam(FIELDS_TO_RETURN);
+    }
+
+    @Override
     public String getQuery() {
         return getSingleValue(QUERY_PARAM);
     }
 
+    @Override
     public SolrQuery setQuery(String query) {
-        addParam(QUERY_PARAM, query);
+        setParam(QUERY_PARAM, query);
 
         return this;
     }
@@ -84,35 +97,27 @@ public class SolrQuery extends QueryParams {
     }
 
     public SolrQuery setHighlight(boolean highlight) {
-        addParam(HIGHLIGHT_PARAM, Boolean.toString(highlight));
+        setParam(HIGHLIGHT_PARAM, Boolean.toString(highlight));
 
         return this;
     }
 
     public String[] getHighlightFields() {
-        return StringUtils.split(getSingleValue(HIGHLIGHT_FIELDS_PARAM), MULTIVALUE_SEPARATOR);
+        return getParam(HIGHLIGHT_FIELDS_PARAM);
     }
 
     public SolrQuery setHighlightFields(String... fields) {
-        if (!hasParam(HIGHLIGHT_PARAM)) {
-            addParam(HIGHLIGHT_PARAM, "true");
-        }
-
-        addParam(HIGHLIGHT_FIELDS_PARAM, StringUtils.join(fields, MULTIVALUE_SEPARATOR));
+        setHighlight(true).addParam(HIGHLIGHT_FIELDS_PARAM, fields);
 
         return this;
     }
 
-    public String[] getHighlightSnippets() {
-        return StringUtils.split(getSingleValue(HIGHLIGHT_SNIPPETS_PARAM), MULTIVALUE_SEPARATOR);
+    public int getHighlightSnippets() {
+        return NumberUtils.toInt(getSingleValue(HIGHLIGHT_SNIPPETS_PARAM));
     }
 
     public SolrQuery setHighlightSnippets(int snippets) {
-        if (!hasParam(HIGHLIGHT_PARAM)) {
-            addParam(HIGHLIGHT_PARAM, "true");
-        }
-
-        addParam(HIGHLIGHT_SNIPPETS_PARAM, Integer.toString(snippets));
+        setHighlight(true).setParam(HIGHLIGHT_SNIPPETS_PARAM, Integer.toString(snippets));
 
         return this;
     }
@@ -122,17 +127,19 @@ public class SolrQuery extends QueryParams {
     }
 
     public SolrQuery setHighlightSnippetSize(int size) {
-        if (!hasParam(HIGHLIGHT_PARAM)) {
-            addParam(HIGHLIGHT_PARAM, "true");
-        }
-
-        addParam(HIGHLIGHT_SNIPPET_SIZE_PARAM, Integer.toString(size));
+        setHighlight(true).setParam(HIGHLIGHT_SNIPPET_SIZE_PARAM, Integer.toString(size));
 
         return this;
     }
 
     public String[] getFilterQueries() {
         return getParam(FILTER_QUERY_PARAM);
+    }
+
+    public SolrQuery setFilterQueries(String... queries) {
+        addParam(FILTER_QUERY_PARAM, queries);
+
+        return this;
     }
 
     public SolrQuery addFilterQuery(String query) {
@@ -146,7 +153,7 @@ public class SolrQuery extends QueryParams {
     }
 
     public SolrQuery setStart(int start) {
-        addParam(START_PARAM, Integer.toString(start));
+        setParam(START_PARAM, Integer.toString(start));
 
         return this;
     }
@@ -156,20 +163,9 @@ public class SolrQuery extends QueryParams {
     }
 
     public SolrQuery setRows(int rows) {
-        addParam(ROWS_PARAM, Integer.toString(rows));
+        setParam(ROWS_PARAM, Integer.toString(rows));
 
         return this;
-    }
-
-    protected String getSingleValue(String param) {
-        if (hasParam(param)) {
-            String[] values = getParam(param);
-            if (ArrayUtils.isNotEmpty(values)) {
-                return values[0];
-            }
-        }
-
-        return null;
     }
 
 }

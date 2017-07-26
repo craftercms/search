@@ -200,7 +200,7 @@ public class SolrSearchService implements SearchService<SolrQuery> {
             indexId = defaultIndexId;
         }
 
-        addAdditionalFilterQueries(query);
+        addAdditionalFilterQueries(indexId, query);
 
         if (logger.isDebugEnabled()) {
             logger.debug("{}Executing query {}", getIndexPrefix(indexId), query);
@@ -519,10 +519,15 @@ public class SolrSearchService implements SearchService<SolrQuery> {
         return null;
     }
 
-    protected void addAdditionalFilterQueries(SolrQuery solrQuery) {
-        if(!solrQuery.getUseAdditionalFilters()) {
+    protected void addAdditionalFilterQueries(String indexId, SolrQuery solrQuery) {
+        if(solrQuery.isDisableAdditionalFilters()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("{}Additional filters disabled for query {}", getIndexPrefix(indexId), solrQuery);
+            }
+
             return;
         }
+
         String query = solrQuery.getQuery();
         String[] filterQueries = solrQuery.getFilterQueries();
 

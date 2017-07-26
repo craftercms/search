@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.craftercms.search.service.Query;
 
 /**
@@ -31,12 +32,12 @@ import org.craftercms.search.service.Query;
  */
 public abstract class QueryParams implements Query {
 
+    public static final String DISABLE_ADDITIONAL_FILTERS_PARAM = "disable_additional_filters";
+
     private Map<String, String[]> params;
-    private boolean useAdditionalFilters;
 
     public QueryParams() {
         params = new LinkedHashMap<>();
-        useAdditionalFilters = true;
     }
 
     public QueryParams(Map<String, String[]> params) {
@@ -49,6 +50,12 @@ public abstract class QueryParams implements Query {
 
     public String[] getParam(String name) {
         return params.get(name);
+    }
+
+    public QueryParams setParam(String name, String value) {
+        params.put(name, new String[] { value });
+
+        return this;
     }
 
     public QueryParams addParam(String name, String value) {
@@ -83,13 +90,15 @@ public abstract class QueryParams implements Query {
     }
 
     @Override
-    public void setUseAdditionalFilters(final boolean useAdditionalFilters) {
-        this.useAdditionalFilters = useAdditionalFilters;
+    public Query setDisableAdditionalFilters(boolean disableAdditionalFilters) {
+        setParam(DISABLE_ADDITIONAL_FILTERS_PARAM, Boolean.toString(disableAdditionalFilters));
+
+        return this;
     }
 
     @Override
-    public boolean getUseAdditionalFilters() {
-        return useAdditionalFilters;
+    public boolean isDisableAdditionalFilters() {
+        return BooleanUtils.toBoolean(getSingleValue(DISABLE_ADDITIONAL_FILTERS_PARAM));
     }
 
     public String toUrlQueryString() {
@@ -118,6 +127,17 @@ public abstract class QueryParams implements Query {
     @Override
     public String toString() {
         return toUrlQueryString();
+    }
+
+    protected String getSingleValue(String param) {
+        if (hasParam(param)) {
+            String[] values = getParam(param);
+            if (ArrayUtils.isNotEmpty(values)) {
+                return values[0];
+            }
+        }
+
+        return null;
     }
 
 }
