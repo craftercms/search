@@ -29,9 +29,19 @@ public interface Query {
     Query setOffset(int offset);
 
     /**
+     * Returns the offset of the results.
+     */
+    int getOffset();
+
+    /**
      * Sets the number of results to return.
      */
     Query setNumResults(int numResults);
+
+    /**
+     * Returns the number of results to return.
+     */
+    int getNumResults();
 
     /**
      * Sets the fields that should be returned.
@@ -39,16 +49,29 @@ public interface Query {
     Query setFieldsToReturn(String... fieldsToReturn);
 
     /**
+     * Returns the fields that should be returned.
+     */
+    String[] getFieldsToReturn();
+
+    /**
      * Sets the actual query.
      */
     Query setQuery(String query);
 
     /**
-     * Indicates if additional filters should be added.
+     * Returns the actual query.
      */
-    void setUseAdditionalFilters(boolean useAdditionalFilters);
+    String getQuery();
 
-    boolean getUseAdditionalFilters();
+    /**
+     * Sets if the additional Crafter Search filters should be disabled on query execution.
+     */
+    Query setDisableAdditionalFilters(boolean disableAdditionalFilters);
+
+    /**
+     * Returns true if the additional Crafter Search filters should be disabled on query execution.
+     */
+    boolean isDisableAdditionalFilters();
 
     /**
      * Converts this query to an URL query string.

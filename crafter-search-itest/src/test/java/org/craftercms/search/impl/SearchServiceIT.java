@@ -111,6 +111,16 @@ public class SearchServiceIT {
 
         searchService.commit(PLUTON_INDEX_ID);
 
+        query.setDisableAdditionalFilters(true);
+
+        results = searchService.search(PLUTON_INDEX_ID, query);
+        assertNotNull(results);
+
+        response = getQueryResponse(results);
+        assertEquals(6, getNumDocs(response));
+
+        query.setDisableAdditionalFilters(false);
+
         results = searchService.search(PLUTON_INDEX_ID, query);
         assertNotNull(results);
 
