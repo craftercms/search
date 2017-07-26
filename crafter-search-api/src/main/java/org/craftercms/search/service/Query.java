@@ -46,7 +46,7 @@ public interface Query {
     /**
      * Indicates if additional filters should be added.
      */
-    void setUseAddtionalFilters(boolean useAddtionalFilters);
+    void setUseAdditionalFilters(boolean useAdditionalFilters);
 
     boolean getUseAdditionalFilters();
 

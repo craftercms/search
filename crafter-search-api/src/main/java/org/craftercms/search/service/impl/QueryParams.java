@@ -83,8 +83,8 @@ public abstract class QueryParams implements Query {
     }
 
     @Override
-    public void setUseAddtionalFilters(final boolean useAddtionalFilters) {
-        this.useAdditionalFilters = useAddtionalFilters;
+    public void setUseAdditionalFilters(final boolean useAdditionalFilters) {
+        this.useAdditionalFilters = useAdditionalFilters;
     }
 
     @Override
