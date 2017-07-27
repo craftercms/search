@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,8 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -63,11 +66,15 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractRestClientSearchService.class);
 
+    public static final Charset DEFAULT_XML_ENCODING = Charset.forName("UTF-8");
+
     protected String serverUrl;
     protected RestTemplate restTemplate;
+    protected Charset xmlEncoding;
 
     public AbstractRestClientSearchService() {
         restTemplate = new RestTemplate();
+        xmlEncoding = DEFAULT_XML_ENCODING;
     }
 
     @Required
@@ -77,6 +84,10 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
 
     public void setRestTemplate(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+    }
+
+    public void setXmlEncoding(String xmlEncoding) {
+        this.xmlEncoding = Charset.forName(xmlEncoding);
     }
 
     public Map<String, Object> search(Query query) throws SearchException {
@@ -107,14 +118,16 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
 
     @Override
     public void update(String indexId, String site, String id, String xml,
-                         boolean ignoreRootInFieldNames) throws SearchException {
+                       boolean ignoreRootInFieldNames) throws SearchException {
         String updateUrl = createBaseUrl(URL_UPDATE, indexId);
         updateUrl = addParam(updateUrl, PARAM_SITE, site);
         updateUrl = addParam(updateUrl, PARAM_ID, id);
         updateUrl = addParam(updateUrl, PARAM_IGNORE_ROOT_IN_FIELD_NAMES, ignoreRootInFieldNames);
 
         try {
-            Result result = restTemplate.postForObject(new URI(updateUrl), xml, Result.class);
+            MediaType contentType = new MediaType(MediaType.TEXT_XML, xmlEncoding);
+            RequestEntity request = RequestEntity.post(new URI(updateUrl)).contentType(contentType).body(xml);
+            Result result = restTemplate.exchange(request, Result.class).getBody();
 
             logger.debug("Result of {}: {}", updateUrl, result);
         } catch (URISyntaxException e) {
