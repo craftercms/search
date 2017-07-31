@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.craftercms</groupId>
         <artifactId>crafter-search</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
     <dependencies>
         <!-- TODO: look into XOM 1.2.6 -->
