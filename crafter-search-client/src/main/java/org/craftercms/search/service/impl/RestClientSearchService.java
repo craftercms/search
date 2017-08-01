@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,9 @@ import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -45,11 +49,15 @@ import static org.craftercms.search.service.SearchRestConstants.*;
  */
 public class RestClientSearchService implements SearchService {
 
+    public static final Charset DEFAULT_XML_ENCODING = Charset.forName("UTF-8");
+
     protected String serverUrl;
     protected RestTemplate restTemplate;
+    protected Charset xmlEncoding;
 
     public RestClientSearchService() {
         restTemplate = new RestTemplate();
+        xmlEncoding = DEFAULT_XML_ENCODING;
     }
 
     public String getServerUrl() {
@@ -63,6 +71,10 @@ public class RestClientSearchService implements SearchService {
 
     public void setRestTemplate(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+    }
+
+    public void setXmlEncoding(String xmlEncoding) {
+        this.xmlEncoding = Charset.forName(xmlEncoding);
     }
 
     public Map<String, Object> search(Query query) throws SearchException {
@@ -99,7 +111,10 @@ public class RestClientSearchService implements SearchService {
         updateUrl = addParam(updateUrl, REQUEST_PARAM_IGNORE_ROOT_IN_FIELD_NAMES, ignoreRootInFieldNames);
 
         try {
-            return restTemplate.postForObject(new URI(updateUrl), xml, String.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(new MediaType("text", "xml", xmlEncoding));
+
+            return restTemplate.postForObject(new URI(updateUrl), new HttpEntity<>(xml, headers), String.class);
         } catch (URISyntaxException e) {
             throw new SearchException(indexId, "Invalid URI: " + updateUrl, e);
         } catch (HttpStatusCodeException e) {
