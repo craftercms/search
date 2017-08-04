@@ -21,6 +21,11 @@
             <artifactId>crafter-commons-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>crafter-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- No DB stuff, only for validation -->
         <dependency>
             <groupId>org.hibernate</groupId>

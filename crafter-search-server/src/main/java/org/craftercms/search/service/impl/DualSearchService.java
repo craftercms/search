@@ -17,12 +17,12 @@
 package org.craftercms.search.service.impl;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
@@ -168,7 +168,7 @@ public class DualSearchService implements SearchService<Query> {
     }
 
     @Override
-    public void updateContent(String site, String id, InputStream content) throws SearchException {
+    public void updateContent(String site, String id, Content content) throws SearchException {
         if (writeService != null) {
             writeService.updateContent(site, id, content);
         } else {
@@ -177,7 +177,7 @@ public class DualSearchService implements SearchService<Query> {
     }
 
     @Override
-    public void updateContent(String indexId, String site, String id, InputStream content) throws SearchException {
+    public void updateContent(String indexId, String site, String id, Content content) throws SearchException {
         if (writeService != null) {
             writeService.updateContent(indexId, site, id, content);
         } else {
@@ -186,7 +186,7 @@ public class DualSearchService implements SearchService<Query> {
     }
 
     @Override
-    public void updateContent(String site, String id, InputStream content,
+    public void updateContent(String site, String id, Content content,
                               Map<String, List<String>> additionalFields) throws SearchException {
         if (writeService != null) {
             writeService.updateContent(site, id, content, additionalFields);
@@ -196,7 +196,7 @@ public class DualSearchService implements SearchService<Query> {
     }
 
     @Override
-    public void updateContent(String indexId, String site, String id, InputStream content,
+    public void updateContent(String indexId, String site, String id, Content content,
                               Map<String, List<String>> additionalFields) throws SearchException {
         if (writeService != null) {
             writeService.updateContent(indexId, site, id, content, additionalFields);

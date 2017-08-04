@@ -1,11 +1,11 @@
 package org.craftercms.search.batch.impl;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.craftercms.core.service.Content;
 import org.craftercms.search.batch.UpdateSet;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.service.Query;
@@ -58,7 +58,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
         assertEquals(BINARY_FILENAME1, updateStatus.getSuccessfulUpdates().get(0));
         verify(searchService).updateContent(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(InputStream.class), eq(getExpectedMetadata1()));
+            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadata1()));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
 
         assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
         assertEquals(BINARY_FILENAME1, updateStatus.getSuccessfulUpdates().get(0));
-        verify(searchService).updateContent(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(InputStream.class));
+        verify(searchService).updateContent(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class));
     }
 
     @Test
@@ -83,7 +83,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
         assertEquals(BINARY_FILENAME1, updateStatus.getSuccessfulUpdates().get(0));
         verify(searchService).updateContent(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(InputStream.class), eq(getExpectedMetadata1()));
+            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadata1()));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
         assertEquals(BINARY_FILENAME2, updateStatus.getSuccessfulUpdates().get(0));
         verify(searchService).updateContent(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME2), any(InputStream.class), eq(getExpectedMetadata2()));
+            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME2), any(Content.class), eq(getExpectedMetadata2()));
     }
 
     @Test

@@ -17,6 +17,7 @@
 package org.craftercms.search.service.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -26,17 +27,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.craftercms.commons.lang.UrlUtils;
 import org.craftercms.commons.rest.Result;
+import org.craftercms.core.service.Content;
+import org.craftercms.core.store.impl.filesystem.FileSystemFile;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
@@ -48,8 +52,8 @@ import org.springframework.web.client.RestTemplate;
 import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_CONTENT;
 import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_ID;
 import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_IGNORE_ROOT_IN_FIELD_NAMES;
-import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_SITE;
 import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_INDEX_ID;
+import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_SITE;
 import static org.craftercms.search.rest.SearchRestApiConstants.URL_COMMIT;
 import static org.craftercms.search.rest.SearchRestApiConstants.URL_DELETE;
 import static org.craftercms.search.rest.SearchRestApiConstants.URL_ROOT;
@@ -207,38 +211,41 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
     }
 
     @Override
-    public void updateContent(String site, String id, InputStream content) throws SearchException {
+    public void updateContent(String site, String id, Content content) throws SearchException {
         updateContent(null, site, id, content, null);
     }
 
     @Override
-    public void updateContent(String indexId, String site, String id, InputStream content) throws SearchException {
+    public void updateContent(String indexId, String site, String id, Content content) throws SearchException {
         updateContent(indexId, site, id, content, null);
     }
 
     @Override
-    public void updateContent(String site, String id, InputStream content,
+    public void updateContent(String site, String id, Content content,
                               Map<String, List<String>> additionalFields) throws SearchException {
         updateContent(null, site, id, content, additionalFields);
     }
 
     @Override
-    public void updateContent(String indexId, String site, String id, InputStream content,
+    public void updateContent(String indexId, String site, String id, Content content,
                               Map<String, List<String>> additionalFields) throws SearchException {
-        updateContent(indexId, site, id, new InputStreamResource(content), additionalFields);
+        String filename = FilenameUtils.getName(id);
+        Resource resource = new ContentResource(content, filename);
+
+        updateContent(indexId, site, id, resource, additionalFields);
     }
 
     @SuppressWarnings("unchecked")
     protected void updateContent(String indexId, String site, String id, Resource resource,
                                  Map<String, List<String>> additionalFields) throws SearchException {
-        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 
         if (StringUtils.isNotEmpty(indexId)) {
-            form.set(PARAM_INDEX_ID, indexId);
+            parts.set(PARAM_INDEX_ID, indexId);
         }
-        form.set(PARAM_SITE, site);
-        form.set(PARAM_ID, id);
-        form.set(PARAM_CONTENT, resource);
+        parts.set(PARAM_SITE, site);
+        parts.set(PARAM_ID, id);
+        parts.set(PARAM_CONTENT, resource);
 
         if (MapUtils.isNotEmpty(additionalFields)) {
             for (Map.Entry<String, List<String>> additionalField : additionalFields.entrySet()) {
@@ -252,14 +259,14 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
                                                             PARAM_INDEX_ID, PARAM_SITE, PARAM_ID, PARAM_CONTENT));
                 }
 
-                form.put(fieldName, (List) additionalField.getValue());
+                parts.put(fieldName, (List) additionalField.getValue());
             }
         }
 
         String updateUrl = createBaseUrl(URL_UPDATE_CONTENT);
 
         try {
-            Result result = restTemplate.postForObject(new URI(updateUrl), form, Result.class);
+            Result result = restTemplate.postForObject(new URI(updateUrl), parts, Result.class);
 
             logger.debug("Result of {}: {}", updateUrl, result);
         } catch (URISyntaxException e) {
@@ -293,6 +300,48 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
             // Shouldn't happen, UTF-8 is a valid encoding
             throw new RuntimeException();
         }
+    }
+
+    protected static class ContentResource extends AbstractResource {
+
+        private Content content;
+        private String filename;
+
+        public ContentResource(Content content, String filename) {
+            this.content = content;
+            this.filename = filename;
+        }
+
+        @Override
+        public String getDescription() {
+            return content.toString();
+        }
+
+        @Override
+        public String getFilename() {
+            return filename;
+        }
+
+        @Override
+        public boolean exists() {
+            return true;
+        }
+
+        @Override
+        public long contentLength() throws IOException {
+            return content.getLength();
+        }
+
+        @Override
+        public long lastModified() throws IOException {
+            return content.getLastModified();
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return content.getInputStream();
+        }
+
     }
 
 }

@@ -18,7 +18,6 @@ package org.craftercms.search.service.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,9 +43,9 @@ import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.handler.extraction.ExtractingParams;
+import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.exception.SolrDocumentBuildException;
-import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.SolrDocumentBuilder;
 import org.slf4j.Logger;
@@ -370,25 +369,25 @@ public class SolrSearchService implements SearchService<SolrQuery> {
     }
 
     @Override
-    public void updateContent(String site, String id, InputStream content) throws SearchException {
-        throw new UnsupportedOperationException();
+    public void updateContent(String site, String id, Content content) throws SearchException {
+        throw new UnsupportedOperationException("Only use updateContent methods that receive a file");
     }
 
     @Override
-    public void updateContent(String indexId, String site, String id, InputStream content) throws SearchException {
-        throw new UnsupportedOperationException();
+    public void updateContent(String indexId, String site, String id, Content content) throws SearchException {
+        throw new UnsupportedOperationException("Only use updateContent methods that receive a file");
     }
 
     @Override
-    public void updateContent(String site, String id, InputStream content,
+    public void updateContent(String site, String id, Content content,
                               Map<String, List<String>> additionalFields) throws SearchException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Only use updateContent methods that receive a file");
     }
 
     @Override
-    public void updateContent(String indexId, String site, String id, InputStream content,
+    public void updateContent(String indexId, String site, String id, Content content,
                               Map<String, List<String>> additionalFields) throws SearchException {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Only use updateContent methods that receive a file");
     }
 
     public void commit() throws SearchException {
