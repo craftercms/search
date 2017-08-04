@@ -17,10 +17,10 @@
 package org.craftercms.search.service;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
 
 /**
@@ -152,7 +152,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      * @param content   the file content to update in the index
      * @throws SearchException
      */
-    void updateContent(String site, String id, InputStream content) throws SearchException;
+    void updateContent(String site, String id, Content content) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -163,7 +163,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      * @param content   the file content to update in the index
      * @throws SearchException
      */
-    void updateContent(String indexId, String site, String id, InputStream content) throws SearchException;
+    void updateContent(String indexId, String site, String id, Content content) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -175,7 +175,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      *                          document)
      * @throws SearchException
      */
-    void updateContent(String site, String id, InputStream content, Map<String, List<String>> additionalFields) throws SearchException;
+    void updateContent(String site, String id, Content content, Map<String, List<String>> additionalFields) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -188,7 +188,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T> {
      *                          document)
      * @throws SearchException
      */
-    void updateContent(String indexId, String site, String id, InputStream content,
+    void updateContent(String indexId, String site, String id, Content content,
                        Map<String, List<String>> additionalFields) throws SearchException;
 
     /**

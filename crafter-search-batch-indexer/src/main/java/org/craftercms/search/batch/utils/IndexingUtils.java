@@ -33,24 +33,20 @@ public class IndexingUtils {
 
     public static void doUpdateContent(SearchService searchService, String indexId, String siteName, String id, Content content,
                                        UpdateStatus updateStatus) throws IOException {
-        try (InputStream is = content.getInputStream()) {
-            searchService.updateContent(indexId, siteName, id, is);
+        searchService.updateContent(indexId, siteName, id, content);
 
-            logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
-            updateStatus.addSuccessfulUpdate(id);
-        }
+        updateStatus.addSuccessfulUpdate(id);
     }
 
     public static void doUpdateContent(SearchService searchService, String indexId, String siteName, String id, Content content,
                                        Map<String, List<String>> additionalFields, UpdateStatus updateStatus) throws IOException {
-        try (InputStream is = content.getInputStream()) {
-            searchService.updateContent(indexId, siteName, id, is, additionalFields);
+        searchService.updateContent(indexId, siteName, id, content, additionalFields);
 
-            logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
-            updateStatus.addSuccessfulUpdate(id);
-        }
+        updateStatus.addSuccessfulUpdate(id);
     }
 
     public static void doDelete(SearchService searchService, String indexId, String siteName, String id, UpdateStatus updateStatus) {

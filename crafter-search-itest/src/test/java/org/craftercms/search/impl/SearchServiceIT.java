@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.craftercms.core.store.impl.filesystem.FileSystemFile;
 import org.craftercms.search.service.AdminService;
 import org.craftercms.search.service.impl.RestClientAdminService;
 import org.craftercms.search.service.impl.SolrQuery;
@@ -145,7 +146,7 @@ public class SearchServiceIT {
         MultiValueMap<String, String> additionalFields = new LinkedMultiValueMap<>();
         additionalFields.put("tags.value_smv", WP_REASONS_PDF_TAGS);
 
-        searchService.updateContent(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file, additionalFields);
+        searchService.updateContent(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, new FileSystemFile(file), additionalFields);
         searchService.commit(PLUTON_INDEX_ID);
 
         query = searchService.createQuery();
