@@ -129,6 +129,8 @@
     <field name="crafterSite" type="string" indexed="true" stored="true" multiValued="false"/>
     <!-- The local ID field name, which is the ID of the document within the site -->
     <field name="localId" type="string" indexed="true" stored="true" multiValued="false"/>
+    <!-- Field to indicate the content type of the document -->
+    <field name="content-type" type="string" indexed="true" stored="true" multiValued="true"/>
     <!-- Used to store the content of indexed PDFs, HTMLs, etc. -->
     <field name="content" type="text_general" indexed="true" stored="true" multiValued="true"/>
     <!-- Field to indicate internal name of the content used in Studio -->
