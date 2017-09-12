@@ -29,7 +29,6 @@ import org.craftercms.commons.rest.Result;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
-import org.craftercms.search.service.impl.QueryParams;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -108,6 +107,7 @@ public class SearchRestController {
         return Result.OK;
     }
 
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = URL_UPDATE_CONTENT, method = RequestMethod.POST)
     public Result updateContent(@RequestParam(value = PARAM_INDEX_ID, required = false) String indexId,
                                 @RequestParam(PARAM_SITE) String site,
@@ -136,8 +136,8 @@ public class SearchRestController {
     protected MultiValueMap<String, String> getAdditionalMultiValueFields(HttpServletRequest request) {
         MultiValueMap<String, String> additionalFields = new LinkedMultiValueMap<>();
 
-        for (Enumeration i = request.getParameterNames(); i.hasMoreElements(); ) {
-            String paramName = (String)i.nextElement();
+        for (Enumeration<String> i = request.getParameterNames(); i.hasMoreElements(); ) {
+            String paramName = i.nextElement();
             if (!ArrayUtils.contains(NON_ADDITIONAL_FIELD_NAMES, paramName)) {
                 additionalFields.put(paramName, Arrays.asList(request.getParameterValues(paramName)));
             }

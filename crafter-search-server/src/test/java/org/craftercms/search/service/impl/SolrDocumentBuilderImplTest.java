@@ -16,6 +16,7 @@
  */
 package org.craftercms.search.service.impl;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -79,7 +80,8 @@ public class SolrDocumentBuilderImplTest {
 
     @Test
     public void testBuildForXml() throws Exception {
-        String xml = IOUtils.toString((new ClassPathResource("/docs/ipad.xml")).getInputStream());
+        Charset encoding = Charset.defaultCharset();
+        String xml = IOUtils.toString((new ClassPathResource("/docs/ipad.xml")).getInputStream(), encoding);
 
         SolrInputDocument doc = builder.build(SITE, IPAD_ID, xml, true);
 

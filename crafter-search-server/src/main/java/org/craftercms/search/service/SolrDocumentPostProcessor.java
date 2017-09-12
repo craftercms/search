@@ -21,7 +21,7 @@ import org.apache.solr.common.SolrInputDocument;
 /**
  * Used to modify or enhance a Solr document after it's built from XML.
  *
- * @author
+ * @author Alfonso Vásquez
  */
 public interface SolrDocumentPostProcessor {
 

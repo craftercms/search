@@ -40,6 +40,7 @@ public class IndexingUtils {
         updateStatus.addSuccessfulUpdate(id);
     }
 
+    @SuppressWarnings("unchecked")
     public static void doUpdateContent(SearchService searchService, String indexId, String siteName, String id, Content content,
                                        Map<String, List<String>> additionalFields, UpdateStatus updateStatus) throws IOException {
         searchService.updateContent(indexId, siteName, id, content, additionalFields);
