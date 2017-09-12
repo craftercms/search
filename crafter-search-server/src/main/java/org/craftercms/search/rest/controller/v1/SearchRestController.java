@@ -156,6 +156,7 @@ public class SearchRestController {
         return updateContent(indexId, site, id, file, request, false);
     }
 
+    @SuppressWarnings("unchecked")
     protected String updateContent(String indexId, String site, String id, MultipartFile file, HttpServletRequest request,
                                    boolean splitParams) {
         try {
