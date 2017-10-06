@@ -3,8 +3,8 @@
     <content-type>product</content-type>
     <name_s tokenized="true">iPad Air 64GB</name_s>
     <description_html>&lt;p&gt;Apple MH182LL/A iPad Air 9.7-Inch Retina Display 64GB, Wi-Fi (Gold)&lt;/p&gt;</description_html>
-    <availableDate_dt>2014-10-01T0:00:00Z</availableDate_dt>
-    <expired_dt>3000-01-01T00:00:00Z</expired_dt>
+    <availableDate_dt>2014-10-01T0:00:00.000Z</availableDate_dt>
+    <expired_dt>3000-01-01T00:00:00.000Z</expired_dt>
     <price_f>299.9</price_f>
     <tags>
         <value_s>Apple</value_s>
