@@ -164,7 +164,7 @@ public class SolrDocumentBuilderImplTest {
         MultiValueMap<String, String> fields = new LinkedMultiValueMap<>(3);
         fields.add("name", "Samsung Galaxy Tab 4");
         fields.add("description_html", "<p>Samsung Galaxy Tab 4 (7-Inch, White)</p>");
-        fields.add("availableDate_dt", "04/01/2014 11:00:00");
+        fields.add("availableDate_dt", "2014-04-01T11:00:00.000Z");
         fields.add("tags.value_smv", "Samsung");
         fields.add("tags.value_smv", "Galaxy");
         fields.add("tags.value_smv", "Tablet");
@@ -190,7 +190,7 @@ public class SolrDocumentBuilderImplTest {
         MultiValueMap<String, String> fields = new LinkedMultiValueMap<>(3);
         fields.add("name", "Samsung Galaxy Tab 4");
         fields.add("description_html", "<p>Samsung Galaxy Tab 4 (7-Inch, White)</p>");
-        fields.add("availableDate_dt", "04/01/2014 11:00:00");
+        fields.add("availableDate_dt", "2014-04-01T11:00:00.000Z");
         fields.add("tags.value_smv", "Samsung");
         fields.add("tags.value_smv", "Galaxy");
         fields.add("tags.value_smv", "Tablet");
@@ -219,7 +219,7 @@ public class SolrDocumentBuilderImplTest {
         HtmlStrippingConverter htmlConverter = new HtmlStrippingConverter();
 
         DateTimeConverter dateTimeConverter = new DateTimeConverter();
-        dateTimeConverter.setDateTimeFieldPattern("MM/dd/yyyy HH:mm:ss");
+        dateTimeConverter.setDateTimeFieldPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
         Map<String, FieldValueConverter> mappings = new HashMap<>(2);
         mappings.put("_html", htmlConverter);
