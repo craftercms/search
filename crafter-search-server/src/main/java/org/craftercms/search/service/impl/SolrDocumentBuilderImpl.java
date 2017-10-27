@@ -39,6 +39,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
+import org.xml.sax.SAXException;
 
 /**
  * Default implementation of {@link SolrDocumentBuilder}.
@@ -227,7 +228,13 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         SAXReader reader = new SAXReader();
         reader.setEncoding(CharEncoding.UTF_8);
         reader.setMergeAdjacentText(true);
-
+        try {
+            reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        }catch (SAXException ex){
+            logger.error("Unable to turn off external entity loading, This could be a security risk.", ex);
+        }
         return reader;
     }
 
