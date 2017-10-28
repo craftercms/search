@@ -17,6 +17,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.junit.Before;
 import org.springframework.core.io.ClassPathResource;
+import org.xml.sax.SAXException;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
@@ -108,10 +109,15 @@ public class BatchIndexerTestBase {
         return new FileSystemFile(new ClassPathResource("/docs").getFile());
     }
 
-    protected Item findItem(String path, Context context, ItemProcessor processor) throws DocumentException {
+    protected Item findItem(String path, Context context, ItemProcessor processor) throws DocumentException, SAXException {
         File file = new File(rootFolder.getFile(), path);
         if (file.exists()){
             SAXReader reader = new SAXReader();
+
+            reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+
             Document document = reader.read(file);
             Item item = new Item();
 
