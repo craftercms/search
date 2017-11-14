@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.ResourceHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -52,15 +58,15 @@ import static org.craftercms.search.service.SearchRestConstants.*;
  */
 public class RestClientSearchService implements SearchService {
 
-    public static final Charset DEFAULT_XML_ENCODING = Charset.forName("UTF-8");
+    public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
     protected String serverUrl;
     protected RestTemplate restTemplate;
-    protected Charset xmlEncoding;
+    protected Charset charset;
 
     public RestClientSearchService() {
-        restTemplate = new RestTemplate();
-        xmlEncoding = DEFAULT_XML_ENCODING;
+        charset = DEFAULT_CHARSET;
+        restTemplate = createRestTemplate();
     }
 
     public String getServerUrl() {
@@ -76,8 +82,8 @@ public class RestClientSearchService implements SearchService {
         this.restTemplate = restTemplate;
     }
 
-    public void setXmlEncoding(String xmlEncoding) {
-        this.xmlEncoding = Charset.forName(xmlEncoding);
+    public void setCharset(String charset) {
+        this.charset = Charset.forName(charset);
     }
 
     public Map<String, Object> search(Query query) throws SearchException {
@@ -116,7 +122,7 @@ public class RestClientSearchService implements SearchService {
 
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(new MediaType("text", "xml", xmlEncoding));
+            headers.setContentType(new MediaType("text", "xml", charset));
 
             return restTemplate.postForObject(new URI(updateUrl), new HttpEntity<>(xml, headers), String.class);
         } catch (URISyntaxException e) {
@@ -325,6 +331,27 @@ public class RestClientSearchService implements SearchService {
             // Shouldn't happen, UTF-8 is a valid encoding
             throw new RuntimeException();
         }
+    }
+
+    protected RestTemplate createRestTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Set charset of the String part converter of the FormHttpMessageConverter.
+        for (HttpMessageConverter<?> converter : restTemplate.getMessageConverters()) {
+            if (converter instanceof FormHttpMessageConverter) {
+                StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(charset);
+                stringHttpMessageConverter.setWriteAcceptCharset(false);
+
+                List<HttpMessageConverter<?>> partConverters = new ArrayList<>();
+                partConverters.add(new ByteArrayHttpMessageConverter());
+                partConverters.add(stringHttpMessageConverter);
+                partConverters.add(new ResourceHttpMessageConverter());
+
+                ((FormHttpMessageConverter) converter).setPartConverters(partConverters);
+            }
+        }
+
+        return restTemplate;
     }
 
 }
