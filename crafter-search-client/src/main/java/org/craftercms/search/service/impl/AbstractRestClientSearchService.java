@@ -23,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.craftercms.commons.lang.UrlUtils;
 import org.craftercms.commons.rest.Result;
 import org.craftercms.core.service.Content;
-import org.craftercms.core.store.impl.filesystem.FileSystemFile;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
@@ -44,6 +44,11 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.ResourceHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -70,15 +75,15 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractRestClientSearchService.class);
 
-    public static final Charset DEFAULT_XML_ENCODING = Charset.forName("UTF-8");
+    public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
     protected String serverUrl;
     protected RestTemplate restTemplate;
-    protected Charset xmlEncoding;
+    protected Charset charset;
 
     public AbstractRestClientSearchService() {
-        restTemplate = new RestTemplate();
-        xmlEncoding = DEFAULT_XML_ENCODING;
+        charset = DEFAULT_CHARSET;
+        restTemplate = createRestTemplate();
     }
 
     @Required
@@ -90,8 +95,8 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
         this.restTemplate = restTemplate;
     }
 
-    public void setXmlEncoding(String xmlEncoding) {
-        this.xmlEncoding = Charset.forName(xmlEncoding);
+    public void setCharset(String charset) {
+        this.charset = Charset.forName(charset);
     }
 
     public Map<String, Object> search(Query query) throws SearchException {
@@ -129,7 +134,7 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
         updateUrl = addParam(updateUrl, PARAM_IGNORE_ROOT_IN_FIELD_NAMES, ignoreRootInFieldNames);
 
         try {
-            MediaType contentType = new MediaType(MediaType.TEXT_XML, xmlEncoding);
+            MediaType contentType = new MediaType(MediaType.TEXT_XML, charset);
             RequestEntity request = RequestEntity.post(new URI(updateUrl)).contentType(contentType).body(xml);
             Result result = restTemplate.exchange(request, Result.class).getBody();
 
@@ -300,6 +305,27 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
             // Shouldn't happen, UTF-8 is a valid encoding
             throw new RuntimeException();
         }
+    }
+
+    protected RestTemplate createRestTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Set charset of the String part converter of the FormHttpMessageConverter.
+        for (HttpMessageConverter<?> converter : restTemplate.getMessageConverters()) {
+            if (converter instanceof FormHttpMessageConverter) {
+                StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(charset);
+                stringHttpMessageConverter.setWriteAcceptCharset(false);
+
+                List<HttpMessageConverter<?>> partConverters = new ArrayList<>();
+                partConverters.add(new ByteArrayHttpMessageConverter());
+                partConverters.add(stringHttpMessageConverter);
+                partConverters.add(new ResourceHttpMessageConverter());
+
+                ((FormHttpMessageConverter) converter).setPartConverters(partConverters);
+            }
+        }
+
+        return restTemplate;
     }
 
     protected static class ContentResource extends AbstractResource {
