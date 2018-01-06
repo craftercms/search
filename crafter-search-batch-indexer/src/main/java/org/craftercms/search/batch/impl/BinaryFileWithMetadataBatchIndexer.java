@@ -107,49 +107,55 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBatchIndexer {
                 logger.debug("Match for metadata file found @ " + getSiteBasedPath(siteName, path));
             }
 
-            Item metadataItem = contentStoreService.getItem(context, null, path, itemProcessor);
-            Document metadataDoc = metadataItem.getDescriptorDom();
+            Item metadataItem = contentStoreService.findItem(context, null, path, itemProcessor);
+            if (metadataItem != null) {
+                Document metadataDoc = metadataItem.getDescriptorDom();
 
-            if (metadataDoc != null) {
-                List<String> binaryPaths = getBinaryFilePaths(metadataDoc);
+                if (metadataDoc != null) {
+                    List<String> binaryPaths = getBinaryFilePaths(metadataDoc);
 
-                if (CollectionUtils.isNotEmpty(binaryPaths)) {
-                    if (!delete) {
-                        metadata = extractMetadata(metadataDoc);
+                    if (CollectionUtils.isNotEmpty(binaryPaths)) {
+                        if (!delete) {
+                            metadata = extractMetadata(metadataDoc);
 
-                        // Add extra metadata ID field
-                        metadata.set(metadataPathFieldName, path);
+                            // Add extra metadata ID field
+                            metadata.set(metadataPathFieldName, path);
 
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Extracted metadata: " + metadata);
-                        }
-                    }
-
-                    for (String binaryPath : binaryPaths) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Binary file found for metadata file " + getSiteBasedPath(siteName, path) + ": " +
-                                         getSiteBasedPath(siteName, binaryPath));
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("Extracted metadata: " + metadata);
+                            }
                         }
 
-                        if (delete) {
-                            doDelete(indexId, siteName, binaryPath, status);
-                        } else {
-                            binaryContent = contentStoreService.findContent(context, binaryPath);
-                            if (binaryContent == null) {
-                                if (logger.isDebugEnabled()) {
-                                    logger.debug("Binary file " + getSiteBasedPath(siteName, path) + " doesn't exist. Empty content " +
-                                                 "will be used for the update");
-                                }
-
-                                binaryContent = new EmptyContent();
+                        for (String binaryPath : binaryPaths) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("Binary file found for metadata file " + getSiteBasedPath(siteName, path) + ": " +
+                                             getSiteBasedPath(siteName, binaryPath));
                             }
 
-                            doUpdateContent(indexId, siteName, binaryPath, binaryContent, metadata, status);
+                            if (delete) {
+                                doDelete(indexId, siteName, binaryPath, status);
+                            } else {
+                                binaryContent = contentStoreService.findContent(context, binaryPath);
+                                if (binaryContent == null) {
+                                    if (logger.isDebugEnabled()) {
+                                        logger.debug("Binary file " + getSiteBasedPath(siteName, path) + " doesn't exist. Empty content " +
+                                                     "will be used for the update");
+                                    }
+
+                                    binaryContent = new EmptyContent();
+                                }
+
+                                doUpdateContent(indexId, siteName, binaryPath, binaryContent, metadata, status);
+                            }
                         }
                     }
+                } else {
+                    logger.error("File " + getSiteBasedPath(siteName, path) + " identified as metadata but is not an actual XML descriptor");
                 }
             } else {
-                logger.error("File " + getSiteBasedPath(siteName, path) + " identified as metadata but is not an actual XML descriptor");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Metadata file " + getSiteBasedPath(siteName, path) + " not found. Skipping...");
+                }
             }
         } else if (isBinaryFile(path)) {
             String binaryPath = path;
