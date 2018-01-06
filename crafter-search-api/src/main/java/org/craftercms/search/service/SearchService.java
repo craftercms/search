@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
 
 /**
@@ -198,7 +199,7 @@ public interface SearchService {
      * @return a success string
      * @throws SearchException
      */
-    String updateFile(String site, String id, InputStream content) throws SearchException;
+    String updateFile(String site, String id, Content content) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -211,7 +212,7 @@ public interface SearchService {
      * @return a success string
      * @throws SearchException
      */
-    String updateFile(String indexId, String site, String id, InputStream content) throws SearchException;
+    String updateFile(String indexId, String site, String id, Content content) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -225,7 +226,7 @@ public interface SearchService {
      * @return a success string
      * @throws SearchException
      */
-    String updateFile(String site, String id, InputStream content, Map<String, List<String>> additionalFields) throws SearchException;
+    String updateFile(String site, String id, Content content, Map<String, List<String>> additionalFields) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -240,7 +241,7 @@ public interface SearchService {
      * @return a success string
      * @throws SearchException
      */
-    String updateFile(String indexId, String site, String id, InputStream content,
+    String updateFile(String indexId, String site, String id, Content content,
                       Map<String, List<String>> additionalFields) throws SearchException;
 
     /**

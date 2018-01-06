@@ -16,6 +16,11 @@
             <version>${dom4j.version}</version>
             <!-- TODO: look into XOM 1.2.6 -->
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>crafter-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

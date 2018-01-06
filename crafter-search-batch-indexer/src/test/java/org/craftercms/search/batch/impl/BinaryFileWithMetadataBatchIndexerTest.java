@@ -1,10 +1,10 @@
 package org.craftercms.search.batch.impl;
 
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.craftercms.core.service.Content;
 import org.craftercms.search.batch.IndexingStatus;
 import org.craftercms.search.service.SearchService;
 import org.junit.Before;
@@ -50,7 +50,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
 
         assertEquals(1, status.getAttemptedUpdatesAndDeletes());
         assertEquals(BINARY_FILENAME, status.getSuccessfulUpdates().get(0));
-        verify(searchService).updateFile(eq(indexId), eq(SITE_NAME), eq(BINARY_FILENAME), any(InputStream.class), eq(getExpectedMetadata()));
+        verify(searchService).updateFile(eq(indexId), eq(SITE_NAME), eq(BINARY_FILENAME), any(Content.class), eq(getExpectedMetadata()));
 
         status = new IndexingStatus();
 
@@ -81,6 +81,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         metadata.add("fileName", "metadata.xml");
         metadata.add("attachmentText", "Crafter White Paper 7 Reasons");
         metadata.add("attachment", BINARY_FILENAME);
+        metadata.add("metadataPath", METADATA_FILENAME);
 
         return metadata;
     }

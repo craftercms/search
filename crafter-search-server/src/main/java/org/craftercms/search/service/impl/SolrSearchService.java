@@ -42,6 +42,7 @@ import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.handler.extraction.ExtractingParams;
+import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.exception.SolrDocumentBuildException;
 import org.craftercms.search.service.Query;
@@ -344,23 +345,23 @@ public class SolrSearchService implements SearchService {
     }
 
     @Override
-    public String updateFile(String site, String id, InputStream content) throws SearchException {
+    public String updateFile(String site, String id, Content content) throws SearchException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String updateFile(String indexId, String site, String id, InputStream content) throws SearchException {
+    public String updateFile(String indexId, String site, String id, Content content) throws SearchException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String updateFile(String site, String id, InputStream content,
+    public String updateFile(String site, String id, Content content,
                              Map<String, List<String>> additionalFields) throws SearchException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String updateFile(String indexId, String site, String id, InputStream content,
+    public String updateFile(String indexId, String site, String id, Content content,
                              Map<String, List<String>> additionalFields) throws SearchException {
         throw new UnsupportedOperationException();
     }
