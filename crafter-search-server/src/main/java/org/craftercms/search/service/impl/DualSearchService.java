@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
@@ -179,7 +180,7 @@ public class DualSearchService implements SearchService {
     }
 
     @Override
-    public String updateFile(String site, String id, InputStream content) throws SearchException {
+    public String updateFile(String site, String id, Content content) throws SearchException {
         if (writeService != null) {
             return writeService.updateFile(site, id, content);
         } else {
@@ -188,7 +189,7 @@ public class DualSearchService implements SearchService {
     }
 
     @Override
-    public String updateFile(String indexId, String site, String id, InputStream content) throws SearchException {
+    public String updateFile(String indexId, String site, String id, Content content) throws SearchException {
         if (writeService != null) {
             return writeService.updateFile(indexId, site, id, content);
         } else {
@@ -197,7 +198,7 @@ public class DualSearchService implements SearchService {
     }
 
     @Override
-    public String updateFile(String site, String id, InputStream content,
+    public String updateFile(String site, String id, Content content,
                              Map<String, List<String>> additionalFields) throws SearchException {
         if (writeService != null) {
             return writeService.updateFile(site, id, content, additionalFields);
@@ -207,7 +208,7 @@ public class DualSearchService implements SearchService {
     }
 
     @Override
-    public String updateFile(String indexId, String site, String id, InputStream content,
+    public String updateFile(String indexId, String site, String id, Content content,
                              Map<String, List<String>> additionalFields) throws SearchException {
         if (writeService != null) {
             return writeService.updateFile(indexId, site, id, content, additionalFields);

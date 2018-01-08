@@ -17,6 +17,7 @@
 package org.craftercms.search.service.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -27,12 +28,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.craftercms.commons.lang.UrlUtils;
+import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -246,25 +250,28 @@ public class RestClientSearchService implements SearchService {
     }
 
     @Override
-    public String updateFile(String site, String id, InputStream content) throws SearchException {
+    public String updateFile(String site, String id, Content content) throws SearchException {
         return updateFile(null, site, id, content, null);
     }
 
     @Override
-    public String updateFile(String indexId, String site, String id, InputStream content) throws SearchException {
+    public String updateFile(String indexId, String site, String id, Content content) throws SearchException {
         return updateFile(indexId, site, id, content, null);
     }
 
     @Override
-    public String updateFile(String site, String id, InputStream content,
+    public String updateFile(String site, String id, Content content,
                              Map<String, List<String>> additionalFields) throws SearchException {
         return updateFile(null, site, id, content, additionalFields);
     }
 
     @Override
-    public String updateFile(String indexId, String site, String id, InputStream content,
+    public String updateFile(String indexId, String site, String id, Content content,
                              Map<String, List<String>> additionalFields) throws SearchException {
-        return updateFile(indexId, site, id, new InputStreamResource(content), additionalFields);
+        String filename = FilenameUtils.getName(id);
+        Resource resource = new ContentResource(content, filename);
+
+        return updateFile(indexId, site, id, resource, additionalFields);
     }
 
     @SuppressWarnings("unchecked")
@@ -352,6 +359,48 @@ public class RestClientSearchService implements SearchService {
         }
 
         return restTemplate;
+    }
+
+    protected static class ContentResource extends AbstractResource {
+
+        private Content content;
+        private String filename;
+
+        public ContentResource(Content content, String filename) {
+            this.content = content;
+            this.filename = filename;
+        }
+
+        @Override
+        public String getDescription() {
+            return content.toString();
+        }
+
+        @Override
+        public String getFilename() {
+            return filename;
+        }
+
+        @Override
+        public boolean exists() {
+            return true;
+        }
+
+        @Override
+        public long contentLength() throws IOException {
+            return content.getLength();
+        }
+
+        @Override
+        public long lastModified() throws IOException {
+            return content.getLastModified();
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return content.getInputStream();
+        }
+
     }
 
 }

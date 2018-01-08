@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
+import org.craftercms.core.service.Content;
 import org.craftercms.search.batch.IndexingStatus;
 import org.craftercms.search.service.SearchService;
 import org.junit.Before;
@@ -46,7 +47,7 @@ public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
 
         assertEquals(1, status.getAttemptedUpdatesAndDeletes());
         assertEquals(SUPPORTED_FILENAME, status.getSuccessfulUpdates().get(0));
-        verify(searchService).updateFile(eq(indexId), eq(SITE_NAME), eq(SUPPORTED_FILENAME), any(InputStream.class));
+        verify(searchService).updateFile(eq(indexId), eq(SITE_NAME), eq(SUPPORTED_FILENAME), any(Content.class));
 
         status = new IndexingStatus();
 

@@ -94,28 +94,24 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
     }
 
     protected void doUpdateContent(String indexId, String siteName, String id, Content content, IndexingStatus status) throws IOException {
-        try (InputStream is = content.getInputStream()) {
-            searchService.updateFile(indexId, siteName, id, is);
+        searchService.updateFile(indexId, siteName, id, content);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
-            }
-
-            status.addSuccessfulUpdate(id);
+        if (logger.isDebugEnabled()) {
+            logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
         }
+
+        status.addSuccessfulUpdate(id);
     }
 
     protected void doUpdateContent(String indexId, String siteName, String id, Content content, Map<String, List<String>> additionalFields,
                                    IndexingStatus status) throws IOException {
-        try (InputStream is = content.getInputStream()) {
-            searchService.updateFile(indexId, siteName, id, is, additionalFields);
+        searchService.updateFile(indexId, siteName, id, content, additionalFields);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
-            }
-
-            status.addSuccessfulUpdate(id);
+        if (logger.isDebugEnabled()) {
+            logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
         }
+
+        status.addSuccessfulUpdate(id);
     }
 
     protected void doDelete(String indexId, String siteName, String id, IndexingStatus status) {
