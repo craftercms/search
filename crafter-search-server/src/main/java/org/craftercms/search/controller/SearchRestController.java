@@ -29,6 +29,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.service.Query;
+import org.craftercms.search.service.QueryFactory;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.QueryParams;
 import org.slf4j.Logger;
@@ -77,17 +79,31 @@ public class SearchRestController {
         {REQUEST_PARAM_INDEX_ID, REQUEST_PARAM_SITE, REQUEST_PARAM_ID, REQUEST_PARAM_DOCUMENT};
 
     private SearchService searchService;
+    private QueryFactory<Query> queryFactory;
 
     @Required
+    @SuppressWarnings("unchecked")
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
+
+        if (searchService instanceof QueryFactory) {
+            this.queryFactory = (QueryFactory<Query>)searchService;
+        }
+    }
+
+    public void setQueryFactory(QueryFactory<Query> queryFactory) {
+        this.queryFactory = queryFactory;
     }
 
     @RequestMapping(value = URL_SEARCH, method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> search(@RequestParam(value = REQUEST_PARAM_INDEX_ID, required = false) String indexId,
                                       HttpServletRequest request) throws SearchException {
-        return searchService.search(indexId, new QueryParams(request.getParameterMap()));
+        if (queryFactory == null) {
+            throw new IllegalStateException("No QueryFactory provided");
+        }
+
+        return searchService.search(indexId, queryFactory.createQuery(request.getParameterMap()));
     }
 
     @RequestMapping(value = URL_UPDATE, method = RequestMethod.POST)
