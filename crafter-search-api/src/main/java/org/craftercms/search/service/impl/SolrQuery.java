@@ -16,10 +16,13 @@
  */
 package org.craftercms.search.service.impl;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.craftercms.search.service.Query;
 
 /**
  * Search query for Solr.
@@ -46,15 +49,54 @@ public class SolrQuery extends QueryParams {
         super(queryParams.getParams());
     }
 
+    public SolrQuery(Map<String, String[]> params) {
+        super(params);
+    }
+
+    @Override
+    public Query setOffset(int offset) {
+        return setStart(offset);
+    }
+
+    @Override
+    public int getOffset() {
+        return getStart();
+    }
+
+    @Override
+    public Query setNumResults(int numResults) {
+        return setRows(numResults);
+    }
+
+    @Override
+    public int getNumResults() {
+        return getRows();
+    }
+
+    @Override
+    public SolrQuery setFieldsToReturn(String... fields) {
+        addParam(FIELDS_TO_RETURN, fields);
+
+        return this;
+    }
+
+    @Override
     public String[] getFieldsToReturn() {
         return getParam(FIELDS_TO_RETURN);
     }
 
-    public SolrQuery setFieldsToReturn(String... fields) {
-        addParam(FIELDS_TO_RETURN, StringUtils.join(fields, MULTIVALUE_SEPARATOR));
+    @Override
+    public String getQuery() {
+        return getSingleValue(QUERY_PARAM);
+    }
+
+    @Override
+    public SolrQuery setQuery(String query) {
+        addParam(QUERY_PARAM, query);
 
         return this;
     }
+
 
     public boolean isHighlight() {
         return BooleanUtils.toBoolean(getSingleValue(HIGHLIGHT_PARAM));
@@ -104,16 +146,6 @@ public class SolrQuery extends QueryParams {
         }
 
         addParam(HIGHLIGHT_SNIPPET_SIZE_PARAM, Integer.toString(size));
-
-        return this;
-    }
-
-    public String getQuery() {
-        return getSingleValue(QUERY_PARAM);
-    }
-
-    public SolrQuery setQuery(String query) {
-        addParam(QUERY_PARAM, query);
 
         return this;
     }

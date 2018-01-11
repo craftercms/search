@@ -26,6 +26,8 @@ import org.craftercms.core.service.Context;
 import org.craftercms.search.batch.IndexingStatus;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
+import static org.craftercms.search.batch.utils.IndexingUtils.*;
+
 /**
  * {@link org.craftercms.search.batch.BatchIndexer} that updates/deletes binary or structured document files (PDF,
  * Word, etc.) from a search index, only if their mime types match the supported mime types or if the supported mime
@@ -62,10 +64,10 @@ public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
 
         if (doUpdate) {
             if (delete) {
-                doDelete(indexId, siteName, path, status);
+                doDelete(searchService, indexId, siteName, path, status);
             } else {
                 Content binaryContent = contentStoreService.getContent(context, path);
-                doUpdateContent(indexId, siteName, path, binaryContent, status);
+                doUpdateContent(searchService, indexId, siteName, path, binaryContent, status);
             }
         }
     }

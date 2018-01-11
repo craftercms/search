@@ -17,12 +17,55 @@
 package org.craftercms.search.service;
 
 /**
- * Marker interface for any search query that is passed to {@link SearchService#search(Query)}.
+ * Base query that is passed to {@link SearchService#search(Query)}.
  *
  * @author Alfonso Vásquez
  */
 public interface Query {
 
+    /**
+     * Sets the offset of the results.
+     */
+    Query setOffset(int offset);
+
+    /**
+     * Returns the offset of the results.
+     */
+    int getOffset();
+
+    /**
+     * Sets the number of results to return.
+     */
+    Query setNumResults(int numResults);
+
+    /**
+     * Returns the number of results to return.
+     */
+    int getNumResults();
+
+    /**
+     * Sets the fields that should be returned.
+     */
+    Query setFieldsToReturn(String... fieldsToReturn);
+
+    /**
+     * Returns the fields that should be returned.
+     */
+    String[] getFieldsToReturn();
+
+    /**
+     * Sets the actual query.
+     */
+    Query setQuery(String query);
+
+    /**
+     * Returns the actual query.
+     */
+    String getQuery();
+
+    /**
+     * Converts this query to an URL query string.
+     */
     String toQueryString();
 
 }

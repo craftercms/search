@@ -16,6 +16,8 @@
  */
 package org.craftercms.search.service.impl;
 
+import java.util.Map;
+
 import org.craftercms.search.service.QueryFactory;
 
 /**
@@ -27,6 +29,11 @@ public class SolrRestClientSearchService extends RestClientSearchService impleme
 
     public SolrQuery createQuery() {
         return new SolrQuery();
+    }
+
+    @Override
+    public SolrQuery createQuery(Map<String, String[]> params) {
+        return new SolrQuery(params);
     }
 
 }

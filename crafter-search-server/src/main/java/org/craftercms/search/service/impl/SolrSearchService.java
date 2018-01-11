@@ -46,6 +46,7 @@ import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.exception.SolrDocumentBuildException;
 import org.craftercms.search.service.Query;
+import org.craftercms.search.service.QueryFactory;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.SolrDocumentBuilder;
 import org.craftercms.search.utils.SolrServerFactory;
@@ -65,7 +66,7 @@ import static org.craftercms.search.service.SearchRestConstants.SOLR_CONTENT_STR
  * @author Alfonso Vasquez
  * @author Dejan Brkic
  */
-public class SolrSearchService implements SearchService {
+public class SolrSearchService implements SearchService, QueryFactory<SolrQuery> {
 
     public static final String DEFAULT_FILE_NAME_FIELD_NAME = "file-name";
 
@@ -157,6 +158,16 @@ public class SolrSearchService implements SearchService {
      */
     public void setAdditionalFilterQueries(String[] additionalFilterQueries) {
         this.additionalFilterQueries = additionalFilterQueries;
+    }
+
+    @Override
+    public SolrQuery createQuery() {
+        return new SolrQuery();
+    }
+
+    @Override
+    public SolrQuery createQuery(Map<String, String[]> params) {
+        return new SolrQuery(params);
     }
 
     /**

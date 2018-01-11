@@ -19,6 +19,8 @@ import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
+import static org.craftercms.search.batch.utils.IndexingUtils.*;
+
 /**
  * {@link org.craftercms.search.batch.BatchIndexer} that updates/deletes XML files from a search index.
  *
@@ -48,9 +50,9 @@ public class XmlFileBatchIndexer extends AbstractBatchIndexer {
     protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
                                       String path, boolean delete, IndexingStatus status) throws Exception {
         if (delete) {
-            doDelete(indexId, siteName, path, status);
+            doDelete(searchService, indexId, siteName, path, status);
         } else {
-            doUpdate(indexId, siteName, path, processXml(siteName, contentStoreService, context, path), status);
+            doUpdate(searchService, indexId, siteName, path, processXml(siteName, contentStoreService, context, path), status);
         }
     }
 
