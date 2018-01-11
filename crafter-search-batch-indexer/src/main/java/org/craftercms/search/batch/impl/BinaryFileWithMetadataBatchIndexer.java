@@ -37,7 +37,11 @@ import org.springframework.util.MultiValueMap;
 import static org.craftercms.search.batch.utils.IndexingUtils.*;
 
 /**
- * Created by alfonso on 6/22/17.
+ * {@link org.craftercms.search.batch.BatchIndexer} that tries to match binary files with metadata files. Right now, a metadata file
+ * can reference several binary files. Also, this indexer supports the concept of "child" binaries, where the parent is the metadata
+ * file and the binary file only exists in the index as long as the metadata file exists and it references the binary.
+ *
+ * @author avasquez
  */
 public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
 
