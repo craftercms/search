@@ -71,6 +71,8 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
     protected List<String> binaryPathPatterns;
     protected List<String> childBinaryPathPatterns;
     protected List<String> referenceXPaths;
+    protected List<String> includeMetadataPropertyPatterns;
+    protected List<String> excludeMetadataPropertyPatterns;
     protected List<String> excludeMetadataProperties;
     protected String metadataPathFieldName;
     protected String localIdFieldName;
@@ -106,6 +108,15 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
         this.referenceXPaths = referenceXPaths;
     }
 
+    public void setIncludeMetadataPropertyPatterns(List<String> includeMetadataPropertyPatterns) {
+        this.includeMetadataPropertyPatterns = includeMetadataPropertyPatterns;
+    }
+
+    public void setExcludeMetadataPropertyPatterns(List<String> excludeMetadataPropertyPatterns) {
+        this.excludeMetadataPropertyPatterns = excludeMetadataPropertyPatterns;
+    }
+
+    @Deprecated
     public void setExcludeMetadataProperties(List<String> excludeMetadataProperties) {
         this.excludeMetadataProperties = excludeMetadataProperties;
     }
@@ -356,7 +367,7 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
 
             doUpdateContent(searchService, indexId, siteName, binaryPath, binaryContent, metadata, status);
         } catch (Exception e) {
-            logger.error("Error when trying to send index update with metadata for binary file " + getSiteBasedPath(siteName, binaryPath));
+            logger.error("Error when trying to send index update with metadata for binary file " + getSiteBasedPath(siteName, binaryPath), e);
         }
     }
 
@@ -372,7 +383,7 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
                 }
             }
         } catch (Exception e) {
-            logger.error("Error when trying to send index update for binary file " + getSiteBasedPath(siteName, binaryPath));
+            logger.error("Error when trying to send index update for binary file " + getSiteBasedPath(siteName, binaryPath), e);
         }
     }
 
@@ -406,8 +417,7 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
 
                 childKey.append(node.getName());
 
-                if (CollectionUtils.isNotEmpty(excludeMetadataProperties) &&
-                    !excludeMetadataProperties.contains(childKey.toString())) {
+                if (shouldIncludeProperty(childKey.toString())) {
                     extractMetadataFromChildren((Element)node, childKey.toString(), metadata);
                 }
             } else {
@@ -421,6 +431,12 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
                 }
             }
         }
+    }
+
+    protected boolean shouldIncludeProperty(String name) {
+        return (CollectionUtils.isEmpty(includeMetadataPropertyPatterns) || RegexUtils.matchesAny(name, includeMetadataPropertyPatterns)) &&
+               (CollectionUtils.isEmpty(excludeMetadataPropertyPatterns) || !RegexUtils.matchesAny(name, excludeMetadataPropertyPatterns)) &&
+               (CollectionUtils.isEmpty(excludeMetadataProperties) || !excludeMetadataProperties.contains(name));
     }
 
     public static class EmptyContent implements Content {

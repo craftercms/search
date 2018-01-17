@@ -4,7 +4,9 @@
         <company>Crafter Software</company>
         <text>All rights reserved</text>
         <year>2017</year>
+        <placeholderText>Test</placeholderText>
     </copyright>
+    <date_dt>2018-01-17T05:00:00.000Z</date_dt>
     <files>
         <file>crafter-wp-7-reasons.pdf</file>
     </files>
