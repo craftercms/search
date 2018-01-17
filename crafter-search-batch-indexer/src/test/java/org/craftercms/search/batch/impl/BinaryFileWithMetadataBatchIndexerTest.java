@@ -171,7 +171,8 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         batchIndexer.setMetadataPathPatterns(Collections.singletonList(".*metadata.*\\.xml$"));
         batchIndexer.setBinaryPathPatterns(Arrays.asList(".*\\.pdf$", ".*\\.txt$"));
         batchIndexer.setChildBinaryPathPatterns(Collections.singletonList(".*\\.pdf$"));
-        batchIndexer.setExcludeMetadataProperties(Collections.singletonList("files"));
+        batchIndexer.setIncludeMetadataPropertyPatterns(Collections.singletonList("copyright.*"));
+        batchIndexer.setExcludeMetadataPropertyPatterns(Collections.singletonList("copyright\\.placeholderText"));
         batchIndexer.setReferenceXPaths(Collections.singletonList("//file"));
         batchIndexer.setSearchService(searchService);
         batchIndexer.setQueryFactory(queryFactory);
