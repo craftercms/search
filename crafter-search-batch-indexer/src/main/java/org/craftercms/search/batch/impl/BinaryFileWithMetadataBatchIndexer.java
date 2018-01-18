@@ -71,8 +71,9 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
     protected List<String> binaryPathPatterns;
     protected List<String> childBinaryPathPatterns;
     protected List<String> referenceXPaths;
-    protected List<String> includeMetadataPropertyPatterns;
-    protected List<String> excludeMetadataPropertyPatterns;
+    protected List<String> includePropertyPatterns;
+    protected List<String> excludePropertyPatterns;
+    @Deprecated
     protected List<String> excludeMetadataProperties;
     protected String metadataPathFieldName;
     protected String localIdFieldName;
@@ -108,12 +109,12 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
         this.referenceXPaths = referenceXPaths;
     }
 
-    public void setIncludeMetadataPropertyPatterns(List<String> includeMetadataPropertyPatterns) {
-        this.includeMetadataPropertyPatterns = includeMetadataPropertyPatterns;
+    public void setIncludePropertyPatterns(List<String> includePropertyPatterns) {
+        this.includePropertyPatterns = includePropertyPatterns;
     }
 
-    public void setExcludeMetadataPropertyPatterns(List<String> excludeMetadataPropertyPatterns) {
-        this.excludeMetadataPropertyPatterns = excludeMetadataPropertyPatterns;
+    public void setExcludePropertyPatterns(List<String> excludePropertyPatterns) {
+        this.excludePropertyPatterns = excludePropertyPatterns;
     }
 
     @Deprecated
@@ -417,12 +418,12 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
 
                 childKey.append(node.getName());
 
-                if (shouldIncludeProperty(childKey.toString())) {
+                if (CollectionUtils.isEmpty(excludeMetadataProperties) || !excludeMetadataProperties.contains(childKey.toString())) {
                     extractMetadataFromChildren((Element)node, childKey.toString(), metadata);
                 }
             } else {
                 String value = node.getText();
-                if (StringUtils.isNotBlank(value)) {
+                if (StringUtils.isNotBlank(value) && shouldIncludeProperty(key)) {
                     if (logger.isDebugEnabled()) {
                         logger.debug(String.format("Adding value [%s] for property [%s]", value, key));
                     }
@@ -434,9 +435,8 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
     }
 
     protected boolean shouldIncludeProperty(String name) {
-        return (CollectionUtils.isEmpty(includeMetadataPropertyPatterns) || RegexUtils.matchesAny(name, includeMetadataPropertyPatterns)) &&
-               (CollectionUtils.isEmpty(excludeMetadataPropertyPatterns) || !RegexUtils.matchesAny(name, excludeMetadataPropertyPatterns)) &&
-               (CollectionUtils.isEmpty(excludeMetadataProperties) || !excludeMetadataProperties.contains(name));
+        return (CollectionUtils.isEmpty(includePropertyPatterns) || RegexUtils.matchesAny(name, includePropertyPatterns)) &&
+               (CollectionUtils.isEmpty(excludePropertyPatterns) || !RegexUtils.matchesAny(name, excludePropertyPatterns));
     }
 
     public static class EmptyContent implements Content {
