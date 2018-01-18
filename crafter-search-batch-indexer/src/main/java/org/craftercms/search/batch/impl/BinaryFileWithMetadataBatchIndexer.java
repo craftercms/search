@@ -55,7 +55,9 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
     protected List<String> binaryPathPatterns;
     protected List<String> childBinaryPathPatterns;
     protected List<String> referenceXPaths;
-    protected List<String> excludeMetadataProperties;
+    protected List<String> includePropertyPatterns;
+    protected List<String> excludePropertyPatterns;
+    @Deprecated protected List<String> excludeMetadataProperties;
     protected String metadataPathFieldName;
     protected String localIdFieldName;
 
@@ -88,6 +90,15 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
         this.referenceXPaths = referenceXPaths;
     }
 
+    public void setIncludePropertyPatterns(List<String> includePropertyPatterns) {
+        this.includePropertyPatterns = includePropertyPatterns;
+    }
+
+    public void setExcludePropertyPatterns(List<String> excludePropertyPatterns) {
+        this.excludePropertyPatterns = excludePropertyPatterns;
+    }
+
+    @Deprecated
     public void setExcludeMetadataProperties(List<String> excludeMetadataProperties) {
         this.excludeMetadataProperties = excludeMetadataProperties;
     }
@@ -370,13 +381,12 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
 
                 childKey.append(node.getName());
 
-                if (CollectionUtils.isNotEmpty(excludeMetadataProperties) &&
-                    !excludeMetadataProperties.contains(childKey.toString())) {
+                if (CollectionUtils.isEmpty(excludeMetadataProperties) || !excludeMetadataProperties.contains(childKey.toString())) {
                     extractMetadataFromChildren((Element)node, childKey.toString(), metadata);
                 }
             } else {
                 String value = node.getText();
-                if (StringUtils.isNotBlank(value)) {
+                if (StringUtils.isNotBlank(value) && shouldIncludeProperty(key)) {
                     if (logger.isDebugEnabled()) {
                         logger.debug(String.format("Adding value [%s] for property [%s]", value, key));
                     }
@@ -385,6 +395,11 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
                 }
             }
         }
+    }
+
+    protected boolean shouldIncludeProperty(String name) {
+        return (CollectionUtils.isEmpty(includePropertyPatterns) || RegexUtils.matchesAny(name, includePropertyPatterns)) &&
+               (CollectionUtils.isEmpty(excludePropertyPatterns) || !RegexUtils.matchesAny(name, excludePropertyPatterns));
     }
 
     public static class EmptyContent implements Content {
