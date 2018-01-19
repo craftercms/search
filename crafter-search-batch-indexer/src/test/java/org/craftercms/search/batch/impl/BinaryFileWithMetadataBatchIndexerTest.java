@@ -17,6 +17,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -33,11 +34,11 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
 
     private static final String SITE_NAME = "test";
     private static final String INDEX_ID = SITE_NAME;
-    private static final String METADATA_XML_FILENAME1 = "crafter-wp-7-reasons-metadata.xml";
-    private static final String METADATA_XML_FILENAME2 = "crafter-wp-wem-v2-metadata.xml";
-    private static final String NON_METADATA_XML_FILENAME = "test.xml";
+    private static final String METADATA_XML_FILENAME = "metadata.xml";
+    private static final String METADATA_WITH_REMOVED_BINARIES_XML_FILENAME = "metadata-with-removed-binaries.xml";
     private static final String BINARY_FILENAME1 = "crafter-wp-7-reasons.pdf";
     private static final String BINARY_FILENAME2 = "crafter-wp-wem-v2.pdf";
+    private static final String BINARY_FILENAME3 = "notes.txt";
 
     private BinaryFileWithMetadataBatchIndexer batchIndexer;
 
@@ -49,94 +50,86 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
     }
 
     @Test
-    public void testUpdateOfBinaryAndMetadata() {
-        UpdateSet updateSet = new UpdateSet(Arrays.asList(METADATA_XML_FILENAME1, BINARY_FILENAME1), Collections.emptyList());
+    public void testUpdateMetadata() {
+        UpdateSet updateSet = new UpdateSet(Collections.singletonList(METADATA_XML_FILENAME), Collections.emptyList());
         UpdateStatus updateStatus = new UpdateStatus();
 
         batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
-        assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
-        assertEquals(BINARY_FILENAME1, updateStatus.getSuccessfulUpdates().get(0));
+        assertEquals(3, updateStatus.getAttemptedUpdatesAndDeletes());
+        assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME1));
+        assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME2));
+        assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME3));
         verify(searchService).updateContent(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadata1()));
+            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadata()));
+        verify(searchService).updateContent(
+            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME2), any(Content.class), eq(getExpectedMetadata()));
+        verify(searchService).updateContent(
+            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME3), any(Content.class), eq(getExpectedMetadata()));
     }
 
     @Test
-    public void testUpdateOfBinaryAndNoMetadata() {
+    public void testUpdateMetadataWithRemovedBinaries() {
+        setupBinariesSearchResults();
+
+        UpdateSet updateSet = new UpdateSet(Collections.singletonList(METADATA_WITH_REMOVED_BINARIES_XML_FILENAME), Collections.emptyList());
+        UpdateStatus updateStatus = new UpdateStatus();
+
+        batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
+
+        assertEquals(3, updateStatus.getAttemptedUpdatesAndDeletes());
+        assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME1));
+        assertTrue(updateStatus.getSuccessfulDeletes().contains(BINARY_FILENAME2));
+        assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME3));
+        verify(searchService).updateContent(
+            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadataWithRemovedBinaries()));
+        verify(searchService).delete(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME2));
+        verify(searchService).updateContent(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME3), any(Content.class));
+    }
+
+    @Test
+    public void testUpdateBinary() throws Exception {
+        setupMetadataSearchResult();
+
         UpdateSet updateSet = new UpdateSet(Collections.singletonList(BINARY_FILENAME1), Collections.emptyList());
         UpdateStatus updateStatus = new UpdateStatus();
 
         batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
         assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
-        assertEquals(BINARY_FILENAME1, updateStatus.getSuccessfulUpdates().get(0));
-        verify(searchService).updateContent(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class));
-    }
-
-    @Test
-    public void testUpdateOfMetadataAndNoBinary() {
-        UpdateSet updateSet = new UpdateSet(Collections.singletonList(METADATA_XML_FILENAME1), Collections.emptyList());
-        UpdateStatus updateStatus = new UpdateStatus();
-
-        batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
-
-        assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
-        assertEquals(BINARY_FILENAME1, updateStatus.getSuccessfulUpdates().get(0));
+        assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME1));
         verify(searchService).updateContent(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadata1()));
+            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadata()));
     }
 
     @Test
-    public void testUpdateOfBinaryExistingBinaryInIndex() {
-        setupBinary2SearchResult();
-
-        UpdateSet updateSet = new UpdateSet(Collections.singletonList(BINARY_FILENAME2), Collections.emptyList());
-        UpdateStatus updateStatus = new UpdateStatus();
-
-        batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
-
-        assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
-        assertEquals(BINARY_FILENAME2, updateStatus.getSuccessfulUpdates().get(0));
-        verify(searchService).updateContent(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME2), any(Content.class), eq(getExpectedMetadata2()));
-    }
-
-    @Test
-    public void testUpdateNonMetadataXml() {
-        setupBinary2SearchResult();
-
-        UpdateSet updateSet = new UpdateSet(Collections.singletonList(NON_METADATA_XML_FILENAME), Collections.emptyList());
-        UpdateStatus updateStatus = new UpdateStatus();
-
-        batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
-
-        assertEquals(0, updateStatus.getAttemptedUpdatesAndDeletes());
-    }
-
-    @Test
-    @SuppressWarnings("Duplicates")
-    public void testDeleteBinary() {
+    public void testDeleteBinary() throws Exception {
         UpdateSet updateSet = new UpdateSet(Collections.emptyList(), Collections.singletonList(BINARY_FILENAME1));
         UpdateStatus updateStatus = new UpdateStatus();
 
         batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
         assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
-        assertEquals(BINARY_FILENAME1, updateStatus.getSuccessfulDeletes().get(0));
-        verify(searchService).delete(INDEX_ID, SITE_NAME, BINARY_FILENAME1);
+        assertTrue(updateStatus.getSuccessfulDeletes().contains(BINARY_FILENAME1));
+        verify(searchService).delete(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1));
     }
 
     @Test
-    @SuppressWarnings("Duplicates")
-    public void testDeleteBinaryFromMetadata() {
-        UpdateSet updateSet = new UpdateSet(Collections.emptyList(), Collections.singletonList(METADATA_XML_FILENAME1));
+    public void testDeleteMetadata() throws Exception {
+        setupBinariesSearchResults();
+
+        UpdateSet updateSet = new UpdateSet(Collections.emptyList(), Collections.singletonList(METADATA_XML_FILENAME));
         UpdateStatus updateStatus = new UpdateStatus();
 
         batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
-        assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
-        assertEquals(BINARY_FILENAME1, updateStatus.getSuccessfulDeletes().get(0));
-        verify(searchService).delete(INDEX_ID, SITE_NAME, BINARY_FILENAME1);
+        assertEquals(3, updateStatus.getAttemptedUpdatesAndDeletes());
+        assertTrue(updateStatus.getSuccessfulDeletes().contains(BINARY_FILENAME1));
+        assertTrue(updateStatus.getSuccessfulDeletes().contains(BINARY_FILENAME2));
+        assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME3));
+        verify(searchService).delete(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1));
+        verify(searchService).delete(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME2));
+        verify(searchService).updateContent(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME3), any(Content.class));
     }
 
     @SuppressWarnings("unchecked")
@@ -148,9 +141,22 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
     }
 
     @SuppressWarnings("unchecked")
-    protected void setupBinary2SearchResult() {
-        Map<String, String> document = getExpectedMetadata2().toSingleValueMap();
-        List<Object> documents = Collections.singletonList(document);
+    protected void setupBinariesSearchResults() {
+        Map<String, String> binary1Doc = Collections.singletonMap("localId", BINARY_FILENAME1);
+        Map<String, String> binary2Doc = Collections.singletonMap("localId", BINARY_FILENAME2);
+        Map<String, String> binary3Doc = Collections.singletonMap("localId", BINARY_FILENAME3);
+
+        List<Object> documents = Arrays.asList(binary1Doc, binary2Doc, binary3Doc);
+        Map<String, Object> response = Collections.singletonMap(SearchResultUtils.DOCUMENTS_KEY, documents);
+        Map<String, Object> result = Collections.singletonMap(SearchResultUtils.RESPONSE_KEY, response);
+
+        when(searchService.search(anyString(), any(Query.class))).thenReturn(result);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void setupMetadataSearchResult() {
+        Map<String, String> doc = getExpectedMetadata().toSingleValueMap();
+        List<Object> documents = Collections.singletonList(doc);
         Map<String, Object> response = Collections.singletonMap(SearchResultUtils.DOCUMENTS_KEY, documents);
         Map<String, Object> result = Collections.singletonMap(SearchResultUtils.RESPONSE_KEY, response);
 
@@ -160,29 +166,28 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
     protected BinaryFileWithMetadataBatchIndexer getBatchIndexer() throws Exception {
         BinaryFileWithMetadataBatchIndexer batchIndexer = new BinaryFileWithMetadataBatchIndexer();
         batchIndexer.setMetadataPathPatterns(Collections.singletonList(".*metadata.*\\.xml$"));
-        batchIndexer.setBinaryPathPatterns(Collections.singletonList(".*\\.pdf$"));
-        batchIndexer.setExcludeMetadataProperties(Collections.singletonList("objectId"));
-        batchIndexer.setReferenceXPaths(Collections.singletonList("//attachment"));
+        batchIndexer.setBinaryPathPatterns(Arrays.asList(".*\\.pdf$", ".*\\.txt$"));
+        batchIndexer.setChildBinaryPathPatterns(Collections.singletonList(".*\\.pdf$"));
+        batchIndexer.setIncludePropertyPatterns(Collections.singletonList("copyright.*"));
+        batchIndexer.setExcludePropertyPatterns(Collections.singletonList("copyright\\.ignore"));
+        batchIndexer.setReferenceXPaths(Collections.singletonList("//file"));
 
         return batchIndexer;
     }
 
-    protected MultiValueMap<String, String> getExpectedMetadata1() {
+    protected MultiValueMap<String, String> getExpectedMetadata() {
         MultiValueMap<String, String> metadata = new LinkedMultiValueMap<>();
-        metadata.add("fileName", METADATA_XML_FILENAME1);
-        metadata.add("attachmentText", "Crafter White Paper 7 Reasons");
-        metadata.add("attachment", BINARY_FILENAME1);
-        metadata.add("metadataPath", METADATA_XML_FILENAME1);
+        metadata.set("copyright.company", "Crafter Software");
+        metadata.set("copyright.text", "All rights reserved");
+        metadata.set("copyright.year", "2017");
+        metadata.set("metadataPath", METADATA_XML_FILENAME);
 
         return metadata;
     }
 
-    protected MultiValueMap<String, String> getExpectedMetadata2() {
-        MultiValueMap<String, String> metadata = new LinkedMultiValueMap<>();
-        metadata.add("fileName", METADATA_XML_FILENAME2);
-        metadata.add("attachmentText", "Building and Optimizing Multi-Channel Web Experiences");
-        metadata.add("attachment", BINARY_FILENAME2);
-        metadata.add("metadataPath", METADATA_XML_FILENAME2);
+    protected MultiValueMap<String, String> getExpectedMetadataWithRemovedBinaries() {
+        MultiValueMap<String, String> metadata = getExpectedMetadata();
+        metadata.set("metadataPath", METADATA_WITH_REMOVED_BINARIES_XML_FILENAME);
 
         return metadata;
     }
