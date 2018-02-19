@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.rest;
+package org.craftercms.search.rest.v2;
 
 /**
  * Created by alfonsovasquez on 2/6/17.

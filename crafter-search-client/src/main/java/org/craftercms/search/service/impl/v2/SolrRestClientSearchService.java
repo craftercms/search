@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2013 Crafter Software Corporation.
+ * Copyright (C) 2007-2018 Crafter Software Corporation. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,66 +14,49 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.service.impl;
+package org.craftercms.search.service.impl.v2;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.craftercms.commons.lang.UrlUtils;
 import org.craftercms.commons.rest.Result;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
-import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
+import org.craftercms.search.service.impl.SolrQuery;
+import org.craftercms.search.service.utils.ContentResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
-import org.springframework.http.converter.ByteArrayHttpMessageConverter;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.ResourceHttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_CONTENT;
-import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_ID;
-import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_IGNORE_ROOT_IN_FIELD_NAMES;
-import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_INDEX_ID;
-import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_SITE;
-import static org.craftercms.search.rest.SearchRestApiConstants.URL_COMMIT;
-import static org.craftercms.search.rest.SearchRestApiConstants.URL_DELETE;
-import static org.craftercms.search.rest.SearchRestApiConstants.URL_ROOT;
-import static org.craftercms.search.rest.SearchRestApiConstants.URL_SEARCH;
-import static org.craftercms.search.rest.SearchRestApiConstants.URL_UPDATE;
-import static org.craftercms.search.rest.SearchRestApiConstants.URL_UPDATE_CONTENT;
+import static org.craftercms.search.rest.v2.SearchRestApiConstants.*;
+import static org.craftercms.search.service.utils.RestClientUtils.*;
 
 /**
- * Abstract class that contains the base client implementation of {@link SearchService}, which uses REST to communicate with the server
+ * Solr based REST client implementation of {@link SearchService} for Search REST API v2.
  *
  * @author Alfonso Vásquez
  */
-public abstract class AbstractRestClientSearchService<T extends Query> implements SearchService<T> {
+public class SolrRestClientSearchService implements SearchService<SolrQuery> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractRestClientSearchService.class);
+    private static final Logger logger = LoggerFactory.getLogger(SolrRestClientSearchService.class);
+
+    private static final String[] NON_ADDITIONAL_FIELD_NAMES = {PARAM_INDEX_ID, PARAM_SITE, PARAM_ID, PARAM_CONTENT};
 
     public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
@@ -81,9 +64,9 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
     protected RestTemplate restTemplate;
     protected Charset charset;
 
-    public AbstractRestClientSearchService() {
+    public SolrRestClientSearchService() {
         charset = DEFAULT_CHARSET;
-        restTemplate = createRestTemplate();
+        restTemplate = createRestTemplate(charset);
     }
 
     @Required
@@ -99,13 +82,24 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
         this.charset = Charset.forName(charset);
     }
 
-    public Map<String, Object> search(Query query) throws SearchException {
+    @Override
+    public SolrQuery createQuery() {
+        return new SolrQuery();
+    }
+
+    @Override
+    public SolrQuery createQuery(Map<String, String[]> params) {
+        return new SolrQuery(params);
+    }
+
+    @Override
+    public Map<String, Object> search(SolrQuery query) throws SearchException {
         return search(null, query);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map<String, Object> search(String indexId, Query query) throws SearchException {
+    public Map<String, Object> search(String indexId, SolrQuery query) throws SearchException {
         String searchUrl = createBaseUrl(URL_SEARCH, indexId);
         searchUrl = UrlUtils.addQueryStringFragment(searchUrl, query.toUrlQueryString());
 
@@ -121,6 +115,7 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
         }
     }
 
+    @Override
     public void update(String site, String id, String xml, boolean ignoreRootInFieldNames) throws SearchException {
         update(null, site, id, xml, ignoreRootInFieldNames);
     }
@@ -252,21 +247,7 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
         parts.set(PARAM_ID, id);
         parts.set(PARAM_CONTENT, resource);
 
-        if (MapUtils.isNotEmpty(additionalFields)) {
-            for (Map.Entry<String, List<String>> additionalField : additionalFields.entrySet()) {
-                String fieldName = additionalField.getKey();
-
-                if (fieldName.equals(PARAM_INDEX_ID) ||
-                    fieldName.equals(PARAM_SITE) ||
-                    fieldName.equals(PARAM_ID) ||
-                    fieldName.endsWith(PARAM_CONTENT)) {
-                    throw new SearchException(String.format("An additional field shouldn't have the following names: %s, %s, %s, %s",
-                                                            PARAM_INDEX_ID, PARAM_SITE, PARAM_ID, PARAM_CONTENT));
-                }
-
-                parts.put(fieldName, (List) additionalField.getValue());
-            }
-        }
+        addAdditionalFieldsToMultiPartRequest(additionalFields, parts, NON_ADDITIONAL_FIELD_NAMES, null);
 
         String updateUrl = createBaseUrl(URL_UPDATE_CONTENT);
 
@@ -296,78 +277,6 @@ public abstract class AbstractRestClientSearchService<T extends Query> implement
         }
 
         return url;
-    }
-
-    protected String addParam(String url, String name, Object value) {
-        try {
-            return UrlUtils.addParam(url, name, value.toString(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // Shouldn't happen, UTF-8 is a valid encoding
-            throw new RuntimeException();
-        }
-    }
-
-    protected RestTemplate createRestTemplate() {
-        RestTemplate restTemplate = new RestTemplate();
-
-        // Set charset of the String part converter of the FormHttpMessageConverter.
-        for (HttpMessageConverter<?> converter : restTemplate.getMessageConverters()) {
-            if (converter instanceof FormHttpMessageConverter) {
-                StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(charset);
-                stringHttpMessageConverter.setWriteAcceptCharset(false);
-
-                List<HttpMessageConverter<?>> partConverters = new ArrayList<>();
-                partConverters.add(new ByteArrayHttpMessageConverter());
-                partConverters.add(stringHttpMessageConverter);
-                partConverters.add(new ResourceHttpMessageConverter());
-
-                ((FormHttpMessageConverter) converter).setPartConverters(partConverters);
-            }
-        }
-
-        return restTemplate;
-    }
-
-    protected static class ContentResource extends AbstractResource {
-
-        private Content content;
-        private String filename;
-
-        public ContentResource(Content content, String filename) {
-            this.content = content;
-            this.filename = filename;
-        }
-
-        @Override
-        public String getDescription() {
-            return content.toString();
-        }
-
-        @Override
-        public String getFilename() {
-            return filename;
-        }
-
-        @Override
-        public boolean exists() {
-            return true;
-        }
-
-        @Override
-        public long contentLength() throws IOException {
-            return content.getLength();
-        }
-
-        @Override
-        public long lastModified() throws IOException {
-            return content.getLastModified();
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return content.getInputStream();
-        }
-
     }
 
 }

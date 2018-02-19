@@ -40,17 +40,17 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_CONTENT;
-import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_ID;
-import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_IGNORE_ROOT_IN_FIELD_NAMES;
-import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_INDEX_ID;
-import static org.craftercms.search.rest.SearchRestApiConstants.PARAM_SITE;
-import static org.craftercms.search.rest.SearchRestApiConstants.URL_COMMIT;
-import static org.craftercms.search.rest.SearchRestApiConstants.URL_DELETE;
-import static org.craftercms.search.rest.SearchRestApiConstants.URL_ROOT;
-import static org.craftercms.search.rest.SearchRestApiConstants.URL_SEARCH;
-import static org.craftercms.search.rest.SearchRestApiConstants.URL_UPDATE;
-import static org.craftercms.search.rest.SearchRestApiConstants.URL_UPDATE_CONTENT;
+import static org.craftercms.search.rest.v2.SearchRestApiConstants.PARAM_CONTENT;
+import static org.craftercms.search.rest.v2.SearchRestApiConstants.PARAM_ID;
+import static org.craftercms.search.rest.v2.SearchRestApiConstants.PARAM_IGNORE_ROOT_IN_FIELD_NAMES;
+import static org.craftercms.search.rest.v2.SearchRestApiConstants.PARAM_INDEX_ID;
+import static org.craftercms.search.rest.v2.SearchRestApiConstants.PARAM_SITE;
+import static org.craftercms.search.rest.v2.SearchRestApiConstants.URL_COMMIT;
+import static org.craftercms.search.rest.v2.SearchRestApiConstants.URL_DELETE;
+import static org.craftercms.search.rest.v2.SearchRestApiConstants.URL_ROOT;
+import static org.craftercms.search.rest.v2.SearchRestApiConstants.URL_SEARCH;
+import static org.craftercms.search.rest.v2.SearchRestApiConstants.URL_UPDATE;
+import static org.craftercms.search.rest.v2.SearchRestApiConstants.URL_UPDATE_CONTENT;
 
 /**
  * REST controller for the search service.
