@@ -1,10 +1,10 @@
-package org.craftercms.search.rest.requests;
+package org.craftercms.search.rest.v2.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 
-import static org.craftercms.search.rest.AdminRestApiConstants.PATH_VAR_ID;
+import static org.craftercms.search.rest.v2.AdminRestApiConstants.PATH_VAR_ID;
 
 /**
  * Created by alfonsovasquez on 2/6/17.

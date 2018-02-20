@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 Crafter Software Corporation.
+ * Copyright (C) 2007-2018 Crafter Software Corporation. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.service.impl;
+package org.craftercms.search.service.impl.v2;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,17 +23,17 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.craftercms.commons.lang.UrlUtils;
 import org.craftercms.search.exception.SearchException;
-import org.craftercms.search.rest.requests.CreateIndexRequest;
-import org.craftercms.search.rest.requests.DeleteIndexRequest;
+import org.craftercms.search.rest.v2.requests.CreateIndexRequest;
+import org.craftercms.search.rest.v2.requests.DeleteIndexRequest;
 import org.craftercms.search.service.AdminService;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import static org.craftercms.search.rest.AdminRestApiConstants.URL_CREATE_INDEX;
-import static org.craftercms.search.rest.AdminRestApiConstants.URL_DELETE_INDEX;
-import static org.craftercms.search.rest.AdminRestApiConstants.URL_GET_INDEX_INFO;
-import static org.craftercms.search.rest.AdminRestApiConstants.URL_ROOT;
+import static org.craftercms.search.rest.v2.AdminRestApiConstants.URL_CREATE_INDEX;
+import static org.craftercms.search.rest.v2.AdminRestApiConstants.URL_DELETE_INDEX;
+import static org.craftercms.search.rest.v2.AdminRestApiConstants.URL_GET_INDEX_INFO;
+import static org.craftercms.search.rest.v2.AdminRestApiConstants.URL_ROOT;
 
 /**
  * Created by alfonsovasquez on 2/9/17.
