@@ -24,9 +24,6 @@ package org.craftercms.search.rest.v2;
  */
 public class SearchRestApiConstants {
 
-    private SearchRestApiConstants() {
-    }
-
     public static final String PARAM_INDEX_ID = "index_id";
 
     public static final String PARAM_SITE = "site";
@@ -40,5 +37,8 @@ public class SearchRestApiConstants {
     public static final String URL_UPDATE_CONTENT = "/update-content";
     public static final String URL_DELETE = "/delete";
     public static final String URL_COMMIT = "/commit";
+
+    private SearchRestApiConstants() {
+    }
 
 }

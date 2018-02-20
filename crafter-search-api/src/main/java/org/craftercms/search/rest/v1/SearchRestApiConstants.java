@@ -24,9 +24,6 @@ package org.craftercms.search.rest.v1;
  */
 public class SearchRestApiConstants {
 
-    private SearchRestApiConstants() {
-    }
-
     public static final String URL_ROOT = "/api/1/search";
     public static final String URL_SEARCH = "/search";
     public static final String URL_UPDATE = "/update";
@@ -41,5 +38,8 @@ public class SearchRestApiConstants {
     public static final String PARAM_ID = "id";
     public static final String PARAM_IGNORE_ROOT_IN_FIELD_NAMES = "stripRoot";
     public static final String PARAM_FILE = "document";
+
+    private SearchRestApiConstants() {
+    }
 
 }
