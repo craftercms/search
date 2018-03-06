@@ -1,10 +1,10 @@
-package org.craftercms.search.rest.requests;
+package org.craftercms.search.rest.v2.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.craftercms.search.service.AdminService;
 
-import static org.craftercms.search.rest.AdminRestApiConstants.*;
+import static org.craftercms.search.rest.v2.AdminRestApiConstants.*;
 
 /**
  * Created by alfonsovasquez on 2/6/17.
