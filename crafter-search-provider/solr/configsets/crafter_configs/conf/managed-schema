@@ -122,9 +122,11 @@
     <field name="_version_" type="long" indexed="false" stored="false"/>
     <field name="_root_" type="string" indexed="true" stored="false" docValues="false" />
     <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/>
-    <field name="_text_main_" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
 	<!-- CRAFTER FIELDS -->
+	<!-- Crafter version of _text_ that only contains relevant information for Studio search -->
+	<field name="_text_main_" type="text_general" indexed="true" stored="false" multiValued="true"/>
+
 	<!-- Field to indicate to which Crafter siteName the content belongs to -->
     <field name="crafterSite" type="string" indexed="true" stored="true" multiValued="false"/>
     <!-- The local ID field name, which is the ID of the document within the site -->
@@ -146,7 +148,8 @@
          does not know what fields may be searched) because it's very expensive to index everything twice. -->
     <copyField source="*" dest="_text_"/>
 
-    <!-- Custom field to search only on more relevant fields. -->
+    <!-- Copy only relevant information that needs to be analyzed/tokenized -->
+    <copyField source="internal-name" dest="_text_main_"/>
     <copyField source="title" dest="_text_main_"/>
     <copyField source="*_html" dest="_text_main_"/>
 
