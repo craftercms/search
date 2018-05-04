@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.craftercms.commons.lang.UrlUtils;
+import org.craftercms.commons.rest.Result;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.rest.v2.requests.CreateIndexRequest;
 import org.craftercms.search.rest.v2.requests.DeleteIndexRequest;
@@ -66,7 +67,7 @@ public class RestClientAdminService implements AdminService {
         CreateIndexRequest request = new CreateIndexRequest(id);
 
         try {
-            restTemplate.postForObject(new URI(createUrl), request, String.class);
+            restTemplate.postForObject(new URI(createUrl), request, Result.class);
         } catch (URISyntaxException e) {
             throw new SearchException(id, "Invalid URI: " + createUrl, e);
         } catch (HttpStatusCodeException e) {
