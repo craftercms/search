@@ -38,12 +38,12 @@
     </session-config>
 
     <filter>
-        <filter-name>corsFilter</filter-name>
+        <filter-name>crafter.corsFilter</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
 
     <filter-mapping>
-        <filter-name>corsFilter</filter-name>
+        <filter-name>crafter.corsFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
 

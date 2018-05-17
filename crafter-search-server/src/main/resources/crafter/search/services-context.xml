@@ -151,7 +151,7 @@
                value="${crafter.search.solr.field.type.datetime.multiValued.suffix}"/>
     </util:map>
 
-    <bean id="corsFilter" class="org.craftercms.commons.web.CORSFilter">
+    <bean id="crafter.corsFilter" class="org.craftercms.commons.web.CORSFilter">
         <property name="disableCORS" value="${crafter.search.cors.disable}"/>
         <property name="allowOrigins" value="${crafter.search.cors.origins}"/>
         <property name="allowMethods" value="${crafter.search.cors.headers}"/>
