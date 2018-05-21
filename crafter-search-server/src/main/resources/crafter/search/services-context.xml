@@ -112,6 +112,7 @@
     </bean>
 
     <bean id="crafter.searchService" class="org.craftercms.search.service.impl.SolrSearchService">
+        <property name="defaultIndexId" value="${crafter.search.index.default}"/>
         <property name="fileNameFieldName" value="${crafter.search.solr.field.fileName.name}"/>
         <property name="solrServerFactory" ref="crafter.solrServerFactory"/>
         <property name="solrDocumentBuilder" ref="crafter.solrDocumentBuilder"/>

@@ -73,6 +73,10 @@ public class SolrSearchService implements SearchService, QueryFactory<SolrQuery>
     private static final Logger logger = LoggerFactory.getLogger(SolrSearchService.class);
 
     /**
+     * The ID of the default index.
+     */
+    protected String defaultIndexId;
+    /**
      * The file name field name (default is file-name).
      */
     protected String fileNameFieldName;
@@ -104,6 +108,13 @@ public class SolrSearchService implements SearchService, QueryFactory<SolrQuery>
 
     public SolrSearchService() {
         fileNameFieldName = DEFAULT_FILE_NAME_FIELD_NAME;
+    }
+
+    /**
+     * Sets the ID of the default index.
+     */
+    public void setDefaultIndexId(String defaultIndexId) {
+        this.defaultIndexId = defaultIndexId;
     }
 
     /**
@@ -179,6 +190,10 @@ public class SolrSearchService implements SearchService, QueryFactory<SolrQuery>
 
     @Override
     public Map<String, Object> search(String indexId, Query query) throws SearchException {
+        if (StringUtils.isEmpty(indexId)) {
+            indexId = defaultIndexId;
+        }
+
         SolrQuery expandedQuery = new SolrQuery((QueryParams)query);
         SolrResponse response;
 
@@ -216,6 +231,10 @@ public class SolrSearchService implements SearchService, QueryFactory<SolrQuery>
     @Override
     public String update(String indexId, String site, String id, String xml,
                          boolean ignoreRootInFieldNames) throws SearchException {
+        if (StringUtils.isEmpty(indexId)) {
+            indexId = defaultIndexId;
+        }
+
         String finalId = site + ":" + id;
 
         // This is done because when a document is updated, and it had children before but not now, the children
@@ -249,6 +268,10 @@ public class SolrSearchService implements SearchService, QueryFactory<SolrQuery>
 
     @Override
     public String delete(String indexId, String site, String id) throws SearchException {
+        if (StringUtils.isEmpty(indexId)) {
+            indexId = defaultIndexId;
+        }
+
         String finalId = site + ":" + id;
         String query = getDeleteQuery(finalId);
         NamedList<Object> response;
@@ -313,6 +336,10 @@ public class SolrSearchService implements SearchService, QueryFactory<SolrQuery>
     @Override
     public String updateFile(String indexId, String site, String id, File file,
                              Map<String, List<String>> additionalFields) throws SearchException {
+        if (StringUtils.isEmpty(indexId)) {
+            indexId = defaultIndexId;
+        }
+
         String finalId = site + ":" + id;
         String fileName = FilenameUtils.getName(id);
         FileTypeMap mimeTypesMap = new ConfigurableMimeFileTypeMap();
@@ -386,6 +413,10 @@ public class SolrSearchService implements SearchService, QueryFactory<SolrQuery>
 
     @Override
     public String commit(String indexId) throws SearchException {
+        if (StringUtils.isEmpty(indexId)) {
+            indexId = defaultIndexId;
+        }
+
         try {
             NamedList<Object> response = getSolrServer(indexId).commit().getResponse();
 
