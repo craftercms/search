@@ -32,6 +32,11 @@
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+            <version>${jaxen.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
