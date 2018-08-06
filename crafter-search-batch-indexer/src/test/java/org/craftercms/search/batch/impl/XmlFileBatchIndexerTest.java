@@ -34,6 +34,7 @@ public class XmlFileBatchIndexerTest extends BatchIndexerTestBase {
                                                     "<fileName>test2.xml</fileName>" +
                                                     "<title>Test</title>" +
                                                     "<date format=\"MM/DD/YYY HH:MM:SS\">11/10/2015 00:00:00</date>" +
+                                                    "<include>component.xml</include>" +
                                                     "<component>" +
                                                         "<fileName>component.xml</fileName>" +
                                                         "<title>Test</title>" +
