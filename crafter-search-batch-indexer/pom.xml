@@ -9,7 +9,7 @@
     <parent>
         <artifactId>crafter-search</artifactId>
         <groupId>org.craftercms</groupId>
-        <version>3.0.16-SNAPSHOT</version><!-- craftercms version flag -->
+        <version>3.1.0-SNAPSHOT</version><!-- craftercms version flag -->
     </parent>
 
     <dependencies>
@@ -31,11 +31,6 @@
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>jaxen</groupId>
-            <artifactId>jaxen</artifactId>
-            <version>${jaxen.version}</version>
         </dependency>
     </dependencies>
 
