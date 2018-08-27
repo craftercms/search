@@ -29,6 +29,7 @@ import org.apache.solr.common.params.CoreAdminParams;
 import org.apache.solr.common.util.NamedList;
 import org.craftercms.search.exception.IndexNotFoundException;
 import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.exception.SearchServerException;
 import org.craftercms.search.service.AdminService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,6 +122,8 @@ public class SolrAdminService implements AdminService {
         try {
             request.process(solrClient);
         } catch (SolrServerException | IOException e) {
+            throw new SearchServerException(id, "Unable to create core", e);
+        } catch (Exception e) {
             throw new SearchException(id, "Failed to create core", e);
         }
     }
@@ -146,9 +149,11 @@ public class SolrAdminService implements AdminService {
             if (MapUtils.isNotEmpty(info)) {
                 return info;
             } else {
-                throw new IndexNotFoundException("Index '" + id + "' not ");
+                throw new IndexNotFoundException("Index '" + id + "' not found");
             }
         } catch (SolrServerException | IOException e) {
+            throw new SearchServerException(id, "Unable to get core info", e);
+        } catch (Exception e) {
             throw new SearchException(id, "Failed to get core info", e);
         }
     }
@@ -165,6 +170,8 @@ public class SolrAdminService implements AdminService {
         try {
             request.process(solrClient);
         } catch (SolrServerException | IOException e) {
+            throw new SearchServerException(id, "Unable to delete core", e);
+        } catch (Exception e) {
             throw new SearchException(id, "Failed to delete core", e);
         }
     }

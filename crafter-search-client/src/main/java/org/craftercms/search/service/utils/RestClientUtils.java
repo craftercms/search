@@ -26,14 +26,18 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.craftercms.commons.lang.UrlUtils;
+import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.exception.SearchServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 
@@ -91,6 +95,23 @@ public class RestClientUtils {
         }
 
         return restTemplate;
+    }
+
+    /**
+     * Returns an instance of the appropriate {@link SearchException} depending on the value of the {@link HttpStatus}.
+     * @param indexId the id of the index
+     * @param message the message for the exception
+     * @param e the exception thrown by the http client
+     * @return the instance of the exception
+     */
+    public static SearchException getSearchException(final String indexId, final String message,
+                                                     final HttpStatusCodeException e) {
+        switch (e.getStatusCode()) {
+            case SERVICE_UNAVAILABLE:
+                return new SearchServerException(message, e);
+            default:
+                return new SearchException(indexId, message, e);
+        }
     }
 
 }

@@ -35,6 +35,7 @@ import static org.craftercms.search.rest.v2.AdminRestApiConstants.URL_CREATE_IND
 import static org.craftercms.search.rest.v2.AdminRestApiConstants.URL_DELETE_INDEX;
 import static org.craftercms.search.rest.v2.AdminRestApiConstants.URL_GET_INDEX_INFO;
 import static org.craftercms.search.rest.v2.AdminRestApiConstants.URL_ROOT;
+import static org.craftercms.search.service.utils.RestClientUtils.getSearchException;
 
 /**
  * Created by alfonsovasquez on 2/9/17.
@@ -71,7 +72,8 @@ public class RestClientAdminService implements AdminService {
         } catch (URISyntaxException e) {
             throw new SearchException(id, "Invalid URI: " + createUrl, e);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException(id, "Create index '" + id + "' failed: [" + e.getStatusText() + "] " + e.getResponseBodyAsString());
+            throw getSearchException(id, "Create index '" + id + "' failed: [" + e.getStatusText() + "] " +
+                e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(id, "Create index '" + id + "' failed: " + e.getMessage(), e);
         }
@@ -85,8 +87,8 @@ public class RestClientAdminService implements AdminService {
         try {
             return restTemplate.getForObject(getUrl, Map.class, id);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException(id, "Get info for index '" + id + "' failed: [" + e.getStatusText() + "] " +
-                                          e.getResponseBodyAsString());
+            throw getSearchException(id, "Get info for index '" + id + "' failed: [" + e.getStatusText() + "] " +
+                                          e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(id, "Get info for index '" + id + "' failed: " + e.getMessage(), e);
         }
@@ -102,7 +104,8 @@ public class RestClientAdminService implements AdminService {
         try {
             restTemplate.postForObject(deleteUrl, request, String.class, id);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException(id, "Delete index '" + id + "' failed: [" + e.getStatusText() + "] " + e.getResponseBodyAsString());
+            throw getSearchException(id, "Delete index '" + id + "' failed: [" + e.getStatusText() + "] " +
+                e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(id, "Delete index '" + id + "' failed: " + e.getMessage(), e);
         }
