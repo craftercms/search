@@ -41,7 +41,7 @@ public class ExceptionHandlers extends BaseRestExceptionHandlers {
 
     @ExceptionHandler(SearchServerException.class)
     public ResponseEntity<Object> handleSearchServerException(SearchServerException ex, WebRequest request) {
-        return handleExceptionInternal(ex, "Search server is unavailable", new HttpHeaders(),
+        return handleExceptionInternal(ex, "Service unavailable, please try again later", new HttpHeaders(),
             HttpStatus.SERVICE_UNAVAILABLE, request);
     }
 
