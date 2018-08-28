@@ -108,8 +108,8 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
         } catch (URISyntaxException e) {
             throw new SearchException(indexId, "Invalid URI: " + searchUrl, e);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException(indexId, "Search for query " + query + " failed: [" + e.getStatusText() + "] " +
-                                               e.getResponseBodyAsString(), e);
+            throw getSearchException(indexId, "Search for query " + query + " failed: [" + e.getStatusText() + "] "
+                                                + e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(indexId, "Search for query " + query + " failed: " + e.getMessage(), e);
         }
@@ -137,8 +137,8 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
         } catch (URISyntaxException e) {
             throw new SearchException(indexId, "Invalid URI: " + updateUrl, e);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException(indexId, "Update for XML '" + id + "' failed: [" + e.getStatusText() + "] " +
-                                               e.getResponseBodyAsString(), e);
+            throw getSearchException(indexId, "Update for XML '" + id + "' failed: [" + e.getStatusText() + "] "
+                                                + e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(indexId, "Update for XML '" + id + "' failed: " + e.getMessage(), e);
         }
@@ -161,8 +161,8 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
         } catch (URISyntaxException e) {
             throw new SearchException(indexId, "Invalid URI: " + deleteUrl, e);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException(indexId, "Delete for XML '" + id + "' failed: [" + e.getStatusText() + "] " +
-                                               e.getResponseBodyAsString(), e);
+            throw getSearchException(indexId, "Delete for XML '" + id + "' failed: [" + e.getStatusText() + "] "
+                                                + e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(indexId, "Delete for XML '" + id + "' failed: " + e.getMessage(), e);
         }
@@ -183,7 +183,8 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
         } catch (URISyntaxException e) {
             throw new SearchException(indexId, "Invalid URI: " + commitUrl, e);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException(indexId, "Commit failed: [" + e.getStatusText() + "] " + e.getResponseBodyAsString(), e);
+            throw getSearchException(indexId, "Commit failed: [" + e.getStatusText() + "] " +
+                                                e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(indexId, "Commit failed: " + e.getMessage(), e);
         }
@@ -258,7 +259,7 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
         } catch (URISyntaxException e) {
             throw new SearchException(indexId, "Invalid URI: " + updateUrl, e);
         } catch (HttpStatusCodeException e) {
-            throw new SearchException(indexId, "Update for content '" + id + "' failed: [" + e.getStatusText() + "] " +
+            throw getSearchException(indexId, "Update for content '" + id + "' failed: [" + e.getStatusText() + "] " +
                                                e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new SearchException(indexId, "Update for content '" + id + "' failed: " + e.getMessage(), e);

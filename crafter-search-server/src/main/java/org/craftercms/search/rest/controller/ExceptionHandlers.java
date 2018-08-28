@@ -16,26 +16,15 @@
  */
 package org.craftercms.search.rest.controller;
 
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-
-import java.util.Collections;
-
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.craftercms.commons.rest.BaseRestExceptionHandlers;
-import org.craftercms.commons.rest.Result;
-import org.craftercms.commons.validation.ValidationResult;
 import org.craftercms.search.exception.IndexNotFoundException;
+import org.craftercms.search.exception.SearchServerException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
  * Contains all the REST exception handlers.
@@ -48,6 +37,12 @@ public class ExceptionHandlers extends BaseRestExceptionHandlers {
     @ExceptionHandler(IndexNotFoundException.class)
     public ResponseEntity<Object> handleIndexNotFoundException(IndexNotFoundException ex, WebRequest request) {
         return handleExceptionInternal(ex, "Index not found", new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(SearchServerException.class)
+    public ResponseEntity<Object> handleSearchServerException(SearchServerException ex, WebRequest request) {
+        return handleExceptionInternal(ex, "Service unavailable, please try again later", new HttpHeaders(),
+            HttpStatus.SERVICE_UNAVAILABLE, request);
     }
 
 }

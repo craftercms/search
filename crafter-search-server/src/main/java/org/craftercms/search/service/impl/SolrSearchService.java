@@ -45,6 +45,7 @@ import org.apache.solr.common.util.NamedList;
 import org.apache.solr.handler.extraction.ExtractingParams;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.exception.SearchServerException;
 import org.craftercms.search.exception.SolrDocumentBuildException;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.SolrDocumentBuilder;
@@ -209,6 +210,8 @@ public class SolrSearchService implements SearchService<SolrQuery> {
         try {
             response = solrClient.query(indexId, toActualSolrQuery(query));
         } catch (SolrServerException | IOException e) {
+            throw new SearchServerException(indexId, "Unable to execute query " + query, e);
+        } catch (Exception e) {
             throw new SearchException(indexId, "Search for query " + query + " failed", e);
         }
 
@@ -253,8 +256,8 @@ public class SolrSearchService implements SearchService<SolrQuery> {
             }
         } catch (SolrDocumentBuildException e) {
             throw new SearchException(indexId, "Unable to build Solr document for " + finalId, e);
-        } catch (IOException e) {
-            throw new SearchException(indexId,  "I/O error while executing update for " + finalId, e);
+        } catch (SolrServerException | IOException e) {
+            throw new SearchServerException(indexId, "Unable to execute update for " + finalId, e);
         } catch (Exception e) {
             throw new SearchException(indexId, "Error executing update for " + finalId, e);
         }
@@ -291,11 +294,11 @@ public class SolrSearchService implements SearchService<SolrQuery> {
                     logger.debug(getSuccessfulMessage(indexId, finalId, "Delete", response));
                 }
             }
-        } catch (IOException e) {
+        } catch (SolrServerException | IOException e) {
             if (StringUtils.isNotEmpty(query)) {
-                throw new SearchException(indexId, "I/O error while executing delete for " + query, e);
+                throw new SearchServerException(indexId, "Unable to execute delete for " + query, e);
             } else {
-                throw new SearchException(indexId, "I/O error while executing delete for " + finalId, e);
+                throw new SearchServerException(indexId, "Unable to execute delete for " + finalId, e);
             }
         } catch (Exception e) {
             if (StringUtils.isNotEmpty(query)) {
@@ -345,22 +348,22 @@ public class SolrSearchService implements SearchService<SolrQuery> {
             request.setAction(AbstractUpdateRequest.ACTION.COMMIT, true, true);
 
             response = solrClient.request(request, indexId);
-        } catch (SolrServerException e) {
-            logger.warn("{}Unable to update file through content stream request: {}. Attempting to perform just " +
+        } catch (SolrServerException | IOException e) {
+            throw new SearchServerException(indexId, "Unable to execute update file for " + finalId, e);
+        } catch (Exception e) {
+            logger.warn("{} Unable to update file through content stream request: {}. Attempting to perform just " +
                         "the metadata update", getIndexPrefix(indexId), e.getMessage());
 
-            try {
-                SolrInputDocument inputDocument = solrDocumentBuilder.build(site, id, additionalFields);
-                inputDocument.setField(fileNameFieldName, fileName);
+            SolrInputDocument inputDocument = solrDocumentBuilder.build(site, id, additionalFields);
+            inputDocument.setField(fileNameFieldName, fileName);
 
+            try {
                 response = solrClient.add(indexId, inputDocument).getResponse();
-            } catch (IOException e1) {
-                throw new SearchException(indexId, "I/O error while executing update file for " + finalId, e1);
-            } catch (SolrServerException e1) {
+            } catch (SolrServerException | IOException e2) {
+                throw new SearchServerException(indexId, "Unable to execute update file for " + finalId, e2);
+            } catch (Exception e1) {
                 throw new SearchException(indexId, e1.getMessage(), e1);
             }
-        } catch (IOException e) {
-            throw new SearchException(indexId, "I/O error while executing update file for " + finalId, e);
         }
 
         if (logger.isDebugEnabled()) {
@@ -406,8 +409,8 @@ public class SolrSearchService implements SearchService<SolrQuery> {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("%sCommit successful: %s", getIndexPrefix(indexId), response));
             }
-        } catch (IOException e) {
-            throw new SearchException(indexId, "I/O error while executing commit", e);
+        } catch (SolrServerException | IOException e) {
+            throw new SearchException(indexId, "Unable to execute commit", e);
         } catch (Exception e) {
             throw new SearchException(indexId, "Error executing commit", e);
         }
