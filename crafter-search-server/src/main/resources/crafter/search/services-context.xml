@@ -24,8 +24,8 @@
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
     </bean>
     
-    <bean id="crafter.solrClient" class="org.apache.solr.client.solrj.impl.HttpSolrClient">
-        <constructor-arg value="${crafter.search.solr.server.url}"/>
+    <bean id="crafter.solrClient" class="org.craftercms.search.utils.spring.HttpSolrClientFactoryBean">
+        <property name="baseSolrUrl" value="${crafter.search.solr.server.url}"/>
     </bean>
 
     <bean id="crafter.tokenizedElementParser" class="org.craftercms.search.service.impl.TokenizedElementParser"/>
