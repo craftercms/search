@@ -8,7 +8,7 @@
     <parent>
         <artifactId>crafter-search</artifactId>
         <groupId>org.craftercms</groupId>
-        <version>3.0.17</version><!-- craftercms version flag -->
+        <version>3.0.18-SNAPSHOT</version><!-- craftercms version flag -->
     </parent>
 
     <dependencies>
