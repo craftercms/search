@@ -105,7 +105,7 @@ public class RenameFieldsIfMultiValuePostProcessor implements SolrDocumentPostPr
                                  "Renaming to multi value field '{}'", fieldName, docId, newFieldName);
 
                     SolrInputField newField = new SolrInputField(newFieldName);
-                    newField.setValue(field.getValue(), field.getBoost());
+                    newField.setValue(field.getValue());
 
                     return newField;
                 }
