@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="crafter.properties" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:crafter/search/server-config.properties</value>
+                <value>classpath:crafter/search/provider/server-config.properties</value>
+                <value>${crafter.search.extension.base}/server-config.properties</value>
+            </list>
+        </property>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    </bean>
+
+    <bean id="crafter.jsonObjectMapper" class="org.craftercms.search.util.spring.ObjectMapperFactory"/>
+
+    <bean id="crafter.xmlObjectMapper" class="org.craftercms.search.util.spring.ObjectMapperFactory">
+        <property name="xml" value="true"/>
+    </bean>
+
+    <bean id="crafter.elasticClient" class="org.craftercms.search.util.spring.ElasticClientFactory">
+        <property name="serverUrl" value="${crafter.search.solr.server.url}"/>
+    </bean>
+
+    <bean id="crafter.documentBuilder" class="org.craftercms.search.service.impl.ElasticDocumentBuilder">
+        <property name="objectMapper" ref="crafter.xmlObjectMapper"/>
+    </bean>
+
+    <bean id="crafter.adminService" class="org.craftercms.search.service.impl.ElasticAdminService"
+          destroy-method="destroy">
+        <property name="indexSettings" value="${crafter.search.elastic.admin.settings}"/>
+        <property name="client" ref="crafter.elasticClient"/>
+    </bean>
+
+    <bean id="crafter.searchService" class="org.craftercms.search.service.impl.ElasticSearchService"
+          destroy-method="destroy">
+        <property name="client" ref="crafter.elasticClient"/>
+        <property name="documentBuilder" ref="crafter.documentBuilder"/>
+        <property name="objectMapper" ref="crafter.jsonObjectMapper"/>
+        <property name="searchMapper">
+            <bean class="org.craftercms.search.service.impl.ElasticSearchMapper"/>
+        </property>
+        <property name="additionalFilterQueries" value="${crafter.search.solr.filter.additional.queries}"/>
+    </bean>
+
+</beans>

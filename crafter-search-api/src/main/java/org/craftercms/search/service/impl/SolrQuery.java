@@ -18,9 +18,7 @@ package org.craftercms.search.service.impl;
 
 import java.util.Map;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.craftercms.search.service.Query;
 

@@ -27,68 +27,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <version>${solrj.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-cell</artifactId>
-            <version>${solrj.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-1.2-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-slf4j-impl</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- httpclient and httpmime are needed for use of HttpSolrServer For details
-            see: https://issues.apache.org/jira/browse/SOLR-3411 -->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${httpcomponents.httpclient.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>${httpcomponents.httpclient.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>${jodatime.version}</version>
-        </dependency>
-        <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
             <version>${commons.fileupload.version}</version>
         </dependency>
 
-        <!-- Test -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -133,6 +76,28 @@
     </build>
 
     <profiles>
+        <!-- If a new provider is added the activation conditions needs to be changed -->
+        <profile>
+            <id>solr-provider</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.craftercms</groupId>
+                    <artifactId>crafter-search-provider-solr</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>elasticsearch-provider</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.craftercms</groupId>
+                    <artifactId>crafter-search-provider-es</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
         <profile>
             <id>release-sign-artifacts</id>
             <activation>
