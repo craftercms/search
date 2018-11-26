@@ -79,6 +79,11 @@
         <!-- If a new provider is added the activation conditions needs to be changed -->
         <profile>
             <id>solr-provider</id>
+            <activation>
+                <property>
+                    <name>!elasticsearch</name>
+                </property>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.craftercms</groupId>
@@ -89,6 +94,11 @@
         </profile>
         <profile>
             <id>elasticsearch-provider</id>
+            <activation>
+                <property>
+                    <name>elasticsearch</name>
+                </property>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.craftercms</groupId>
