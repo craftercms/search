@@ -19,7 +19,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,7 +51,7 @@ public class SearchRestController {
         return searchService.nativeSearch(indexId, params);
     }
 
-    @RequestMapping(value = URL_DELETE, method = RequestMethod.POST)
+    @RequestMapping(value = URL_DELETE, method = POST)
     public Result delete(@RequestParam(value = PARAM_INDEX_ID, required = false) String indexId,
                          @RequestParam(PARAM_SITE) String site,
                          @RequestParam(value = PARAM_ID) String id) throws SearchException {
@@ -61,14 +60,14 @@ public class SearchRestController {
         return Result.OK;
     }
 
-    @RequestMapping(value = URL_COMMIT, method = RequestMethod.POST)
+    @RequestMapping(value = URL_COMMIT, method = POST)
     public Result commit(@RequestParam(value = PARAM_INDEX_ID, required = false) String indexId) throws SearchException {
         searchService.commit(indexId);
 
         return Result.OK;
     }
 
-    @RequestMapping(value = URL_UPDATE, method = RequestMethod.POST)
+    @RequestMapping(value = URL_UPDATE, method = POST)
     public Result update(@RequestParam(value = PARAM_INDEX_ID, required = false) String indexId,
                          @RequestParam(PARAM_SITE) String site,
                          @RequestParam(PARAM_ID) String id,
@@ -80,7 +79,7 @@ public class SearchRestController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = URL_UPDATE_CONTENT, method = RequestMethod.POST)
+    @RequestMapping(value = URL_UPDATE_CONTENT, method = POST)
     public Result updateContent(@RequestParam(value = PARAM_INDEX_ID, required = false) String indexId,
                                 @RequestParam(PARAM_SITE) String site,
                                 @RequestParam(PARAM_ID) String id,

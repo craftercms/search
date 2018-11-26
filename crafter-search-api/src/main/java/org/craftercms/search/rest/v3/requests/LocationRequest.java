@@ -33,12 +33,12 @@ public class LocationRequest {
     /**
      * List of {@link DistanceFilter}s
      */
-    List<DistanceFilter> distances = new LinkedList<>();
+    protected List<DistanceFilter> distances = new LinkedList<>();
 
     /**
      * List of {@link RegionFilter}s
      */
-    List<RegionFilter> regions = new LinkedList<>();
+    protected List<RegionFilter> regions = new LinkedList<>();
 
     public List<DistanceFilter> getDistances() {
         return distances;

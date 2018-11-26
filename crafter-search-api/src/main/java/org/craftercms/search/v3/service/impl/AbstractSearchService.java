@@ -127,18 +127,18 @@ public abstract class AbstractSearchService<T extends Query, I, O> implements Se
      */
     @Override
     public Map<String, Object> search(String indexId, final T query) throws SearchException {
-        indexId = getIndexId(indexId);
+        String finalIndexId = getIndexId(indexId);
 
-        addAdditionalFilterQueries(indexId, query);
+        addAdditionalFilterQueries(finalIndexId, query);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("{}Executing query {}", getIndexPrefix(indexId), query);
+            logger.debug("{}Executing query {}", getIndexPrefix(finalIndexId), query);
         }
 
-        Map<String, Object> map = doSearch(indexId, query);
+        Map<String, Object> map = doSearch(finalIndexId, query);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("{}Response for query {}: {}", getIndexPrefix(indexId), query, map);
+            logger.debug("{}Response for query {}: {}", getIndexPrefix(finalIndexId), query, map);
         }
 
         return map;
@@ -150,15 +150,15 @@ public abstract class AbstractSearchService<T extends Query, I, O> implements Se
     @Override
     public void update(String indexId, final String site, final String id, final String xml,
                        final boolean ignoreRootInFieldNames) throws SearchException {
-        indexId = getIndexId(indexId);
+        String finalIndexId = getIndexId(indexId);
 
         String finalId = getFinalId(site, id);
 
         // This is done because when a document is updated, and it had children before but not now, the children
         // would be orphaned (SOLR-6096)
-        delete(indexId, site, id);
+        delete(finalIndexId, site, id);
 
-        doUpdate(indexId, site, id, finalId, xml, ignoreRootInFieldNames);
+        doUpdate(finalIndexId, site, id, finalId, xml, ignoreRootInFieldNames);
     }
 
     /**
@@ -166,12 +166,12 @@ public abstract class AbstractSearchService<T extends Query, I, O> implements Se
      */
     @Override
     public void delete(String indexId, final String site, final String id) throws SearchException {
-        indexId = getIndexId(indexId);
+        String finalIndexId = getIndexId(indexId);
 
         String finalId = getFinalId(site, id);
         String query = getDeleteQuery(finalId);
 
-        doDelete(indexId, finalId, query);
+        doDelete(finalIndexId, finalId, query);
     }
 
     /**
@@ -180,13 +180,13 @@ public abstract class AbstractSearchService<T extends Query, I, O> implements Se
     @Override
     public void updateContent(String indexId, final String site, final String id, final File file,
                               final Map<String, List<String>> additionalFields) throws SearchException {
-        indexId = getIndexId(indexId);
+        String finalIndexId = getIndexId(indexId);
 
         String finalId = getFinalId(site, id);
         String fileName = FilenameUtils.getName(id);
         String contentType = mimeTypesMap.getContentType(fileName);
 
-        doUpdateContent(indexId, site, id, finalId, file, fileName, contentType, additionalFields);
+        doUpdateContent(finalIndexId, site, id, finalId, file, fileName, contentType, additionalFields);
     }
 
     /**
