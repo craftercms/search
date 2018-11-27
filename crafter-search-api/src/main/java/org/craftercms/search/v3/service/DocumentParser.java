@@ -15,29 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.rest.v3;
+package org.craftercms.search.v3.service;
+
+import java.io.InputStream;
+
+import org.springframework.util.MultiValueMap;
 
 /**
- * Search API REST constants used by both server and client.
- *
+ * Defines the operations to parse binary documents for indexing
  * @author joseross
  */
-public interface SearchRestApiConstants {
+public interface DocumentParser {
 
-    String PARAM_INDEX_ID = "index_id";
-
-    String PARAM_SITE = "site";
-    String PARAM_ID = "id";
-    String PARAM_IGNORE_ROOT_IN_FIELD_NAMES = "strip_root";
-    String PARAM_CONTENT = "content";
-    String PARAM_PARSE = "parse_content";
-
-    String URL_ROOT = "/api/3/search";
-    String URL_SEARCH = "/search";
-    String URL_SEARCH_NATIVE = "/search/native";
-    String URL_UPDATE = "/update";
-    String URL_UPDATE_CONTENT = "/update-content";
-    String URL_DELETE = "/delete";
-    String URL_COMMIT = "/commit";
+    /**
+     * Parses the given document and generates an XML file
+     * @param content the document to parse
+     * @param additionalFields additional fields to add
+     * @return an XML ready to be indexed
+     */
+    String parseToXml(InputStream content, MultiValueMap<String, String> additionalFields);
 
 }

@@ -58,7 +58,7 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
 
     private static final Logger logger = LoggerFactory.getLogger(SolrRestClientSearchService.class);
 
-    private static final String[] NON_ADDITIONAL_FIELD_NAMES = {PARAM_INDEX_ID, PARAM_SITE, PARAM_ID, PARAM_CONTENT};
+    protected static final String[] NON_ADDITIONAL_FIELD_NAMES = {PARAM_INDEX_ID, PARAM_SITE, PARAM_ID, PARAM_CONTENT};
 
     public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
