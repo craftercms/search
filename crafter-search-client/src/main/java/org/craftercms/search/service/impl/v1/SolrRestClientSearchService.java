@@ -28,6 +28,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.craftercms.commons.lang.UrlUtils;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.rest.v3.requests.SearchRequest;
+import org.craftercms.search.rest.v3.requests.SearchResponse;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.SolrQuery;
 import org.craftercms.search.service.utils.ContentResource;
@@ -297,6 +299,16 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
         }
 
         return url;
+    }
+
+    @Override
+    public SearchResponse search(final SearchRequest request) {
+        throw new UnsupportedOperationException("Method not implemented for API 1");
+    }
+
+    @Override
+    public Map<String, Object> nativeSearch(final String indexId, final Map<String, Object> params) {
+        throw new UnsupportedOperationException("Method not implemented for API 1");
     }
 
 }

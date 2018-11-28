@@ -155,7 +155,7 @@ public class SearchServiceIT {
 
         results = searchService.search(PLUTON_INDEX_ID, query);
         assertNotNull(results);
-        
+
         response = getQueryResponse(results);
         assertEquals(1, getNumDocs(response));
 

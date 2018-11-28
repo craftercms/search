@@ -2,11 +2,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:util="http://www.springframework.org/schema/util"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
-       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
     <!-- JSR-303/JSR-349 support will be detected
@@ -24,132 +22,7 @@
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
     </bean>
     
-    <bean id="crafter.solrClient" class="org.craftercms.search.utils.spring.HttpSolrClientFactoryBean">
-        <property name="baseSolrUrl" value="${crafter.search.solr.server.url}"/>
-    </bean>
 
-    <bean id="crafter.tokenizedElementParser" class="org.craftercms.search.service.impl.TokenizedElementParser"/>
-
-    <bean id="crafter.subDocumentElementParser" class="org.craftercms.search.service.impl.SubDocumentElementParser">
-        <property name="containsSubDocumentsAttributeName"
-                  value="${crafter.search.xml.element.containsSubDocuments.name}"/>
-        <property name="subDocumentElementName"
-                  value="${crafter.search.xml.element.subDocument.name}"/>
-        <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
-        <property name="parentIdFieldName" value="${crafter.search.solr.field.parentId.name}"/>
-        <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
-        <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
-        <property name="publishingDateFieldName" value="${crafter.search.solr.field.publishedDate.name}"/>
-        <property name="publishingDateAltFieldName" value="${crafter.search.solr.field.publishedDate.alt.name}"/>
-        <property name="contentTypeFieldName" value="${crafter.search.solr.field.contentType.name}"/>
-    </bean>
-
-    <bean id="crafter.defaultElementParser" class="org.craftercms.search.service.impl.DefaultElementParser">
-        <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
-    </bean>
-
-    <bean id="crafter.elementParserService" class="org.craftercms.search.service.impl.ElementParserServiceImpl">
-        <property name="parsers">
-            <list>
-                <ref bean="crafter.tokenizedElementParser"/>
-                <ref bean="crafter.subDocumentElementParser"/>
-                <ref bean="crafter.defaultElementParser"/>
-            </list>
-        </property>
-    </bean>
-
-    <bean id="crafter.renameFieldsIfMultiValuePostProcessor"
-          class="org.craftercms.search.service.impl.RenameFieldsIfMultiValuePostProcessor">
-        <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
-        <property name="singleToMultiValueSuffixMappings" ref="crafter.singleToMultiValueSuffixMappings"/>
-    </bean>
-
-    <bean id="crafter.denormalizingPostProcessor" class="org.craftercms.search.service.impl.DenormalizingPostProcessor">
-        <property name="fieldsToIgnore"
-                  value="${crafter.search.solr.document.postProcessor.denormalizing.fieldsToIgnore}"/>
-        <property name="copyChildrenFieldsToParent"
-                  value="${crafter.search.solr.document.postProcessor.denormalizing.copyChildrenFieldsToParent}"/>
-        <property name="copyParentFieldsToChildren"
-                  value="${crafter.search.solr.document.postProcessor.denormalizing.copyParentFieldsToChildren}"/>
-    </bean>
-
-    <bean id="crafter.solrDocumentBuilder" class="org.craftercms.search.service.impl.SolrDocumentBuilderImpl">
-        <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
-        <property name="rootIdFieldName" value="${crafter.search.solr.field.rootId.name}"/>
-        <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
-        <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
-        <property name="publishingDateFieldName" value="${crafter.search.solr.field.publishedDate.name}"/>
-        <property name="publishingDateAltFieldName" value="${crafter.search.solr.field.publishedDate.alt.name}"/>
-        <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
-        <property name="parserService" ref="crafter.elementParserService"/>
-        <property name="postProcessors">
-            <list>
-                <ref bean="crafter.renameFieldsIfMultiValuePostProcessor"/>
-            </list>
-        </property>
-    </bean>
-
-    <bean id="crafter.fieldValueConverter" class="org.craftercms.search.service.impl.CompositeSuffixBasedConverter">
-        <property name="converterMappings">
-            <map>
-                <entry key="${crafter.search.solr.field.type.html.suffix}"
-                       value-ref="crafter.htmlStrippingConverter"/>
-                <entry key="${crafter.search.solr.field.type.datetime.suffix}"
-                       value-ref="crafter.dateTimeConverter"/>
-                <entry key="${crafter.search.solr.field.type.datetime.multiValued.suffix}"
-                       value-ref="crafter.dateTimeConverter"/>
-            </map>
-        </property>
-    </bean>
-
-    <bean id="crafter.htmlStrippingConverter" class="org.craftercms.search.service.impl.HtmlStrippingConverter"/>
-
-    <bean id="crafter.dateTimeConverter" class="org.craftercms.search.service.impl.DateTimeConverter">
-        <property name="dateTimeFieldPattern" value="${crafter.search.solr.field.type.datetime.pattern}"/>
-    </bean>
-
-    <bean id="crafter.adminService" class="org.craftercms.search.service.impl.SolrAdminService">
-        <property name="solrClient" ref="crafter.solrClient"/>
-        <property name="defaultInstanceDir" value="${crafter.search.solr.admin.defaultInstanceDir}"/>
-        <property name="defaultConfigName" value="${crafter.search.solr.admin.defaultConfigName}"/>
-        <property name="defaultSchemaName" value="${crafter.search.solr.admin.defaultSchemaName}"/>
-        <property name="defaultDataDir" value="${crafter.search.solr.admin.defaultDataDir}"/>
-        <property name="defaultConfigSet" value="${crafter.search.solr.admin.defaultConfigSet}"/>
-    </bean>
-
-    <bean id="crafter.searchService" class="org.craftercms.search.service.impl.SolrSearchService">
-        <property name="defaultIndexId" value="${crafter.search.index.default}"/>
-        <property name="fileNameFieldName" value="${crafter.search.solr.field.fileName.name}"/>
-        <property name="solrClient" ref="crafter.solrClient"/>
-        <property name="solrDocumentBuilder" ref="crafter.solrDocumentBuilder"/>
-        <property name="multiValueSeparator" value="${crafter.search.solr.field.multiValue.separator}"/>
-        <property name="multiValueIgnorePattern" value="${crafter.search.solr.field.multiValue.ignore.pattern}"/>
-        <property name="deleteQueryMappings">
-            <map>
-                <entry key="${crafter.search.solr.delete.xml.regex}" value="${crafter.search.solr.delete.xml.query}"/>
-            </map>
-        </property>
-        <property name="additionalFilterQueries" value="${crafter.search.solr.filter.additional.queries}"/>
-    </bean>
-
-    <util:map id="crafter.singleToMultiValueSuffixMappings">
-        <entry key="${crafter.search.solr.field.type.int.suffix}"
-               value="${crafter.search.solr.field.type.int.multiValued.suffix}"/>
-        <entry key="${crafter.search.solr.field.type.string.suffix}"
-               value="${crafter.search.solr.field.type.string.multiValued.suffix}"/>
-        <entry key="${crafter.search.solr.field.type.long.suffix}"
-               value="${crafter.search.solr.field.type.long.multiValued.suffix}"/>
-        <entry key="${crafter.search.solr.field.type.text.suffix}"
-               value="${crafter.search.solr.field.type.text.multiValued.suffix}"/>
-        <entry key="${crafter.search.solr.field.type.boolean.suffix}"
-               value="${crafter.search.solr.field.type.boolean.multiValued.suffix}"/>
-        <entry key="${crafter.search.solr.field.type.float.suffix}"
-               value="${crafter.search.solr.field.type.float.multiValued.suffix}"/>
-        <entry key="${crafter.search.solr.field.type.double.suffix}"
-               value="${crafter.search.solr.field.type.double.multiValued.suffix}"/>
-        <entry key="${crafter.search.solr.field.type.datetime.suffix}"
-               value="${crafter.search.solr.field.type.datetime.multiValued.suffix}"/>
-    </util:map>
 
     <bean id="crafter.corsFilter" class="org.craftercms.commons.web.CORSFilter">
         <property name="disableCORS" value="${crafter.search.cors.disable}"/>
@@ -160,6 +33,7 @@
         <property name="maxAge" value="${crafter.search.cors.maxage}"/>
     </bean>
 
+    <import resource="classpath:crafter/search/provider/services-context.xml"/>
     <import resource="${crafter.search.extension.base}/services-context.xml"/>
 
 </beans>

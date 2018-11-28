@@ -24,7 +24,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.craftercms.commons.rest.Result;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.Query;
