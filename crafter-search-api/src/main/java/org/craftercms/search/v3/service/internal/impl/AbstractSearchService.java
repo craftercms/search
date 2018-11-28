@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.v3.service.impl;
+package org.craftercms.search.v3.service.internal.impl;
 
 import java.io.File;
 import java.util.List;
@@ -33,7 +33,7 @@ import org.craftercms.search.rest.v3.requests.SearchRequest;
 import org.craftercms.search.rest.v3.requests.SearchResponse;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
-import org.craftercms.search.v3.service.SearchMapper;
+import org.craftercms.search.v3.service.internal.SearchMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -194,7 +194,7 @@ public abstract class AbstractSearchService<T extends Query, I, O> implements Se
      */
     @Override
     public void updateContent(final String site, final String id, final Content content) throws SearchException {
-        throw new UnsupportedOperationException("Only use updateContent methods that receive a file");
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -202,7 +202,7 @@ public abstract class AbstractSearchService<T extends Query, I, O> implements Se
      */
     @Override
     public void updateContent(final String indexId, final String site, final String id, final Content content) throws SearchException {
-        throw new UnsupportedOperationException("Only use updateContent methods that receive a file");
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -211,7 +211,7 @@ public abstract class AbstractSearchService<T extends Query, I, O> implements Se
     @Override
     public void updateContent(final String site, final String id, final Content content, final Map<String,
         List<String>> additionalFields) throws SearchException {
-        throw new UnsupportedOperationException("Only use updateContent methods that receive a file");
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -220,7 +220,7 @@ public abstract class AbstractSearchService<T extends Query, I, O> implements Se
     @Override
     public void updateContent(final String indexId, final String site, final String id, final Content content,
                               final Map<String, List<String>> additionalFields) throws SearchException {
-        throw new UnsupportedOperationException("Only use updateContent methods that receive a file");
+        throw new UnsupportedOperationException();
     }
 
     /**

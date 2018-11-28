@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2018 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.craftercms.search.service.impl;
 
 import java.util.LinkedList;
@@ -27,12 +44,19 @@ import org.craftercms.search.v3.model.sort.FieldSort;
 import org.craftercms.search.rest.v3.requests.SortRequest;
 import org.craftercms.search.rest.v3.requests.SuggestRequest;
 import org.craftercms.search.v3.model.suggest.Suggestion;
-import org.craftercms.search.v3.service.SearchMapper;
+import org.craftercms.search.v3.service.internal.SearchMapper;
 
 import static org.craftercms.search.service.impl.SolrUtils.extractDocs;
 
+/**
+ * Implementation of {@link SearchMapper} for Solr documents
+ * @author joseross
+ */
 public class SolrSearchMapper implements SearchMapper<SolrQuery, QueryResponse> {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SolrQuery buildRequest(final SearchRequest request) {
         SolrQuery query = new SolrQuery();
@@ -45,6 +69,9 @@ public class SolrSearchMapper implements SearchMapper<SolrQuery, QueryResponse> 
         return query;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void mapSortRequest(final SortRequest sortRequest, final SolrQuery query) {
         List<FieldSort> fields = sortRequest.getFields();
@@ -54,11 +81,17 @@ public class SolrSearchMapper implements SearchMapper<SolrQuery, QueryResponse> 
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void mapFacetRequest(final FacetRequest facetRequest, final SolrQuery query) {
         query.addFacetField(facetRequest.getFields());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void mapHighlightRequest(final HighlightRequest highlightRequest, final SolrQuery query) {
         query.addHighlightField(StringUtils.join(highlightRequest.getFields(), ","));
@@ -71,6 +104,9 @@ public class SolrSearchMapper implements SearchMapper<SolrQuery, QueryResponse> 
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void mapSuggestRequest(final SuggestRequest suggestRequest, final SolrQuery query) {
         query.set("suggest", true);
@@ -83,6 +119,9 @@ public class SolrSearchMapper implements SearchMapper<SolrQuery, QueryResponse> 
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void mapLocationRequest(final LocationRequest locationRequest, final SolrQuery query) {
         List<DistanceFilter> distances = locationRequest.getDistances();
@@ -102,16 +141,25 @@ public class SolrSearchMapper implements SearchMapper<SolrQuery, QueryResponse> 
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long extractTotal(final QueryResponse result) {
         return result.getResults().getNumFound();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Map<String, Object>> extractItems(final QueryResponse result) {
         return (List<Map<String, Object>>) extractDocs(result.getResults());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Facet> extractFacets(final QueryResponse response) {
         List<Facet> facets = new LinkedList<>();
@@ -126,6 +174,9 @@ public class SolrSearchMapper implements SearchMapper<SolrQuery, QueryResponse> 
         return facets;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Highlight> extractHighlights(final QueryResponse response) {
         List<Highlight> highlights = new LinkedList<>();
@@ -140,6 +191,9 @@ public class SolrSearchMapper implements SearchMapper<SolrQuery, QueryResponse> 
         return highlights;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Suggestion> extractSuggestions(final QueryResponse response) {
         List<Suggestion> suggestions = new LinkedList<>();

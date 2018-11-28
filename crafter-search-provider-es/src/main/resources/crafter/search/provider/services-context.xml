@@ -26,6 +26,25 @@
 
     <bean id="crafter.documentBuilder" class="org.craftercms.search.service.impl.ElasticDocumentBuilder">
         <property name="objectMapper" ref="crafter.xmlObjectMapper"/>
+        <property name="idFieldName" value="${crafter.search.solr.field.id.name}"/>
+        <property name="rootIdFieldName" value="${crafter.search.solr.field.rootId.name}"/>
+        <property name="siteFieldName" value="${crafter.search.solr.field.site.name}"/>
+        <property name="localIdFieldName" value="${crafter.search.solr.field.localId.name}"/>
+        <property name="publishingDateFieldName" value="${crafter.search.solr.field.publishedDate.name}"/>
+        <property name="publishingDateAltFieldName" value="${crafter.search.solr.field.publishedDate.alt.name}"/>
+        <property name="queryReplacements">
+            <map>
+                <entry key="NOW" value="now"/>
+                <entry key="(\+|\-)(\d+)HOURS?" value="$1$2h"/>
+                <entry key="(\+|\-)(\d+)DAYS?" value="$1$2d"/>
+                <entry key="(\+|\-)(\d+)MONTHS?" value="$1$2M"/>
+                <entry key="(\+|\-)(\d+)YEARS?" value="$1$2y"/>
+                <entry key="/HOUR" value="/h"/>
+                <entry key="/DAY" value="/d"/>
+                <entry key="/MONTH" value="/M"/>
+                <entry key="/YEAR" value="/y"/>
+            </map>
+        </property>
     </bean>
 
     <bean id="crafter.adminService" class="org.craftercms.search.service.impl.ElasticAdminService"
@@ -42,6 +61,8 @@
         <property name="searchMapper">
             <bean class="org.craftercms.search.service.impl.ElasticSearchMapper"/>
         </property>
+        <property name="defaultIndexId" value="${crafter.search.index.default}"/>
+        <property name="fileNameFieldName" value="${crafter.search.solr.field.fileName.name}"/>
         <property name="additionalFilterQueries" value="${crafter.search.solr.filter.additional.queries}"/>
     </bean>
 

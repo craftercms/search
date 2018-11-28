@@ -24,14 +24,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.craftercms.commons.jackson.search.MixedMultivaluedMap;
 import org.craftercms.search.exception.SearchException;
-import org.craftercms.search.v3.service.impl.AbstractDocumentBuilder;
-import org.craftercms.search.util.MixedMultivaluedMap;
+import org.craftercms.search.v3.service.internal.impl.AbstractDocumentBuilder;
 import org.springframework.beans.factory.annotation.Required;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Implementation of {@link org.craftercms.search.v3.service.DocumentBuilder} for ElasticSearch
+ * Implementation of {@link org.craftercms.search.v3.service.internal.DocumentBuilder} for ElasticSearch
  * @author joseross
  */
 public class ElasticDocumentBuilder extends AbstractDocumentBuilder<Map<String, Object>> {

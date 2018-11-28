@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.v3.service;
+package org.craftercms.search.v3.service.internal;
 
 import java.util.List;
 import java.util.Map;

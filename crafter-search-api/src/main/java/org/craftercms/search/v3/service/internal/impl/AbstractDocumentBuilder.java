@@ -15,12 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.v3.service.impl;
+package org.craftercms.search.v3.service.internal.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import org.craftercms.search.v3.service.DocumentBuilder;
+import org.craftercms.search.v3.service.internal.DocumentBuilder;
+
 
 /**
  * Basic operations for all {@link DocumentBuilder} implementations
@@ -28,7 +29,6 @@ import org.craftercms.search.v3.service.DocumentBuilder;
  * @author joseross
  */
 public abstract class AbstractDocumentBuilder<T> implements DocumentBuilder<T> {
-
 
     public static final String DEFAULT_ID_FIELD_NAME = "id";
     public static final String DEFAULT_ROOT_ID_FIELD_NAME = "rootId";

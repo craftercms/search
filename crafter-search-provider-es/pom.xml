@@ -23,6 +23,11 @@
             <artifactId>crafter-search-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.craftercms</groupId>
+            <artifactId>crafter-commons-utilities</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Elasticsearch -->
         <dependency>

@@ -26,7 +26,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 import org.craftercms.search.service.SolrDocumentPostProcessor;
-import org.craftercms.search.v3.service.impl.AbstractDocumentBuilder;
+import org.craftercms.search.v3.service.internal.impl.AbstractDocumentBuilder;
 
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_CONTENT_TYPE_FIELD_NAME;
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_PARENT_ID_FIELD_NAME;

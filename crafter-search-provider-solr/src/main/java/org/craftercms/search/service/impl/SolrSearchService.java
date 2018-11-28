@@ -43,7 +43,7 @@ import org.craftercms.search.exception.SearchServerException;
 import org.craftercms.search.exception.SolrDocumentBuildException;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.SolrDocumentBuilder;
-import org.craftercms.search.v3.service.impl.AbstractSearchService;
+import org.craftercms.search.v3.service.internal.impl.AbstractSearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;

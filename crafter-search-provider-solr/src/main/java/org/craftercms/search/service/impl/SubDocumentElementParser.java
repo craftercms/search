@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.craftercms.search.service.ElementParser;
 import org.craftercms.search.service.ElementParserService;
-import org.craftercms.search.v3.service.impl.AbstractDocumentBuilder;
+import org.craftercms.search.v3.service.internal.impl.AbstractDocumentBuilder;
 import org.craftercms.search.utils.BooleanUtils;
 import org.dom4j.Element;
 import org.slf4j.Logger;

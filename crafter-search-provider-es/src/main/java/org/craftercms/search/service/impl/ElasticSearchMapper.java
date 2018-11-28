@@ -20,8 +20,11 @@ package org.craftercms.search.service.impl;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.craftercms.search.rest.v3.requests.SearchRequest;
 import org.craftercms.search.v3.model.facet.Facet;
 import org.craftercms.search.rest.v3.requests.FacetRequest;
@@ -32,7 +35,7 @@ import org.craftercms.search.rest.v3.requests.HighlightRequest;
 import org.craftercms.search.rest.v3.requests.SortRequest;
 import org.craftercms.search.rest.v3.requests.SuggestRequest;
 import org.craftercms.search.v3.model.suggest.Suggestion;
-import org.craftercms.search.v3.service.SearchMapper;
+import org.craftercms.search.v3.service.internal.SearchMapper;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.DistanceUnit;
@@ -59,6 +62,12 @@ import org.elasticsearch.search.suggest.SuggestBuilders;
  */
 public class ElasticSearchMapper implements SearchMapper<SearchSourceBuilder, SearchResponse> {
 
+    protected Map<String, String> queryReplacements;
+
+    public void setQueryReplacements(final Map<String, String> queryReplacements) {
+        this.queryReplacements = queryReplacements;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -72,15 +81,35 @@ public class ElasticSearchMapper implements SearchMapper<SearchSourceBuilder, Se
     }
 
     protected QueryBuilder buildQuery(SearchRequest request) {
-        QueryBuilder query = QueryBuilders.queryStringQuery(request.getMainQuery());
+        QueryBuilder query = QueryBuilders.queryStringQuery(doQueryReplacements(request.getMainQuery()));
 
         if(CollectionUtils.isNotEmpty(request.getFilterQueries())) {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery().must(query);
-            request.getFilterQueries().forEach(filter -> boolQuery.filter(QueryBuilders.queryStringQuery(filter)));
+            request.getFilterQueries().forEach(filter ->
+                boolQuery.filter(QueryBuilders.queryStringQuery(doQueryReplacements(filter))));
             query = boolQuery;
         }
 
         return query;
+    }
+
+    /**
+     * Replaces incompatible operators from Solr queries.
+     *
+     * Needed for backwards compatibility.
+     *
+     * @param query the query string
+     * @return the updated query string
+     */
+    protected String doQueryReplacements(String query) {
+        String updatedQuery = query;
+        if(MapUtils.isNotEmpty(queryReplacements)) {
+            Set<Map.Entry<String, String>> entries = queryReplacements.entrySet();
+            for(Map.Entry<String, String> entry : entries) {
+                updatedQuery = StringUtils.replaceAll(updatedQuery, entry.getKey(), entry.getValue());
+            }
+        }
+        return updatedQuery;
     }
 
     /**
