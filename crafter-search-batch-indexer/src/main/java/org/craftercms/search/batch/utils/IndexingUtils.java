@@ -20,12 +20,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.service.SearchService;
+
+import javax.activation.FileTypeMap;
 
 /**
  * Utility methods used for simplifying REST search service update calls.
@@ -37,6 +40,15 @@ public class IndexingUtils {
     private static final Log logger = LogFactory.getLog(IndexingUtils.class);
 
     private IndexingUtils() {
+    }
+
+    public static boolean isMimeTypeSupported(FileTypeMap mimeTypesMap, List<String> supportedMimeTypes,
+                                              String filename) {
+        if (mimeTypesMap != null && CollectionUtils.isNotEmpty(supportedMimeTypes)) {
+            return supportedMimeTypes.contains(mimeTypesMap.getContentType(filename));
+        } else {
+            return true;
+        }
     }
 
     public static void doUpdate(SearchService searchService, String indexId, String siteName, String id, String xml,
