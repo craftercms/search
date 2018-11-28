@@ -17,7 +17,7 @@
 
 package org.craftercms.search.util.spring;
 
-import org.craftercms.search.util.jackson.CrafterMultivaluedModule;
+import org.craftercms.commons.jackson.search.CrafterMultivaluedModule;
 import org.springframework.beans.factory.FactoryBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;

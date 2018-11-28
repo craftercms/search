@@ -30,7 +30,7 @@ import org.craftercms.search.service.ElementParserService;
 import org.craftercms.search.service.FieldValueConverter;
 import org.craftercms.search.service.SolrDocumentBuilder;
 import org.craftercms.search.service.SolrDocumentPostProcessor;
-import org.craftercms.search.v3.service.impl.AbstractDocumentBuilder;
+import org.craftercms.search.v3.service.internal.impl.AbstractDocumentBuilder;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;

@@ -29,7 +29,7 @@ import java.util.Map;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.exception.SearchServerException;
 import org.craftercms.search.service.Query;
-import org.craftercms.search.v3.service.impl.AbstractSearchService;
+import org.craftercms.search.v3.service.internal.impl.AbstractSearchService;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.elasticsearch.action.admin.indices.flush.FlushResponse;
 import org.elasticsearch.action.delete.DeleteRequest;

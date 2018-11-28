@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 import org.craftercms.search.service.SolrDocumentPostProcessor;
-import org.craftercms.search.v3.service.impl.AbstractDocumentBuilder;
+import org.craftercms.search.v3.service.internal.impl.AbstractDocumentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;

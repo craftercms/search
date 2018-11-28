@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.ModifiableSolrParams;
-import org.craftercms.search.v3.service.DocumentBuilder;
+import org.craftercms.search.v3.service.internal.DocumentBuilder;
 
 /**
  * <p/>
