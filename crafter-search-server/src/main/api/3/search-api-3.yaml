@@ -4,7 +4,7 @@ servers:
 info:
   description: |-
     Crafter Search API v3
-  version: '3'
+  version: '3.0.0'
   title: Crafter Search
   termsOfService: ''
   contact:
@@ -149,6 +149,9 @@ paths:
                   type: string
                   format: binary
                   description: The content of the XML document to update
+                parse_content:
+                  type: boolean
+                  description: Indicates if the document should be parsed instead of sending it complete to the search provider. The default value is true
                 '*':
                   description: Any additional parameter will be indexed as part of the XML document
             encoding:

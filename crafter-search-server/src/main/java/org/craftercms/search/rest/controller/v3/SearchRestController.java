@@ -18,7 +18,9 @@
 package org.craftercms.search.rest.controller.v3;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Map;
@@ -31,6 +33,7 @@ import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.rest.v3.requests.SearchRequest;
 import org.craftercms.search.rest.v3.requests.SearchResponse;
 import org.craftercms.search.service.SearchService;
+import org.craftercms.search.v3.service.DocumentParser;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -53,13 +56,21 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping(URL_ROOT)
 public class SearchRestController {
 
-    private static final String[] NON_ADDITIONAL_FIELD_NAMES = {PARAM_INDEX_ID, PARAM_SITE, PARAM_ID, PARAM_CONTENT};
+    private static final String[] NON_ADDITIONAL_FIELD_NAMES = {PARAM_INDEX_ID, PARAM_SITE, PARAM_ID, PARAM_CONTENT,
+        PARAM_PARSE};
 
     protected SearchService searchService;
+
+    protected DocumentParser documentParser;
 
     @Required
     public void setSearchService(final SearchService searchService) {
         this.searchService = searchService;
+    }
+
+    @Required
+    public void setDocumentParser(final DocumentParser documentParser) {
+        this.documentParser = documentParser;
     }
 
     @RequestMapping(value = URL_SEARCH, method = { GET, POST })
@@ -104,6 +115,7 @@ public class SearchRestController {
     public Result updateContent(@RequestParam(value = PARAM_INDEX_ID, required = false) String indexId,
                                 @RequestParam(PARAM_SITE) String site,
                                 @RequestParam(PARAM_ID) String id,
+                                @RequestParam(value = PARAM_PARSE, defaultValue = "true") boolean parseContent,
                                 @RequestPart(PARAM_CONTENT) MultipartFile file,
                                 HttpServletRequest request) throws SearchException {
 
@@ -114,7 +126,14 @@ public class SearchRestController {
             file.transferTo(tmpFile);
 
             try {
-                searchService.updateContent(indexId, site, id, tmpFile, additionalFields);
+                if(parseContent) {
+                    try(InputStream is = new FileInputStream(tmpFile)) {
+                        String xml = documentParser.parseToXml(is, additionalFields);
+                        searchService.update(indexId, site, id, xml, true);
+                    }
+                } else {
+                    searchService.updateContent(indexId, site, id, tmpFile, additionalFields);
+                }
 
                 return Result.OK;
             } finally {

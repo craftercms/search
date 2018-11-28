@@ -21,8 +21,10 @@
         </property>
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
     </bean>
-    
 
+    <bean id="crafter.documentParser" class="org.craftercms.search.v3.service.impl.TikaDocumentParser">
+        <property name="charLimit" value="${crafter.search.parse.limit}"/>
+    </bean>
 
     <bean id="crafter.corsFilter" class="org.craftercms.commons.web.CORSFilter">
         <property name="disableCORS" value="${crafter.search.cors.disable}"/>
