@@ -26,7 +26,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.batch.UpdateStatus;
+import org.craftercms.search.service.ResourceAwareSearchService;
 import org.craftercms.search.service.SearchService;
+import org.springframework.core.io.Resource;
 
 import javax.activation.FileTypeMap;
 
@@ -60,8 +62,8 @@ public class IndexingUtils {
         updateStatus.addSuccessfulUpdate(id);
     }
 
-    public static void doUpdateContent(SearchService searchService, String indexId, String siteName, String id, Content content,
-                                       UpdateStatus updateStatus) throws IOException {
+    public static void doUpdateContent(SearchService searchService, String indexId, String siteName, String id,
+                                       Content content, UpdateStatus updateStatus) {
         searchService.updateContent(indexId, siteName, id, content);
 
         logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
@@ -70,8 +72,9 @@ public class IndexingUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static void doUpdateContent(SearchService searchService, String indexId, String siteName, String id, Content content,
-                                       Map<String, List<String>> additionalFields, UpdateStatus updateStatus) throws IOException {
+    public static void doUpdateContent(SearchService searchService, String indexId, String siteName, String id,
+                                       Content content, Map<String, List<String>> additionalFields,
+                                       UpdateStatus updateStatus)  {
         searchService.updateContent(indexId, siteName, id, content, additionalFields);
 
         logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
@@ -79,7 +82,27 @@ public class IndexingUtils {
         updateStatus.addSuccessfulUpdate(id);
     }
 
-    public static void doDelete(SearchService searchService, String indexId, String siteName, String id, UpdateStatus updateStatus) {
+    public static void doUpdateContent(ResourceAwareSearchService searchService, String indexId, String siteName,
+                                       String id, Resource resource, UpdateStatus updateStatus)  {
+        searchService.updateContent(indexId, siteName, id, resource);
+
+        logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+
+        updateStatus.addSuccessfulUpdate(id);
+    }
+
+    public static void doUpdateContent(ResourceAwareSearchService searchService, String indexId, String siteName,
+                                       String id, Resource resource, Map<String, List<String>> additionalFields,
+                                       UpdateStatus updateStatus)  {
+        searchService.updateContent(indexId, siteName, id, resource, additionalFields);
+
+        logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+
+        updateStatus.addSuccessfulUpdate(id);
+    }
+
+    public static void doDelete(SearchService searchService, String indexId, String siteName, String id,
+                                UpdateStatus updateStatus) {
         searchService.delete(indexId, siteName, id);
 
         logger.info("File " + getSiteBasedPath(siteName, id) + " deleted from index " + getIndexNameStr(indexId));

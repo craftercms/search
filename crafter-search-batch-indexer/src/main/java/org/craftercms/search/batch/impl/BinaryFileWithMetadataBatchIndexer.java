@@ -1,24 +1,24 @@
 package org.craftercms.search.batch.impl;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.craftercms.commons.file.stores.RemoteFileStore;
+import org.craftercms.commons.file.stores.RemoteFile;
+import org.craftercms.commons.file.stores.RemoteFileResolver;
 import org.craftercms.commons.lang.RegexUtils;
 import org.craftercms.core.processors.ItemProcessor;
 import org.craftercms.core.processors.impl.ItemProcessorPipeline;
 import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
-import org.craftercms.core.store.impl.filesystem.FileSystemFile;
 import org.craftercms.search.batch.BatchIndexer;
 import org.craftercms.search.batch.UpdateSet;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.exception.BatchIndexingException;
 import org.craftercms.search.rest.v3.requests.SearchRequest;
 import org.craftercms.search.rest.v3.requests.SearchResponse;
+import org.craftercms.search.service.ResourceAwareSearchService;
 import org.craftercms.search.service.SearchService;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -29,7 +29,6 @@ import org.springframework.util.MultiValueMap;
 
 import javax.activation.FileTypeMap;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -53,7 +52,7 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
 
     protected List<String> supportedMimeTypes;
     protected FileTypeMap mimeTypesMap;
-    protected RemoteFileStore remoteBinaryStore;
+    protected RemoteFileResolver remoteFileResolver;
     protected ItemProcessor itemProcessor;
     protected List<String> metadataPathPatterns;
     protected List<String> binaryPathPatterns;
@@ -73,8 +72,12 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
         localIdFieldName = DEFAULT_LOCAL_ID_FIELD_NAME;
     }
 
-    public void setRemoteBinaryStore(RemoteFileStore remoteBinaryStore) {
-        this.remoteBinaryStore = remoteBinaryStore;
+    public void setSupportedMimeTypes(List<String> supportedMimeTypes) {
+        this.supportedMimeTypes = supportedMimeTypes;
+    }
+
+    public void setRemoteFileResolver(RemoteFileResolver remoteFileResolver) {
+        this.remoteFileResolver = remoteFileResolver;
     }
 
     public void setItemProcessor(ItemProcessor itemProcessor) {
@@ -291,8 +294,8 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
     }
 
     @SuppressWarnings("unchecked")
-    protected String searchMetadataPathFromBinaryPath(SearchService searchService, String indexId, String siteName,
-                                                      String binaryPath) {
+    protected String searchMetadataPathFromBinaryPath(SearchService searchService, String indexId,
+                                                      String siteName, String binaryPath) {
         SearchRequest request = searchService.createRequest();
         request.setMainQuery("crafterSite:\"" + siteName + "\" AND localId:\"" + binaryPath + "\"");
         request.setFields(metadataPathFieldName);
@@ -354,22 +357,16 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
                                             String binaryPath, MultiValueMap<String, String> metadata,
                                             UpdateStatus updateStatus) {
         try {
-            Content binaryContent;
-
             // Check if the binary file is stored remotely
-            if (remoteBinaryStore != null && isRemoteBinary(binaryPath)) {
-                logger.info("Downloading remote file " + binaryPath + " for indexing");
+            if (remoteFileResolver != null && isRemoteBinary(binaryPath)) {
+                logger.info("Indexing remote file " + binaryPath);
 
-                File downloadedFile = remoteBinaryStore.downloadFile(binaryPath).toFile();
-                try {
-                    binaryContent = new FileSystemFile(downloadedFile);
+                RemoteFile remoteFile = remoteFileResolver.resolve(binaryPath);
 
-                    doUpdateContent(searchService, indexId, siteName, binaryPath, binaryContent, metadata, updateStatus);
-                } finally {
-                    FileUtils.deleteQuietly(downloadedFile);
-                }
+                doUpdateContent((ResourceAwareSearchService) searchService, indexId, siteName, binaryPath,
+                                remoteFile.toResource(), metadata, updateStatus);
             } else {
-                binaryContent = contentStoreService.findContent(context, binaryPath);
+                Content binaryContent = contentStoreService.findContent(context, binaryPath);
                 if (binaryContent == null) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("No binary file found @ " + getSiteBasedPath(siteName, binaryPath) +
@@ -391,22 +388,16 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
                                 ContentStoreService contentStoreService, Context context, String binaryPath,
                                 UpdateStatus updateStatus) {
         try {
-            Content binaryContent;
-
             // Check if the binary file is stored remotely
-            if (remoteBinaryStore != null && isRemoteBinary(binaryPath)) {
-                logger.info("Downloading remote file " + binaryPath + " for indexing");
+            if (remoteFileResolver != null && isRemoteBinary(binaryPath)) {
+                logger.info("Indexing remote file " + binaryPath);
 
-                File downloadedFile = remoteBinaryStore.downloadFile(binaryPath).toFile();
-                try {
-                    binaryContent = new FileSystemFile(downloadedFile);
+                RemoteFile remoteFile = remoteFileResolver.resolve(binaryPath);
 
-                    doUpdateContent(searchService, indexId, siteName, binaryPath, binaryContent, updateStatus);
-                } finally {
-                    FileUtils.deleteQuietly(downloadedFile);
-                }
+                doUpdateContent((ResourceAwareSearchService) searchService, indexId, siteName, binaryPath,
+                                remoteFile.toResource(), updateStatus);
             } else {
-                binaryContent = contentStoreService.findContent(context, binaryPath);
+                Content binaryContent = contentStoreService.findContent(context, binaryPath);
                 if (binaryContent != null) {
                     doUpdateContent(searchService, indexId, siteName, binaryPath, binaryContent, updateStatus);
                 } else {
