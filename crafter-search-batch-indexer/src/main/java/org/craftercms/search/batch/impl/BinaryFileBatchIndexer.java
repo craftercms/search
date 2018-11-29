@@ -16,16 +16,15 @@
  */
 package org.craftercms.search.batch.impl;
 
-import java.util.List;
-import javax.activation.FileTypeMap;
-
-import org.apache.commons.collections4.CollectionUtils;
 import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.service.SearchService;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
+
+import javax.activation.FileTypeMap;
+import java.util.List;
 
 import static org.craftercms.search.batch.utils.IndexingUtils.*;
 
