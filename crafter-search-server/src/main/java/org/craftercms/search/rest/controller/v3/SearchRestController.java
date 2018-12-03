@@ -33,7 +33,8 @@ import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.rest.v3.requests.SearchRequest;
 import org.craftercms.search.rest.v3.requests.SearchResponse;
 import org.craftercms.search.service.SearchService;
-import org.craftercms.search.v3.service.DocumentParser;
+import org.craftercms.search.v3.service.internal.SearchProvider;
+import org.craftercms.search.v3.service.internal.DocumentParser;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -71,6 +72,11 @@ public class SearchRestController {
     @Required
     public void setDocumentParser(final DocumentParser documentParser) {
         this.documentParser = documentParser;
+    }
+
+    @RequestMapping(value = URL_PROVIDER, method = GET)
+    public SearchProvider getProvider() {
+        return searchService.getProvider();
     }
 
     @RequestMapping(value = URL_SEARCH, method = { GET, POST })

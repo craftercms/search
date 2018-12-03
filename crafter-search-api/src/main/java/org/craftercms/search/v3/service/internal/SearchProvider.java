@@ -15,24 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.v3.service;
-
-import java.io.InputStream;
-
-import org.springframework.util.MultiValueMap;
+package org.craftercms.search.v3.service.internal;
 
 /**
- * Defines the operations to parse binary documents for indexing
+ * Defines the supported search providers
  * @author joseross
  */
-public interface DocumentParser {
-
-    /**
-     * Parses the given document and generates an XML file
-     * @param content the document to parse
-     * @param additionalFields additional fields to add
-     * @return an XML ready to be indexed
-     */
-    String parseToXml(InputStream content, MultiValueMap<String, String> additionalFields);
-
+public enum SearchProvider {
+    SOLR,
+    ELASTIC_SEARCH
 }

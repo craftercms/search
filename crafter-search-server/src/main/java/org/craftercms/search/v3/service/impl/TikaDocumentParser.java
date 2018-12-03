@@ -24,6 +24,8 @@ import java.util.Map;
 import org.apache.tika.Tika;
 import org.apache.tika.metadata.Metadata;
 import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.v3.service.internal.DocumentParser;
+import org.craftercms.search.v3.service.internal.impl.AbstractDocumentParser;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +39,7 @@ import static org.apache.tika.metadata.TikaCoreProperties.MODIFIED;
 import static org.apache.tika.metadata.TikaCoreProperties.TITLE;
 
 /**
- * Implementation of {@link org.craftercms.search.v3.service.DocumentParser} that uses Apache Tika
+ * Implementation of {@link DocumentParser} that uses Apache Tika
  * @author joseross
  */
 public class TikaDocumentParser extends AbstractDocumentParser {
