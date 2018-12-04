@@ -16,16 +16,15 @@
  */
 package org.craftercms.search.batch.impl;
 
-import java.util.List;
-import javax.activation.FileTypeMap;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.service.SearchService;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
+
+import javax.activation.FileTypeMap;
+import java.util.List;
 
 import static org.craftercms.search.batch.utils.IndexingUtils.*;
 
@@ -64,14 +63,7 @@ public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
     @Override
     protected boolean include(String path) {
         if (super.include(path)) {
-            if (CollectionUtils.isNotEmpty(supportedMimeTypes)) {
-                String mimeType = mimeTypesMap.getContentType(path);
-                if (supportedMimeTypes.contains(mimeType)) {
-                    return true;
-                }
-            } else {
-                return true;
-            }
+            return isMimeTypeSupported(mimeTypesMap, supportedMimeTypes, path);
         }
 
         return false;
