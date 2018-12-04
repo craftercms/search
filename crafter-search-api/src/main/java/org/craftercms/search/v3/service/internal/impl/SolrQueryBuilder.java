@@ -287,6 +287,11 @@ public class SolrQueryBuilder extends AbstractQueryBuilder {
         return keywordHours;
     }
 
+    @Override
+    public String months() {
+        return keywordMonths;
+    }
+
     /**
      * {@inheritDoc}
      */

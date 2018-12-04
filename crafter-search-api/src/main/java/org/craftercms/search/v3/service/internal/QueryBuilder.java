@@ -247,6 +247,12 @@ public interface QueryBuilder {
     String hours();
 
     /**
+     * Utility method for the months unit keyword
+     * @return the months keyword
+     */
+    String months();
+
+    /**
      * Utility method for the days unit keyword
      * @return the days keyword
      */
