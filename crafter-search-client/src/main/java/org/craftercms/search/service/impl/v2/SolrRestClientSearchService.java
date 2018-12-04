@@ -29,9 +29,12 @@ import org.craftercms.commons.lang.UrlUtils;
 import org.craftercms.commons.rest.Result;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.service.ResourceAwareSearchService;
+import org.craftercms.search.service.utils.ContentResource;
+import org.craftercms.search.rest.v3.requests.SearchRequest;
+import org.craftercms.search.rest.v3.requests.SearchResponse;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.SolrQuery;
-import org.craftercms.search.service.utils.ContentResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -52,11 +55,11 @@ import static org.craftercms.search.service.utils.RestClientUtils.*;
  *
  * @author Alfonso Vásquez
  */
-public class SolrRestClientSearchService implements SearchService<SolrQuery> {
+public class SolrRestClientSearchService implements ResourceAwareSearchService<SolrQuery> {
 
     private static final Logger logger = LoggerFactory.getLogger(SolrRestClientSearchService.class);
 
-    private static final String[] NON_ADDITIONAL_FIELD_NAMES = {PARAM_INDEX_ID, PARAM_SITE, PARAM_ID, PARAM_CONTENT};
+    protected static final String[] NON_ADDITIONAL_FIELD_NAMES = {PARAM_INDEX_ID, PARAM_SITE, PARAM_ID, PARAM_CONTENT};
 
     public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
@@ -191,40 +194,9 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
     }
 
     @Override
-    public void updateContent(String site, String id, File file) throws SearchException {
-        updateContent(null, site, id, file, null);
-    }
-
-    @Override
-    public void updateContent(String indexId, String site, String id, File file) throws SearchException {
-        updateContent(indexId, site, id, file, null);
-    }
-
-    @Override
-    public void updateContent(String site, String id, File file, Map<String, List<String>> additionalFields) throws SearchException {
-        updateContent(null, site, id, file, additionalFields);
-    }
-
-    @Override
     public void updateContent(String indexId, String site, String id, File file,
                               Map<String, List<String>> additionalFields) throws SearchException {
         updateContent(indexId, site, id, new FileSystemResource(file), additionalFields);
-    }
-
-    @Override
-    public void updateContent(String site, String id, Content content) throws SearchException {
-        updateContent(null, site, id, content, null);
-    }
-
-    @Override
-    public void updateContent(String indexId, String site, String id, Content content) throws SearchException {
-        updateContent(indexId, site, id, content, null);
-    }
-
-    @Override
-    public void updateContent(String site, String id, Content content,
-                              Map<String, List<String>> additionalFields) throws SearchException {
-        updateContent(null, site, id, content, additionalFields);
     }
 
     @Override
@@ -236,8 +208,10 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
         updateContent(indexId, site, id, resource, additionalFields);
     }
 
+
+    @Override
     @SuppressWarnings("unchecked")
-    protected void updateContent(String indexId, String site, String id, Resource resource,
+    public void updateContent(String indexId, String site, String id, Resource resource,
                                  Map<String, List<String>> additionalFields) throws SearchException {
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 
@@ -278,6 +252,16 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
         }
 
         return url;
+    }
+
+    @Override
+    public SearchResponse search(final SearchRequest request) {
+        throw new UnsupportedOperationException("Method not implemented for API 2");
+    }
+
+    @Override
+    public Map nativeSearch(final String indexId, final Map params) {
+        throw new UnsupportedOperationException("Method not implemented for API 2");
     }
 
 }

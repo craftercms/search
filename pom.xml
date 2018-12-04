@@ -40,8 +40,9 @@
         <module>crafter-search-api</module>
         <module>crafter-search-server</module>
         <module>crafter-search-client</module>
-        <module>crafter-search-itest</module>
         <module>crafter-search-batch-indexer</module>
+        <module>crafter-search-provider-solr</module>
+        <module>crafter-search-provider-es</module>
     </modules>
 
     <properties>
@@ -51,20 +52,19 @@
         <commons.collection4.version>4.1</commons.collection4.version>
         <commons.fileupload.version>1.3.3</commons.fileupload.version>
         <commons.io.version>2.5</commons.io.version>
-        <httpcomponents.httpclient.version>4.3.1</httpcomponents.httpclient.version>
-        <httpcomponents.httpmime.version>4.3.1</httpcomponents.httpmime.version>
+        <httpcomponents.httpclient.version>4.5.6</httpcomponents.httpclient.version>
+        <httpcomponents.httpmime.version>4.5.6</httpcomponents.httpmime.version>
         <jackson.version>2.9.7</jackson.version>
         <spring.version>4.3.18.RELEASE</spring.version>
         <slf4j.version>1.7.7</slf4j.version>
         <log4j.version>1.2.16</log4j.version>
         <dom4j.version>1.6.1</dom4j.version>
         <rome.version>0.9</rome.version>
-        <solrj.version>6.6.5</solrj.version>
-        <jodatime.version>2.1</jodatime.version>
         <hibernate.validator.version>5.1.3.Final</hibernate.validator.version>
         <junit.version>4.12</junit.version>
         <mockito.version>1.9.5</mockito.version>
         <java.version>1.8</java.version>
+        <tika.version>1.19.1</tika.version>
     </properties>
 
     <build>
@@ -238,9 +238,35 @@
             <version>${spring.version}</version>
         </dependency>
         <!-- Spring end -->
+
+        <!-- httpclient and httpmime are needed for use of HttpSolrServer For details
+   see: https://issues.apache.org/jira/browse/SOLR-3411 -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpcomponents.httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>${httpcomponents.httpclient.version}</version>
+        </dependency>
     </dependencies>
 
     <profiles>
+        <profile>
+            <id>solr-provider</id>
+            <activation>
+                <property>
+                    <name>!elasticsearch</name>
+                </property>
+            </activation>
+            <modules>
+                <!-- This module only works when using Solr -->
+                <module>crafter-search-itest</module>
+            </modules>
+        </profile>
+
         <profile>
             <id>JDK8</id>
             <activation>

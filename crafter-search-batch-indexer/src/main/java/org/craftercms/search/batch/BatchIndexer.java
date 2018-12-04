@@ -16,8 +16,6 @@
  */
 package org.craftercms.search.batch;
 
-import java.util.List;
-
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.search.batch.exception.BatchIndexingException;

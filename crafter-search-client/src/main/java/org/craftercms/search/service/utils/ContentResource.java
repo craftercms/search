@@ -22,6 +22,11 @@ import java.io.InputStream;
 import org.craftercms.core.service.Content;
 import org.springframework.core.io.AbstractResource;
 
+/**
+ * A {@code Resource} that's basically a facade to a {@link Content} object.
+ *
+ * @author avasquez
+ */
 public class ContentResource extends AbstractResource {
 
     private Content content;

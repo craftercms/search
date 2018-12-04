@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>crafter-search-itest</artifactId>
-    <name>Crafter Search Integration Tests</name>
+    <name>Crafter Search Solr Integration Tests</name>
     <packaging>war</packaging>
 
     <parent>
@@ -15,13 +15,14 @@
     <properties>
         <!-- Cargo -->
         <cargo.container>jetty9x</cargo.container>
-        <cargo.container.url>http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.6.v20170531/jetty-distribution-9.4.6.v20170531.tar.gz</cargo.container.url>
+        <cargo.container.url>http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.14.v20181114/jetty-distribution-9.4.14.v20181114.tar.gz</cargo.container.url>
         <cargo.container.downloadDir>${user.home}/.m2/cargo/containers</cargo.container.downloadDir>
         <cargo.port>7070</cargo.port>
         <!-- Solr -->
         <solr.home>${project.build.directory}/classes/solr</solr.home>
         <!-- Search -->
         <search.context>/crafter-search</search.context>
+        <jodatime.version>2.1</jodatime.version>
     </properties>
 
     <dependencies>
@@ -163,7 +164,7 @@
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.6.2</version>
+                <version>1.7.0</version>
                 <executions>
                     <execution>
                         <id>start-container</id>
