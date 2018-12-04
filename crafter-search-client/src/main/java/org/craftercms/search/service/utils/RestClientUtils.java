@@ -40,7 +40,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-
 public class RestClientUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(RestClientUtils.class);
@@ -58,8 +57,10 @@ public class RestClientUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static void addAdditionalFieldsToMultiPartRequest(Map<String, List<String>> additionalFields, MultiValueMap<String, Object> parts,
-                                                             String[] nonAdditionalFields, String multiValueSeparator) {
+    public static void addAdditionalFieldsToMultiPartRequest(Map<String, List<String>> additionalFields,
+                                                             MultiValueMap<String, Object> parts,
+                                                             String[] nonAdditionalFields,
+                                                             String multiValueSeparator) {
         if (MapUtils.isNotEmpty(additionalFields)) {
             for (Map.Entry<String, List<String>> additionalField : additionalFields.entrySet()) {
                 String fieldName = additionalField.getKey();
