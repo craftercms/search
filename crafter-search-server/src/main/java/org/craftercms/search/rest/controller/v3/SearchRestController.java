@@ -34,6 +34,8 @@ import org.craftercms.search.rest.v3.requests.SearchRequest;
 import org.craftercms.search.rest.v3.requests.SearchResponse;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.v3.service.DocumentParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -55,6 +57,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RestController
 @RequestMapping(URL_ROOT)
 public class SearchRestController {
+
+    private static final Logger logger = LoggerFactory.getLogger(SearchRestController.class);
 
     private static final String[] NON_ADDITIONAL_FIELD_NAMES = {PARAM_INDEX_ID, PARAM_SITE, PARAM_ID, PARAM_CONTENT,
         PARAM_PARSE};
@@ -127,11 +131,14 @@ public class SearchRestController {
 
             try {
                 if(parseContent) {
+                    logger.info("Parsing binary file {}", file.getOriginalFilename());
                     try(InputStream is = new FileInputStream(tmpFile)) {
                         String xml = documentParser.parseToXml(is, additionalFields);
+                        logger.info("Indexing contents parsed from binary file {}", file.getOriginalFilename());
                         searchService.update(indexId, site, id, xml, true);
                     }
                 } else {
+                    logger.info("Indexing binary file {}", file.getOriginalFilename());
                     searchService.updateContent(indexId, site, id, tmpFile, additionalFields);
                 }
 
