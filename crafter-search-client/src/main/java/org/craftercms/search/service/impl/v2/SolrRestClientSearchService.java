@@ -29,6 +29,7 @@ import org.craftercms.commons.lang.UrlUtils;
 import org.craftercms.commons.rest.Result;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.service.ResourceAwareSearchService;
 import org.craftercms.search.service.utils.ContentResource;
 import org.craftercms.search.rest.v3.requests.SearchRequest;
 import org.craftercms.search.rest.v3.requests.SearchResponse;
@@ -56,7 +57,7 @@ import static org.craftercms.search.service.utils.RestClientUtils.*;
  *
  * @author Alfonso Vásquez
  */
-public class SolrRestClientSearchService implements SearchService<SolrQuery> {
+public class SolrRestClientSearchService implements ResourceAwareSearchService<SolrQuery> {
 
     private static final Logger logger = LoggerFactory.getLogger(SolrRestClientSearchService.class);
 
@@ -210,8 +211,9 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
     }
 
 
+    @Override
     @SuppressWarnings("unchecked")
-    protected void updateContent(String indexId, String site, String id, Resource resource,
+    public void updateContent(String indexId, String site, String id, Resource resource,
                                  Map<String, List<String>> additionalFields) throws SearchException {
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 

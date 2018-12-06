@@ -127,7 +127,7 @@ public class RestClientSearchService extends SolrRestClientSearchService {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected void updateContent(String indexId, String site, String id, Resource resource,
+    public void updateContent(String indexId, String site, String id, Resource resource,
                                  Map<String, List<String>> additionalFields) throws SearchException {
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 
@@ -137,7 +137,7 @@ public class RestClientSearchService extends SolrRestClientSearchService {
         parts.set(PARAM_SITE, site);
         parts.set(PARAM_ID, id);
         parts.set(PARAM_CONTENT, resource);
-        parts.set(PARAM_PARSE, parseContent);
+        parts.set(PARAM_PARSE, Boolean.toString(parseContent));
 
         addAdditionalFieldsToMultiPartRequest(additionalFields, parts, NON_ADDITIONAL_FIELD_NAMES, null);
 

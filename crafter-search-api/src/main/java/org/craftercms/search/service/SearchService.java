@@ -162,7 +162,8 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
      *                          document)
      * @throws SearchException
      */
-    void updateContent(String indexId, String site, String id, File file, Map<String, List<String>> additionalFields) throws SearchException;
+    void updateContent(String indexId, String site, String id, File file, Map<String, List<String>> additionalFields)
+            throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).

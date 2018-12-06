@@ -30,6 +30,7 @@ import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.rest.v3.requests.SearchRequest;
 import org.craftercms.search.rest.v3.requests.SearchResponse;
+import org.craftercms.search.service.ResourceAwareSearchService;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.SolrQuery;
 import org.craftercms.search.service.utils.ContentResource;
@@ -55,7 +56,7 @@ import static org.craftercms.search.service.utils.RestClientUtils.*;
  *
  * @author Alfonso Vásquez
  */
-public class SolrRestClientSearchService implements SearchService<SolrQuery> {
+public class SolrRestClientSearchService implements ResourceAwareSearchService<SolrQuery> {
 
     private static final Logger logger = LoggerFactory.getLogger(SolrRestClientSearchService.class);
 
@@ -251,8 +252,9 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
         updateContent(indexId, site, id, resource, additionalFields);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    protected void updateContent(String indexId, String site, String id, Resource resource,
+    public void updateContent(String indexId, String site, String id, Resource resource,
                                  Map<String, List<String>> additionalFields) throws SearchException {
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 
@@ -266,7 +268,8 @@ public class SolrRestClientSearchService implements SearchService<SolrQuery> {
         String updateUrl;
 
         if (useUpdateDocumentRestApi) {
-            addAdditionalFieldsToMultiPartRequest(additionalFields, parts, NON_ADDITIONAL_FIELD_NAMES, multiValueSeparator);
+            addAdditionalFieldsToMultiPartRequest(additionalFields, parts, NON_ADDITIONAL_FIELD_NAMES,
+                                                  multiValueSeparator);
 
             updateUrl = createBaseUrl(URL_UPDATE_DOCUMENT);
         } else {
