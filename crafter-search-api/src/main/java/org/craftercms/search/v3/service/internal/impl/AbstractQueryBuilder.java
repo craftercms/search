@@ -50,6 +50,61 @@ public abstract class AbstractQueryBuilder implements QueryBuilder {
         this.andOperator = andOperator;
         this.orOperator = orOperator;
         defaultOperator = andOperator;
+        operators.addLast(defaultOperator);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public QueryBuilder and(final Runnable statements) {
+        addOperatorIfNeeded();
+        groupStatements(statements, andOperator);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public QueryBuilder or(final Runnable statements) {
+        addOperatorIfNeeded();
+        groupStatements(statements, orOperator);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public QueryBuilder not(final Runnable statements) {
+        addOperatorIfNeeded();
+        sb.append(format(" %s ", notOperator));
+        groupStatements(statements, defaultOperator);
+        return this;
+    }
+
+    protected void groupStatements(Runnable statements, String operator) {
+        operators.addLast(operator);
+        sb.append(openGroupChar);
+        statements.run();
+        sb.append(closeGroupChar);
+        operators.removeLast();
+    }
+
+    protected void addOperatorIfNeeded() {
+        if(StringUtils.isNotEmpty(sb) && !StringUtils.endsWith(sb, openGroupChar)) {
+            append(" %s ", operators.peekLast());
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public QueryBuilder addStatements(Closure<Void> statements) {
+        processClosure(statements);
+        return this;
     }
 
     /**
@@ -58,7 +113,7 @@ public abstract class AbstractQueryBuilder implements QueryBuilder {
     @Override
     public void or(Closure<Void> statements) {
         addOperatorIfNeeded();
-        groupRules(statements, orOperator);
+        groupStatements(statements, orOperator);
     }
 
     /**
@@ -67,7 +122,7 @@ public abstract class AbstractQueryBuilder implements QueryBuilder {
     @Override
     public void and(Closure<Void> statements) {
         addOperatorIfNeeded();
-        groupRules(statements, andOperator);
+        groupStatements(statements, andOperator);
     }
 
     /**
@@ -77,13 +132,7 @@ public abstract class AbstractQueryBuilder implements QueryBuilder {
     public void not(Closure<Void> statements) {
         addOperatorIfNeeded();
         sb.append(format(" %s ", notOperator));
-        groupRules(statements, orOperator);
-    }
-
-    protected void addOperatorIfNeeded() {
-        if(StringUtils.isNotEmpty(sb) && !StringUtils.endsWith(sb, openGroupChar)) {
-            append(" %s ", operators.peekLast());
-        }
+        groupStatements(statements, defaultOperator);
     }
 
     protected void processClosure(Closure<Void> closure) {
@@ -91,23 +140,12 @@ public abstract class AbstractQueryBuilder implements QueryBuilder {
         closure.run();
     }
 
-    protected void groupRules(Closure<Void> rules, String operator) {
+    protected void groupStatements(Closure<Void> statements, String operator) {
         operators.addLast(operator);
         sb.append(openGroupChar);
-        processClosure(rules);
+        processClosure(statements);
         sb.append(closeGroupChar);
         operators.removeLast();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public QueryBuilder addStatements(Closure<Void> statements) {
-        operators.addLast(defaultOperator);
-        processClosure(statements);
-        operators.removeLast();
-        return this;
     }
 
     protected String format(String format, Object... args) {

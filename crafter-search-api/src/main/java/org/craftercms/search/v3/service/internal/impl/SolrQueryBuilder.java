@@ -50,9 +50,9 @@ public class SolrQueryBuilder extends AbstractQueryBuilder {
      * {@inheritDoc}
      */
     @Override
-    public QueryBuilder contentType(String contentType) {
+    public QueryBuilder contentType(String value) {
         addOperatorIfNeeded();
-        append("content-type:%s", quote(contentType));
+        append("content-type:%s", quote(value));
         return this;
     }
 
@@ -60,9 +60,9 @@ public class SolrQueryBuilder extends AbstractQueryBuilder {
      * {@inheritDoc}
      */
     @Override
-    public SolrQueryBuilder objectId(String objectId) {
+    public SolrQueryBuilder objectId(String value) {
         addOperatorIfNeeded();
-        append("objectId:%s", objectId);
+        append("objectId:%s", value);
         return this;
     }
 
@@ -170,32 +170,35 @@ public class SolrQueryBuilder extends AbstractQueryBuilder {
      * {@inheritDoc}
      */
     @Override
-    public void withBoost(Number value) {
+    public QueryBuilder withBoost(Number value) {
         append("^%s", value);
+        return this;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void withProximity(int value) {
+    public QueryBuilder withProximity(int value) {
         append("~%s", value);
+        return this;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void withSimilarity(int value) {
-        withProximity(value);
+    public QueryBuilder withSimilarity(int value) {
+        return withProximity(value);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void withSimilarity() {
+    public QueryBuilder withSimilarity() {
         append("~");
+        return this;
     }
 
     /**
