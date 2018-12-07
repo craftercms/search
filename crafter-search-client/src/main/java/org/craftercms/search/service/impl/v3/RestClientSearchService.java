@@ -86,8 +86,9 @@ public class RestClientSearchService extends SolrRestClientSearchService {
                 return new SolrQueryBuilder();
             case ELASTIC_SEARCH:
                 return new ElasticSearchQueryBuilder();
+            default:
+                throw new SearchException("No QueryBuilder available for provider " + provider);
         }
-        throw new SearchException("No QueryBuilder known for provider " + provider);
     }
 
     /**
