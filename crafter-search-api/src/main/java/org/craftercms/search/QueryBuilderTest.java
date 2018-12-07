@@ -1,4 +1,4 @@
-package org.craftercms.search;/*
+/*
  * Copyright (C) 2007-2018 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -14,6 +14,7 @@ package org.craftercms.search;/*
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.craftercms.search;
 
 import org.craftercms.search.v3.service.internal.QueryBuilder;
 import org.craftercms.search.v3.service.internal.impl.SolrQueryBuilder;
