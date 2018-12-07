@@ -17,15 +17,20 @@
 
 package org.craftercms.search.v3.service.impl;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.tika.Tika;
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.craftercms.search.exception.SearchException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.MultiValueMap;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
@@ -41,6 +46,8 @@ import static org.apache.tika.metadata.TikaCoreProperties.TITLE;
  * @author joseross
  */
 public class TikaDocumentParser extends AbstractDocumentParser {
+
+    private static final Logger logger = LoggerFactory.getLogger(TikaDocumentParser.class);
 
     /**
      * The maximum number of characters to parse from the document
@@ -78,7 +85,8 @@ public class TikaDocumentParser extends AbstractDocumentParser {
         Metadata metadata = new Metadata();
         try {
             return buildXmlDocument(tika.parseToString(content, metadata, charLimit), metadata, additionalFields);
-        } catch (Exception e) {
+        } catch (IOException | TikaException e) {
+            logger.error("Error parsing file", e);
             throw new SearchException("Error parsing file", e);
         }
     }
@@ -104,8 +112,9 @@ public class TikaDocumentParser extends AbstractDocumentParser {
         map.putAll(additionalFields);
         try {
             return objectMapper.writeValueAsString(map);
-        } catch (Exception e) {
-            throw new SearchException("Error writing document as XML", e);
+        } catch (JsonProcessingException e) {
+            logger.error("Error writing parsed document as XML");
+            throw new SearchException("Error writing parsed document as XML", e);
         }
     }
 
