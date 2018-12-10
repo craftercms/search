@@ -43,6 +43,9 @@ import org.craftercms.search.exception.SearchServerException;
 import org.craftercms.search.exception.SolrDocumentBuildException;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.SolrDocumentBuilder;
+import org.craftercms.search.v3.service.internal.QueryBuilder;
+import org.craftercms.search.v3.service.internal.SearchProvider;
+import org.craftercms.search.v3.service.internal.impl.SolrQueryBuilder;
 import org.craftercms.search.v3.service.internal.impl.AbstractSearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -347,8 +350,25 @@ public class SolrSearchService extends AbstractSearchService<SolrQuery, org.apac
         }
     }
 
-    // NEW API
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SearchProvider getProvider() {
+        return SearchProvider.SOLR;
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public QueryBuilder createQueryBuilder() {
+        return new SolrQueryBuilder();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected QueryResponse doSearch(final String indexId, final org.apache.solr.client.solrj.SolrQuery request) {
         try {
@@ -362,6 +382,9 @@ public class SolrSearchService extends AbstractSearchService<SolrQuery, org.apac
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @SuppressWarnings("unchecked")
     public Map nativeSearch(final String indexId, final Map params) {

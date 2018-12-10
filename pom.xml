@@ -65,6 +65,7 @@
         <mockito.version>1.9.5</mockito.version>
         <java.version>1.8</java.version>
         <tika.version>1.19.1</tika.version>
+        <groovy.version>2.5.0</groovy.version>
     </properties>
 
     <build>

@@ -30,6 +30,10 @@ import org.craftercms.search.rest.v3.requests.SearchRequest;
 import org.craftercms.search.rest.v3.requests.SearchResponse;
 import org.craftercms.search.service.impl.SolrQuery;
 import org.craftercms.search.service.impl.v2.SolrRestClientSearchService;
+import org.craftercms.search.v3.service.internal.QueryBuilder;
+import org.craftercms.search.v3.service.internal.SearchProvider;
+import org.craftercms.search.v3.service.internal.impl.ElasticSearchQueryBuilder;
+import org.craftercms.search.v3.service.internal.impl.SolrQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -52,8 +56,39 @@ public class RestClientSearchService extends SolrRestClientSearchService {
 
     protected boolean parseContent = true;
 
+    protected SearchProvider provider = null;
+
     public void setParseContent(final boolean parseContent) {
         this.parseContent = parseContent;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return
+     */
+    @Override
+    public QueryBuilder createQueryBuilder() {
+        if(provider == null) {
+            logger.debug("Initializing search provider");
+            String providerUrl = createBaseUrl(URL_PROVIDER);
+            try {
+                provider = restTemplate.getForObject(providerUrl, SearchProvider.class);
+                logger.info("Using search provider {}", provider);
+            } catch (HttpStatusCodeException e) {
+                throw getSearchException(null, "Get search provider failed: [" + e.getStatusText() + "] "
+                    + e.getResponseBodyAsString(), e);
+            } catch (Exception e) {
+                throw new SearchException("Get search provider failed: " + e.getMessage(), e);
+            }
+        }
+        switch (provider) {
+            case SOLR:
+                return new SolrQueryBuilder();
+            case ELASTIC_SEARCH:
+                return new ElasticSearchQueryBuilder();
+            default:
+                throw new SearchException("No QueryBuilder available for provider " + provider);
+        }
     }
 
     /**

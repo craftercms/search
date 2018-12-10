@@ -29,6 +29,9 @@ import java.util.Map;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.exception.SearchServerException;
 import org.craftercms.search.service.Query;
+import org.craftercms.search.v3.service.internal.QueryBuilder;
+import org.craftercms.search.v3.service.internal.SearchProvider;
+import org.craftercms.search.v3.service.internal.impl.ElasticSearchQueryBuilder;
 import org.craftercms.search.v3.service.internal.impl.AbstractSearchService;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.elasticsearch.action.admin.indices.flush.FlushResponse;
@@ -266,6 +269,22 @@ public class ElasticSearchService extends AbstractSearchService<Query, SearchSou
             logger.error("Search for " + params + " failed", e);
             throw new SearchException(indexId, "Search for " + params + " failed", e);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SearchProvider getProvider() {
+        return SearchProvider.ELASTIC_SEARCH;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public QueryBuilder createQueryBuilder() {
+        return new ElasticSearchQueryBuilder();
     }
 
     /**
