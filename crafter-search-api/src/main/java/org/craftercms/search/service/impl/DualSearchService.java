@@ -28,6 +28,8 @@ import org.craftercms.search.rest.v3.requests.SearchRequest;
 import org.craftercms.search.rest.v3.requests.SearchResponse;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
+import org.craftercms.search.v3.service.internal.QueryBuilder;
+import org.craftercms.search.v3.service.internal.SearchProvider;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -208,8 +210,18 @@ public class DualSearchService implements SearchService<Query> {
     }
 
     @Override
+    public SearchProvider getProvider() {
+        return readService.getProvider();
+    }
+
+    @Override
     public SearchRequest createRequest() {
         return readService.createRequest();
+    }
+
+    @Override
+    public QueryBuilder createQueryBuilder() {
+        return readService.createQueryBuilder();
     }
 
     @Override

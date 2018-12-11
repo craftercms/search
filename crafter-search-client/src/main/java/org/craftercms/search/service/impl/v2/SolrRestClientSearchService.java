@@ -35,6 +35,8 @@ import org.craftercms.search.rest.v3.requests.SearchRequest;
 import org.craftercms.search.rest.v3.requests.SearchResponse;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.SolrQuery;
+import org.craftercms.search.v3.service.internal.QueryBuilder;
+import org.craftercms.search.v3.service.internal.SearchProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -252,6 +254,16 @@ public class SolrRestClientSearchService implements ResourceAwareSearchService<S
         }
 
         return url;
+    }
+
+    @Override
+    public SearchProvider getProvider() {
+        throw new UnsupportedOperationException("Method not implemented for API 2");
+    }
+
+    @Override
+    public QueryBuilder createQueryBuilder() {
+        throw new UnsupportedOperationException("Method not implemented for API 2");
     }
 
     @Override
