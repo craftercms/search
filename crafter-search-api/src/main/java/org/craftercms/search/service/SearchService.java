@@ -20,10 +20,13 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import groovy.lang.Closure;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.rest.v3.requests.SearchRequest;
 import org.craftercms.search.rest.v3.requests.SearchResponse;
+import org.craftercms.search.v3.service.internal.QueryBuilder;
+import org.craftercms.search.v3.service.internal.SearchProvider;
 
 /**
  * Provides a basic interface to a search engine, like Solr.
@@ -233,11 +236,32 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
     void commit(String indexId) throws SearchException;
 
     /**
+     * Get the current search provider being used
+     * @return the search provider
+     */
+    SearchProvider getProvider();
+
+    /**
      * Prepares a new instance of {@link SearchRequest}
      * @return the request object
      */
     default SearchRequest createRequest() {
         return new SearchRequest();
+    }
+
+    /**
+     * Creates an instance of {@link QueryBuilder} for the current search provider
+     * @return the query builder
+     */
+    QueryBuilder createQueryBuilder();
+
+    /**
+     * Uses a {@link QueryBuilder} to process the given Groovy DSL statements
+     * @param statements the query statements
+     * @return the resulting query
+     */
+    default String buildQuery(Closure<Void> statements) {
+        return createQueryBuilder().addStatements(statements).toString();
     }
 
     /**

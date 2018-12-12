@@ -26,6 +26,7 @@ import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.v3.service.internal.impl.AbstractDocumentParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -42,7 +43,7 @@ import static org.apache.tika.metadata.TikaCoreProperties.MODIFIED;
 import static org.apache.tika.metadata.TikaCoreProperties.TITLE;
 
 /**
- * Implementation of {@link org.craftercms.search.v3.service.DocumentParser} that uses Apache Tika
+ * Implementation of {@link org.craftercms.search.v3.service.internal.DocumentParser} that uses Apache Tika
  * @author joseross
  */
 public class TikaDocumentParser extends AbstractDocumentParser {

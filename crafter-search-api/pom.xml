@@ -32,6 +32,14 @@
             <artifactId>hibernate-validator</artifactId>
             <version>${hibernate.validator.version}</version>
         </dependency>
+
+        <!-- Groovy -->
+        <!-- Used for better integration of QueryBuilder with groovy scripts -->
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>${groovy.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
