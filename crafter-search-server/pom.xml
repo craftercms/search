@@ -58,6 +58,22 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Override dependencies from Solr -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>${bouncycastle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>fontbox</artifactId>
+            <version>${fontbox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
 
         <!-- httpclient and httpmime are needed for use of HttpSolrServer For details
             see: https://issues.apache.org/jira/browse/SOLR-3411 -->

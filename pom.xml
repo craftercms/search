@@ -65,6 +65,9 @@
         <junit.version>4.12</junit.version>
         <mockito.version>1.9.5</mockito.version>
         <java.version>1.8</java.version>
+        <bouncycastle.version>1.60</bouncycastle.version>
+        <fontbox.version>2.0.11</fontbox.version>
+        <hadoop.version>2.7.5</hadoop.version>
     </properties>
 
     <build>
