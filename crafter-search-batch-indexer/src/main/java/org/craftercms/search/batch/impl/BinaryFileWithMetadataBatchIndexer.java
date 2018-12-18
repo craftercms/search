@@ -16,10 +16,10 @@ import org.craftercms.search.batch.BatchIndexer;
 import org.craftercms.search.batch.UpdateSet;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.exception.BatchIndexingException;
-import org.craftercms.search.rest.v3.requests.SearchRequest;
-import org.craftercms.search.rest.v3.requests.SearchResponse;
+import org.craftercms.search.service.Query;
 import org.craftercms.search.service.ResourceAwareSearchService;
 import org.craftercms.search.service.SearchService;
+import org.craftercms.search.utils.SearchResultUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -270,15 +270,14 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
     }
 
     @SuppressWarnings("unchecked")
-    protected List<String> searchBinaryPathsFromMetadataPath(SearchService searchService, String indexId,
-                                                             String siteName, String metadataPath) {
-        SearchRequest request = searchService.createRequest();
-        request.setMainQuery("crafterSite:\"" + siteName + "\" AND metadataPath:\"" + metadataPath + "\"");
-        request.setFields(localIdFieldName);
-        request.setIndexId(indexId);
+    protected List<String> searchBinaryPathsFromMetadataPath(SearchService searchService, String indexId, String siteName,
+                                                             String metadataPath) {
+        Query query = searchService.createQuery();
+        query.setQuery("crafterSite:\"" + siteName + "\" AND metadataPath:\"" + metadataPath + "\"");
+        query.setFieldsToReturn(localIdFieldName);
 
-        SearchResponse response = searchService.search(request);
-        List<Map<String, Object>> documents = response.getItems();
+        Map<String, Object> result = searchService.search(indexId, query);
+        List<Map<String, Object>> documents = SearchResultUtils.getDocuments(result);
         List<String> binaryPaths = new ArrayList<>();
 
         if (CollectionUtils.isNotEmpty(documents)) {
@@ -294,15 +293,13 @@ public class BinaryFileWithMetadataBatchIndexer implements BatchIndexer {
     }
 
     @SuppressWarnings("unchecked")
-    protected String searchMetadataPathFromBinaryPath(SearchService searchService, String indexId,
-                                                      String siteName, String binaryPath) {
-        SearchRequest request = searchService.createRequest();
-        request.setMainQuery("crafterSite:\"" + siteName + "\" AND localId:\"" + binaryPath + "\"");
-        request.setFields(metadataPathFieldName);
-        request.setIndexId(indexId);
+    protected String searchMetadataPathFromBinaryPath(SearchService searchService, String indexId, String siteName, String binaryPath) {
+        Query query = searchService.createQuery();
+        query.setQuery("crafterSite:\"" + siteName + "\" AND localId:\"" + binaryPath + "\"");
+        query.setFieldsToReturn(metadataPathFieldName);
 
-        SearchResponse response = searchService.search(request);
-        List<Map<String, Object>> documents = response.getItems();
+        Map<String, Object> result = searchService.search(indexId, query);
+        List<Map<String, Object>> documents = SearchResultUtils.getDocuments(result);
 
         if (CollectionUtils.isNotEmpty(documents)) {
             return (String) documents.get(0).get(metadataPathFieldName);

@@ -24,12 +24,7 @@
         <property name="adminService" ref="crafter.adminService"/>
     </bean>
 
-    <bean id="crafter.searchRestController" class="org.craftercms.search.rest.controller.v3.SearchRestController">
-        <property name="searchService" ref="crafter.searchService"/>
-        <property name="documentParser" ref="crafter.documentParser"/>
-    </bean>
-
-    <bean id="crafter.v2.searchRestController" class="org.craftercms.search.rest.controller.v2.SearchRestController">
+    <bean id="crafter.searchRestController" class="org.craftercms.search.rest.controller.v2.SearchRestController">
         <property name="searchService" ref="crafter.searchService"/>
     </bean>
 

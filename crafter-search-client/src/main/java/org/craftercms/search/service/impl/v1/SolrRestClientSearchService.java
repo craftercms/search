@@ -28,14 +28,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.craftercms.commons.lang.UrlUtils;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
-import org.craftercms.search.rest.v3.requests.SearchRequest;
-import org.craftercms.search.rest.v3.requests.SearchResponse;
 import org.craftercms.search.service.ResourceAwareSearchService;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.SolrQuery;
 import org.craftercms.search.service.utils.ContentResource;
-import org.craftercms.search.v3.service.internal.QueryBuilder;
-import org.craftercms.search.v3.service.internal.SearchProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -304,26 +300,6 @@ public class SolrRestClientSearchService implements ResourceAwareSearchService<S
         }
 
         return url;
-    }
-
-    @Override
-    public SearchProvider getProvider() {
-        throw new UnsupportedOperationException("Method not implemented for API 1");
-    }
-
-    @Override
-    public QueryBuilder createQueryBuilder() {
-        throw new UnsupportedOperationException("Method not implemented for API 1");
-    }
-
-    @Override
-    public SearchResponse search(final SearchRequest request) {
-        throw new UnsupportedOperationException("Method not implemented for API 1");
-    }
-
-    @Override
-    public Map<String, Object> nativeSearch(final String indexId, final Map<String, Object> params) {
-        throw new UnsupportedOperationException("Method not implemented for API 1");
     }
 
 }
