@@ -16,7 +16,6 @@
  */
 package org.craftercms.search.batch.utils;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 

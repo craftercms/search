@@ -8,9 +8,9 @@ import java.util.Map;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.batch.UpdateSet;
 import org.craftercms.search.batch.UpdateStatus;
+import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
-import org.craftercms.search.rest.v3.requests.SearchRequest;
-import org.craftercms.search.rest.v3.requests.SearchResponse;
+import org.craftercms.search.utils.SearchResultUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.LinkedMultiValueMap;
@@ -19,6 +19,7 @@ import org.springframework.util.MultiValueMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -50,8 +51,6 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
 
     @Test
     public void testUpdateMetadata() {
-        setupBinariesSearchResults();
-
         UpdateSet updateSet = new UpdateSet(Collections.singletonList(METADATA_XML_FILENAME), Collections.emptyList());
         UpdateStatus updateStatus = new UpdateStatus();
 
@@ -133,32 +132,35 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         verify(searchService).updateContent(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME3), any(Content.class));
     }
 
+    @SuppressWarnings("unchecked")
     protected SearchService getSearchService() throws Exception {
         SearchService searchService = mock(SearchService.class);
-        when(searchService.createRequest()).thenReturn(mock(SearchRequest.class));
+        when(searchService.createQuery()).thenReturn(mock(Query.class));
 
         return searchService;
     }
 
+    @SuppressWarnings("unchecked")
     protected void setupBinariesSearchResults() {
-        Map<String, Object> binary1Doc = Collections.singletonMap("localId", BINARY_FILENAME1);
-        Map<String, Object> binary2Doc = Collections.singletonMap("localId", BINARY_FILENAME2);
-        Map<String, Object> binary3Doc = Collections.singletonMap("localId", BINARY_FILENAME3);
+        Map<String, String> binary1Doc = Collections.singletonMap("localId", BINARY_FILENAME1);
+        Map<String, String> binary2Doc = Collections.singletonMap("localId", BINARY_FILENAME2);
+        Map<String, String> binary3Doc = Collections.singletonMap("localId", BINARY_FILENAME3);
 
-        List<Map<String, Object>> documents = Arrays.asList(binary1Doc, binary2Doc, binary3Doc);
-        SearchResponse response = new SearchResponse();
-        response.setItems(documents);
+        List<Object> documents = Arrays.asList(binary1Doc, binary2Doc, binary3Doc);
+        Map<String, Object> response = Collections.singletonMap(SearchResultUtils.DOCUMENTS_KEY, documents);
+        Map<String, Object> result = Collections.singletonMap(SearchResultUtils.RESPONSE_KEY, response);
 
-        when(searchService.search(any(SearchRequest.class))).thenReturn(response);
+        when(searchService.search(anyString(), any(Query.class))).thenReturn(result);
     }
 
+    @SuppressWarnings("unchecked")
     protected void setupMetadataSearchResult() {
-        Map<String, Object> doc = getExpectedMetadata().toSingleValueMap();
-        List<Map<String, Object>> documents = Collections.singletonList(doc);
-        SearchResponse response = new SearchResponse();
-        response.setItems(documents);
+        Map<String, String> doc = getExpectedMetadata().toSingleValueMap();
+        List<Object> documents = Collections.singletonList(doc);
+        Map<String, Object> response = Collections.singletonMap(SearchResultUtils.DOCUMENTS_KEY, documents);
+        Map<String, Object> result = Collections.singletonMap(SearchResultUtils.RESPONSE_KEY, response);
 
-        when(searchService.search(any(SearchRequest.class))).thenReturn(response);
+        when(searchService.search(anyString(), any(Query.class))).thenReturn(result);
     }
 
     protected BinaryFileWithMetadataBatchIndexer getBatchIndexer() throws Exception {
@@ -173,8 +175,8 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         return batchIndexer;
     }
 
-    protected MultiValueMap<String, Object> getExpectedMetadata() {
-        MultiValueMap<String, Object> metadata = new LinkedMultiValueMap<>();
+    protected MultiValueMap<String, String> getExpectedMetadata() {
+        MultiValueMap<String, String> metadata = new LinkedMultiValueMap<>();
         metadata.set("copyright.company", "Crafter Software");
         metadata.set("copyright.text", "All rights reserved");
         metadata.set("copyright.year", "2017");
@@ -183,8 +185,8 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         return metadata;
     }
 
-    protected MultiValueMap<String, Object> getExpectedMetadataWithRemovedBinaries() {
-        MultiValueMap<String, Object> metadata = getExpectedMetadata();
+    protected MultiValueMap<String, String> getExpectedMetadataWithRemovedBinaries() {
+        MultiValueMap<String, String> metadata = getExpectedMetadata();
         metadata.set("metadataPath", METADATA_WITH_REMOVED_BINARIES_XML_FILENAME);
 
         return metadata;
