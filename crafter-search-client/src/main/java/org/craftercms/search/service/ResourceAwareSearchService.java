@@ -19,7 +19,6 @@ package org.craftercms.search.service;
 import org.craftercms.search.exception.SearchException;
 import org.springframework.core.io.Resource;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 

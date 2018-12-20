@@ -30,13 +30,9 @@ import org.craftercms.commons.rest.Result;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.ResourceAwareSearchService;
-import org.craftercms.search.service.utils.ContentResource;
-import org.craftercms.search.rest.v3.requests.SearchRequest;
-import org.craftercms.search.rest.v3.requests.SearchResponse;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.SolrQuery;
-import org.craftercms.search.v3.service.internal.QueryBuilder;
-import org.craftercms.search.v3.service.internal.SearchProvider;
+import org.craftercms.search.service.utils.ContentResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -196,9 +192,40 @@ public class SolrRestClientSearchService implements ResourceAwareSearchService<S
     }
 
     @Override
+    public void updateContent(String site, String id, File file) throws SearchException {
+        updateContent(null, site, id, file, null);
+    }
+
+    @Override
+    public void updateContent(String indexId, String site, String id, File file) throws SearchException {
+        updateContent(indexId, site, id, file, null);
+    }
+
+    @Override
+    public void updateContent(String site, String id, File file, Map<String, List<String>> additionalFields) throws SearchException {
+        updateContent(null, site, id, file, additionalFields);
+    }
+
+    @Override
     public void updateContent(String indexId, String site, String id, File file,
                               Map<String, List<String>> additionalFields) throws SearchException {
         updateContent(indexId, site, id, new FileSystemResource(file), additionalFields);
+    }
+
+    @Override
+    public void updateContent(String site, String id, Content content) throws SearchException {
+        updateContent(null, site, id, content, null);
+    }
+
+    @Override
+    public void updateContent(String indexId, String site, String id, Content content) throws SearchException {
+        updateContent(indexId, site, id, content, null);
+    }
+
+    @Override
+    public void updateContent(String site, String id, Content content,
+                              Map<String, List<String>> additionalFields) throws SearchException {
+        updateContent(null, site, id, content, additionalFields);
     }
 
     @Override
@@ -210,8 +237,6 @@ public class SolrRestClientSearchService implements ResourceAwareSearchService<S
         updateContent(indexId, site, id, resource, additionalFields);
     }
 
-
-    @Override
     @SuppressWarnings("unchecked")
     public void updateContent(String indexId, String site, String id, Resource resource,
                                  Map<String, List<String>> additionalFields) throws SearchException {
@@ -254,26 +279,6 @@ public class SolrRestClientSearchService implements ResourceAwareSearchService<S
         }
 
         return url;
-    }
-
-    @Override
-    public SearchProvider getProvider() {
-        throw new UnsupportedOperationException("Method not implemented for API 2");
-    }
-
-    @Override
-    public QueryBuilder createQueryBuilder() {
-        throw new UnsupportedOperationException("Method not implemented for API 2");
-    }
-
-    @Override
-    public SearchResponse search(final SearchRequest request) {
-        throw new UnsupportedOperationException("Method not implemented for API 2");
-    }
-
-    @Override
-    public Map nativeSearch(final String indexId, final Map params) {
-        throw new UnsupportedOperationException("Method not implemented for API 2");
     }
 
 }
