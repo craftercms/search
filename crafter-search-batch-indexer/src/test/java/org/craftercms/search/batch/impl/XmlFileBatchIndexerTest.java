@@ -58,7 +58,7 @@ public class XmlFileBatchIndexerTest extends BatchIndexerTestBase {
         UpdateSet updateSet = new UpdateSet(Collections.singletonList(UPDATE_FILENAME), Collections.singletonList(DELETE_FILENAME));
         UpdateStatus updateStatus = new UpdateStatus();
 
-        batchIndexer.updateIndex(searchService, indexId, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
+        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
         assertEquals(2, updateStatus.getAttemptedUpdatesAndDeletes());
         assertEquals(UPDATE_FILENAME, updateStatus.getSuccessfulUpdates().get(0));
@@ -92,6 +92,7 @@ public class XmlFileBatchIndexerTest extends BatchIndexerTestBase {
 
     protected XmlFileBatchIndexer getBatchIndexer() throws Exception {
         XmlFileBatchIndexer batchIndexer = new XmlFileBatchIndexer();
+        batchIndexer.setSearchService(searchService);
         batchIndexer.setItemProcessors(getDocumentProcessors());
 
         return batchIndexer;

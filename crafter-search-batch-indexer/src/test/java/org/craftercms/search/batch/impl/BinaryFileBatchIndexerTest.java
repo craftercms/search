@@ -40,7 +40,7 @@ public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
         UpdateSet updateSet = new UpdateSet(Collections.singletonList(SUPPORTED_FILENAME), Collections.singletonList(NON_SUPPORTED_FILENAME));
         UpdateStatus updateStatus = new UpdateStatus();
 
-        batchIndexer.updateIndex(searchService, indexId, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
+        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
         assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
         assertEquals(SUPPORTED_FILENAME, updateStatus.getSuccessfulUpdates().get(0));
@@ -50,6 +50,7 @@ public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
 
     protected BinaryFileBatchIndexer getBatchIndexer() throws Exception {
         BinaryFileBatchIndexer batchIndexer = new BinaryFileBatchIndexer();
+        batchIndexer.setSearchService(searchService);
         batchIndexer.setSupportedMimeTypes(Collections.singletonList("application/pdf"));
 
         return batchIndexer;

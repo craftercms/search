@@ -28,7 +28,6 @@ import org.craftercms.search.batch.BatchIndexer;
 import org.craftercms.search.batch.UpdateSet;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.exception.BatchIndexingException;
-import org.craftercms.search.service.SearchService;
 
 import static org.craftercms.search.batch.utils.IndexingUtils.*;
 
@@ -53,12 +52,12 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
     }
 
     @Override
-    public void updateIndex(SearchService searchService, String indexId, String siteName, ContentStoreService contentStoreService,
+    public void updateIndex(String indexId, String siteName, ContentStoreService contentStoreService,
                             Context context, UpdateSet updateSet, UpdateStatus updateStatus) throws BatchIndexingException {
         for (String path : updateSet.getUpdatePaths()) {
             if (include(path)) {
                 try {
-                    doSingleFileUpdate(searchService, indexId, siteName, contentStoreService, context, path, false, updateStatus);
+                    doSingleFileUpdate(indexId, siteName, contentStoreService, context, path, false, updateStatus);
                 } catch (Exception e) {
                     logger.error("Error while trying to perform update of file " + getSiteBasedPath(siteName, path), e);
 
@@ -70,7 +69,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
         for (String path : updateSet.getDeletePaths()) {
             if (include(path)) {
                 try {
-                    doSingleFileUpdate(searchService, indexId, siteName, contentStoreService, context, path, true, updateStatus);
+                    doSingleFileUpdate(indexId, siteName, contentStoreService, context, path, true, updateStatus);
                 } catch (Exception e) {
                     logger.error("Error while trying to perform delete of file " + getSiteBasedPath(siteName, path), e);
 
@@ -85,7 +84,7 @@ public abstract class AbstractBatchIndexer implements BatchIndexer {
                (CollectionUtils.isEmpty(excludePathPatterns) || !RegexUtils.matchesAny(path, excludePathPatterns));
     }
 
-    protected abstract void doSingleFileUpdate(SearchService searchService, String indexId, String siteName,
+    protected abstract void doSingleFileUpdate(String indexId, String siteName,
                                                ContentStoreService contentStoreService, Context context,
                                                String path, boolean delete, UpdateStatus updateStatus) throws Exception;
 

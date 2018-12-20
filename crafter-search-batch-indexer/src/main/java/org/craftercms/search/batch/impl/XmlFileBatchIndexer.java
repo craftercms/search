@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 Crafter Software Corporation.
+ * Copyright (C) 2007-2018 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,124 +14,40 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.craftercms.search.batch.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.craftercms.core.exception.CrafterException;
-import org.craftercms.core.exception.XmlException;
-import org.craftercms.core.processors.ItemProcessor;
-import org.craftercms.core.processors.impl.ItemProcessorPipeline;
-import org.craftercms.core.service.Content;
-import org.craftercms.core.service.ContentStoreService;
-import org.craftercms.core.service.Context;
-import org.craftercms.core.service.Item;
 import org.craftercms.search.batch.UpdateStatus;
+import org.craftercms.search.batch.utils.IndexingUtils;
 import org.craftercms.search.service.SearchService;
-import org.dom4j.Document;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
-
-import static org.craftercms.search.batch.utils.IndexingUtils.*;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
- * {@link org.craftercms.search.batch.BatchIndexer} that updates/deletes XML files from a search index.
- *
- * @author avasquez
+ * Implementation of {@link AbstractXmlFileBatchIndexer} that uses {@link SearchService}
+ * @author joseross
  */
-public class XmlFileBatchIndexer extends AbstractBatchIndexer {
+public class XmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
 
-    private static final Log logger = LogFactory.getLog(XmlFileBatchIndexer.class);
+    /**
+     * Instance of {@link SearchService}
+     */
+    protected SearchService searchService;
 
-    public static final List<String> DEFAULT_INCLUDE_FILENAME_PATTERNS = Collections.singletonList("^.*\\.xml$");
-
-    protected ItemProcessor itemProcessor;
-
-    public XmlFileBatchIndexer() {
-        includePathPatterns = DEFAULT_INCLUDE_FILENAME_PATTERNS;
-    }
-
-    public void setItemProcessor(ItemProcessor itemProcessor) {
-        this.itemProcessor = itemProcessor;
-    }
-
-    public void setItemProcessors(List<ItemProcessor> itemProcessors) {
-        this.itemProcessor = new ItemProcessorPipeline(itemProcessors);
+    @Required
+    public void setSearchService(final SearchService searchService) {
+        this.searchService = searchService;
     }
 
     @Override
-    protected void doSingleFileUpdate(SearchService searchService, String indexId, String siteName,
-                                      ContentStoreService contentStoreService, Context context,
-                                      String path, boolean delete, UpdateStatus updateStatus) throws Exception {
-        if (delete) {
-            doDelete(searchService, indexId, siteName, path, updateStatus);
-        } else {
-            String xml = processXml(siteName, contentStoreService, context, path);
-
-            doUpdate(searchService, indexId, siteName, path, xml, updateStatus);
-        }
+    protected void doDelete(final String indexId, final String siteName, final String path,
+                            final UpdateStatus updateStatus) {
+        IndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
     }
 
-    protected String processXml(String siteName, ContentStoreService contentStoreService, Context context,
-                                String path) throws CrafterException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Processing XML @ " + getSiteBasedPath(siteName, path) + " before indexing");
-        }
-
-        Item item = contentStoreService.getItem(context, null, path, itemProcessor);
-        Document doc = item.getDescriptorDom();
-
-        if (doc != null) {
-            String xml = documentToString(item.getDescriptorDom());
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("XML @ " + getSiteBasedPath(siteName, path) + " processed successfully:\n" + xml);
-            }
-
-            return xml;
-        } else {
-            throw new XmlException("Item @ " + getSiteBasedPath(siteName, path) + " doesn't seem to be an XML file");
-        }
-    }
-
-    protected String documentToString(Document document) {
-        StringWriter stringWriter = new StringWriter();
-        OutputFormat format = OutputFormat.createCompactFormat();
-        XMLWriter xmlWriter = new XMLWriter(stringWriter, format);
-
-        try {
-            xmlWriter.write(document);
-        } catch (IOException e) {
-            // Ignore, shouldn't happen.
-        }
-
-        return stringWriter.toString();
-    }
-
-    public static class EmptyContent implements Content {
-
-        @Override
-        public long getLastModified() {
-            return System.currentTimeMillis();
-        }
-
-        @Override
-        public long getLength() {
-            return 0;
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return new ByteArrayInputStream(new byte[0]);
-        }
-
+    @Override
+    protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
+                            final UpdateStatus updateStatus) {
+        IndexingUtils.doUpdate(searchService, indexId, siteName, path, xml, updateStatus);
     }
 
 }

@@ -19,7 +19,6 @@ package org.craftercms.search.batch;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.search.batch.exception.BatchIndexingException;
-import org.craftercms.search.service.SearchService;
 
 /**
  * Classes that implement this interface update or delete batches of files from a specified search index.
@@ -31,7 +30,6 @@ public interface BatchIndexer {
     /**
      * Updates the specified search index with the given batch of files.
      *
-     * @param searchService         the search service to use
      * @param indexId               the ID of the index, or null to use a default index
      * @param siteName              the name of the site the files belong to
      * @param contentStoreService   the content store service used to retrieve the files and content to index
@@ -39,7 +37,7 @@ public interface BatchIndexer {
      * @param updateSet             the set of files to update/delete
      * @param updateStatus          status object used to track index updates and deletes
      */
-    void updateIndex(SearchService searchService, String indexId, String siteName, ContentStoreService contentStoreService,
+    void updateIndex(String indexId, String siteName, ContentStoreService contentStoreService,
                      Context context, UpdateSet updateSet, UpdateStatus updateStatus) throws BatchIndexingException;
 
 }
