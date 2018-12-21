@@ -16,7 +16,6 @@
  */
 package org.craftercms.search.batch.utils;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +46,7 @@ public class IndexingUtils {
     public static boolean isMimeTypeSupported(FileTypeMap mimeTypesMap, List<String> supportedMimeTypes,
                                               String filename) {
         if (mimeTypesMap != null && CollectionUtils.isNotEmpty(supportedMimeTypes)) {
-            return supportedMimeTypes.contains(mimeTypesMap.getContentType(filename));
+            return supportedMimeTypes.contains(mimeTypesMap.getContentType(filename.toLowerCase()));
         } else {
             return true;
         }

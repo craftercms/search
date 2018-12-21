@@ -20,23 +20,16 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import groovy.lang.Closure;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
-import org.craftercms.search.rest.v3.requests.SearchRequest;
-import org.craftercms.search.rest.v3.requests.SearchResponse;
-import org.craftercms.search.v3.service.internal.QueryBuilder;
-import org.craftercms.search.v3.service.internal.SearchProvider;
 
 /**
  * Provides a basic interface to a search engine, like Solr.
  *
  * @author Alfonso Vásquez
  * @author Dejan Brkic
- * @author joseross
  */
-
-public interface SearchService<T extends Query> extends QueryFactory<T>  {
+public interface SearchService<T extends Query> extends QueryFactory<T> {
 
     /**
      * Does a full-text search and returns a Map model.
@@ -48,9 +41,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
      *
      * @throws SearchException if any error occurs that makes the search fail
      */
-    default Map<String, Object> search(T query) throws SearchException {
-        return search(null, query);
-    }
+    Map<String, Object> search(T query) throws SearchException;
 
     /**
      * Does a full-text search and returns a Map model.
@@ -74,9 +65,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
      * @param ignoreRootInFieldNames ignore the root element of the input XML in field names
      * @throws SearchException
      */
-    default void update(String site, String id, String xml, boolean ignoreRootInFieldNames) throws SearchException {
-        update(null, site, id, xml, ignoreRootInFieldNames);
-    }
+    void update(String site, String id, String xml, boolean ignoreRootInFieldNames) throws SearchException;
 
     /**
      * Updates the search engine's index data of an XML document.
@@ -97,9 +86,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
      * @param id   the id of the content, within the site
      * @throws SearchException
      */
-    default void delete(String site, String id) throws SearchException {
-        delete(null, site, id);
-    }
+    void delete(String site, String id) throws SearchException;
 
     /**
      * Deletes the search engine's index data of an XML document.
@@ -119,9 +106,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
      * @param file  the file content to update in the index
      * @throws SearchException
      */
-    default void updateContent(String site, String id, File file) throws SearchException {
-        updateContent(null, site, id, file, null);
-    }
+    void updateContent(String site, String id, File file) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -132,9 +117,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
      * @param file      the file content to update in the index
      * @throws SearchException
      */
-    default void updateContent(String indexId, String site, String id, File file) throws SearchException {
-        updateContent(indexId, site, id, file, null);
-    }
+    void updateContent(String indexId, String site, String id, File file) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -146,10 +129,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
      *                          document)
      * @throws SearchException
      */
-    default void updateContent(String site, String id, File file, Map<String, List<String>> additionalFields)
-        throws SearchException {
-        updateContent(null, site, id, file, additionalFields);
-    }
+    void updateContent(String site, String id, File file, Map<String, List<String>> additionalFields) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -173,9 +153,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
      * @param content   the file content to update in the index
      * @throws SearchException
      */
-    default void updateContent(String site, String id, Content content) throws SearchException {
-        updateContent(null, site, id, content, null);
-    }
+    void updateContent(String site, String id, Content content) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -186,9 +164,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
      * @param content   the file content to update in the index
      * @throws SearchException
      */
-    default void updateContent(String indexId, String site, String id, Content content) throws SearchException {
-        updateContent(indexId, site, id, content, null);
-    }
+    void updateContent(String indexId, String site, String id, Content content) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -200,10 +176,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
      *                          document)
      * @throws SearchException
      */
-    default void updateContent(String site, String id, Content content, Map<String, List<String>> additionalFields)
-        throws SearchException {
-        updateContent(null, site, id, content, additionalFields);
-    }
+    void updateContent(String site, String id, Content content, Map<String, List<String>> additionalFields) throws SearchException;
 
     /**
      * Updates the search engine's index data of a binary or structured document (PDF, Word, Office).
@@ -224,9 +197,7 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
      *
      * @throws SearchException
      */
-    default void commit() throws SearchException {
-        commit(null);
-    }
+    void commit() throws SearchException;
 
     /**
      * Commits any pending changes made to the search engine's default index.
@@ -234,58 +205,5 @@ public interface SearchService<T extends Query> extends QueryFactory<T>  {
      * @throws SearchException
      */
     void commit(String indexId) throws SearchException;
-
-    /**
-     * Get the current search provider being used
-     * @return the search provider
-     */
-    SearchProvider getProvider();
-
-    /**
-     * Prepares a new instance of {@link SearchRequest}
-     * @return the request object
-     */
-    default SearchRequest createRequest() {
-        return new SearchRequest();
-    }
-
-    /**
-     * Creates an instance of {@link QueryBuilder} for the current search provider
-     * @return the query builder
-     */
-    QueryBuilder createQueryBuilder();
-
-    /**
-     * Uses a {@link QueryBuilder} to process the given Groovy DSL statements
-     * @param statements the query statements
-     * @return the resulting query
-     */
-    default String buildQuery(Closure<Void> statements) {
-        return createQueryBuilder().addStatements(statements).toString();
-    }
-
-    /**
-     * Performs a search using the given request
-     * @param request the request object
-     * @return the result object
-     */
-    SearchResponse search(SearchRequest request);
-
-    /**
-     * Performs a search using the current provider format for request and response
-     * @param indexId the index id
-     * @param params the search parameters
-     * @return the search results
-     */
-    Map<String, Object> nativeSearch(String indexId, Map<String, Object> params);
-
-    /**
-     * Performs a search using the current provider format for request and response
-     * @param params the search parameters
-     * @return the search results
-     */
-    default Map<String, Object> nativeSearch(Map<String, Object> params) {
-        return nativeSearch(null, params);
-    }
 
 }

@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>crafter-search-itest</artifactId>
-    <name>Crafter Search Solr Integration Tests</name>
+    <name>Crafter Search Integration Tests</name>
     <packaging>war</packaging>
 
     <parent>
@@ -22,7 +22,6 @@
         <solr.home>${project.build.directory}/classes/solr</solr.home>
         <!-- Search -->
         <search.context>/crafter-search</search.context>
-        <jodatime.version>2.1</jodatime.version>
     </properties>
 
     <dependencies>
