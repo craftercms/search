@@ -161,30 +161,8 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
 
             // If there are previous binaries that are not associated to the metadata anymore, reindex them without
             // metadata or delete them if they're child binaries.
-            if (CollectionUtils.isNotEmpty(previousBinaryPaths)) {
-                for (String previousBinaryPath : previousBinaryPaths) {
-                    if (CollectionUtils.isEmpty(newBinaryPaths) || !newBinaryPaths.contains(previousBinaryPath)) {
-                        binaryUpdatePaths.remove(previousBinaryPath);
-
-                        if (isChildBinary(previousBinaryPath)) {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("Reference of child binary " + previousBinaryPath + " removed from " +
-                                             "parent " + metadataPath + ". Deleting binary from index...");
-                            }
-
-                            doDelete(indexId, siteName, previousBinaryPath, updateStatus);
-                        } else {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("Reference of binary " + previousBinaryPath + " removed from " +
-                                             metadataPath + ". Reindexing without metadata...");
-                            }
-
-                            updateBinary(indexId, siteName, contentStoreService, context,
-                                         previousBinaryPath, updateStatus);
-                        }
-                    }
-                }
-            }
+            updatePreviousBinaries(indexId, siteName, metadataPath, previousBinaryPaths, newBinaryPaths,
+                binaryUpdatePaths, context, contentStoreService, updateStatus);
 
             // Index the new associated binaries
             if (CollectionUtils.isNotEmpty(newBinaryPaths)) {
@@ -213,6 +191,36 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
             } else {
                 // If not, index by itself
                 updateBinary(indexId, siteName, contentStoreService, context, binaryPath, updateStatus);
+            }
+        }
+    }
+
+    protected void updatePreviousBinaries(String indexId, String siteName, String metadataPath,
+                                          List<String> previousBinaryPaths, Collection<String> newBinaryPaths,
+                                          Set<String> binaryUpdatePaths, Context context,
+                                          ContentStoreService contentStoreService, UpdateStatus updateStatus) {
+        if (CollectionUtils.isNotEmpty(previousBinaryPaths)) {
+            for (String previousBinaryPath : previousBinaryPaths) {
+                if (CollectionUtils.isEmpty(newBinaryPaths) || !newBinaryPaths.contains(previousBinaryPath)) {
+                    binaryUpdatePaths.remove(previousBinaryPath);
+
+                    if (isChildBinary(previousBinaryPath)) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Reference of child binary " + previousBinaryPath + " removed from " +
+                                "parent " + metadataPath + ". Deleting binary from index...");
+                        }
+
+                        doDelete(indexId, siteName, previousBinaryPath, updateStatus);
+                    } else {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Reference of binary " + previousBinaryPath + " removed from " +
+                                metadataPath + ". Reindexing without metadata...");
+                        }
+
+                        updateBinary(indexId, siteName, contentStoreService, context,
+                            previousBinaryPath, updateStatus);
+                    }
+                }
             }
         }
     }
