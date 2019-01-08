@@ -19,38 +19,23 @@ package org.craftercms.search.batch.utils;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.craftercms.commons.search.batch.UpdateStatus;
+import org.craftercms.commons.search.batch.utils.IndexingUtils;
 import org.craftercms.core.service.Content;
-import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.service.ResourceAwareSearchService;
 import org.craftercms.search.service.SearchService;
 import org.springframework.core.io.Resource;
-
-import javax.activation.FileTypeMap;
 
 /**
  * Utility methods used for simplifying REST search service update calls.
  *
  * @author avasquez
  */
-public class IndexingUtils {
+public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
 
-    private static final Log logger = LogFactory.getLog(IndexingUtils.class);
-
-    private IndexingUtils() {
-    }
-
-    public static boolean isMimeTypeSupported(FileTypeMap mimeTypesMap, List<String> supportedMimeTypes,
-                                              String filename) {
-        if (mimeTypesMap != null && CollectionUtils.isNotEmpty(supportedMimeTypes)) {
-            return supportedMimeTypes.contains(mimeTypesMap.getContentType(filename.toLowerCase()));
-        } else {
-            return true;
-        }
-    }
+    private static final Log logger = LogFactory.getLog(CrafterSearchIndexingUtils.class);
 
     public static void doUpdate(SearchService searchService, String indexId, String siteName, String id, String xml,
                                 UpdateStatus updateStatus) {
@@ -107,14 +92,6 @@ public class IndexingUtils {
         logger.info("File " + getSiteBasedPath(siteName, id) + " deleted from index " + getIndexNameStr(indexId));
 
         updateStatus.addSuccessfulDelete(id);
-    }
-
-    public static String getSiteBasedPath(String siteName, String path) {
-        return siteName + ":" + path;
-    }
-
-    public static String getIndexNameStr(String indexId) {
-        return StringUtils.isNotEmpty(indexId)? "'" + indexId + "'": "default";
     }
 
 }

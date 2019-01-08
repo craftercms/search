@@ -17,9 +17,10 @@
 
 package org.craftercms.search.batch.impl;
 
+import org.craftercms.commons.search.batch.UpdateStatus;
+import org.craftercms.commons.search.batch.impl.AbstractBinaryFileBatchIndexer;
 import org.craftercms.core.service.Content;
-import org.craftercms.search.batch.UpdateStatus;
-import org.craftercms.search.batch.utils.IndexingUtils;
+import org.craftercms.search.batch.utils.CrafterSearchIndexingUtils;
 import org.craftercms.search.service.SearchService;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -41,12 +42,12 @@ public class BinaryFileBatchIndexer extends AbstractBinaryFileBatchIndexer {
 
     @Override
     protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
-        IndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
+        CrafterSearchIndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
     }
 
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String path, final Content binaryContent, final UpdateStatus updateStatus) {
-        IndexingUtils.doUpdateContent(searchService, indexId, siteName, path, binaryContent, updateStatus);
+        CrafterSearchIndexingUtils.doUpdateContent(searchService, indexId, siteName, path, binaryContent, updateStatus);
     }
     
 }

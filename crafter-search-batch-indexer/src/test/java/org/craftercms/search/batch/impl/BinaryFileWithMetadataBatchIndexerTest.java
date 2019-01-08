@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.craftercms.commons.search.batch.UpdateSet;
+import org.craftercms.commons.search.batch.UpdateStatus;
 import org.craftercms.core.service.Content;
-import org.craftercms.search.batch.UpdateSet;
-import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.utils.SearchResultUtils;

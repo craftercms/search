@@ -17,8 +17,9 @@
 
 package org.craftercms.search.batch.impl;
 
-import org.craftercms.search.batch.UpdateStatus;
-import org.craftercms.search.batch.utils.IndexingUtils;
+import org.craftercms.commons.search.batch.UpdateStatus;
+import org.craftercms.commons.search.batch.impl.AbstractXmlFileBatchIndexer;
+import org.craftercms.search.batch.utils.CrafterSearchIndexingUtils;
 import org.craftercms.search.service.SearchService;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -41,13 +42,13 @@ public class XmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
     @Override
     protected void doDelete(final String indexId, final String siteName, final String path,
                             final UpdateStatus updateStatus) {
-        IndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
+        CrafterSearchIndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
     }
 
     @Override
     protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
                             final UpdateStatus updateStatus) {
-        IndexingUtils.doUpdate(searchService, indexId, siteName, path, xml, updateStatus);
+        CrafterSearchIndexingUtils.doUpdate(searchService, indexId, siteName, path, xml, updateStatus);
     }
 
 }
