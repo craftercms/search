@@ -14,59 +14,40 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.craftercms.search.batch.impl;
 
+import org.craftercms.commons.search.batch.UpdateStatus;
+import org.craftercms.commons.search.batch.impl.AbstractBinaryFileBatchIndexer;
 import org.craftercms.core.service.Content;
-import org.craftercms.core.service.ContentStoreService;
-import org.craftercms.core.service.Context;
-import org.craftercms.search.batch.UpdateStatus;
+import org.craftercms.search.batch.utils.CrafterSearchIndexingUtils;
 import org.craftercms.search.service.SearchService;
-import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
-
-import javax.activation.FileTypeMap;
-import java.util.List;
-
-import static org.craftercms.search.batch.utils.IndexingUtils.*;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
- * {@link org.craftercms.search.batch.BatchIndexer} that updates/deletes binary or structured document files (PDF,
- * Word, etc.) from a search index, only if their mime types match the supported mime types or if the supported mime
- * types map is empty.
- *
- * @author avasquez
+ * Implementation of {@link AbstractBinaryFileBatchIndexer} that uses {@link SearchService}.
+ * @author joseross
  */
-public class BinaryFileBatchIndexer extends AbstractBatchIndexer {
+public class BinaryFileBatchIndexer extends AbstractBinaryFileBatchIndexer {
 
-    protected List<String> supportedMimeTypes;
-    protected FileTypeMap mimeTypesMap;
+    /**
+     * Instance of {@link SearchService}
+     */
+    protected SearchService searchService;
 
-    public BinaryFileBatchIndexer() {
-        mimeTypesMap = new ConfigurableMimeFileTypeMap();
-    }
-
-    public void setSupportedMimeTypes(List<String> supportedMimeTypes) {
-        this.supportedMimeTypes = supportedMimeTypes;
-    }
-
-    @Override
-    protected void doSingleFileUpdate(SearchService searchService,String indexId, String siteName,
-                                      ContentStoreService contentStoreService, Context context,
-                                      String path, boolean delete, UpdateStatus updateStatus) throws Exception {
-        if (delete) {
-            doDelete(searchService, indexId, siteName, path, updateStatus);
-        } else {
-            Content binaryContent = contentStoreService.getContent(context, path);
-            doUpdateContent(searchService, indexId, siteName, path, binaryContent, updateStatus);
-        }
+    @Required
+    public void setSearchService(final SearchService searchService) {
+        this.searchService = searchService;
     }
 
     @Override
-    protected boolean include(String path) {
-        if (super.include(path)) {
-            return isMimeTypeSupported(mimeTypesMap, supportedMimeTypes, path);
-        }
-
-        return false;
+    protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
+        CrafterSearchIndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
     }
 
+    @Override
+    protected void doUpdateContent(final String indexId, final String siteName, final String path, final Content binaryContent, final UpdateStatus updateStatus) {
+        CrafterSearchIndexingUtils.doUpdateContent(searchService, indexId, siteName, path, binaryContent, updateStatus);
+    }
+    
 }

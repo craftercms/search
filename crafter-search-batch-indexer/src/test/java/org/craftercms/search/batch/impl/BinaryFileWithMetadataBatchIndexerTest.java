@@ -22,9 +22,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.craftercms.commons.search.batch.UpdateSet;
+import org.craftercms.commons.search.batch.UpdateStatus;
 import org.craftercms.core.service.Content;
-import org.craftercms.search.batch.UpdateSet;
-import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.service.Query;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.utils.SearchResultUtils;
@@ -71,7 +71,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         UpdateSet updateSet = new UpdateSet(Collections.singletonList(METADATA_XML_FILENAME), Collections.emptyList());
         UpdateStatus updateStatus = new UpdateStatus();
 
-        batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
+        batchIndexer.updateIndex(INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
         assertEquals(3, updateStatus.getAttemptedUpdatesAndDeletes());
         assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME1));
@@ -92,7 +92,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         UpdateSet updateSet = new UpdateSet(Collections.singletonList(METADATA_WITH_REMOVED_BINARIES_XML_FILENAME), Collections.emptyList());
         UpdateStatus updateStatus = new UpdateStatus();
 
-        batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
+        batchIndexer.updateIndex(INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
         assertEquals(3, updateStatus.getAttemptedUpdatesAndDeletes());
         assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME1));
@@ -111,7 +111,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         UpdateSet updateSet = new UpdateSet(Collections.singletonList(BINARY_FILENAME1), Collections.emptyList());
         UpdateStatus updateStatus = new UpdateStatus();
 
-        batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
+        batchIndexer.updateIndex(INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
         assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
         assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME1));
@@ -124,7 +124,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         UpdateSet updateSet = new UpdateSet(Collections.emptyList(), Collections.singletonList(BINARY_FILENAME1));
         UpdateStatus updateStatus = new UpdateStatus();
 
-        batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
+        batchIndexer.updateIndex(INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
         assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
         assertTrue(updateStatus.getSuccessfulDeletes().contains(BINARY_FILENAME1));
@@ -138,7 +138,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         UpdateSet updateSet = new UpdateSet(Collections.emptyList(), Collections.singletonList(METADATA_XML_FILENAME));
         UpdateStatus updateStatus = new UpdateStatus();
 
-        batchIndexer.updateIndex(searchService, INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
+        batchIndexer.updateIndex(INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
         assertEquals(3, updateStatus.getAttemptedUpdatesAndDeletes());
         assertTrue(updateStatus.getSuccessfulDeletes().contains(BINARY_FILENAME1));
@@ -181,7 +181,9 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
     }
 
     protected BinaryFileWithMetadataBatchIndexer getBatchIndexer() throws Exception {
-        BinaryFileWithMetadataBatchIndexer batchIndexer = new BinaryFileWithMetadataBatchIndexer();
+        BinaryFileWithMetadataBatchIndexer batchIndexer =
+            new BinaryFileWithMetadataBatchIndexer();
+        batchIndexer.setSearchService(searchService);
         batchIndexer.setMetadataPathPatterns(Collections.singletonList(".*metadata.*\\.xml$"));
         batchIndexer.setBinaryPathPatterns(Arrays.asList(".*\\.pdf$", ".*\\.txt$"));
         batchIndexer.setChildBinaryPathPatterns(Collections.singletonList(".*\\.pdf$"));

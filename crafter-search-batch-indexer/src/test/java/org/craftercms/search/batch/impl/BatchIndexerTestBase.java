@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Base class for {@link org.craftercms.search.batch.BatchIndexer} tests.
+ * Base class for {@link org.craftercms.commons.search.batch.BatchIndexer} tests.
  *
  * @author avasquez
  */
