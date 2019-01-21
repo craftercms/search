@@ -25,9 +25,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>crafter-elasticsearch</artifactId>
-    <name>Crafter ElasticSearch</name>
-    <description>Crafter ElasticSearch</description>
+    <artifactId>crafter-search-elasticsearch</artifactId>
+    <name>Crafter Search ElasticSearch</name>
+    <description>Crafter Search ElasticSearch</description>
 
     <dependencies>
         <dependency>

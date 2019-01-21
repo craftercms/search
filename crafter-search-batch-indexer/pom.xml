@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>crafter-search-client</artifactId>
+            <artifactId>crafter-search-solr-client</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -19,8 +19,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>crafter-search-itest</artifactId>
-    <name>Crafter Search Integration Tests</name>
+    <artifactId>crafter-search-solr-itest</artifactId>
+    <name>Crafter Search Solr Integration Tests</name>
     <packaging>war</packaging>
 
     <parent>
@@ -44,13 +44,13 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>crafter-search-server</artifactId>
+            <artifactId>crafter-search-solr-server</artifactId>
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>crafter-search-client</artifactId>
+            <artifactId>crafter-search-solr-client</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -123,7 +123,7 @@
                     <overlays>
                         <overlay>
                             <groupId>${project.groupId}</groupId>
-                            <artifactId>crafter-search-server</artifactId>
+                            <artifactId>crafter-search-solr-server</artifactId>
                         </overlay>
                     </overlays>
                 </configuration>
@@ -168,7 +168,7 @@
                             <resources>
                                 <resource>
                                     <targetPath>configsets</targetPath>
-                                    <directory>../crafter-search-provider/solr/configsets</directory>
+                                    <directory>../crafter-search-solr-provider/solr/configsets</directory>
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>
