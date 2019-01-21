@@ -23,8 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.craftercms.commons.search.batch.UpdateStatus;
-import org.craftercms.commons.search.batch.impl.AbstractBinaryFileWithMetadataBatchIndexer;
+import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.batch.utils.CrafterSearchIndexingUtils;
 import org.craftercms.search.service.Query;
