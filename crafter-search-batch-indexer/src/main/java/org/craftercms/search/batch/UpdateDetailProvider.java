@@ -15,22 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.elasticsearch.exception;
-
-import org.craftercms.search.exception.SearchException;
+package org.craftercms.search.batch;
 
 /**
- * Base exception for all ElasticSearch errors
  * @author joseross
  */
-public class ElasticSearchException extends SearchException {
+public interface UpdateDetailProvider {
 
-    public ElasticSearchException(final String indexId, final String msg) {
-        super(indexId, msg);
-    }
-
-    public ElasticSearchException(final String indexId, final String msg, final Throwable throwable) {
-        super(indexId, msg, throwable);
-    }
+    UpdateDetail getUpdateDetail(String file);
 
 }

@@ -17,8 +17,7 @@
 
 package org.craftercms.search.elasticsearch;
 
-import java.io.InputStream;
-
+import org.springframework.core.io.Resource;
 import org.springframework.util.MultiValueMap;
 
 /**
@@ -29,10 +28,11 @@ public interface DocumentParser {
 
     /**
      * Parses the given document and generates an XML file
-     * @param content the document to parse
+     * @param filename the name of the file
+     * @param resource the document to parse
      * @param additionalFields additional fields to add
      * @return an XML ready to be indexed
      */
-    String parseToXml(InputStream content, MultiValueMap<String, String> additionalFields);
+    String parseToXml(String filename, Resource resource, MultiValueMap<String, String> additionalFields);
 
 }

@@ -25,6 +25,7 @@ import org.craftercms.commons.file.stores.RemoteFile;
 import org.craftercms.commons.file.stores.RemoteFileResolver;
 import org.craftercms.commons.lang.RegexUtils;
 import org.craftercms.search.batch.BatchIndexer;
+import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateSet;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.exception.BatchIndexingException;
@@ -36,6 +37,7 @@ import org.craftercms.core.service.Context;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.util.LinkedMultiValueMap;
@@ -82,6 +84,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
     protected List<String> excludeMetadataProperties;
     protected String metadataPathFieldName;
     protected String localIdFieldName;
+    protected long maxFileSize;
 
     public AbstractBinaryFileWithMetadataBatchIndexer() {
         mimeTypesMap = new ConfigurableMimeFileTypeMap();
@@ -146,18 +149,22 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
         this.localIdFieldName = localIdFieldName;
     }
 
+    @Required
+    public void setMaxFileSize(final long maxFileSize) {
+        this.maxFileSize = maxFileSize;
+    }
+
     @Override
     public void updateIndex(String indexId, String siteName,
                             ContentStoreService contentStoreService, Context context, UpdateSet updateSet,
                             UpdateStatus updateStatus) throws BatchIndexingException {
-        doUpdates(indexId, siteName, contentStoreService, context, updateSet.getUpdatePaths(),
-                  updateStatus);
-        doDeletes(indexId, siteName, contentStoreService, context, updateSet.getDeletePaths(),
-                  updateStatus);
+        doUpdates(indexId, siteName, contentStoreService, context, updateSet, updateStatus);
+        doDeletes(indexId, siteName, contentStoreService, context, updateSet.getDeletePaths(), updateStatus);
     }
 
     protected void doUpdates(String indexId, String siteName, ContentStoreService contentStoreService, Context context,
-                             List<String> updatePaths, UpdateStatus updateStatus) {
+                             UpdateSet updateSet, UpdateStatus updateStatus) {
+        List<String> updatePaths = updateSet.getUpdatePaths();
         Set<String> metadataUpdatePaths = new LinkedHashSet<>();
         Set<String> binaryUpdatePaths = new LinkedHashSet<>();
 
@@ -181,7 +188,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
             // If there are previous binaries that are not associated to the metadata anymore, reindex them without
             // metadata or delete them if they're child binaries.
             updatePreviousBinaries(indexId, siteName, metadataPath, previousBinaryPaths, newBinaryPaths,
-                binaryUpdatePaths, context, contentStoreService, updateStatus);
+                binaryUpdatePaths, context, contentStoreService, updateSet.getUpdateDetail(metadataPath), updateStatus);
 
             // Index the new associated binaries
             if (CollectionUtils.isNotEmpty(newBinaryPaths)) {
@@ -190,8 +197,8 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
                 for (String newBinaryPath : newBinaryPaths) {
                     binaryUpdatePaths.remove(newBinaryPath);
 
-                    updateBinaryWithMetadata(indexId, siteName, contentStoreService, context,
-                                             newBinaryPath, metadata, updateStatus);
+                    updateBinaryWithMetadata(indexId, siteName, contentStoreService, context, newBinaryPath, metadata,
+                        updateSet.getUpdateDetail(metadataPath), updateStatus);
                 }
             }
         }
@@ -205,11 +212,12 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
                     MultiValueMap<String, String> metadata = extractMetadata(metadataPath, metadataDoc);
 
                     updateBinaryWithMetadata(indexId, siteName, contentStoreService, context, binaryPath,
-                                             metadata, updateStatus);
+                                             metadata, updateSet.getUpdateDetail(metadataPath), updateStatus);
                 }
             } else {
                 // If not, index by itself
-                updateBinary(indexId, siteName, contentStoreService, context, binaryPath, updateStatus);
+                updateBinary(indexId, siteName, contentStoreService, context, binaryPath,
+                    updateSet.getUpdateDetail(binaryPath), updateStatus);
             }
         }
     }
@@ -217,7 +225,8 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
     protected void updatePreviousBinaries(String indexId, String siteName, String metadataPath,
                                           List<String> previousBinaryPaths, Collection<String> newBinaryPaths,
                                           Set<String> binaryUpdatePaths, Context context,
-                                          ContentStoreService contentStoreService, UpdateStatus updateStatus) {
+                                          ContentStoreService contentStoreService,
+                                          UpdateDetail updateDetail, UpdateStatus updateStatus) {
         if (CollectionUtils.isNotEmpty(previousBinaryPaths)) {
             for (String previousBinaryPath : previousBinaryPaths) {
                 if (CollectionUtils.isEmpty(newBinaryPaths) || !newBinaryPaths.contains(previousBinaryPath)) {
@@ -237,7 +246,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
                         }
 
                         updateBinary(indexId, siteName, contentStoreService, context,
-                            previousBinaryPath, updateStatus);
+                            previousBinaryPath, updateDetail, updateStatus);
                     }
                 }
             }
@@ -267,7 +276,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
                         }
 
                         // Else, update binary without metadata
-                        updateBinary(indexId, siteName, contentStoreService, context, binaryPath, updateStatus);
+                        updateBinary(indexId, siteName, contentStoreService, context, binaryPath,null, updateStatus);
                     }
                 }
             } else if (isBinary(path)) {
@@ -319,11 +328,10 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
     @SuppressWarnings("unchecked")
     protected Collection<String> getBinaryFilePaths(Document document) {
         if (CollectionUtils.isNotEmpty(referenceXPaths)) {
+            Set<String> binaryPaths = new LinkedHashSet<>();
             for (String refXpath : referenceXPaths) {
                 List<Node> references = document.selectNodes(refXpath);
                 if (CollectionUtils.isNotEmpty(references)) {
-                    Set<String> binaryPaths = new LinkedHashSet<>();
-
                     for (Node reference : references) {
                         String referenceValue = reference.getText();
                         if (StringUtils.isNotBlank(referenceValue) &&
@@ -331,10 +339,9 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
                             binaryPaths.add(referenceValue);
                         }
                     }
-
-                    return binaryPaths;
                 }
             }
+            return binaryPaths;
         }
 
         return null;
@@ -343,7 +350,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
     protected void updateBinaryWithMetadata(String indexId, String siteName,
                                             ContentStoreService contentStoreService, Context context,
                                             String binaryPath, MultiValueMap<String, String> metadata,
-                                            UpdateStatus updateStatus) {
+                                            UpdateDetail updateDetail, UpdateStatus updateStatus) {
         try {
             // Check if the binary file is stored remotely
             if (remoteFileResolver != null && isRemoteBinary(binaryPath)) {
@@ -351,8 +358,12 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
 
                 RemoteFile remoteFile = remoteFileResolver.resolve(binaryPath);
 
-                doUpdateContent(indexId, siteName, binaryPath,
-                                remoteFile.toResource(), metadata, updateStatus);
+                if(remoteFile.getContentLength() > maxFileSize) {
+                    logger.info("Skipping large binary file @ " + binaryPath);
+                } else {
+                    doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), metadata, updateDetail,
+                        updateStatus);
+                }
             } else {
                 Content binaryContent = contentStoreService.findContent(context, binaryPath);
                 if (binaryContent == null) {
@@ -364,7 +375,11 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
                     binaryContent = new EmptyContent();
                 }
 
-                doUpdateContent(indexId, siteName, binaryPath, binaryContent, metadata, updateStatus);
+                if(binaryContent.getLength() > maxFileSize) {
+                    logger.info("Skipping large binary file @ " + binaryPath);
+                } else {
+                    doUpdateContent(indexId, siteName, binaryPath, binaryContent, metadata, updateDetail, updateStatus);
+                }
             }
         } catch (Exception e) {
             logger.error("Error when trying to send index update with metadata for binary file " +
@@ -374,14 +389,15 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
 
     protected abstract void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
                                             final Resource resource, final MultiValueMap<String, String> metadata,
-                                            final UpdateStatus updateStatus);
+                                            final UpdateDetail updateDetail, final UpdateStatus updateStatus);
 
     protected abstract void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
                                             final Content content, final MultiValueMap<String, String> metadata,
-                                            final UpdateStatus updateStatus);
+                                            final UpdateDetail updateDetail, final UpdateStatus updateStatus);
 
     protected void updateBinary(String indexId, String siteName, ContentStoreService contentStoreService,
-                                Context context, String binaryPath, UpdateStatus updateStatus) {
+                                Context context, String binaryPath, UpdateDetail updateDetail,
+                                UpdateStatus updateStatus) {
         try {
             // Check if the binary file is stored remotely
             if (remoteFileResolver != null && isRemoteBinary(binaryPath)) {
@@ -389,12 +405,19 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
 
                 RemoteFile remoteFile = remoteFileResolver.resolve(binaryPath);
 
-                doUpdateContent(indexId, siteName, binaryPath,
-                                remoteFile.toResource(), updateStatus);
+                if(remoteFile.getContentLength() > maxFileSize) {
+                    logger.info("Skipping large binary file @ " + binaryPath);
+                } else {
+                    doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), updateDetail, updateStatus);
+                }
             } else {
                 Content binaryContent = contentStoreService.findContent(context, binaryPath);
                 if (binaryContent != null) {
-                    doUpdateContent(indexId, siteName, binaryPath, binaryContent, updateStatus);
+                    if(binaryContent.getLength() > maxFileSize) {
+                        logger.info("Skipping large binary file @ " + binaryPath);
+                    } else {
+                        doUpdateContent(indexId, siteName, binaryPath, binaryContent, updateDetail, updateStatus);
+                    }
                 } else {
                     if (logger.isDebugEnabled()) {
                         logger.debug("No binary file found @ " + getSiteBasedPath(siteName, binaryPath) +
@@ -408,9 +431,13 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
         }
     }
 
-    protected abstract void doUpdateContent(final String indexId, final String siteName, final String binaryPath, final Resource toResource, final UpdateStatus updateStatus);
+    protected abstract void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
+                                            final Resource toResource, final UpdateDetail updateDetail,
+                                            final UpdateStatus updateStatus);
 
-    protected abstract void doUpdateContent(final String indexId, final String siteName, final String binaryPath, final Content content, final UpdateStatus updateStatus);
+    protected abstract void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
+                                            final Content content, final UpdateDetail updateDetail,
+                                            final UpdateStatus updateStatus);
 
     protected MultiValueMap<String, String> extractMetadata(String path, Document document) {
         MultiValueMap<String, String> metadata = new LinkedMultiValueMap<>();

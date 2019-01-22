@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.batch.utils.CrafterSearchIndexingUtils;
@@ -51,30 +52,39 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBinaryFileWithMe
     }
 
     @Override
-    protected void doDelete(final String indexId, final String siteName, final String previousBinaryPath, final UpdateStatus updateStatus) {
+    protected void doDelete(final String indexId, final String siteName, final String previousBinaryPath,
+                            final UpdateStatus updateStatus) {
         CrafterSearchIndexingUtils.doDelete(searchService, indexId, siteName, previousBinaryPath, updateStatus);
     }
 
     @Override
-    protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath, final Resource resource, final MultiValueMap<String, String> metadata, final UpdateStatus updateStatus) {
-        CrafterSearchIndexingUtils.doUpdateContent((ResourceAwareSearchService) searchService, indexId, siteName, binaryPath, resource, metadata,
+    protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
+                                   final Resource resource, final MultiValueMap<String, String> metadata,
+                                   final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
+        CrafterSearchIndexingUtils.doUpdateContent((ResourceAwareSearchService) searchService, indexId, siteName,
+            binaryPath, resource, metadata, updateStatus);
+    }
+
+    @Override
+    protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
+                                   final Content content, final MultiValueMap<String, String> metadata,
+                                   final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
+        CrafterSearchIndexingUtils.doUpdateContent(searchService, indexId, siteName, binaryPath, content, metadata,
             updateStatus);
     }
 
     @Override
-    protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath, final Content content, final MultiValueMap<String, String> metadata, final UpdateStatus updateStatus) {
-        CrafterSearchIndexingUtils.doUpdateContent(searchService, indexId, siteName, binaryPath, content, metadata, updateStatus);
+    protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
+                                   final Resource toResource, final UpdateDetail updateDetail,
+                                   final UpdateStatus updateStatus) {
+        CrafterSearchIndexingUtils.doUpdateContent((ResourceAwareSearchService) searchService, indexId, siteName,
+            binaryPath, toResource, updateStatus);
     }
 
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
-                                   final Resource toResource, final UpdateStatus updateStatus) {
-        CrafterSearchIndexingUtils.doUpdateContent((ResourceAwareSearchService) searchService, indexId, siteName, binaryPath, toResource, updateStatus);
-    }
-
-    @Override
-    protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
-                                   final Content content, final UpdateStatus updateStatus) {
+                                   final Content content, final UpdateDetail updateDetail,
+                                   final UpdateStatus updateStatus) {
         CrafterSearchIndexingUtils.doUpdateContent(searchService, indexId, siteName, binaryPath, content, updateStatus);
     }
 

@@ -17,11 +17,13 @@
 
 package org.craftercms.search.elasticsearch;
 
-import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.craftercms.search.elasticsearch.exception.ElasticSearchException;
+import org.craftercms.core.service.Content;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.springframework.core.io.Resource;
 import org.springframework.util.MultiValueMap;
 
 /**
@@ -40,6 +42,10 @@ public interface ElasticSearchService {
      */
     List<String> searchField(String indexName, String field, QueryBuilder queryBuilder) throws ElasticSearchException;
 
+    Map<String, Object> searchId(String indexName, String docId);
+
+    void index(String indexName, String siteId, String docId, Map<String, Object> doc);
+
     /**
      * Performs an index for the given xml file
      * @param indexName the name of the index
@@ -48,7 +54,21 @@ public interface ElasticSearchService {
      * @param xml the content of the document
      * @throws ElasticSearchException if there is any error during the operation
      */
-    void index(String indexName, String siteId, String docId, String xml) throws ElasticSearchException;
+    default void index(String indexName, String siteId, String docId, String xml) throws ElasticSearchException {
+        index(indexName, siteId, docId, xml, null);
+    }
+
+    /**
+     * Performs an index for the given xml file
+     * @param indexName the name of the index
+     * @param siteId the name of the site
+     * @param docId the id of the document
+     * @param xml the content of the document
+     * @param additionalFields additional fields to index
+     * @throws ElasticSearchException if there is any error during the operation
+     */
+    void index(String indexName, String siteId, String docId, String xml,
+               MultiValueMap<String, String> additionalFields) throws ElasticSearchException;
 
     /**
      * Performs an index for the given binary file
@@ -60,7 +80,10 @@ public interface ElasticSearchService {
      * @throws ElasticSearchException if there is any error during the operation
      */
     void indexBinary(String indexName, String siteName, String path, MultiValueMap<String, String> additionalFields,
-                     InputStream content) throws ElasticSearchException;
+                     Content content) throws ElasticSearchException;
+
+    void indexBinary(String indexName, String siteName, String path, MultiValueMap<String, String> additionalFields,
+                     Resource resource) throws ElasticSearchException;
 
     /**
      * Performs a delete for the given document

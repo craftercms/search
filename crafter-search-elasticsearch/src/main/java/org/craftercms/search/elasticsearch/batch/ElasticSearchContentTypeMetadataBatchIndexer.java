@@ -17,21 +17,17 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
+import java.util.Map;
+
+import org.craftercms.search.batch.impl.AbstractContentTypeMetadataBatchIndexer;
 import org.craftercms.search.elasticsearch.ElasticSearchService;
-import org.craftercms.search.batch.UpdateDetail;
-import org.craftercms.search.batch.UpdateStatus;
-import org.craftercms.search.batch.impl.AbstractXmlFileBatchIndexer;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Implementation of {@link AbstractXmlFileBatchIndexer} for ElasticSearch
  * @author joseross
  */
-public class ElasticSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
+public class ElasticSearchContentTypeMetadataBatchIndexer extends AbstractContentTypeMetadataBatchIndexer {
 
-    /**
-     * ElasticSearch service
-     */
     protected ElasticSearchService elasticSearchService;
 
     @Required
@@ -40,15 +36,14 @@ public class ElasticSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexe
     }
 
     @Override
-    protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
-        ElasticSearchIndexingUtils.doDelete(elasticSearchService, indexId, siteName, path, updateStatus);
+    protected void index(final String indexName, final String siteName, final String path,
+                         final Map<String, Object> data) {
+        elasticSearchService.index(indexName, siteName, path, data);
     }
 
     @Override
-    protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
-                            final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
-        ElasticSearchIndexingUtils.doUpdate(elasticSearchService, indexId, siteName, path, xml, updateDetail,
-            updateStatus);
+    protected Map<String, Object> getCurrentData(final String indexId, final String siteName, final String path) {
+        return elasticSearchService.searchId(indexId, path);
     }
 
 }

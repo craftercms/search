@@ -16,12 +16,14 @@
  */
 package org.craftercms.search.batch.exception;
 
+import org.craftercms.search.exception.SearchException;
+
 /**
  * Exception thrown when a batch indexing operation fails.
  *
  * @author avasquez
  */
-public class BatchIndexingException extends RuntimeException {
+public class BatchIndexingException extends SearchException {
 
     public BatchIndexingException(String msg) {
         super(msg);

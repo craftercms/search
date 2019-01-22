@@ -15,22 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.elasticsearch.exception;
+package org.craftercms.search.elasticsearch;
 
-import org.craftercms.search.exception.SearchException;
+import java.util.Map;
+
+import org.springframework.core.io.Resource;
 
 /**
- * Base exception for all ElasticSearch errors
+ * Defines the basic operation to process binary files and produce relevant metadata
+ * @param <T> the type of object that provides the metadata
  * @author joseross
  */
-public class ElasticSearchException extends SearchException {
+public interface MetadataExtractor<T> {
 
-    public ElasticSearchException(final String indexId, final String msg) {
-        super(indexId, msg);
-    }
-
-    public ElasticSearchException(final String indexId, final String msg, final Throwable throwable) {
-        super(indexId, msg, throwable);
-    }
+    /**
+     * Takes relevant metadata from the source object to the properties parameter
+     * @param resource the original file containing the metadata (in case any extra operation is needed)
+     * @param metadata the object that provides the metadata
+     * @param properties the properties that will be indexed
+     */
+    void extract(Resource resource, T metadata, Map<String, Object> properties);
 
 }

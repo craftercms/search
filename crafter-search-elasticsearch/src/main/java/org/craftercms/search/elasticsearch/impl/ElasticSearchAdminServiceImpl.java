@@ -94,7 +94,7 @@ public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService 
             return elasticSearchClient.indices().exists(
                 new GetIndexRequest().indices(indexName), RequestOptions.DEFAULT);
         } catch (IOException e) {
-            throw new ElasticSearchException("Error consulting index " + indexName, e);
+            throw new ElasticSearchException(indexName, "Error consulting index", e);
         }
     }
 
@@ -113,7 +113,7 @@ public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService 
                             .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON),
                         RequestOptions.DEFAULT);
                 } catch (Exception e) {
-                    throw new ElasticSearchException("Error creating index " + authoringName, e);
+                    throw new ElasticSearchException(authoringName, "Error creating index", e);
                 }
             }
         } else {
@@ -125,7 +125,7 @@ public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService 
                             .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON),
                         RequestOptions.DEFAULT);
                 } catch (Exception e) {
-                    throw new ElasticSearchException("Error creating index " + indexName, e);
+                    throw new ElasticSearchException(indexName, "Error creating index", e);
                 }
             }
         }
@@ -141,7 +141,7 @@ public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService 
             logger.info("Deleting index {}", indexName);
             elasticSearchClient.indices().delete(new DeleteIndexRequest(name), RequestOptions.DEFAULT);
         } catch (IOException e) {
-            throw new ElasticSearchException("Error deleting index " + indexName, e);
+            throw new ElasticSearchException(indexName, "Error deleting index", e);
         }
     }
 

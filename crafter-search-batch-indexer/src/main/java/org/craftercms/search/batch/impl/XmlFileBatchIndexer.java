@@ -17,6 +17,7 @@
 
 package org.craftercms.search.batch.impl;
 
+import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.utils.CrafterSearchIndexingUtils;
 import org.craftercms.search.service.SearchService;
@@ -46,7 +47,7 @@ public class XmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
 
     @Override
     protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
-                            final UpdateStatus updateStatus) {
+                            final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
         CrafterSearchIndexingUtils.doUpdate(searchService, indexId, siteName, path, xml, updateStatus);
     }
 

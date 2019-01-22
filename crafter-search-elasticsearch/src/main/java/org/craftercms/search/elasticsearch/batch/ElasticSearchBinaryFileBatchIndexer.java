@@ -17,11 +17,8 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.craftercms.search.batch.exception.BatchIndexingException;
 import org.craftercms.search.elasticsearch.ElasticSearchService;
+import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.impl.AbstractBinaryFileBatchIndexer;
 import org.craftercms.core.service.Content;
@@ -49,12 +46,11 @@ public class ElasticSearchBinaryFileBatchIndexer extends AbstractBinaryFileBatch
     }
 
     @Override
-    protected void doUpdateContent(final String indexId, final String siteName, final String path, final Content binaryContent, final UpdateStatus updateStatus) {
-        try(InputStream in = binaryContent.getInputStream()) {
-            ElasticSearchIndexingUtils.doUpdateBinary(elasticSearchService, indexId, siteName, path, null, in, updateStatus);
-        } catch (IOException e) {
-            throw new BatchIndexingException("Error opening document " + path, e);
-        }
+    protected void doUpdateContent(final String indexId, final String siteName, final String path,
+                                   final Content binaryContent, final UpdateDetail updateDetail,
+                                   final UpdateStatus updateStatus) {
+        ElasticSearchIndexingUtils.doUpdateBinary(elasticSearchService, indexId, siteName, path, null, binaryContent,
+            updateDetail, updateStatus);
     }
 
 }

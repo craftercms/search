@@ -17,13 +17,12 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.craftercms.search.elasticsearch.ElasticSearchService;
 import org.craftercms.search.elasticsearch.exception.ElasticSearchException;
+import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.impl.AbstractBinaryFileWithMetadataBatchIndexer;
 import org.craftercms.core.service.Content;
@@ -51,7 +50,8 @@ public class ElasticSearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
     }
 
     @Override
-    protected void doDelete(final String indexId, final String siteName, final String previousBinaryPath, final UpdateStatus updateStatus) {
+    protected void doDelete(final String indexId, final String siteName, final String previousBinaryPath,
+                            final UpdateStatus updateStatus) {
         ElasticSearchIndexingUtils.doDelete(elasticSearchService, indexId, siteName, previousBinaryPath, updateStatus);
     }
 
@@ -91,34 +91,31 @@ public class ElasticSearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
                                    final Resource resource, final MultiValueMap<String, String> metadata,
-                                   final UpdateStatus updateStatus) {
-        try(InputStream in = resource.getInputStream()) {
-            ElasticSearchIndexingUtils.doUpdateBinary(elasticSearchService, indexId, siteName, binaryPath, metadata, in, updateStatus);
-        } catch (IOException e) {
-            throw new SearchException(indexId, "Error opening document " + binaryPath, e);
-        }
+                                   final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
+        ElasticSearchIndexingUtils.doUpdateBinary(elasticSearchService, indexId, siteName, binaryPath, metadata,
+                resource, updateDetail, updateStatus);
     }
 
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
                                    final Content content, final MultiValueMap<String, String> metadata,
-                                   final UpdateStatus updateStatus) {
-        try(InputStream in = content.getInputStream()) {
-            ElasticSearchIndexingUtils.doUpdateBinary(elasticSearchService, indexId, siteName, binaryPath, metadata, in, updateStatus);
-        } catch (IOException e) {
-            throw new SearchException(indexId, "Error opening document " + binaryPath, e);
-        }
+                                   final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
+        ElasticSearchIndexingUtils.doUpdateBinary(elasticSearchService, indexId, siteName, binaryPath, metadata,
+                content, updateDetail, updateStatus);
     }
 
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
-                                   final Resource resource, final UpdateStatus updateStatus) {
-        doUpdateContent(indexId, siteName, binaryPath, resource, null, updateStatus);
+                                   final Resource resource, final UpdateDetail updateDetail,
+                                   final UpdateStatus updateStatus) {
+        doUpdateContent(indexId, siteName, binaryPath, resource, updateDetail, updateStatus);
     }
 
     @Override
-    protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath, final Content content, final UpdateStatus updateStatus) {
-        doUpdateContent(indexId, siteName, binaryPath, content, null, updateStatus);
+    protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
+                                   final Content content, final UpdateDetail updateDetail,
+                                   final UpdateStatus updateStatus) {
+        doUpdateContent(indexId, siteName, binaryPath, content, updateDetail, updateStatus);
     }
 
 }
