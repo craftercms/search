@@ -15,39 +15,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.batch.impl;
+package org.craftercms.search.elasticsearch.batch;
 
+import org.craftercms.search.elasticsearch.ElasticSearchService;
 import org.craftercms.search.batch.UpdateStatus;
-import org.craftercms.search.batch.utils.CrafterSearchIndexingUtils;
-import org.craftercms.search.service.SearchService;
+import org.craftercms.search.batch.impl.AbstractXmlFileBatchIndexer;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Implementation of {@link AbstractXmlFileBatchIndexer} that uses {@link SearchService}
+ * Implementation of {@link AbstractXmlFileBatchIndexer} for ElasticSearch
  * @author joseross
  */
-public class XmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
+public class ElasticSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
 
     /**
-     * Instance of {@link SearchService}
+     * ElasticSearch service
      */
-    protected SearchService searchService;
+    protected ElasticSearchService elasticSearchService;
 
     @Required
-    public void setSearchService(final SearchService searchService) {
-        this.searchService = searchService;
+    public void setElasticSearchService(final ElasticSearchService elasticSearchService) {
+        this.elasticSearchService = elasticSearchService;
     }
 
     @Override
-    protected void doDelete(final String indexId, final String siteName, final String path,
-                            final UpdateStatus updateStatus) {
-        CrafterSearchIndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
+    protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
+        ElasticSearchIndexingUtils.doDelete(elasticSearchService, indexId, siteName, path, updateStatus);
     }
 
     @Override
     protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
                             final UpdateStatus updateStatus) {
-        CrafterSearchIndexingUtils.doUpdate(searchService, indexId, siteName, path, xml, updateStatus);
+        ElasticSearchIndexingUtils.doUpdate(elasticSearchService, indexId, siteName, path, xml, updateStatus);
     }
 
 }

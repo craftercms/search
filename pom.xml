@@ -54,11 +54,12 @@
     </scm>
 
     <modules>
-        <module>crafter-search-api</module>
-        <module>crafter-search-server</module>
-        <module>crafter-search-client</module>
-        <module>crafter-search-itest</module>
+        <module>crafter-search-solr-api</module>
+        <module>crafter-search-solr-server</module>
+        <module>crafter-search-solr-client</module>
+        <module>crafter-search-solr-itest</module>
         <module>crafter-search-batch-indexer</module>
+        <module>crafter-search-elasticsearch</module>
     </modules>
 
     <properties>
@@ -85,6 +86,8 @@
         <bouncycastle.version>1.60</bouncycastle.version>
         <fontbox.version>2.0.11</fontbox.version>
         <hadoop.version>2.7.5</hadoop.version>
+        <elasticsearch.version>6.5.3</elasticsearch.version>
+        <tika.version>1.19.1</tika.version>
     </properties>
 
     <build>

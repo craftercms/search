@@ -15,38 +15,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.batch.impl;
+package org.craftercms.search.elasticsearch.batch;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.craftercms.search.batch.exception.BatchIndexingException;
+import org.craftercms.search.elasticsearch.ElasticSearchService;
 import org.craftercms.search.batch.UpdateStatus;
+import org.craftercms.search.batch.impl.AbstractBinaryFileBatchIndexer;
 import org.craftercms.core.service.Content;
-import org.craftercms.search.batch.utils.CrafterSearchIndexingUtils;
-import org.craftercms.search.service.SearchService;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Implementation of {@link AbstractBinaryFileBatchIndexer} that uses {@link SearchService}.
+ * Implementation of {@link AbstractBinaryFileBatchIndexer} for ElasticSearch
  * @author joseross
  */
-public class BinaryFileBatchIndexer extends AbstractBinaryFileBatchIndexer {
+public class ElasticSearchBinaryFileBatchIndexer extends AbstractBinaryFileBatchIndexer {
 
     /**
-     * Instance of {@link SearchService}
+     * ElasticSearch service
      */
-    protected SearchService searchService;
+    protected ElasticSearchService elasticSearchService;
 
     @Required
-    public void setSearchService(final SearchService searchService) {
-        this.searchService = searchService;
+    public void setElasticSearchService(final ElasticSearchService elasticSearchService) {
+        this.elasticSearchService = elasticSearchService;
     }
 
     @Override
     protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
-        CrafterSearchIndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
+        ElasticSearchIndexingUtils.doDelete(elasticSearchService, indexId, siteName, path, updateStatus);
     }
 
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String path, final Content binaryContent, final UpdateStatus updateStatus) {
-        CrafterSearchIndexingUtils.doUpdateContent(searchService, indexId, siteName, path, binaryContent, updateStatus);
+        try(InputStream in = binaryContent.getInputStream()) {
+            ElasticSearchIndexingUtils.doUpdateBinary(elasticSearchService, indexId, siteName, path, null, in, updateStatus);
+        } catch (IOException e) {
+            throw new BatchIndexingException("Error opening document " + path, e);
+        }
     }
-    
+
 }

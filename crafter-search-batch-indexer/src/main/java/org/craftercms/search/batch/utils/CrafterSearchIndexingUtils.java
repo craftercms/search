@@ -21,8 +21,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.craftercms.commons.search.batch.UpdateStatus;
-import org.craftercms.commons.search.batch.utils.IndexingUtils;
+import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.service.ResourceAwareSearchService;
 import org.craftercms.search.service.SearchService;
