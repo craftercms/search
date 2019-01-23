@@ -20,11 +20,19 @@ package org.craftercms.search.batch;
 import java.time.Instant;
 
 /**
+ * Holds the data for a single change made in the content.
  * @author joseross
  */
 public class UpdateDetail {
 
+    /**
+     * Name of the author of the change
+     */
     protected String author;
+
+    /**
+     * Time when the change was made
+     */
     protected Instant date;
 
     public String getAuthor() {
@@ -41,6 +49,11 @@ public class UpdateDetail {
 
     public void setDate(final Instant date) {
         this.date = date;
+    }
+
+    @Override
+    public String toString() {
+        return "UpdateDetail{" + "author='" + author + '\'' + ", date=" + date + '}';
     }
 
 }

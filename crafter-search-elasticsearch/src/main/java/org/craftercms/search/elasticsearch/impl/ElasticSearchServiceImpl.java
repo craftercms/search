@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.craftercms.search.elasticsearch.DocumentBuilder;
 import org.craftercms.search.elasticsearch.DocumentParser;
@@ -63,6 +64,8 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
      */
     public static final String DEFAULT_DOC = "_doc";
 
+    public static final String DEFAULT_LOCAL_ID_NAME = "localId";
+
     /**
      * Document Builder
      */
@@ -77,6 +80,11 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
      * The ElasticSearch client
      */
     protected RestHighLevelClient client;
+
+    /**
+     * The name of the field for full ids
+     */
+    protected String localIdFieldName = DEFAULT_LOCAL_ID_NAME;
 
     @Required
     public void setDocumentBuilder(final DocumentBuilder<Map<String, Object>> documentBuilder) {
@@ -113,7 +121,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             logger.info("[{}] Found {} matching documents", indexName, response.getHits().totalHits);
             List<String> ids = new LinkedList<>();
             response.getHits().forEach(hit -> {
-                ids.add(hit.getId());
+                ids.add(hit.field(localIdFieldName).getValue());
             });
             return ids;
         } catch (Exception e) {
@@ -126,7 +134,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         logger.info("[{}] Search for id {}", indexName, docId);
         SearchRequest request = new SearchRequest(indexName).source(
             new SearchSourceBuilder()
-                .query(QueryBuilders.termQuery("localId", docId))
+                .query(QueryBuilders.termQuery(localIdFieldName, docId))
         );
 
         try {
@@ -142,7 +150,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         logger.info("[{}] Indexing document {}", indexName, docId);
         try {
             delete(indexName, siteName, docId);
-            client.index(new IndexRequest(indexName, DEFAULT_DOC, docId).source(doc), RequestOptions.DEFAULT);
+            client.index(new IndexRequest(indexName, DEFAULT_DOC, getId(docId)).source(doc), RequestOptions.DEFAULT);
         } catch (Exception e) {
             throw new ElasticSearchException(indexName, "Error indexing document " + docId, e);
         }
@@ -198,7 +206,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         throws ElasticSearchException {
         logger.info("[{}] Deleting document {}", indexName, docId);
         try {
-            client.delete(new DeleteRequest(indexName, DEFAULT_DOC, docId), RequestOptions.DEFAULT);
+            client.delete(new DeleteRequest(indexName, DEFAULT_DOC, getId(docId)), RequestOptions.DEFAULT);
         } catch (Exception e) {
             throw new ElasticSearchException(indexName, "Error deleting document " + docId, e);
         }
@@ -216,4 +224,14 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             throw new ElasticSearchException(indexName, "Error flushing index", e);
         }
     }
+
+    /**
+     * Hashes the full path to use as a unique id for ElasticSearch
+     * @param path the path of the file
+     * @return MD5 hash for the path
+     */
+    protected String getId(String path) {
+        return DigestUtils.md5Hex(path);
+    }
+
 }

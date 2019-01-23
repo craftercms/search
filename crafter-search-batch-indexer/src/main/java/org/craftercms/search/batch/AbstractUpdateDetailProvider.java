@@ -22,11 +22,19 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 /**
+ * Default implementation for {@link UpdateDetailProvider}
  * @author joseross
  */
 public class AbstractUpdateDetailProvider implements UpdateDetailProvider {
 
+    /**
+     * Holds all known instances of {@link UpdateDetail} mapped by their id
+     */
     protected Map<String, UpdateDetail> updateDetails;
+
+    /**
+     * Holds all changed files mapped by the {@link UpdateDetail} id
+     */
     protected Map<String, String> updateLog;
 
     public Map<String, UpdateDetail> getUpdateDetails() {
@@ -45,6 +53,9 @@ public class AbstractUpdateDetailProvider implements UpdateDetailProvider {
         this.updateLog = updateLog;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UpdateDetail getUpdateDetail(final String file) {
         if(updateDetails != null && updateLog != null) {

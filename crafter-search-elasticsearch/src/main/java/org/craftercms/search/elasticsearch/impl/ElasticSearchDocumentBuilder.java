@@ -47,6 +47,7 @@ public class ElasticSearchDocumentBuilder extends AbstractDocumentBuilder<Map<St
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public Map<String, Object> build(final String site, final String id, final String xml,
                                      MultiValueMap additionalFields) {
         try {

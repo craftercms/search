@@ -18,10 +18,16 @@
 package org.craftercms.search.batch;
 
 /**
+ * Provides an instance of {@link UpdateDetail} for a specific file
  * @author joseross
  */
 public interface UpdateDetailProvider {
 
+    /**
+     * Looks up the {@link UpdateDetail} for the given file
+     * @param file the file to look up
+     * @return the details object
+     */
     UpdateDetail getUpdateDetail(String file);
 
 }

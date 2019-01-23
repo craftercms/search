@@ -27,6 +27,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.craftercms.commons.lang.RegexUtils;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.core.service.Item;
@@ -36,24 +37,31 @@ import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.exception.BatchIndexingException;
 
 /**
+ * Implementation of {@link BatchIndexer} that updates existing entries in the index with additional metadata.
  * @author joseross
  */
 public abstract class AbstractMetadataBatchIndexer implements BatchIndexer {
 
     private static final Log logger = LogFactory.getLog(AbstractMetadataBatchIndexer.class);
 
-    protected String includePath;
+    /**
+     * Pattern of files that should be included
+     */
+    protected List<String> includePatterns;
 
-    public void setIncludePath(final String includePath) {
-        this.includePath = includePath;
+    public void setIncludePatterns(final List<String> includePatterns) {
+        this.includePatterns = includePatterns;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void updateIndex(final String indexId, final String siteName,
+    public void updateIndex(final String indexName, final String siteName,
                             final ContentStoreService contentStoreService, final Context context,
                             final UpdateSet updateSet, final UpdateStatus updateStatus) throws BatchIndexingException {
 
-        logger.info("Start processing @ " + indexId);
+        logger.info("Start processing @ " + indexName);
 
         List<String> updatedPaths = updateSet.getUpdatePaths();
         List<String> includedPaths = Collections.emptyList();
@@ -61,16 +69,17 @@ public abstract class AbstractMetadataBatchIndexer implements BatchIndexer {
 
         if(CollectionUtils.isNotEmpty(updatedPaths)) {
             if(logger.isDebugEnabled()) {
-                logger.debug("Filtering updated files @ " + indexId + ": " + updatedPaths);
+                logger.debug("Filtering updated files @ " + indexName + ": " + updatedPaths);
             }
             includedPaths = updatedPaths.stream()
-                                .filter(path -> StringUtils.isEmpty(includePath) || path.matches(includePath))
+                                .filter(path -> CollectionUtils.isEmpty(includePatterns) ||
+                                                    RegexUtils.matchesAny(path, includePatterns))
                                 .collect(Collectors.toList());
         }
 
         if(CollectionUtils.isNotEmpty(includedPaths)) {
             if(logger.isDebugEnabled()) {
-                logger.debug("Filtering matched files @ " + indexId + ": " + includedPaths);
+                logger.debug("Filtering matched files @ " + indexName + ": " + includedPaths);
             }
             compatiblePaths = includedPaths.stream()
                                 .filter(path -> isCompatible(getItem(contentStoreService, context, path)))
@@ -79,47 +88,80 @@ public abstract class AbstractMetadataBatchIndexer implements BatchIndexer {
 
         if(CollectionUtils.isNotEmpty(compatiblePaths)) {
             if(logger.isDebugEnabled()) {
-                logger.debug("Processing compatible files @ " + indexId + ": " + compatiblePaths);
+                logger.debug("Processing compatible files @ " + indexName + ": " + compatiblePaths);
             }
             compatiblePaths.forEach(path -> {
                 if(logger.isDebugEnabled()) {
-                    logger.debug("Fetching metadata for file "+ path +"  @ " + indexId);
+                    logger.debug("Fetching metadata for file "+ path +"  @ " + indexName);
                 }
                 Map<String, Object> metadata = getMetadata(getItem(contentStoreService, context, path),
                     contentStoreService, context);
                 if(MapUtils.isNotEmpty(metadata)) {
                     if(logger.isDebugEnabled()) {
-                        logger.debug("Fetching existing data for file "+ path +"  @ " + indexId);
+                        logger.debug("Fetching existing data for file "+ path +"  @ " + indexName);
                     }
-                    Map<String, Object> currentData = getCurrentData(indexId, siteName, path);
+                    Map<String, Object> currentData = getCurrentData(indexName, siteName, path);
                     if(MapUtils.isNotEmpty(currentData)) {
                         if(logger.isDebugEnabled()) {
-                            logger.debug("Indexing new metadata for file "+ path +"  @ " + indexId);
+                            logger.debug("Indexing new metadata for file "+ path +"  @ " + indexName);
                         }
                         currentData.putAll(metadata);
-                        index(indexId, siteName, path, currentData);
+                        updateIndex(indexName, siteName, path, currentData);
                     }
                 }
             });
         }
 
-        logger.info("Completed processing @ " + indexId);
+        logger.info("Completed processing @ " + indexName);
 
     }
 
+    /**
+     * Looks up a specific file from the content store
+     * @param contentStoreService the content store service instance
+     * @param context the context instance
+     * @param path the path of the file
+     * @return instance of Item
+     */
     protected Item getItem(final ContentStoreService contentStoreService, final Context context, final String path) {
         return contentStoreService.getItem(context, path);
     }
 
-    protected abstract void index(final String indexId, final String siteName, final String path,
-                                  final Map<String, Object> data);
+    /**
+     * Updates the index for the given file
+     * @param indexName the name of the index
+     * @param siteName the name of the site
+     * @param path the path of the file
+     * @param data the metadata to add
+     */
+    protected abstract void updateIndex(final String indexName, final String siteName, final String path,
+                                        final Map<String, Object> data);
 
-    protected abstract Map<String, Object> getCurrentData(final String indexId, final String siteName,
+    /**
+     * Queries the index to get existing data for a given file
+     * @param indexName the name of the index
+     * @param siteName the name of the site
+     * @param path the path of the file
+     * @return the existing data
+     */
+    protected abstract Map<String, Object> getCurrentData(final String indexName, final String siteName,
                                                           final String path);
 
+    /**
+     * Gets the additional metadata that will be added to the index for the given {@link Item}
+     * @param item the item to process
+     * @param contentStoreService the content store service instance
+     * @param context the context instance
+     * @return the additional metadata
+     */
     protected abstract Map<String, Object> getMetadata(final Item item, final ContentStoreService contentStoreService,
                                                        final Context context);
 
+    /**
+     * Verifies if the given {@link Item} can be handled by this class
+     * @param item the item to verify
+     * @return true if the item can be handled
+     */
     protected abstract boolean isCompatible(final Item item);
 
 }

@@ -17,6 +17,8 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
+import java.util.Map;
+
 import org.apache.commons.collections.MapUtils;
 import org.craftercms.search.batch.utils.IndexingUtils;
 import org.craftercms.search.elasticsearch.ElasticSearchService;
@@ -35,24 +37,34 @@ import org.springframework.util.MultiValueMap;
  */
 public abstract class ElasticSearchIndexingUtils extends IndexingUtils {
 
-    public static void doDelete(final ElasticSearchService elasticSearch, final String indexId,
+    public static Map<String, Object> doSearchById(final ElasticSearchService elasticSearch, final String indexName,
+                                                   final String path) {
+        return elasticSearch.searchId(indexName, path);
+    }
+
+    public static void doDelete(final ElasticSearchService elasticSearch, final String indexName,
                                 final String siteName, final String path, final UpdateStatus updateStatus) {
         try {
-            elasticSearch.delete(indexId, siteName, path);
+            elasticSearch.delete(indexName, siteName, path);
             updateStatus.addSuccessfulDelete(path);
         } catch (ElasticSearchException e) {
-            throw new SearchException(indexId, "Error deleting document " + path, e);
+            throw new SearchException(indexName, "Error deleting document " + path, e);
         }
     }
 
-    public static void doUpdate(final ElasticSearchService elasticSearch, final String indexId,
+    public static void doUpdate(final ElasticSearchService elasticSearch, final String indexName,
+                                final String siteName, final String path, final Map<String, Object> doc) {
+        elasticSearch.index(indexName, siteName, path, doc);
+    }
+
+    public static void doUpdate(final ElasticSearchService elasticSearch, final String indexName,
                                 final String siteName, final String path, final String xml,
                                 final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
         try {
-            elasticSearch.index(indexId, siteName, path, xml, getAdditionalFields(updateDetail));
+            elasticSearch.index(indexName, siteName, path, xml, getAdditionalFields(updateDetail));
             updateStatus.addSuccessfulUpdate(path);
         } catch (ElasticSearchException e) {
-            throw new SearchException(indexId, "Error indexing document " + path, e);
+            throw new SearchException(indexName, "Error indexing document " + path, e);
         }
     }
 

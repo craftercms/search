@@ -17,33 +17,30 @@
 
 package org.craftercms.search.batch.impl;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.Collections;
+import java.util.Map;
+
+import org.craftercms.core.service.Content;
+import org.craftercms.core.service.ContentStoreService;
+import org.craftercms.core.service.Context;
 import org.craftercms.core.service.Item;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Implementation of {@link AbstractMetadataBatchIndexer} that handles XML files
+ * Implementation of {@link AbstractMetadataBatchIndexer} that handles file sizes
  * @author joseross
  */
-public abstract class AbstractXmlMetadataBatchIndexer extends AbstractMetadataBatchIndexer {
+public abstract class AbstractFileSizeBatchIndexer extends AbstractMetadataBatchIndexer {
+
+    public static final String PROPERTY_NAME_LENGTH = "contentLength";
 
     /**
-     * The XPath of the field to check
+     * {@inheritDoc}
      */
-    protected String fieldXpath;
-
-    /**
-     * The expected value of the field to check (optional)
-     */
-    protected String fieldValue;
-
-    @Required
-    public void setFieldXpath(final String fieldXpath) {
-        this.fieldXpath = fieldXpath;
-    }
-
-    public void setFieldValue(final String fieldValue) {
-        this.fieldValue = fieldValue;
+    @Override
+    protected Map<String, Object> getMetadata(final Item item, final ContentStoreService contentStoreService,
+                                              final Context context) {
+        Content content = contentStoreService.getContent(context, item.getUrl());
+        return Collections.singletonMap(PROPERTY_NAME_LENGTH, content.getLength());
     }
 
     /**
@@ -51,8 +48,7 @@ public abstract class AbstractXmlMetadataBatchIndexer extends AbstractMetadataBa
      */
     @Override
     protected boolean isCompatible(final Item item) {
-        String value = item.queryDescriptorValue(fieldXpath);
-        return StringUtils.isEmpty(fieldValue)? StringUtils.isNotEmpty(value) : StringUtils.equals(fieldValue, value);
+        return !item.isFolder();
     }
 
 }

@@ -19,15 +19,15 @@ package org.craftercms.search.elasticsearch.batch;
 
 import java.util.Map;
 
-import org.craftercms.search.batch.impl.AbstractContentTypeMetadataBatchIndexer;
+import org.craftercms.search.batch.impl.AbstractFileSizeBatchIndexer;
 import org.craftercms.search.elasticsearch.ElasticSearchService;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Implementation of {@link AbstractContentTypeMetadataBatchIndexer} that uses ElasticSearch to index metadata
+ * Implementation of {@link AbstractFileSizeBatchIndexer} that uses ElasticSearch to index
  * @author joseross
  */
-public class ElasticSearchContentTypeMetadataBatchIndexer extends AbstractContentTypeMetadataBatchIndexer {
+public class ElasticSearchFileSizeBatchIndexer extends AbstractFileSizeBatchIndexer {
 
     /**
      * The instance of elastic search service
