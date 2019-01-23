@@ -36,7 +36,7 @@ public abstract class AbstractContentTypeMetadataBatchIndexer extends AbstractXm
 
     public static final String DEFAULT_CONFIG_TEMPLATE = "/config/studio/content-types{name}/config.xml";
     public static final String DEFAULT_DEFINITION_TEMPLATE = "/config/studio/content-types{name}/form-definition.xml";
-    public static final String DEFAULT_THUMBNAIL_TEMPLATE = "/config/studio/content-types{name}/{fle}";
+    public static final String DEFAULT_THUMBNAIL_TEMPLATE = "/config/studio/content-types{name}/{file}";
     public static final String DEFAULT_THUMBNAIL_XPATH = "*/image-thumbnail";
 
     public static final String PROPERTY_NAME_THUMBNAIL = "thumbnail";
@@ -108,8 +108,9 @@ public abstract class AbstractContentTypeMetadataBatchIndexer extends AbstractXm
         Item config = getItem(contentStoreService, context, configPath);
 
         String thumbnailFile = config.queryDescriptorValue(thumbnailXpath);
-        metadata.put(PROPERTY_NAME_THUMBNAIL,
-            StringUtils.replaceFirst(thumbnailTemplate, FILE_PLACEHOLDER, thumbnailFile));
+        String thumbnailValue = StringUtils.replaceFirst(thumbnailTemplate, NAME_PLACEHOLDER, contentTypeName);
+        thumbnailValue = StringUtils.replaceFirst(thumbnailValue, FILE_PLACEHOLDER, thumbnailFile);
+        metadata.put(PROPERTY_NAME_THUMBNAIL, thumbnailValue);
     }
 
 }
