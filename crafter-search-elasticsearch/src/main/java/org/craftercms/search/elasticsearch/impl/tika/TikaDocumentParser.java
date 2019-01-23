@@ -27,6 +27,7 @@ import javax.activation.FileTypeMap;
 import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -117,10 +118,12 @@ public class TikaDocumentParser extends AbstractDocumentParser {
                                      MultiValueMap<String, String> additionalFields) {
         Map<String, Object> map = new HashMap<>();
 
-        map.put(fieldNameContent, parsedContent);
+        if(StringUtils.isNotEmpty(parsedContent)) {
+            map.put(fieldNameContent, parsedContent);
+        }
 
         String type = fileTypeMap.getContentType(filename);
-        if(!"pplication/octet-stream".equals(type)) {
+        if(!"application/octet-stream".equals(type)) {
             map.put("contentType", type);
         }
 
