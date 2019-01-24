@@ -15,22 +15,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.elasticsearch.exception;
+package org.craftercms.search.batch;
 
-import org.craftercms.search.exception.SearchException;
+import java.time.Instant;
 
 /**
- * Base exception for all ElasticSearch errors
+ * Holds the data for a single change made in the content.
  * @author joseross
  */
-public class ElasticSearchException extends SearchException {
+public class UpdateDetail {
 
-    public ElasticSearchException(final String indexId, final String msg) {
-        super(indexId, msg);
+    /**
+     * Name of the author of the change
+     */
+    protected String author;
+
+    /**
+     * Time when the change was made
+     */
+    protected Instant date;
+
+    public String getAuthor() {
+        return author;
     }
 
-    public ElasticSearchException(final String indexId, final String msg, final Throwable throwable) {
-        super(indexId, msg, throwable);
+    public void setAuthor(final String author) {
+        this.author = author;
+    }
+
+    public Instant getDate() {
+        return date;
+    }
+
+    public void setDate(final Instant date) {
+        this.date = date;
+    }
+
+    @Override
+    public String toString() {
+        return "UpdateDetail{" + "author='" + author + '\'' + ", date=" + date + '}';
     }
 
 }

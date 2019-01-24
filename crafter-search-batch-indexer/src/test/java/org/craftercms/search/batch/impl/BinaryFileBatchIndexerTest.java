@@ -69,6 +69,7 @@ public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
         BinaryFileBatchIndexer batchIndexer = new BinaryFileBatchIndexer();
         batchIndexer.setSearchService(searchService);
         batchIndexer.setSupportedMimeTypes(Collections.singletonList("application/pdf"));
+        batchIndexer.setMaxFileSize(Long.MAX_VALUE);
 
         return batchIndexer;
     }

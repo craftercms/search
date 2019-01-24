@@ -17,6 +17,7 @@
 
 package org.craftercms.search.batch.impl;
 
+import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.batch.utils.CrafterSearchIndexingUtils;
@@ -40,13 +41,16 @@ public class BinaryFileBatchIndexer extends AbstractBinaryFileBatchIndexer {
     }
 
     @Override
-    protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
+    protected void doDelete(final String indexId, final String siteName, final String path,
+                            final UpdateStatus updateStatus) {
         CrafterSearchIndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
     }
 
     @Override
-    protected void doUpdateContent(final String indexId, final String siteName, final String path, final Content binaryContent, final UpdateStatus updateStatus) {
+    protected void doUpdateContent(final String indexId, final String siteName, final String path,
+                                   final Content binaryContent, final UpdateDetail updateDetail,
+                                   final UpdateStatus updateStatus) {
         CrafterSearchIndexingUtils.doUpdateContent(searchService, indexId, siteName, path, binaryContent, updateStatus);
     }
-    
+
 }

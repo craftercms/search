@@ -17,20 +17,20 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
+import java.util.Map;
+
+import org.craftercms.search.batch.impl.AbstractContentTypeMetadataBatchIndexer;
 import org.craftercms.search.elasticsearch.ElasticSearchService;
-import org.craftercms.search.batch.UpdateDetail;
-import org.craftercms.search.batch.UpdateStatus;
-import org.craftercms.search.batch.impl.AbstractXmlFileBatchIndexer;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Implementation of {@link AbstractXmlFileBatchIndexer} for ElasticSearch
+ * Implementation of {@link AbstractContentTypeMetadataBatchIndexer} that uses ElasticSearch to index metadata
  * @author joseross
  */
-public class ElasticSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
+public class ElasticSearchContentTypeMetadataBatchIndexer extends AbstractContentTypeMetadataBatchIndexer {
 
     /**
-     * ElasticSearch service
+     * The instance of elastic search service
      */
     protected ElasticSearchService elasticSearchService;
 
@@ -39,16 +39,21 @@ public class ElasticSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexe
         this.elasticSearchService = elasticSearchService;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
-        ElasticSearchIndexingUtils.doDelete(elasticSearchService, indexId, siteName, path, updateStatus);
+    protected void updateIndex(final String indexName, final String siteName, final String path,
+                               final Map<String, Object> data) {
+        ElasticSearchIndexingUtils.doUpdate(elasticSearchService, indexName, siteName, path, data);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
-                            final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
-        ElasticSearchIndexingUtils.doUpdate(elasticSearchService, indexId, siteName, path, xml, updateDetail,
-            updateStatus);
+    protected Map<String, Object> getCurrentData(final String indexName, final String siteName, final String path) {
+        return ElasticSearchIndexingUtils.doSearchById(elasticSearchService, indexName, path);
     }
 
 }

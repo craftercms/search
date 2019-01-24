@@ -23,7 +23,7 @@ import java.util.List;
  *
  * @author avasquez
  */
-public class UpdateSet {
+public class UpdateSet extends AbstractUpdateDetailProvider {
 
     private List<String> updatePaths;
     private List<String> deletePaths;

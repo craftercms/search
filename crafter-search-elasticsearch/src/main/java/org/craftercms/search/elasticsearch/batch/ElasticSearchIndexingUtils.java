@@ -17,13 +17,18 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
-import java.io.InputStream;
+import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
+import org.craftercms.search.batch.utils.IndexingUtils;
 import org.craftercms.search.elasticsearch.ElasticSearchService;
 import org.craftercms.search.elasticsearch.exception.ElasticSearchException;
+import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
-import org.craftercms.search.batch.utils.IndexingUtils;
+import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
+import org.springframework.core.io.Resource;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 /**
@@ -32,37 +37,77 @@ import org.springframework.util.MultiValueMap;
  */
 public abstract class ElasticSearchIndexingUtils extends IndexingUtils {
 
-    public static void doDelete(final ElasticSearchService elasticSearch, final String indexId,
+    public static Map<String, Object> doSearchById(final ElasticSearchService elasticSearch, final String indexName,
+                                                   final String path) {
+        return elasticSearch.searchId(indexName, path);
+    }
+
+    public static void doDelete(final ElasticSearchService elasticSearch, final String indexName,
                                 final String siteName, final String path, final UpdateStatus updateStatus) {
         try {
-            elasticSearch.delete(indexId, siteName, path);
+            elasticSearch.delete(indexName, siteName, path);
             updateStatus.addSuccessfulDelete(path);
         } catch (ElasticSearchException e) {
-            throw new SearchException(indexId, "Error deleting document " + path, e);
+            throw new SearchException(indexName, "Error deleting document " + path, e);
         }
     }
 
-    public static void doUpdate(final ElasticSearchService elasticSearch, final String indexId,
+    public static void doUpdate(final ElasticSearchService elasticSearch, final String indexName,
+                                final String siteName, final String path, final Map<String, Object> doc) {
+        elasticSearch.index(indexName, siteName, path, doc);
+    }
+
+    public static void doUpdate(final ElasticSearchService elasticSearch, final String indexName,
                                 final String siteName, final String path, final String xml,
-                                final UpdateStatus updateStatus) {
+                                final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
         try {
-            elasticSearch.index(indexId, siteName, path, xml);
+            elasticSearch.index(indexName, siteName, path, xml, getAdditionalFields(updateDetail));
             updateStatus.addSuccessfulUpdate(path);
         } catch (ElasticSearchException e) {
-            throw new SearchException(indexId, "Error indexing document " + path, e);
+            throw new SearchException(indexName, "Error indexing document " + path, e);
         }
     }
 
     public static void doUpdateBinary(final ElasticSearchService elasticSearch, final String indexName,
                                       final String siteName, final String path,
                                       final MultiValueMap<String, String> additionalFields,
-                                      final InputStream content, final UpdateStatus updateStatus) {
+                                      final Content content, final UpdateDetail updateDetail,
+                                      final UpdateStatus updateStatus) {
         try {
-            elasticSearch.indexBinary(indexName, siteName, path, additionalFields, content);
+            elasticSearch.indexBinary(indexName, siteName, path,
+                mergeAdditionalFields(additionalFields,  getAdditionalFields(updateDetail)), content);
             updateStatus.addSuccessfulUpdate(path);
         } catch (ElasticSearchException e) {
             throw new SearchException(indexName, "Error indexing binary document " + path, e);
         }
 
     }
+
+    public static void doUpdateBinary(final ElasticSearchService elasticSearch, final String indexName,
+                                      final String siteName, final String path,
+                                      final MultiValueMap<String, String> additionalFields,
+                                      final Resource resource, final UpdateDetail updateDetail,
+                                      final UpdateStatus updateStatus) {
+        try {
+            elasticSearch.indexBinary(indexName, siteName, path,
+                mergeAdditionalFields(additionalFields,  getAdditionalFields(updateDetail)), resource);
+            updateStatus.addSuccessfulUpdate(path);
+        } catch (ElasticSearchException e) {
+            throw new SearchException(indexName, "Error indexing binary document " + path, e);
+        }
+
+    }
+
+    public static MultiValueMap<String, String> mergeAdditionalFields(MultiValueMap<String, String> a,
+                                                                      MultiValueMap<String, String> b) {
+        MultiValueMap<String, String> result = new LinkedMultiValueMap<>();
+        if(MapUtils.isNotEmpty(a)) {
+            result.putAll(a);
+        }
+        if(MapUtils.isNotEmpty(b)) {
+            result.putAll(b);
+        }
+        return result;
+    }
+
 }

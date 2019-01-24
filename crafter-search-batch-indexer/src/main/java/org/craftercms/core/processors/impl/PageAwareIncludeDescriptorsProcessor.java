@@ -16,7 +16,6 @@
  */
 package org.craftercms.core.processors.impl;
 
-import org.craftercms.core.processors.impl.IncludeDescriptorsProcessor;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Required;
 

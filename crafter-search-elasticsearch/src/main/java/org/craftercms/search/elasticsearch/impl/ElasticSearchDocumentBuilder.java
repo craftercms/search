@@ -24,14 +24,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
-import org.craftercms.search.elasticsearch.DocumentBuilder;
 import org.craftercms.search.elasticsearch.jackson.MixedMultivaluedMap;
 import org.craftercms.search.exception.SearchException;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Implementation of {@link DocumentBuilder} for ElasticSearch
+ * Implementation of {@link org.craftercms.search.elasticsearch.DocumentBuilder} for ElasticSearch
  * @author joseross
  */
 public class ElasticSearchDocumentBuilder extends AbstractDocumentBuilder<Map<String, Object>> {
@@ -47,10 +47,12 @@ public class ElasticSearchDocumentBuilder extends AbstractDocumentBuilder<Map<St
      * {@inheritDoc}
      */
     @Override
-    public Map<String, Object> build(final String site, final String id, final String xml) {
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> build(final String site, final String id, final String xml,
+                                     MultiValueMap additionalFields) {
         try {
             Map<String, Object> map = objectMapper.readValue(xml, MixedMultivaluedMap.class);
-            addFields(map, site, id, null);
+            addFields(map, site, id, additionalFields);
             return map;
         } catch (Exception e) {
             throw new SearchException("Error building json for document " + id, e);
