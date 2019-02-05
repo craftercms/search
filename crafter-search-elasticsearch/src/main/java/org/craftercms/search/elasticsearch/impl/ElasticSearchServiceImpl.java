@@ -18,6 +18,7 @@
 package org.craftercms.search.elasticsearch.impl;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +140,11 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
         try {
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
-            return response.getHits().getHits()[0].getSourceAsMap();
+            if(response.getHits().totalHits > 0) {
+                return response.getHits().getHits()[0].getSourceAsMap();
+            } else {
+                return Collections.emptyMap();
+            }
         } catch (Exception e) {
             throw new ElasticSearchException(indexName, "Error executing search " + request, e);
         }
@@ -147,9 +152,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
     @Override
     public void index(final String indexName, final String siteName, final String docId, final Map<String, Object> doc) {
-        logger.info("[{}] Indexing document {}", indexName, docId);
         try {
             delete(indexName, siteName, docId);
+            logger.info("[{}] Indexing document {}", indexName, docId);
             client.index(new IndexRequest(indexName, DEFAULT_DOC, getId(docId)).source(doc), RequestOptions.DEFAULT);
         } catch (Exception e) {
             throw new ElasticSearchException(indexName, "Error indexing document " + docId, e);
@@ -172,7 +177,6 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     public void indexBinary(final String indexName, final String siteName, final String path,
                             MultiValueMap<String, String> additionalFields, final Content content)
         throws ElasticSearchException {
-        logger.info("[{}] Indexing binary document {}", indexName, path);
         String filename = FilenameUtils.getName(path);
         try {
             index(indexName, siteName, path, documentParser.parseToXml(filename, new ContentResource(content,
@@ -189,7 +193,6 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     public void indexBinary(final String indexName, final String siteName, final String path,
                             MultiValueMap<String, String> additionalFields, final Resource resource)
         throws ElasticSearchException {
-        logger.info("[{}] Indexing binary document {}", indexName, path);
         String filename = FilenameUtils.getName(path);
         try {
             index(indexName, siteName, path, documentParser.parseToXml(filename, resource, additionalFields));
