@@ -86,7 +86,7 @@
         <bouncycastle.version>1.60</bouncycastle.version>
         <fontbox.version>2.0.11</fontbox.version>
         <hadoop.version>2.7.5</hadoop.version>
-        <elasticsearch.version>6.5.3</elasticsearch.version>
+        <elasticsearch.version>6.6.0</elasticsearch.version>
         <tika.version>1.19.1</tika.version>
     </properties>
 
