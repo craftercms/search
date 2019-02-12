@@ -122,7 +122,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             logger.info("[{}] Found {} matching documents", indexName, response.getHits().totalHits);
             List<String> ids = new LinkedList<>();
             response.getHits().forEach(hit -> {
-                ids.add(hit.field(localIdFieldName).getValue());
+                ids.add((String) hit.getSourceAsMap().get(localIdFieldName));
             });
             return ids;
         } catch (Exception e) {
