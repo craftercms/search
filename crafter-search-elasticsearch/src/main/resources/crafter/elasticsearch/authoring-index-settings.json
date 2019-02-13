@@ -340,6 +340,14 @@
               "format" : "strict_date_optional_time||epoch_millis||yyyy-M-dd'T'HH:mm:ss.SSSZ"
             }
           }
+        },
+        {
+          "internalName": {
+            "match": "internalName",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
         }
       ]
     }
