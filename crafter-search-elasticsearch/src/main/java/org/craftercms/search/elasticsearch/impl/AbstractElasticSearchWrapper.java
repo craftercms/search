@@ -18,22 +18,33 @@
 package org.craftercms.search.elasticsearch.impl;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.HttpHost;
 import org.craftercms.search.elasticsearch.ElasticSearchWrapper;
+import org.craftercms.search.elasticsearch.exception.ElasticSearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.xcontent.DeprecationHandler;
+import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.search.SearchModule;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Base implementation of {@link ElasticSearchWrapper}
@@ -80,7 +91,7 @@ public abstract class AbstractElasticSearchWrapper implements ElasticSearchWrapp
     protected abstract void updateIndex(SearchRequest request);
 
     /**
-     * Updates the filter quieries for the given request
+     * Updates the filter queries for the given request
      * @param request the request to update
      */
     protected void updateFilters(SearchRequest request) {
@@ -108,11 +119,46 @@ public abstract class AbstractElasticSearchWrapper implements ElasticSearchWrapp
      * {@inheritDoc}
      */
     @Override
-    public SearchResponse search(final SearchRequest request, final RequestOptions options) throws IOException {
+    public SearchResponse search(final SearchRequest request, final RequestOptions options) {
         logger.debug("Performing search for request: {}", request);
         updateIndex(request);
         updateFilters(request);
-        return client.search(request, options);
+        try {
+            return client.search(request, options);
+        } catch (Exception e) {
+            throw new ElasticSearchException(request.indices()[0], "Error executing search request", e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SearchResponse search(final Map<String, Object> request, final RequestOptions options) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String json = mapper.writeValueAsString(request);
+            return search(json, options);
+        } catch (IOException e) {
+            throw new ElasticSearchException(null, "Error parsing request " + request, e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SearchResponse search(final String request, final RequestOptions options) {
+        SearchModule module = new SearchModule(Settings.EMPTY, false, Collections.emptyList());
+        try {
+            SearchSourceBuilder builder =
+                SearchSourceBuilder.fromXContent(XContentFactory.xContent(XContentType.JSON)
+                    .createParser(new NamedXContentRegistry(module.getNamedXContents()),
+                        DeprecationHandler.THROW_UNSUPPORTED_OPERATION, request));
+            return search(new SearchRequest().source(builder), options);
+        } catch (IOException e) {
+            throw new ElasticSearchException(null, "Error parsing request " + request, e);
+        }
     }
 
 }
