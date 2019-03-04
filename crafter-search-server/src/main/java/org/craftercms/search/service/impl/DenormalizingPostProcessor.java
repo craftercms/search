@@ -108,7 +108,7 @@ public class DenormalizingPostProcessor implements SolrDocumentPostProcessor {
                 String fieldName = field.getName();
                 if (!ArrayUtils.contains(fieldsToIgnore, fieldName)) {
                     if (childrenFields.containsKey(fieldName)) {
-                        childrenFields.get(fieldName).addValue(field.getValue(), field.getBoost());
+                        childrenFields.get(fieldName).addValue(field.getValue());
                     } else {
                         childrenFields.put(fieldName, field.deepCopy());
                     }
