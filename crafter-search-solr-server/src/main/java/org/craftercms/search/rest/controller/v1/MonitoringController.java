@@ -14,32 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.craftercms.search.rest.controller.v1;
 
-import java.util.Collections;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Required;
+import org.craftercms.commons.monitoring.rest.MonitoringRestControllerBase;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Rest controller to provide monitoring information
+ * @author joseross
+ */
 @RestController
 @RequestMapping(MonitoringController.URL_ROOT)
-public class MonitoringController {
+public class MonitoringController extends MonitoringRestControllerBase {
 
-    public final static String URL_ROOT = "/api/1/monitoring";
-
-    private String statusMessage;
-
-    @Required
-    public void setStatusMessage(String statusMessage) {
-        this.statusMessage = statusMessage;
-    }
-
-    @RequestMapping(value = "/status", method = RequestMethod.GET)
-    public Map<String, String> getStatus() {
-        return Collections.singletonMap("status", statusMessage);
-    }
+    public final static String URL_ROOT = "/api/1";
 
 }
