@@ -66,6 +66,7 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
     protected ElementParserService parserService;
     protected FieldValueConverter fieldValueConverter;
     protected List<SolrDocumentPostProcessor> postProcessors;
+    protected Map<String, String> copyFields;
 
     public SolrDocumentBuilderImpl() {
         idFieldName = DEFAULT_ID_FIELD_NAME;
@@ -114,6 +115,10 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         this.postProcessors = postProcessors;
     }
 
+    public void setCopyFields(final Map<String, String> copyFields) {
+        this.copyFields = copyFields;
+    }
+
     @SuppressWarnings("unchecked")
     public SolrInputDocument build(String site, String id, String xml,
                                    boolean ignoreRootInFieldNames) throws SolrDocumentBuildException {
@@ -140,6 +145,11 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         }
 
         Element rootElement = document.getRootElement();
+
+        if(MapUtils.isNotEmpty(copyFields)) {
+            addCopyFields(rootElement);
+        }
+
         // Start the recursive call to build the Solr Update Schema
         List<Element> children = rootElement.elements();
         for (Element child : children) {
@@ -149,6 +159,24 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         postProcess(solrDoc);
 
         return solrDoc;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void addCopyFields(Element element) {
+        if(element.hasContent()) {
+            if (element.isTextOnly()) {
+                String elementName = element.getName();
+                for (Map.Entry<String, String> entry : copyFields.entrySet()) {
+                    if (elementName.matches(entry.getKey())) {
+                        Element copy = element.createCopy(elementName + entry.getValue());
+                        element.getParent().add(copy);
+                    }
+                }
+            } else {
+                List<Element> children = element.elements();
+                children.forEach(this::addCopyFields);
+            }
+        }
     }
 
     public SolrInputDocument build(String site, String id, Map<String, List<String>> fields) {
