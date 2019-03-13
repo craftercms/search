@@ -99,6 +99,12 @@
         <property name="publishingDateAltFieldName" value="${crafter.search.solr.field.publishedDate.alt.name}"/>
         <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
         <property name="parserService" ref="crafter.elementParserService"/>
+        <property name="copyFields">
+            <map>
+                <entry key=".+${crafter.search.solr.field.type.html.suffix}"
+                       value="${crafter.search.solr.field.type.html.copy}"/>
+            </map>
+        </property>
         <property name="postProcessors">
             <list>
                 <ref bean="crafter.renameFieldsIfMultiValuePostProcessor"/>

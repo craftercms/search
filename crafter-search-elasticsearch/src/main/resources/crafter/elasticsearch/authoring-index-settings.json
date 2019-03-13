@@ -76,6 +76,15 @@
           }
         },
         {
+          "texts": {
+            "match_pattern": "regex",
+            "match": ".+_raw$",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        },
+        {
           "booleans": {
             "match_pattern": "regex",
             "match": ".+_(b|bs|bmv)$",
