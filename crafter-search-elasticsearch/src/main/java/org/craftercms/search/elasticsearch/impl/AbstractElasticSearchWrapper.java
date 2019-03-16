@@ -42,6 +42,7 @@ import org.elasticsearch.search.SearchModule;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,7 +51,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Base implementation of {@link ElasticSearchWrapper}
  * @author joseross
  */
-public abstract class AbstractElasticSearchWrapper implements ElasticSearchWrapper, InitializingBean {
+public abstract class AbstractElasticSearchWrapper implements ElasticSearchWrapper, InitializingBean, DisposableBean {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractElasticSearchWrapper.class);
 
@@ -82,6 +83,11 @@ public abstract class AbstractElasticSearchWrapper implements ElasticSearchWrapp
     public void afterPropertiesSet() {
         client = new RestHighLevelClient(RestClient.builder(
             Stream.of(serverUrls).map(HttpHost::create).toArray(HttpHost[]::new)));
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        client.close();
     }
 
     /**
