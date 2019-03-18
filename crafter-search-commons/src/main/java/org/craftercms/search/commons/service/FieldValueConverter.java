@@ -15,28 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.elasticsearch.impl;
-
-import java.util.Map;
-
-import org.craftercms.search.commons.service.DocumentBuilder;
-import org.craftercms.search.commons.service.impl.AbstractDocumentBuilder;
-import org.craftercms.search.elasticsearch.jackson.MixedMultivaluedMap;
+package org.craftercms.search.commons.service;
 
 /**
- * Implementation of {@link DocumentBuilder} for ElasticSearch
- * @author joseross
+ * Converts an incoming string field value to the actual value that will be indexed.
+ *
+ * @author avasquez
  */
-public class ElasticSearchDocumentBuilder extends AbstractDocumentBuilder<Map<String, Object>> {
+public interface FieldValueConverter {
 
-    @Override
-    protected Map<String, Object> createDoc() {
-        return new MixedMultivaluedMap();
-    }
-
-    @Override
-    protected void addField(final Map<String, Object> doc, final String fieldName, final Object fieldValue) {
-        doc.put(fieldName, fieldValue);
-    }
+    Object convert(String name, String value);
 
 }

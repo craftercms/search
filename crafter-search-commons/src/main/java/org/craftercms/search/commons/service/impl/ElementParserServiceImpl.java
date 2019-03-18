@@ -14,16 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.service.impl;
+package org.craftercms.search.commons.service.impl;
 
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.common.SolrInputDocument;
-import org.craftercms.search.service.ElementParser;
-import org.craftercms.search.service.ElementParserService;
-import org.craftercms.search.utils.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.craftercms.search.commons.service.ElementParser;
+import org.craftercms.search.commons.service.ElementParserService;
+import org.craftercms.search.commons.utils.BooleanUtils;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,17 +33,18 @@ import org.springframework.beans.factory.annotation.Required;
  * {@link ElementParser}s. If first parser returns false (the element was not handled), it calls the second one and
  * so on. It also handles elements tagged with the "indexable" attribute. If the attribute is present, and it's
  * false, the element is not parsed.
+ * @param <T> the type of document for the search engine
  *
  * @author avasquez
  */
-public class ElementParserServiceImpl implements ElementParserService {
+public class ElementParserServiceImpl<T> implements ElementParserService<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(ElementParserServiceImpl.class);
 
     public static final String DEFAULT_FIELD_NAME_SEPARATOR = ".";
     public static final String DEFAULT_INDEXABLE_ATTRIBUTE_NAME = "indexable";
 
-    protected List<ElementParser> parsers;
+    protected List<ElementParser<T>> parsers;
     protected String fieldNameSeparator;
     protected String indexableAttributeName;
 
@@ -54,7 +54,7 @@ public class ElementParserServiceImpl implements ElementParserService {
     }
 
     @Required
-    public void setParsers(List<ElementParser> parsers) {
+    public void setParsers(List<ElementParser<T>> parsers) {
         this.parsers = parsers;
     }
 
@@ -67,7 +67,7 @@ public class ElementParserServiceImpl implements ElementParserService {
     }
 
     @Override
-    public void parse(Element element, String parentFieldName, SolrInputDocument solrDoc) {
+    public void parse(Element element, String parentFieldName, T doc) {
         String fieldName = element.getName();
 
         if (StringUtils.isNotEmpty(parentFieldName)) {
@@ -78,8 +78,8 @@ public class ElementParserServiceImpl implements ElementParserService {
         if (BooleanUtils.toBoolean(element.attributeValue(indexableAttributeName), true)) {
             boolean parsed = false;
 
-            for (Iterator<ElementParser> iter = parsers.iterator(); !parsed && iter.hasNext();) {
-                parsed = iter.next().parse(element, fieldName, parentFieldName, solrDoc, this);
+            for (Iterator<ElementParser<T>> iter = parsers.iterator(); !parsed && iter.hasNext();) {
+                parsed = iter.next().parse(element, fieldName, parentFieldName, doc, this);
             }
 
             if (!parsed) {

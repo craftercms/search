@@ -41,6 +41,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 /**
  * Implementation of {@link org.craftercms.search.elasticsearch.DocumentParser} that uses Apache Tika
@@ -59,7 +60,7 @@ public class TikaDocumentParser extends AbstractDocumentParser {
     /**
      * Jackson {@link ObjectMapper} instance
      */
-    protected ObjectMapper objectMapper;
+    protected ObjectMapper objectMapper = new XmlMapper();
 
     /**
      * List of metadata extractors to apply after parsing documents
@@ -77,7 +78,6 @@ public class TikaDocumentParser extends AbstractDocumentParser {
         this.charLimit = charLimit;
     }
 
-    @Required
     public void setObjectMapper(final ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }

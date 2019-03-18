@@ -48,7 +48,6 @@ import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.exception.SearchServerException;
 import org.craftercms.search.exception.SolrDocumentBuildException;
 import org.craftercms.search.service.SearchService;
-import org.craftercms.search.service.SolrDocumentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -88,7 +87,7 @@ public class SolrSearchService implements SearchService<SolrQuery> {
     /**
      * The Solr document builder, to build Solr documents from generic XML documents.
      */
-    protected SolrDocumentBuilder solrDocumentBuilder;
+    protected SolrDocumentBuilderImpl solrDocumentBuilder;
     /**
      * Multi value separator for additional fields of structured documents.
      */
@@ -142,7 +141,7 @@ public class SolrSearchService implements SearchService<SolrQuery> {
      * Sets the Solr document builder, to build Solr documents from generic XML documents.
      */
     @Required
-    public void setSolrDocumentBuilder(SolrDocumentBuilder solrDocumentBuilder) {
+    public void setSolrDocumentBuilder(SolrDocumentBuilderImpl solrDocumentBuilder) {
         this.solrDocumentBuilder = solrDocumentBuilder;
     }
 

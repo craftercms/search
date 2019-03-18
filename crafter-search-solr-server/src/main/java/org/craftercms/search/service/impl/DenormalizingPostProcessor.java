@@ -25,7 +25,7 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
-import org.craftercms.search.service.SolrDocumentPostProcessor;
+import org.craftercms.search.commons.service.DocumentPostProcessor;
 
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ID_FIELD_NAME;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_LOCAL_ID_FIELD_NAME;
@@ -37,14 +37,14 @@ import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAUL
 import static org.craftercms.search.service.impl.SubDocumentElementParser.DEFAULT_PARENT_ID_FIELD_NAME;
 
 /**
- * Implementation of {@link SolrDocumentPostProcessor} that can "denormalize" the parent and it's children documents,
+ * Implementation of {@link DocumentPostProcessor} that can "denormalize" the parent and it's children documents,
  * that means, it copies the fields from the parent to the children and the fields of the children to the parent. This
  * is very helpful, for example, when you're doing a search on the children, but you need also certain fields from
  * the parent.
  *
  * @author avasquez
  */
-public class DenormalizingPostProcessor implements SolrDocumentPostProcessor {
+public class DenormalizingPostProcessor implements DocumentPostProcessor<SolrInputDocument> {
 
     public static final String[] DEFAULT_FIELDS_TO_IGNORE = { DEFAULT_ID_FIELD_NAME, DEFAULT_SITE_FIELD_NAME,
         DEFAULT_LOCAL_ID_FIELD_NAME, DEFAULT_CONTENT_TYPE_FIELD_NAME, DEFAULT_PARENT_ID_FIELD_NAME, DEFAULT_ROOT_ID_FIELD_NAME,

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.utils;
+package org.craftercms.search.commons.utils;
 
 /**
  * Extension of Apache Common's {@link org.apache.commons.lang3.BooleanUtils} thats adds some new methods.

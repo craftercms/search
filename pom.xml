@@ -60,6 +60,7 @@
         <module>crafter-search-solr-itest</module>
         <module>crafter-search-batch-indexer</module>
         <module>crafter-search-elasticsearch</module>
+        <module>crafter-search-commons</module>
     </modules>
 
     <properties>
@@ -88,6 +89,7 @@
         <hadoop.version>2.7.5</hadoop.version>
         <elasticsearch.version>6.6.0</elasticsearch.version>
         <tika.version>1.19.1</tika.version>
+        <jsoup.version>1.11.3</jsoup.version>
     </properties>
 
     <build>

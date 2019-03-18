@@ -16,197 +16,46 @@
  */
 package org.craftercms.search.service.impl;
 
-import java.io.StringReader;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang.CharEncoding;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.ModifiableSolrParams;
-import org.craftercms.search.exception.SolrDocumentBuildException;
-import org.craftercms.search.service.ElementParserService;
-import org.craftercms.search.service.FieldValueConverter;
-import org.craftercms.search.service.SolrDocumentBuilder;
-import org.craftercms.search.service.SolrDocumentPostProcessor;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
+import org.craftercms.search.commons.service.impl.AbstractDocumentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
-import org.xml.sax.SAXException;
 
 /**
- * Default implementation of {@link SolrDocumentBuilder}.
+ * <p/>
+ * The purpose of this class is to convert a generic XML document:<br>
+ * <pre>
+ *     &lt;page&gt;
+ *      &lt;file-name&gt;index.xml&lt;/file-name&gt;
+ *      &lt;showAboutAuthor&gt;false&lt;/showAboutAuthor&gt;
+ *      &lt;showSearchBox&gt;true&lt;/showSearchBox&gt;
+ *     &lt;/page&gt;
+ * </pre>
+ * into a Solr Document:
+ * <pre>
+ *     &lt;add&gt;
+ *      &lt;doc&gt;
+ *          &lt;field name="file-name"&gt;index.xml&lt;/field&gt;
+ *          &lt;field name="showAboutAuthor"&gt;false&lt;/field&gt;
+ *          &lt;field name="showSearchBox"&gt;true&lt;/field&gt;
+ *      &lt;/doc&gt;
+ *     &lt;/add&gt;
+ * </pre>
+ * <p/>
+ * The Solr document is represent in Java as object, which then can be sent to the server.
  *
- * @author avasquez
+ * @author Michael Chen
+ * @author Alfonso Vásquez
  */
-public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
+public class SolrDocumentBuilderImpl extends AbstractDocumentBuilder<SolrInputDocument> {
 
     private static final Logger logger = LoggerFactory.getLogger(SolrDocumentBuilderImpl.class);
-
-    public static final String DEFAULT_ID_FIELD_NAME = "id";
-    public static final String DEFAULT_ROOT_ID_FIELD_NAME = "rootId";
-    public static final String DEFAULT_SITE_FIELD_NAME = "crafterSite";
-    public static final String DEFAULT_LOCAL_ID_FIELD_NAME = "localId";
-    public static final String DEFAULT_PUBLISHING_DATE_FIELD_NAME = "publishingDate";
-    public static final String DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME = "publishingDate_dt";
-
-    protected String idFieldName;
-    protected String rootIdFieldName;
-    protected String siteFieldName;
-    protected String localIdFieldName;
-    protected String publishingDateFieldName;
-    protected String publishingDateAltFieldName;
-    protected ElementParserService parserService;
-    protected FieldValueConverter fieldValueConverter;
-    protected List<SolrDocumentPostProcessor> postProcessors;
-    protected Map<String, String> copyFields;
-
-    public SolrDocumentBuilderImpl() {
-        idFieldName = DEFAULT_ID_FIELD_NAME;
-        rootIdFieldName = DEFAULT_ROOT_ID_FIELD_NAME;
-        siteFieldName = DEFAULT_SITE_FIELD_NAME;
-        localIdFieldName = DEFAULT_LOCAL_ID_FIELD_NAME;
-        publishingDateFieldName = DEFAULT_PUBLISHING_DATE_FIELD_NAME;
-        publishingDateAltFieldName = DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME;
-    }
-
-    public void setIdFieldName(String idFieldName) {
-        this.idFieldName = idFieldName;
-    }
-
-    public void setRootIdFieldName(String rootIdFieldName) {
-        this.rootIdFieldName = rootIdFieldName;
-    }
-
-    public void setSiteFieldName(String siteFieldName) {
-        this.siteFieldName = siteFieldName;
-    }
-
-    public void setLocalIdFieldName(String localIdFieldName) {
-        this.localIdFieldName = localIdFieldName;
-    }
-
-    public void setPublishingDateFieldName(String publishingDateFieldName) {
-        this.publishingDateFieldName = publishingDateFieldName;
-    }
-
-    public void setPublishingDateAltFieldName(String publishingDateAltFieldName) {
-        this.publishingDateAltFieldName = publishingDateAltFieldName;
-    }
-
-    @Required
-    public void setParserService(ElementParserService parserService) {
-        this.parserService = parserService;
-    }
-
-    @Required
-    public void setFieldValueConverter(FieldValueConverter fieldValueConverter) {
-        this.fieldValueConverter = fieldValueConverter;
-    }
-
-    public void setPostProcessors(List<SolrDocumentPostProcessor> postProcessors) {
-        this.postProcessors = postProcessors;
-    }
-
-    public void setCopyFields(final Map<String, String> copyFields) {
-        this.copyFields = copyFields;
-    }
-
-    @SuppressWarnings("unchecked")
-    public SolrInputDocument build(String site, String id, String xml,
-                                   boolean ignoreRootInFieldNames) throws SolrDocumentBuildException {
-        SAXReader reader = createSAXReader();
-        SolrInputDocument solrDoc = new SolrInputDocument();
-        String finalId = site + ":" + id;
-
-        logger.debug("Building Solr doc for {}", finalId);
-
-        String now = formatAsIso(DateTime.now());
-
-        solrDoc.addField(idFieldName, finalId);
-        solrDoc.addField(rootIdFieldName, finalId);
-        solrDoc.addField(siteFieldName, site);
-        solrDoc.addField(localIdFieldName, id);
-        solrDoc.addField(publishingDateFieldName, now);
-        solrDoc.addField(publishingDateAltFieldName, now);
-
-        Document document;
-        try {
-            document = reader.read(new StringReader(xml));
-        } catch (DocumentException e) {
-            throw new SolrDocumentBuildException("Unable to parse XML into Document object", e);
-        }
-
-        Element rootElement = document.getRootElement();
-
-        if(MapUtils.isNotEmpty(copyFields)) {
-            addCopyFields(rootElement);
-        }
-
-        // Start the recursive call to build the Solr Update Schema
-        List<Element> children = rootElement.elements();
-        for (Element child : children) {
-            parserService.parse(child, ignoreRootInFieldNames? null : rootElement.getName(), solrDoc);
-        }
-
-        postProcess(solrDoc);
-
-        return solrDoc;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected void addCopyFields(Element element) {
-        if(element.hasContent()) {
-            if (element.isTextOnly()) {
-                String elementName = element.getName();
-                for (Map.Entry<String, String> entry : copyFields.entrySet()) {
-                    if (elementName.matches(entry.getKey())) {
-                        Element copy = element.createCopy(elementName + entry.getValue());
-                        element.getParent().add(copy);
-                    }
-                }
-            } else {
-                List<Element> children = element.elements();
-                children.forEach(this::addCopyFields);
-            }
-        }
-    }
-
-    public SolrInputDocument build(String site, String id, Map<String, List<String>> fields) {
-        SolrInputDocument solrDoc = new SolrInputDocument();
-        String finalId = site + ":" + id;
-
-        logger.debug("Building Solr doc for {}", finalId);
-
-        String now = formatAsIso(DateTime.now());
-
-        solrDoc.addField(idFieldName, finalId);
-        solrDoc.addField(rootIdFieldName, finalId);
-        solrDoc.addField(siteFieldName, site);
-        solrDoc.addField(localIdFieldName, id);
-        solrDoc.addField(publishingDateFieldName, now);
-        solrDoc.addField(publishingDateAltFieldName, now);
-
-        if (MapUtils.isNotEmpty(fields)) {
-            for (Map.Entry<String, List<String>> field : fields.entrySet()) {
-                String fieldName = field.getKey();
-                List<String> fieldValues = field.getValue();
-
-                for (String value : fieldValues) {
-                    solrDoc.addField(fieldName, fieldValueConverter.convert(fieldName, value));
-                }
-            }
-        }
-
-        return solrDoc;
-    }
 
     public ModifiableSolrParams buildParams(String site, String id, String prefix, String suffix,
                                             Map<String, List<String>> fields) {
@@ -218,7 +67,7 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
 
         logger.debug("Building params for update request for {}", finalId);
 
-        String now = formatAsIso(DateTime.now());
+        String now = formatAsIso(Instant.now());
 
         params.set(prefix + idFieldName + suffix, finalId);
         params.set(prefix + rootIdFieldName + suffix, finalId);
@@ -244,30 +93,14 @@ public class SolrDocumentBuilderImpl implements SolrDocumentBuilder {
         return params;
     }
 
-    protected void postProcess(SolrInputDocument solrDoc) {
-        if (CollectionUtils.isNotEmpty(postProcessors)) {
-            for (SolrDocumentPostProcessor postProcessor : postProcessors) {
-                postProcessor.postProcess(solrDoc);
-            }
-        }
+    @Override
+    protected SolrInputDocument createDoc() {
+        return new SolrInputDocument();
     }
 
-    protected SAXReader createSAXReader() {
-        SAXReader reader = new SAXReader();
-        reader.setEncoding(CharEncoding.UTF_8);
-        reader.setMergeAdjacentText(true);
-        try {
-            reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-        }catch (SAXException ex){
-            logger.error("Unable to turn off external entity loading, This could be a security risk.", ex);
-        }
-        return reader;
-    }
-
-    protected String formatAsIso(DateTime dateTime) {
-        return ISODateTimeFormat.dateTime().withZoneUTC().print(dateTime);
+    @Override
+    protected void addField(final SolrInputDocument doc, final String fieldName, final Object fieldValue) {
+        doc.addField(fieldName, fieldValue);
     }
 
 }

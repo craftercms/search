@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.service.impl;
+package org.craftercms.search.commons.service.impl;
 
-import org.craftercms.search.service.FieldValueConverter;
+import org.craftercms.search.commons.service.FieldValueConverter;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;

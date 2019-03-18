@@ -14,16 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.craftercms.search.commons.service.impl;
 
-package org.craftercms.search.service;
+import org.craftercms.search.commons.service.FieldValueConverter;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 
 /**
- * Converts an incoming string field value to the actual value that will be indexed.
+ * {@link FieldValueConverter} that strips all HTML tags from a field.
  *
  * @author avasquez
  */
-public interface FieldValueConverter {
+public class HtmlStrippingConverter implements FieldValueConverter {
 
-    Object convert(String name, String value);
+    @Override
+    public Object convert(String name, String value) {
+        return Jsoup.clean(value, Whitelist.none());
+    }
 
 }

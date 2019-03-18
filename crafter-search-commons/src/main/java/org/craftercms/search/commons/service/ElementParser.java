@@ -14,9 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.service;
+package org.craftercms.search.commons.service;
 
-import org.apache.solr.common.SolrInputDocument;
 import org.dom4j.Element;
 
 /**
@@ -24,7 +23,7 @@ import org.dom4j.Element;
  *
  * @author avasquez
  */
-public interface ElementParser {
+public interface ElementParser<T> {
 
     /**
      * Parses the given element, generating one or more Solr fields and adding them to the given document.
@@ -33,12 +32,12 @@ public interface ElementParser {
      * @param fieldName         the field name that should be used for the main Solr field (by default will be the
      *                          path of the element in the tree plus the element name)
      * @param parentFieldName   the field name of the parent element
-     * @param solrDoc           the Solr document to add the generated fields
+     * @param doc               the document to add the generated fields
      * @param parserService     the parser service used normally to parse sub elements
      *
      * @return true if the element was parsed or handled, false otherwise
      */
-    boolean parse(Element element, String fieldName, String parentFieldName, SolrInputDocument solrDoc,
-                  ElementParserService parserService);
+    boolean parse(Element element, String fieldName, String parentFieldName, T doc,
+                  ElementParserService<T> parserService);
 
 }

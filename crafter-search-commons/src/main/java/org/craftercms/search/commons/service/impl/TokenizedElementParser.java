@@ -14,16 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.service.impl;
+package org.craftercms.search.commons.service.impl;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.common.SolrInputDocument;
-import org.craftercms.search.service.ElementParser;
-import org.craftercms.search.service.ElementParserService;
-import org.craftercms.search.utils.BooleanUtils;
+import org.craftercms.search.commons.service.ElementParser;
+import org.craftercms.search.commons.service.ElementParserService;
+import org.craftercms.search.commons.utils.BooleanUtils;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.slf4j.Logger;
@@ -31,13 +30,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@link ElementParser} that parses elements marked with a "tokenized" attribute. This attribute
- * indicates that the field should be tokenized and analyzed by Solr, and by definition it isn't (like _s fields)
- * so a copy of the field is created with a field name that can actualy be tokenized (like those ending with _t).
+ * indicates that the field should be tokenized and analyzed by the search engine, and by definition it isn't
+ * (like _s fields) so a copy of the field is created with a field name that can actually be tokenized (like those
+ * ending with _t).
+ * @param <T> the type of document for the search engine
  *
  * @author Dejan Brkic
  * @author Alfonso Vásqiuez
  */
-public class TokenizedElementParser implements ElementParser {
+public class TokenizedElementParser<T> implements ElementParser<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenizedElementParser.class);
 
@@ -63,8 +64,8 @@ public class TokenizedElementParser implements ElementParser {
     }
 
     @Override
-    public boolean parse(Element element, String fieldName, String parentFieldName, SolrInputDocument solrDoc,
-                         ElementParserService parserService) {
+    public boolean parse(Element element, String fieldName, String parentFieldName, T doc,
+                         ElementParserService<T> parserService) {
         Attribute tokenizedAttribute = element.attribute(tokenizedAttributeName);
         if (tokenizedAttribute != null && BooleanUtils.toBoolean(tokenizedAttribute.getValue())) {
             logger.debug("Parsing element '{}' marked to tokenize", fieldName);
@@ -85,13 +86,13 @@ public class TokenizedElementParser implements ElementParser {
                         logger.debug("Created new element for tokenized search: " + tokenizedElement.getName());
                     }
 
-                    parserService.parse(tokenizedElement, parentFieldName, solrDoc);
+                    parserService.parse(tokenizedElement, parentFieldName, doc);
 
                     break;
                 }
             }
 
-            parserService.parse(element, parentFieldName, solrDoc);
+            parserService.parse(element, parentFieldName, doc);
 
             return true;
         } else {
