@@ -22,6 +22,9 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.springframework.beans.factory.FactoryBean;
 
+import javax.annotation.PreDestroy;
+import java.io.IOException;
+
 /**
  * Spring {@code FactoryBean} that uses a {@code HttpSolrClient.Builder} to create an instance of a
  * {@code SolrClient}. The properties of this bean correspond to the builder methods of the {@code Builder}.
@@ -36,6 +39,8 @@ public class HttpSolrClientFactoryBean implements FactoryBean<HttpSolrClient> {
     private Boolean compression;
     private String kerberosDelegationToken;
     private ModifiableSolrParams invariantParams;
+
+    private HttpSolrClient solrClient;
 
     public void setBaseSolrUrl(String baseSolrUrl) {
         this.baseSolrUrl = baseSolrUrl;
@@ -63,27 +68,36 @@ public class HttpSolrClientFactoryBean implements FactoryBean<HttpSolrClient> {
 
     @Override
     public HttpSolrClient getObject() throws Exception {
-        HttpSolrClient.Builder builder = new HttpSolrClient.Builder();
-        if (baseSolrUrl != null) {
-            builder.withBaseSolrUrl(baseSolrUrl);
-        }
-        if (httpClient != null) {
-            builder.withHttpClient(httpClient);
-        }
-        if (responseParser != null) {
-            builder.withResponseParser(responseParser);
-        }
-        if (compression != null) {
-            builder.allowCompression(compression);
-        }
-        if (kerberosDelegationToken != null) {
-            builder.withKerberosDelegationToken(kerberosDelegationToken);
-        }
-        if (invariantParams != null) {
-            builder.withInvariantParams(invariantParams);
+        if (solrClient == null) {
+            HttpSolrClient.Builder builder = new HttpSolrClient.Builder();
+            if (baseSolrUrl != null) {
+                builder.withBaseSolrUrl(baseSolrUrl);
+            }
+            if (httpClient != null) {
+                builder.withHttpClient(httpClient);
+            }
+            if (responseParser != null) {
+                builder.withResponseParser(responseParser);
+            }
+            if (compression != null) {
+                builder.allowCompression(compression);
+            }
+            if (kerberosDelegationToken != null) {
+                builder.withKerberosDelegationToken(kerberosDelegationToken);
+            }
+            if (invariantParams != null) {
+                builder.withInvariantParams(invariantParams);
+            }
+
+            solrClient = builder.build();
         }
 
-        return builder.build();
+        return solrClient;
+    }
+
+    @PreDestroy
+    public void destroy() throws IOException {
+        solrClient.close();
     }
 
     @Override
@@ -93,7 +107,7 @@ public class HttpSolrClientFactoryBean implements FactoryBean<HttpSolrClient> {
 
     @Override
     public boolean isSingleton() {
-        return false;
+        return true;
     }
 
 }
