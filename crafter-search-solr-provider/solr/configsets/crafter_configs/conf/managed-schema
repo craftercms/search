@@ -175,7 +175,7 @@
     <dynamicField name="*_d"  type="pdouble" indexed="true"  stored="true"/>
     <dynamicField name="*_ds" type="pdoubles" indexed="true"  stored="true"/>
     <dynamicField name="*_dmv" type="pdoubles" indexed="true"  stored="true"/>
-    <dynamicField name="*_raw" type="string" indexed="true"  stored="true"/>
+    <dynamicField name="*_raw" type="string" indexed="true"  stored="true" multiValued="true"/>
     <dynamicField name="random_*" type="random"/>
 
     <!-- Type used for data-driven schema, to add a string copy for each text field -->
