@@ -40,6 +40,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>crafter-search-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>crafter-commons-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>

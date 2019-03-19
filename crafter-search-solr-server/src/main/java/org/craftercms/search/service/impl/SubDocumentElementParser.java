@@ -21,9 +21,9 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
-import org.craftercms.search.service.ElementParser;
-import org.craftercms.search.service.ElementParserService;
-import org.craftercms.search.utils.BooleanUtils;
+import org.craftercms.search.commons.service.ElementParser;
+import org.craftercms.search.commons.service.ElementParserService;
+import org.craftercms.search.commons.utils.BooleanUtils;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT
  *
  * @author avasquez
  */
-public class SubDocumentElementParser implements ElementParser {
+public class SubDocumentElementParser implements ElementParser<SolrInputDocument> {
 
     private static final Logger logger = LoggerFactory.getLogger(SubDocumentElementParser.class);
 
@@ -118,7 +118,7 @@ public class SubDocumentElementParser implements ElementParser {
     @Override
     @SuppressWarnings("unchecked")
     public boolean parse(Element element, String fieldName, String parentFieldName, SolrInputDocument solrDoc,
-                         ElementParserService parserService) {
+                         ElementParserService<SolrInputDocument> parserService) {
         if (BooleanUtils.toBoolean(element.attributeValue(containsSubDocumentsAttributeName), false)) {
             logger.debug("Parsing element '{}' with sub-doc elements", fieldName);
 

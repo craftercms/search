@@ -45,7 +45,8 @@
         <property name="baseSolrUrl" value="${crafter.search.solr.server.url}"/>
     </bean>
 
-    <bean id="crafter.tokenizedElementParser" class="org.craftercms.search.service.impl.TokenizedElementParser"/>
+    <bean id="crafter.tokenizedElementParser"
+          class="org.craftercms.search.commons.service.impl.TokenizedElementParser"/>
 
     <bean id="crafter.subDocumentElementParser" class="org.craftercms.search.service.impl.SubDocumentElementParser">
         <property name="containsSubDocumentsAttributeName"
@@ -61,16 +62,16 @@
         <property name="contentTypeFieldName" value="${crafter.search.solr.field.contentType.name}"/>
     </bean>
 
-    <bean id="crafter.defaultElementParser" class="org.craftercms.search.service.impl.DefaultElementParser">
+    <bean id="crafter.solrElementParserImpl" class="org.craftercms.search.service.impl.SolrElementParserImpl">
         <property name="fieldValueConverter" ref="crafter.fieldValueConverter"/>
     </bean>
 
-    <bean id="crafter.elementParserService" class="org.craftercms.search.service.impl.ElementParserServiceImpl">
+    <bean id="crafter.elementParserService" class="org.craftercms.search.commons.service.impl.ElementParserServiceImpl">
         <property name="parsers">
             <list>
                 <ref bean="crafter.tokenizedElementParser"/>
                 <ref bean="crafter.subDocumentElementParser"/>
-                <ref bean="crafter.defaultElementParser"/>
+                <ref bean="crafter.solrElementParserImpl"/>
             </list>
         </property>
     </bean>
@@ -112,7 +113,8 @@
         </property>
     </bean>
 
-    <bean id="crafter.fieldValueConverter" class="org.craftercms.search.service.impl.CompositeSuffixBasedConverter">
+    <bean id="crafter.fieldValueConverter"
+          class="org.craftercms.search.commons.service.impl.CompositeSuffixBasedConverter">
         <property name="converterMappings">
             <map>
                 <entry key="${crafter.search.solr.field.type.html.suffix}"
@@ -125,9 +127,10 @@
         </property>
     </bean>
 
-    <bean id="crafter.htmlStrippingConverter" class="org.craftercms.search.service.impl.HtmlStrippingConverter"/>
+    <bean id="crafter.htmlStrippingConverter"
+          class="org.craftercms.search.commons.service.impl.HtmlStrippingConverter"/>
 
-    <bean id="crafter.dateTimeConverter" class="org.craftercms.search.service.impl.DateTimeConverter">
+    <bean id="crafter.dateTimeConverter" class="org.craftercms.search.commons.service.impl.DateTimeConverter">
         <property name="dateTimeFieldPattern" value="${crafter.search.solr.field.type.datetime.pattern}"/>
     </bean>
 

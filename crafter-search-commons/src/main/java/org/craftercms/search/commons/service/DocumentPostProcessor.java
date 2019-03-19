@@ -14,23 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package org.craftercms.search.elasticsearch.jackson;
-
-import java.util.Map;
-
-import com.fasterxml.jackson.databind.module.SimpleModule;
+package org.craftercms.search.commons.service;
 
 /**
- * Jackson Module to support mapping XML documents that include repeated tags using the {@link MixedMultivaluedMap}
- * class
- * @author joseross
+ * Used to modify or enhance a document after it's built from XML.
+ *
+ * @author Alfonso Vásquez
  */
-public class CrafterMultivaluedModule extends SimpleModule {
+public interface DocumentPostProcessor<T> {
 
-    public CrafterMultivaluedModule() {
-        addAbstractTypeMapping(Map.class, MixedMultivaluedMap.class);
-        addDeserializer(Object.class, new RepeatingGroupDeserializer());
-    }
+    /**
+     * Processes the specified document to modify or enhance it.
+     *
+     * @param doc the document to process
+     */
+    void postProcess(T doc);
 
 }

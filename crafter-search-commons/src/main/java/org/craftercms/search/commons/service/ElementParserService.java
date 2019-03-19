@@ -14,20 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.craftercms.search.commons.service;
 
-package org.craftercms.search.elasticsearch.jackson;
-
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.dom4j.Element;
 
 /**
- * Custom XmlMapper that uses the {@link CrafterMultivaluedModule}.
+ * Implementations normally use several {@link ElementParser}s to parse the elements and it's sub-elements to generate
+ * new fields on a document for indexing.
  *
- * @author joseross
+ * @author avasquez
  */
-public class CrafterXmlMapper extends XmlMapper {
+public interface ElementParserService<T> {
 
-    public CrafterXmlMapper() {
-        registerModule(new CrafterMultivaluedModule());
-    }
+    /**
+     * Parses the given element, generating one or more Solr fields and adding them to the given document.
+     *
+     * @param element           the element to parse
+     * @param parentFieldName   the field name of the parent
+     * @param doc               the document to add the generated fields
+     */
+    void parse(Element element, String parentFieldName, T doc);
 
 }

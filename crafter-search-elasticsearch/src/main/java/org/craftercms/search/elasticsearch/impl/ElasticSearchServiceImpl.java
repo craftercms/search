@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.craftercms.search.elasticsearch.DocumentBuilder;
 import org.craftercms.search.elasticsearch.DocumentParser;
 import org.craftercms.search.elasticsearch.ElasticSearchService;
 import org.craftercms.search.elasticsearch.exception.ElasticSearchException;
@@ -70,7 +70,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     /**
      * Document Builder
      */
-    protected DocumentBuilder<Map<String, Object>> documentBuilder;
+    protected ElasticSearchDocumentBuilder documentBuilder;
 
     /**
      * Document Parser
@@ -88,7 +88,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     protected String localIdFieldName = DEFAULT_LOCAL_ID_NAME;
 
     @Required
-    public void setDocumentBuilder(final DocumentBuilder<Map<String, Object>> documentBuilder) {
+    public void setDocumentBuilder(final ElasticSearchDocumentBuilder documentBuilder) {
         this.documentBuilder = documentBuilder;
     }
 
@@ -167,7 +167,11 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     @Override
     public void index(final String indexName, final String siteName, final String docId, final String xml,
                       final MultiValueMap<String, String> additionalFields) throws ElasticSearchException {
-        index(indexName, siteName, docId, documentBuilder.build(siteName, docId, xml, additionalFields));
+        Map<String, Object> doc = documentBuilder.build(siteName, docId, xml, true);
+        if(MapUtils.isNotEmpty(additionalFields)) {
+            doc.putAll(additionalFields);
+        }
+        index(indexName, siteName, docId, doc);
     }
 
     /**

@@ -14,12 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.service.impl;
+package org.craftercms.search.commons.service.impl;
 
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
-import org.craftercms.search.service.FieldValueConverter;
+import org.craftercms.search.commons.service.FieldValueConverter;
 
 /**
  * Based on the suffix of a field, picks an actual {@link FieldValueConverter} from a set of suffix -> converter

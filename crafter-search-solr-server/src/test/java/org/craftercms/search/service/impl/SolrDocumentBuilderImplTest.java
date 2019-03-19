@@ -27,9 +27,14 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.ModifiableSolrParams;
-import org.craftercms.search.service.ElementParserService;
-import org.craftercms.search.service.FieldValueConverter;
-import org.craftercms.search.service.SolrDocumentPostProcessor;
+import org.craftercms.search.commons.service.DocumentPostProcessor;
+import org.craftercms.search.commons.service.ElementParserService;
+import org.craftercms.search.commons.service.FieldValueConverter;
+import org.craftercms.search.commons.service.impl.CompositeSuffixBasedConverter;
+import org.craftercms.search.commons.service.impl.DateTimeConverter;
+import org.craftercms.search.commons.service.impl.ElementParserServiceImpl;
+import org.craftercms.search.commons.service.impl.HtmlStrippingConverter;
+import org.craftercms.search.commons.service.impl.TokenizedElementParser;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -67,8 +72,8 @@ public class SolrDocumentBuilderImplTest {
     @Before
     public void setUp() throws Exception {
         FieldValueConverter fieldValueConverter = createFieldValueConverter();
-        ElementParserService parserService = createElementParserService(fieldValueConverter);
-        List<SolrDocumentPostProcessor> postProcessors = createPostProcessors();
+        ElementParserService<SolrInputDocument> parserService = createElementParserService(fieldValueConverter);
+        List<DocumentPostProcessor<SolrInputDocument>> postProcessors = createPostProcessors();
 
         builder = new SolrDocumentBuilderImpl();
         builder.setSiteFieldName(DEFAULT_SITE_FIELD_NAME);
@@ -231,7 +236,7 @@ public class SolrDocumentBuilderImplTest {
         return compositeConverter;
     }
 
-    private ElementParserService createElementParserService(FieldValueConverter fieldValueConverter) {
+    private ElementParserService<SolrInputDocument> createElementParserService(FieldValueConverter fieldValueConverter) {
         ElementParserServiceImpl parserService = new ElementParserServiceImpl();
 
         TokenizedElementParser tokenizedElementParser = new TokenizedElementParser();
@@ -240,15 +245,15 @@ public class SolrDocumentBuilderImplTest {
         subDocElementParser.setSiteFieldName(DEFAULT_SITE_FIELD_NAME);
         subDocElementParser.setLocalIdFieldName(DEFAULT_LOCAL_ID_FIELD_NAME);
 
-        DefaultElementParser defaultElementParser = new DefaultElementParser();
-        defaultElementParser.setFieldValueConverter(fieldValueConverter);
+        SolrElementParserImpl solrElementParserImpl = new SolrElementParserImpl();
+        solrElementParserImpl.setFieldValueConverter(fieldValueConverter);
 
-        parserService.setParsers(Arrays.asList(tokenizedElementParser, subDocElementParser, defaultElementParser));
+        parserService.setParsers(Arrays.asList(tokenizedElementParser, subDocElementParser, solrElementParserImpl));
 
         return parserService;
     }
 
-    private List<SolrDocumentPostProcessor> createPostProcessors() {
+    private List<DocumentPostProcessor<SolrInputDocument>> createPostProcessors() {
         DenormalizingPostProcessor denormalizingPostProcessor = new DenormalizingPostProcessor();
         RenameFieldsIfMultiValuePostProcessor renamePostProcessor = new RenameFieldsIfMultiValuePostProcessor();
 

@@ -25,7 +25,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
-import org.craftercms.search.service.SolrDocumentPostProcessor;
+import org.craftercms.search.commons.service.DocumentPostProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Required;
 import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT_ID_FIELD_NAME;
 
 /**
- * Implementation of {@link SolrDocumentPostProcessor} that renames fields that are defined as single value
+ * Implementation of {@link DocumentPostProcessor} that renames fields that are defined as single value
  * but that actually have several values, based on a series of suffix mappings. For example, the field {@code name_s}
  * should be single value because of the "_s" suffix. It's multi-value version is "_smv". If the mapping for
  * _s -> _smv is provided, and there's a {@code name_s} field in the Solr document with multiple values, the field
@@ -41,7 +41,7 @@ import static org.craftercms.search.service.impl.SolrDocumentBuilderImpl.DEFAULT
  *
  * @author avasquez
  */
-public class RenameFieldsIfMultiValuePostProcessor implements SolrDocumentPostProcessor {
+public class RenameFieldsIfMultiValuePostProcessor implements DocumentPostProcessor<SolrInputDocument> {
 
     private static final Logger logger = LoggerFactory.getLogger(RenameFieldsIfMultiValuePostProcessor.class);
 

@@ -14,28 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.service.impl;
+package org.craftercms.search.commons.service.impl;
 
 import java.util.List;
 
-import org.apache.solr.common.SolrInputDocument;
-import org.craftercms.search.service.ElementParser;
-import org.craftercms.search.service.ElementParserService;
-import org.craftercms.search.service.FieldValueConverter;
+import org.craftercms.search.commons.service.ElementParser;
+import org.craftercms.search.commons.service.ElementParserService;
+import org.craftercms.search.commons.service.FieldValueConverter;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Default implementation of {@link ElementParser}. For text only fields it adds the field with the provided field
+ * Base implementation of {@link ElementParser}. For text only fields it adds the field with the provided field
  * name. For elements with children is uses the {@link ElementParserService} to parse the children.
+ * @param <T> the type of document for the search engine
  *
  * @author avasquez
  */
-public class DefaultElementParser implements ElementParser {
+public abstract class AbstractElementParser<T> implements ElementParser<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultElementParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractElementParser.class);
 
     protected FieldValueConverter fieldValueConverter;
 
@@ -46,8 +46,8 @@ public class DefaultElementParser implements ElementParser {
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean parse(Element element, String fieldName, String parentFieldName, SolrInputDocument solrDoc,
-                         ElementParserService parserService) {
+    public boolean parse(Element element, String fieldName, String parentFieldName, T doc,
+                         ElementParserService<T> parserService) {
         logger.debug("Parsing element '{}'", fieldName);
 
         if (element.hasContent()) {
@@ -56,11 +56,11 @@ public class DefaultElementParser implements ElementParser {
 
                 Object fieldValue = fieldValueConverter.convert(fieldName, element.getText());
 
-                solrDoc.addField(fieldName, fieldValue);
+                addField(doc, fieldName, fieldValue);
             } else {
                 List<Element> children = element.elements();
                 for (Element child : children) {
-                    parserService.parse(child, fieldName, solrDoc);
+                    parserService.parse(child, fieldName, doc);
                 }
             }
         } else {
@@ -69,5 +69,7 @@ public class DefaultElementParser implements ElementParser {
 
         return true;
     }
+
+    protected abstract void addField(T doc, String fieldName, Object fieldValue);
 
 }

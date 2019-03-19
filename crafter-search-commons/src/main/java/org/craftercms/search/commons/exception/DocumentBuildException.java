@@ -14,22 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.craftercms.search.service;
-
-import org.apache.solr.common.SolrInputDocument;
+package org.craftercms.search.commons.exception;
 
 /**
- * Used to modify or enhance a Solr document after it's built from XML.
+ * Thrown to indicate that an error occurred while building a document for updating the index.
  *
  * @author Alfonso Vásquez
  */
-public interface SolrDocumentPostProcessor {
+public class DocumentBuildException extends RuntimeException {
 
-    /**
-     * Processes the specified document to modify or enhance it.
-     *
-     * @param solrDoc the Solr document to process
-     */
-    void postProcess(SolrInputDocument solrDoc);
+    public DocumentBuildException(String msg) {
+        super(msg);
+    }
+
+    public DocumentBuildException(String msg, Throwable throwable) {
+        super(msg, throwable);
+    }
 
 }
