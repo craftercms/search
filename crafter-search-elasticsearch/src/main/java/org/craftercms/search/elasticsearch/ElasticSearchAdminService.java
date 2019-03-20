@@ -44,9 +44,8 @@ public interface ElasticSearchAdminService {
     /**
      * Deletes an index
      * @param indexName the name of the index
-     * @param isAuthoring indicates if the index if for authoring
      * @throws ElasticSearchException if there is any error during the operation
      */
-    void deleteIndex(String indexName, boolean isAuthoring) throws ElasticSearchException;
+    void deleteIndex(String indexName) throws ElasticSearchException;
 
 }
