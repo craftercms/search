@@ -43,13 +43,6 @@ public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService 
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticSearchAdminServiceImpl.class);
 
-    public static final String DEFAULT_AUTHORING_SUFFIX = "-authoring";
-
-    /**
-     * Suffix to append to authoring indices
-     */
-    protected String authoringSuffix = DEFAULT_AUTHORING_SUFFIX;
-
     /**
      * Index settings file for authoring indices
      */
@@ -64,10 +57,6 @@ public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService 
      * The ElasticSearch client
      */
     protected RestHighLevelClient elasticSearchClient;
-
-    public void setAuthoringSuffix(final String authoringSuffix) {
-        this.authoringSuffix = authoringSuffix;
-    }
 
     @Required
     public void setAuthoringIndexSettings(final Resource authoringIndexSettings) {
@@ -104,16 +93,15 @@ public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService 
     @Override
     public void createIndex(final String indexName, boolean isAuthoring) throws ElasticSearchException {
         if(isAuthoring) {
-            String authoringName = getAuthoringIndexName(indexName);
-            if(!exists(authoringName)) {
-                logger.info("Creating index {}", authoringName);
+            if(!exists(indexName)) {
+                logger.info("Creating index {}", indexName);
                 try(InputStream is = authoringIndexSettings.getInputStream()) {
                     elasticSearchClient.indices().create(
-                        new CreateIndexRequest(authoringName)
+                        new CreateIndexRequest(indexName)
                             .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON),
                         RequestOptions.DEFAULT);
                 } catch (Exception e) {
-                    throw new ElasticSearchException(authoringName, "Error creating index", e);
+                    throw new ElasticSearchException(indexName, "Error creating index", e);
                 }
             }
         } else {
@@ -135,18 +123,14 @@ public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService 
      * {@inheritDoc}
      */
     @Override
-    public void deleteIndex(final String indexName, boolean isAuthoring) throws ElasticSearchException {
-        String[] name = new String[]{ isAuthoring? getAuthoringIndexName(indexName) : indexName };
+    public void deleteIndex(final String indexName) throws ElasticSearchException {
+        String[] name = new String[]{ indexName };
         try {
             logger.info("Deleting index {}", indexName);
             elasticSearchClient.indices().delete(new DeleteIndexRequest(name), RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new ElasticSearchException(indexName, "Error deleting index", e);
         }
-    }
-
-    protected String getAuthoringIndexName(String indexName) {
-        return indexName + authoringSuffix;
     }
 
 }
