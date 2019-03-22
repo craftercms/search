@@ -169,7 +169,13 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
                       final MultiValueMap<String, String> additionalFields) throws ElasticSearchException {
         Map<String, Object> doc = documentBuilder.build(siteName, docId, xml, true);
         if(MapUtils.isNotEmpty(additionalFields)) {
-            doc.putAll(additionalFields);
+            additionalFields.forEach((key, value) -> {
+                if(value.size() == 1) {
+                    doc.put(key, value.get(0));
+                } else {
+                    doc.put(key, value);
+                }
+            });
         }
         index(indexName, siteName, docId, doc);
     }
