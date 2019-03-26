@@ -20,17 +20,17 @@ package org.craftercms.search.elasticsearch;
 import java.util.List;
 import java.util.Map;
 
-import org.craftercms.search.elasticsearch.exception.ElasticSearchException;
+import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.craftercms.core.service.Content;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.core.io.Resource;
 import org.springframework.util.MultiValueMap;
 
 /**
- * Provides access to indexing operations in ElasticSearch
+ * Provides access to indexing operations in Elasticsearch
  * @author joseross
  */
-public interface ElasticSearchService {
+public interface ElasticsearchService {
 
     /**
      * Performs a search for a specific field
@@ -38,9 +38,9 @@ public interface ElasticSearchService {
      * @param field the name of the field
      * @param queryBuilder the filters to apply
      * @return the list of values that match the search
-     * @throws ElasticSearchException if there is any error during the operation
+     * @throws ElasticsearchException if there is any error during the operation
      */
-    List<String> searchField(String indexName, String field, QueryBuilder queryBuilder) throws ElasticSearchException;
+    List<String> searchField(String indexName, String field, QueryBuilder queryBuilder) throws ElasticsearchException;
 
     Map<String, Object> searchId(String indexName, String docId);
 
@@ -52,9 +52,9 @@ public interface ElasticSearchService {
      * @param siteId the name of the site
      * @param docId the id of the document
      * @param xml the content of the document
-     * @throws ElasticSearchException if there is any error during the operation
+     * @throws ElasticsearchException if there is any error during the operation
      */
-    default void index(String indexName, String siteId, String docId, String xml) throws ElasticSearchException {
+    default void index(String indexName, String siteId, String docId, String xml) throws ElasticsearchException {
         index(indexName, siteId, docId, xml, null);
     }
 
@@ -65,10 +65,10 @@ public interface ElasticSearchService {
      * @param docId the id of the document
      * @param xml the content of the document
      * @param additionalFields additional fields to index
-     * @throws ElasticSearchException if there is any error during the operation
+     * @throws ElasticsearchException if there is any error during the operation
      */
     void index(String indexName, String siteId, String docId, String xml,
-               MultiValueMap<String, String> additionalFields) throws ElasticSearchException;
+               MultiValueMap<String, String> additionalFields) throws ElasticsearchException;
 
     /**
      * Performs an index for the given binary file
@@ -77,28 +77,28 @@ public interface ElasticSearchService {
      * @param path the path of the document
      * @param additionalFields the additional fields to index
      * @param content the content of the document
-     * @throws ElasticSearchException if there is any error during the operation
+     * @throws ElasticsearchException if there is any error during the operation
      */
     void indexBinary(String indexName, String siteName, String path, MultiValueMap<String, String> additionalFields,
-                     Content content) throws ElasticSearchException;
+                     Content content) throws ElasticsearchException;
 
     void indexBinary(String indexName, String siteName, String path, MultiValueMap<String, String> additionalFields,
-                     Resource resource) throws ElasticSearchException;
+                     Resource resource) throws ElasticsearchException;
 
     /**
      * Performs a delete for the given document
      * @param indexName the name of the index
      * @param siteId the id of the site
      * @param docId the id of the document
-     * @throws ElasticSearchException if there is any error during the operation
+     * @throws ElasticsearchException if there is any error during the operation
      */
-    void delete(String indexName, String siteId, String docId) throws ElasticSearchException;
+    void delete(String indexName, String siteId, String docId) throws ElasticsearchException;
 
     /**
      * Performs a flush for a given index
      * @param indexName the name of the index
-     * @throws ElasticSearchException if there is any error during the operation
+     * @throws ElasticsearchException if there is any error during the operation
      */
-    void flush(String indexName) throws ElasticSearchException;
+    void flush(String indexName) throws ElasticsearchException;
 
 }

@@ -17,7 +17,7 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
-import org.craftercms.search.elasticsearch.ElasticSearchService;
+import org.craftercms.search.elasticsearch.ElasticsearchService;
 import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.impl.AbstractBinaryFileBatchIndexer;
@@ -25,31 +25,31 @@ import org.craftercms.core.service.Content;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Implementation of {@link AbstractBinaryFileBatchIndexer} for ElasticSearch
+ * Implementation of {@link AbstractBinaryFileBatchIndexer} for Elasticsearch
  * @author joseross
  */
-public class ElasticSearchBinaryFileBatchIndexer extends AbstractBinaryFileBatchIndexer {
+public class ElasticsearchBinaryFileBatchIndexer extends AbstractBinaryFileBatchIndexer {
 
     /**
-     * ElasticSearch service
+     * Elasticsearch service
      */
-    protected ElasticSearchService elasticSearchService;
+    protected ElasticsearchService elasticsearchService;
 
     @Required
-    public void setElasticSearchService(final ElasticSearchService elasticSearchService) {
-        this.elasticSearchService = elasticSearchService;
+    public void setElasticsearchService(final ElasticsearchService elasticsearchService) {
+        this.elasticsearchService = elasticsearchService;
     }
 
     @Override
     protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
-        ElasticSearchIndexingUtils.doDelete(elasticSearchService, indexId, siteName, path, updateStatus);
+        ElasticsearchIndexingUtils.doDelete(elasticsearchService, indexId, siteName, path, updateStatus);
     }
 
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String path,
                                    final Content binaryContent, final UpdateDetail updateDetail,
                                    final UpdateStatus updateStatus) {
-        ElasticSearchIndexingUtils.doUpdateBinary(elasticSearchService, indexId, siteName, path, null, binaryContent,
+        ElasticsearchIndexingUtils.doUpdateBinary(elasticsearchService, indexId, siteName, path, null, binaryContent,
             updateDetail, updateStatus);
     }
 

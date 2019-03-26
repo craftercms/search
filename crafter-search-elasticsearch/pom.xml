@@ -26,8 +26,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>crafter-search-elasticsearch</artifactId>
-    <name>Crafter Search ElasticSearch</name>
-    <description>Crafter Search ElasticSearch</description>
+    <name>Crafter Search Elasticsearch</name>
+    <description>Crafter Search Elasticsearch</description>
 
     <dependencies>
         <dependency>

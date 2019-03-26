@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author joseross
  */
-public class ElasticSearchElementParserImpl extends AbstractElementParser<Map<String, Object>> {
+public class ElasticsearchElementParserImpl extends AbstractElementParser<Map<String, Object>> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchElementParserImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchElementParserImpl.class);
 
     @Override
     public boolean parse(final Element element, final String fieldName, final String parentFieldName,

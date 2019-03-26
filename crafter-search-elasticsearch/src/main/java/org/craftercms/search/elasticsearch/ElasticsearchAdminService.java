@@ -17,35 +17,35 @@
 
 package org.craftercms.search.elasticsearch;
 
-import org.craftercms.search.elasticsearch.exception.ElasticSearchException;
+import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 
 /**
- * Provides operations to manage indices in ElasticSearch
+ * Provides operations to manage indices in Elasticsearch
  * @author joseross
  */
-public interface ElasticSearchAdminService {
+public interface ElasticsearchAdminService {
 
     /**
      * Check if an index already exists
      * @param indexName the name of the index
      * @return true if the index already exists
-     * @throws ElasticSearchException if there is any error during the operation
+     * @throws ElasticsearchException if there is any error during the operation
      */
-    boolean exists(String indexName) throws ElasticSearchException;
+    boolean exists(String indexName) throws ElasticsearchException;
 
     /**
      * Creates an index
      * @param indexName the name of the index
      * @param isAuthoring indicates if the index if for authoring
-     * @throws ElasticSearchException if there is any error during the operation
+     * @throws ElasticsearchException if there is any error during the operation
      */
-    void createIndex(String indexName, boolean isAuthoring) throws ElasticSearchException;
+    void createIndex(String indexName, boolean isAuthoring) throws ElasticsearchException;
 
     /**
      * Deletes an index
      * @param indexName the name of the index
-     * @throws ElasticSearchException if there is any error during the operation
+     * @throws ElasticsearchException if there is any error during the operation
      */
-    void deleteIndex(String indexName) throws ElasticSearchException;
+    void deleteIndex(String indexName) throws ElasticsearchException;
 
 }

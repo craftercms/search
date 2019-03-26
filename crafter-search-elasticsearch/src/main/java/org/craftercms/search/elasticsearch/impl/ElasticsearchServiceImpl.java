@@ -27,8 +27,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.craftercms.search.elasticsearch.DocumentParser;
-import org.craftercms.search.elasticsearch.ElasticSearchService;
-import org.craftercms.search.elasticsearch.exception.ElasticSearchException;
+import org.craftercms.search.elasticsearch.ElasticsearchService;
+import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.service.utils.ContentResource;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
@@ -48,20 +48,20 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.MultiValueMap;
 
 /**
- * Default implementation of {@link ElasticSearchService}
+ * Default implementation of {@link ElasticsearchService}
  * @author joseross
  */
-public class ElasticSearchServiceImpl implements ElasticSearchService {
+public class ElasticsearchServiceImpl implements ElasticsearchService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchServiceImpl.class);
 
     /**
-     * Max number of documents to return, according to ElasticSearch documentation
+     * Max number of documents to return, according to Elasticsearch documentation
      */
     public static final int MAX_RESULTS = 10000;
 
     /**
-     * According to ElasticSearch documentation this will be removed and this is the recommended value
+     * According to Elasticsearch documentation this will be removed and this is the recommended value
      */
     public static final String DEFAULT_DOC = "_doc";
 
@@ -70,7 +70,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     /**
      * Document Builder
      */
-    protected ElasticSearchDocumentBuilder documentBuilder;
+    protected ElasticsearchDocumentBuilder documentBuilder;
 
     /**
      * Document Parser
@@ -78,7 +78,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     protected DocumentParser documentParser;
 
     /**
-     * The ElasticSearch client
+     * The Elasticsearch client
      */
     protected RestHighLevelClient client;
 
@@ -88,7 +88,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     protected String localIdFieldName = DEFAULT_LOCAL_ID_NAME;
 
     @Required
-    public void setDocumentBuilder(final ElasticSearchDocumentBuilder documentBuilder) {
+    public void setDocumentBuilder(final ElasticsearchDocumentBuilder documentBuilder) {
         this.documentBuilder = documentBuilder;
     }
 
@@ -107,7 +107,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
      */
     @Override
     public List<String> searchField(final String indexName, final String field, final QueryBuilder queryBuilder)
-        throws ElasticSearchException {
+        throws ElasticsearchException {
         logger.info("[{}] Search values for field {}", indexName, field);
         logger.debug("Using filters: {}", queryBuilder);
         SearchRequest request = new SearchRequest(indexName).source(
@@ -126,7 +126,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             });
             return ids;
         } catch (Exception e) {
-            throw new ElasticSearchException(indexName, "Error executing search " + request, e);
+            throw new ElasticsearchException(indexName, "Error executing search " + request, e);
         }
     }
 
@@ -146,7 +146,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
                 return Collections.emptyMap();
             }
         } catch (Exception e) {
-            throw new ElasticSearchException(indexName, "Error executing search " + request, e);
+            throw new ElasticsearchException(indexName, "Error executing search " + request, e);
         }
     }
 
@@ -157,7 +157,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             logger.info("[{}] Indexing document {}", indexName, docId);
             client.index(new IndexRequest(indexName, DEFAULT_DOC, getId(docId)).source(doc), RequestOptions.DEFAULT);
         } catch (Exception e) {
-            throw new ElasticSearchException(indexName, "Error indexing document " + docId, e);
+            throw new ElasticsearchException(indexName, "Error indexing document " + docId, e);
         }
     }
 
@@ -166,7 +166,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
      */
     @Override
     public void index(final String indexName, final String siteName, final String docId, final String xml,
-                      final MultiValueMap<String, String> additionalFields) throws ElasticSearchException {
+                      final MultiValueMap<String, String> additionalFields) throws ElasticsearchException {
         Map<String, Object> doc = documentBuilder.build(siteName, docId, xml, true);
         if(MapUtils.isNotEmpty(additionalFields)) {
             additionalFields.forEach((key, value) -> {
@@ -186,13 +186,13 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     @Override
     public void indexBinary(final String indexName, final String siteName, final String path,
                             MultiValueMap<String, String> additionalFields, final Content content)
-        throws ElasticSearchException {
+        throws ElasticsearchException {
         String filename = FilenameUtils.getName(path);
         try {
             index(indexName, siteName, path, documentParser.parseToXml(filename, new ContentResource(content,
                     filename), additionalFields));
         } catch (Exception e) {
-            throw new ElasticSearchException(indexName, "Error indexing binary document " + path, e);
+            throw new ElasticsearchException(indexName, "Error indexing binary document " + path, e);
         }
     }
 
@@ -202,12 +202,12 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     @Override
     public void indexBinary(final String indexName, final String siteName, final String path,
                             MultiValueMap<String, String> additionalFields, final Resource resource)
-        throws ElasticSearchException {
+        throws ElasticsearchException {
         String filename = FilenameUtils.getName(path);
         try {
             index(indexName, siteName, path, documentParser.parseToXml(filename, resource, additionalFields));
         } catch (Exception e) {
-            throw new ElasticSearchException(indexName, "Error indexing binary document " + path, e);
+            throw new ElasticsearchException(indexName, "Error indexing binary document " + path, e);
         }
     }
 
@@ -216,12 +216,12 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
      */
     @Override
     public void delete(final String indexName, final String siteName, final String docId)
-        throws ElasticSearchException {
+        throws ElasticsearchException {
         logger.info("[{}] Deleting document {}", indexName, docId);
         try {
             client.delete(new DeleteRequest(indexName, DEFAULT_DOC, getId(docId)), RequestOptions.DEFAULT);
         } catch (Exception e) {
-            throw new ElasticSearchException(indexName, "Error deleting document " + docId, e);
+            throw new ElasticsearchException(indexName, "Error deleting document " + docId, e);
         }
     }
 
@@ -229,17 +229,17 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
      * {@inheritDoc}
      */
     @Override
-    public void flush(final String indexName) throws ElasticSearchException {
+    public void flush(final String indexName) throws ElasticsearchException {
         logger.info("[{}] Flushing index", indexName);
         try {
             client.indices().flush(new FlushRequest(indexName), RequestOptions.DEFAULT);
         } catch (IOException e) {
-            throw new ElasticSearchException(indexName, "Error flushing index", e);
+            throw new ElasticsearchException(indexName, "Error flushing index", e);
         }
     }
 
     /**
-     * Hashes the full path to use as a unique id for ElasticSearch
+     * Hashes the full path to use as a unique id for Elasticsearch
      * @param path the path of the file
      * @return MD5 hash for the path
      */
