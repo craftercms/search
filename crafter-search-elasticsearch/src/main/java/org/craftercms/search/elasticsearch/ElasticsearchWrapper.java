@@ -19,24 +19,24 @@ package org.craftercms.search.elasticsearch;
 
 import java.util.Map;
 
-import org.craftercms.search.elasticsearch.exception.ElasticSearchException;
+import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 
 /**
- * Exposes the search related operations from the ElasticSearch client
+ * Exposes the search related operations from the Elasticsearch client
  * @author joseross
  */
-public interface ElasticSearchWrapper {
+public interface ElasticsearchWrapper {
 
     /**
      * Performs a search operation
      * @param request the search request
      * @return the search response
-     * @throws ElasticSearchException if there is any error executing the search
+     * @throws ElasticsearchException if there is any error executing the search
      */
-    default SearchResponse search(SearchRequest request) throws ElasticSearchException {
+    default SearchResponse search(SearchRequest request) throws ElasticsearchException {
         return search(request, RequestOptions.DEFAULT);
     }
 
@@ -45,17 +45,17 @@ public interface ElasticSearchWrapper {
      * @param request the search request
      * @param options the request options
      * @return the search response
-     * @throws ElasticSearchException if there is any error executing the search
+     * @throws ElasticsearchException if there is any error executing the search
      */
-    SearchResponse search(SearchRequest request, RequestOptions options) throws ElasticSearchException;
+    SearchResponse search(SearchRequest request, RequestOptions options) throws ElasticsearchException;
 
     /**
      * Performs a search operation
      * @param request the search request
      * @return the search response
-     * @throws ElasticSearchException if there is any error executing the search
+     * @throws ElasticsearchException if there is any error executing the search
      */
-    default SearchResponse search(Map<String, Object> request) throws ElasticSearchException {
+    default SearchResponse search(Map<String, Object> request) throws ElasticsearchException {
         return search(request, RequestOptions.DEFAULT);
     }
 
@@ -64,17 +64,17 @@ public interface ElasticSearchWrapper {
      * @param request the search request
      * @param options the request options
      * @return the search response
-     * @throws ElasticSearchException if there is any error executing the search
+     * @throws ElasticsearchException if there is any error executing the search
      */
-    SearchResponse search(Map<String, Object> request, RequestOptions options) throws ElasticSearchException;
+    SearchResponse search(Map<String, Object> request, RequestOptions options) throws ElasticsearchException;
 
     /**
      * Performs a search operation
      * @param request the search request
      * @return the search response
-     * @throws ElasticSearchException if there is any error executing the search
+     * @throws ElasticsearchException if there is any error executing the search
      */
-    default SearchResponse search(String request) throws ElasticSearchException {
+    default SearchResponse search(String request) throws ElasticsearchException {
         return search(request, RequestOptions.DEFAULT);
     }
 
@@ -83,8 +83,8 @@ public interface ElasticSearchWrapper {
      * @param request the search request
      * @param options the request options
      * @return the search response
-     * @throws ElasticSearchException if there is any error executing the search
+     * @throws ElasticsearchException if there is any error executing the search
      */
-    SearchResponse search(String request, RequestOptions options) throws ElasticSearchException;
+    SearchResponse search(String request, RequestOptions options) throws ElasticsearchException;
 
 }

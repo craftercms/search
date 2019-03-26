@@ -26,7 +26,7 @@ import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.core.service.Item;
 import org.craftercms.search.batch.impl.AbstractMetadataBatchIndexer;
-import org.craftercms.search.elasticsearch.ElasticSearchService;
+import org.craftercms.search.elasticsearch.ElasticsearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -36,16 +36,16 @@ import org.springframework.beans.factory.annotation.Required;
  * For XML descriptors an XPath selector is used to query the value, for binary files the full file name is used.
  * @author joseross
  */
-public class ElasticSearchInternalNameBatchIndexer extends AbstractMetadataBatchIndexer {
+public class ElasticsearchInternalNameBatchIndexer extends AbstractMetadataBatchIndexer {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchInternalNameBatchIndexer.class);
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchInternalNameBatchIndexer.class);
 
     public static final String PROPERTY_NAME_INTERNAL_NAME = "internalName";
 
     /**
-     * The ElasticSearch service
+     * The Elasticsearch service
      */
-    protected ElasticSearchService elasticSearchService;
+    protected ElasticsearchService elasticsearchService;
 
     /**
      * The XPath selector used to extract the internal name from descriptors
@@ -53,8 +53,8 @@ public class ElasticSearchInternalNameBatchIndexer extends AbstractMetadataBatch
     protected String internalNameFieldXpath;
 
     @Required
-    public void setElasticSearchService(final ElasticSearchService elasticSearchService) {
-        this.elasticSearchService = elasticSearchService;
+    public void setElasticsearchService(final ElasticsearchService elasticsearchService) {
+        this.elasticsearchService = elasticsearchService;
     }
 
     @Required
@@ -65,12 +65,12 @@ public class ElasticSearchInternalNameBatchIndexer extends AbstractMetadataBatch
     @Override
     protected void updateIndex(final String indexName, final String siteName, final String path,
                                final Map<String, Object> data) {
-        ElasticSearchIndexingUtils.doUpdate(elasticSearchService, indexName, siteName, path, data);
+        ElasticsearchIndexingUtils.doUpdate(elasticsearchService, indexName, siteName, path, data);
     }
 
     @Override
     protected Map<String, Object> getCurrentData(final String indexName, final String siteName, final String path) {
-        return ElasticSearchIndexingUtils.doSearchById(elasticSearchService, indexName, path);
+        return ElasticsearchIndexingUtils.doSearchById(elasticsearchService, indexName, path);
     }
 
     @Override

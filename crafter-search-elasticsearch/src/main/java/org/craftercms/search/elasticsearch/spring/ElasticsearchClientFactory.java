@@ -26,13 +26,13 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Factory class for the ElasticSearch rest client
+ * Factory class for the Elasticsearch rest client
  * @author joseross
  */
-public class ElasticSearchClientFactory implements FactoryBean<RestHighLevelClient> {
+public class ElasticsearchClientFactory implements FactoryBean<RestHighLevelClient> {
 
     /**
-     * List of ElasticSearch urls
+     * List of Elasticsearch urls
      */
     protected String[] serverUrls;
 

@@ -17,37 +17,37 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
-import org.craftercms.search.elasticsearch.ElasticSearchService;
+import org.craftercms.search.elasticsearch.ElasticsearchService;
 import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.impl.AbstractXmlFileBatchIndexer;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Implementation of {@link AbstractXmlFileBatchIndexer} for ElasticSearch
+ * Implementation of {@link AbstractXmlFileBatchIndexer} for Elasticsearch
  * @author joseross
  */
-public class ElasticSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
+public class ElasticsearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
 
     /**
-     * ElasticSearch service
+     * Elasticsearch service
      */
-    protected ElasticSearchService elasticSearchService;
+    protected ElasticsearchService elasticsearchService;
 
     @Required
-    public void setElasticSearchService(final ElasticSearchService elasticSearchService) {
-        this.elasticSearchService = elasticSearchService;
+    public void setElasticsearchService(final ElasticsearchService elasticsearchService) {
+        this.elasticsearchService = elasticsearchService;
     }
 
     @Override
     protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
-        ElasticSearchIndexingUtils.doDelete(elasticSearchService, indexId, siteName, path, updateStatus);
+        ElasticsearchIndexingUtils.doDelete(elasticsearchService, indexId, siteName, path, updateStatus);
     }
 
     @Override
     protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
                             final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
-        ElasticSearchIndexingUtils.doUpdate(elasticSearchService, indexId, siteName, path, xml, updateDetail,
+        ElasticsearchIndexingUtils.doUpdate(elasticsearchService, indexId, siteName, path, xml, updateDetail,
             updateStatus);
     }
 

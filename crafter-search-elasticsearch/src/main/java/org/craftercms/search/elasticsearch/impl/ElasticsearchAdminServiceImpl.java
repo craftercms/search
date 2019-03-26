@@ -22,8 +22,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 import org.apache.commons.io.IOUtils;
-import org.craftercms.search.elasticsearch.ElasticSearchAdminService;
-import org.craftercms.search.elasticsearch.exception.ElasticSearchException;
+import org.craftercms.search.elasticsearch.ElasticsearchAdminService;
+import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
@@ -36,12 +36,12 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
 
 /**
- * Default implementation of {@link ElasticSearchAdminService}
+ * Default implementation of {@link ElasticsearchAdminService}
  * @author joseross
  */
-public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService {
+public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchAdminServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchAdminServiceImpl.class);
 
     /**
      * Index settings file for authoring indices
@@ -54,9 +54,9 @@ public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService 
     protected Resource previewIndexSettings;
 
     /**
-     * The ElasticSearch client
+     * The Elasticsearch client
      */
-    protected RestHighLevelClient elasticSearchClient;
+    protected RestHighLevelClient elasticsearchClient;
 
     @Required
     public void setAuthoringIndexSettings(final Resource authoringIndexSettings) {
@@ -69,21 +69,21 @@ public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService 
     }
 
     @Required
-    public void setElasticSearchClient(final RestHighLevelClient elasticSearchClient) {
-        this.elasticSearchClient = elasticSearchClient;
+    public void setElasticsearchClient(final RestHighLevelClient elasticsearchClient) {
+        this.elasticsearchClient = elasticsearchClient;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean exists(final String indexName) throws ElasticSearchException {
+    public boolean exists(final String indexName) throws ElasticsearchException {
         logger.debug("Checking if index {} exits", indexName);
         try {
-            return elasticSearchClient.indices().exists(
+            return elasticsearchClient.indices().exists(
                 new GetIndexRequest().indices(indexName), RequestOptions.DEFAULT);
         } catch (IOException e) {
-            throw new ElasticSearchException(indexName, "Error consulting index", e);
+            throw new ElasticsearchException(indexName, "Error consulting index", e);
         }
     }
 
@@ -91,29 +91,29 @@ public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService 
      * {@inheritDoc}
      */
     @Override
-    public void createIndex(final String indexName, boolean isAuthoring) throws ElasticSearchException {
+    public void createIndex(final String indexName, boolean isAuthoring) throws ElasticsearchException {
         if(isAuthoring) {
             if(!exists(indexName)) {
                 logger.info("Creating index {}", indexName);
                 try(InputStream is = authoringIndexSettings.getInputStream()) {
-                    elasticSearchClient.indices().create(
+                    elasticsearchClient.indices().create(
                         new CreateIndexRequest(indexName)
                             .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON),
                         RequestOptions.DEFAULT);
                 } catch (Exception e) {
-                    throw new ElasticSearchException(indexName, "Error creating index", e);
+                    throw new ElasticsearchException(indexName, "Error creating index", e);
                 }
             }
         } else {
             if(!exists(indexName)) {
                 logger.info("Creating index {}", indexName);
                 try(InputStream is = previewIndexSettings.getInputStream()) {
-                    elasticSearchClient.indices().create(
+                    elasticsearchClient.indices().create(
                         new CreateIndexRequest(indexName)
                             .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON),
                         RequestOptions.DEFAULT);
                 } catch (Exception e) {
-                    throw new ElasticSearchException(indexName, "Error creating index", e);
+                    throw new ElasticsearchException(indexName, "Error creating index", e);
                 }
             }
         }
@@ -123,13 +123,13 @@ public class ElasticSearchAdminServiceImpl implements ElasticSearchAdminService 
      * {@inheritDoc}
      */
     @Override
-    public void deleteIndex(final String indexName) throws ElasticSearchException {
+    public void deleteIndex(final String indexName) throws ElasticsearchException {
         String[] name = new String[]{ indexName };
         try {
             logger.info("Deleting index {}", indexName);
-            elasticSearchClient.indices().delete(new DeleteIndexRequest(name), RequestOptions.DEFAULT);
+            elasticsearchClient.indices().delete(new DeleteIndexRequest(name), RequestOptions.DEFAULT);
         } catch (IOException e) {
-            throw new ElasticSearchException(indexName, "Error deleting index", e);
+            throw new ElasticsearchException(indexName, "Error deleting index", e);
         }
     }
 

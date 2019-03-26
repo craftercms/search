@@ -20,23 +20,23 @@ package org.craftercms.search.elasticsearch.batch;
 import java.util.Map;
 
 import org.craftercms.search.batch.impl.AbstractContentTypeMetadataBatchIndexer;
-import org.craftercms.search.elasticsearch.ElasticSearchService;
+import org.craftercms.search.elasticsearch.ElasticsearchService;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Implementation of {@link AbstractContentTypeMetadataBatchIndexer} that uses ElasticSearch to index metadata
+ * Implementation of {@link AbstractContentTypeMetadataBatchIndexer} that uses Elasticsearch to index metadata
  * @author joseross
  */
-public class ElasticSearchContentTypeMetadataBatchIndexer extends AbstractContentTypeMetadataBatchIndexer {
+public class ElasticsearchContentTypeMetadataBatchIndexer extends AbstractContentTypeMetadataBatchIndexer {
 
     /**
      * The instance of elastic search service
      */
-    protected ElasticSearchService elasticSearchService;
+    protected ElasticsearchService elasticsearchService;
 
     @Required
-    public void setElasticSearchService(final ElasticSearchService elasticSearchService) {
-        this.elasticSearchService = elasticSearchService;
+    public void setElasticsearchService(final ElasticsearchService elasticsearchService) {
+        this.elasticsearchService = elasticsearchService;
     }
 
     /**
@@ -45,7 +45,7 @@ public class ElasticSearchContentTypeMetadataBatchIndexer extends AbstractConten
     @Override
     protected void updateIndex(final String indexName, final String siteName, final String path,
                                final Map<String, Object> data) {
-        ElasticSearchIndexingUtils.doUpdate(elasticSearchService, indexName, siteName, path, data);
+        ElasticsearchIndexingUtils.doUpdate(elasticsearchService, indexName, siteName, path, data);
     }
 
     /**
@@ -53,7 +53,7 @@ public class ElasticSearchContentTypeMetadataBatchIndexer extends AbstractConten
      */
     @Override
     protected Map<String, Object> getCurrentData(final String indexName, final String siteName, final String path) {
-        return ElasticSearchIndexingUtils.doSearchById(elasticSearchService, indexName, path);
+        return ElasticsearchIndexingUtils.doSearchById(elasticsearchService, indexName, path);
     }
 
 }

@@ -20,16 +20,16 @@ package org.craftercms.search.elasticsearch.exception;
 import org.craftercms.search.exception.SearchException;
 
 /**
- * Base exception for all ElasticSearch errors
+ * Base exception for all Elasticsearch errors
  * @author joseross
  */
-public class ElasticSearchException extends SearchException {
+public class ElasticsearchException extends SearchException {
 
-    public ElasticSearchException(final String indexId, final String msg) {
+    public ElasticsearchException(final String indexId, final String msg) {
         super(indexId, msg);
     }
 
-    public ElasticSearchException(final String indexId, final String msg, final Throwable throwable) {
+    public ElasticsearchException(final String indexId, final String msg, final Throwable throwable) {
         super(indexId, msg, throwable);
     }
 

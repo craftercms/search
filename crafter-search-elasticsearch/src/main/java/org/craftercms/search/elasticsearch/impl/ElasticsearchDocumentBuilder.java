@@ -24,10 +24,10 @@ import org.craftercms.search.commons.service.impl.AbstractDocumentBuilder;
 import org.craftercms.search.elasticsearch.jackson.MixedMultivaluedMap;
 
 /**
- * Implementation of {@link DocumentBuilder} for ElasticSearch
+ * Implementation of {@link DocumentBuilder} for Elasticsearch
  * @author joseross
  */
-public class ElasticSearchDocumentBuilder extends AbstractDocumentBuilder<Map<String, Object>> {
+public class ElasticsearchDocumentBuilder extends AbstractDocumentBuilder<Map<String, Object>> {
 
     @Override
     protected Map<String, Object> createDoc() {

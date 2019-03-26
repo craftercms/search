@@ -24,8 +24,8 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.HttpHost;
-import org.craftercms.search.elasticsearch.ElasticSearchWrapper;
-import org.craftercms.search.elasticsearch.exception.ElasticSearchException;
+import org.craftercms.search.elasticsearch.ElasticsearchWrapper;
+import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -48,20 +48,20 @@ import org.springframework.beans.factory.annotation.Required;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Base implementation of {@link ElasticSearchWrapper}
+ * Base implementation of {@link ElasticsearchWrapper}
  * @author joseross
  */
-public abstract class AbstractElasticSearchWrapper implements ElasticSearchWrapper, InitializingBean, DisposableBean {
+public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapper, InitializingBean, DisposableBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractElasticSearchWrapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractElasticsearchWrapper.class);
 
     /**
-     * The ElasticSearch client
+     * The Elasticsearch client
      */
     protected RestHighLevelClient client;
 
     /**
-     * The server urls for ElasticSearch
+     * The server urls for Elasticsearch
      */
     protected String[] serverUrls;
 
@@ -132,7 +132,7 @@ public abstract class AbstractElasticSearchWrapper implements ElasticSearchWrapp
         try {
             return client.search(request, options);
         } catch (Exception e) {
-            throw new ElasticSearchException(request.indices()[0], "Error executing search request", e);
+            throw new ElasticsearchException(request.indices()[0], "Error executing search request", e);
         }
     }
 
@@ -146,7 +146,7 @@ public abstract class AbstractElasticSearchWrapper implements ElasticSearchWrapp
             String json = mapper.writeValueAsString(request);
             return search(json, options);
         } catch (IOException e) {
-            throw new ElasticSearchException(null, "Error parsing request " + request, e);
+            throw new ElasticsearchException(null, "Error parsing request " + request, e);
         }
     }
 
@@ -163,7 +163,7 @@ public abstract class AbstractElasticSearchWrapper implements ElasticSearchWrapp
                         DeprecationHandler.THROW_UNSUPPORTED_OPERATION, request));
             return search(new SearchRequest().source(builder), options);
         } catch (IOException e) {
-            throw new ElasticSearchException(null, "Error parsing request " + request, e);
+            throw new ElasticsearchException(null, "Error parsing request " + request, e);
         }
     }
 
