@@ -24,6 +24,7 @@ import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.craftercms.search.elasticsearch.ElasticsearchAdminService;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
+import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
@@ -43,6 +44,13 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchAdminServiceImpl.class);
 
+    public static final String DEFAULT_INDEX_NAME_SUFFIX = "_v1";
+
+    /**
+     * The suffix to add to all index names during creation
+     */
+    protected String indexNameSuffix = DEFAULT_INDEX_NAME_SUFFIX;
+
     /**
      * Index settings file for authoring indices
      */
@@ -57,6 +65,10 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      * The Elasticsearch client
      */
     protected RestHighLevelClient elasticsearchClient;
+
+    public void setIndexNameSuffix(final String indexNameSuffix) {
+        this.indexNameSuffix = indexNameSuffix;
+    }
 
     @Required
     public void setAuthoringIndexSettings(final Resource authoringIndexSettings) {
@@ -92,29 +104,17 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      */
     @Override
     public void createIndex(final String indexName, boolean isAuthoring) throws ElasticsearchException {
-        if(isAuthoring) {
-            if(!exists(indexName)) {
-                logger.info("Creating index {}", indexName);
-                try(InputStream is = authoringIndexSettings.getInputStream()) {
-                    elasticsearchClient.indices().create(
-                        new CreateIndexRequest(indexName)
-                            .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON),
-                        RequestOptions.DEFAULT);
-                } catch (Exception e) {
-                    throw new ElasticsearchException(indexName, "Error creating index", e);
-                }
-            }
-        } else {
-            if(!exists(indexName)) {
-                logger.info("Creating index {}", indexName);
-                try(InputStream is = previewIndexSettings.getInputStream()) {
-                    elasticsearchClient.indices().create(
-                        new CreateIndexRequest(indexName)
-                            .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON),
-                        RequestOptions.DEFAULT);
-                } catch (Exception e) {
-                    throw new ElasticsearchException(indexName, "Error creating index", e);
-                }
+        Resource settings = isAuthoring? authoringIndexSettings : previewIndexSettings;
+        if(!exists(indexName)) {
+            logger.info("Creating index {}", indexName);
+            try(InputStream is = settings.getInputStream()) {
+                elasticsearchClient.indices().create(
+                    new CreateIndexRequest(indexName + indexNameSuffix)
+                        .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON)
+                        .alias(new Alias(indexName)),
+                    RequestOptions.DEFAULT);
+            } catch (Exception e) {
+                throw new ElasticsearchException(indexName, "Error creating index", e);
             }
         }
     }
