@@ -189,7 +189,8 @@
           "internal-name": {
             "match": "internal-name",
             "mapping": {
-              "type": "keyword"
+              "type": "keyword",
+              "copy_to": "_text_"
             }
           }
         },
