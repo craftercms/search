@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.activation.FileTypeMap;
@@ -465,6 +466,13 @@ public class SolrSearchService implements SearchService<SolrQuery> {
             docListMap.put(DOCUMENT_LIST_DOCUMENTS_PROPERTY_NAME, extractDocs(docList));
 
             return docListMap;
+        } else if (namedListValue instanceof List) {
+            List<Object> originalList = (List<Object>) namedListValue;
+            List<Object> serializableList = new LinkedList<>();
+            for(Object originalValue : originalList) {
+                serializableList.add(toSerializableValue(originalValue));
+            }
+            return serializableList;
         } else {
             return namedListValue;
         }
