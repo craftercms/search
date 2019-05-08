@@ -20,14 +20,17 @@ package org.craftercms.search.elasticsearch.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.craftercms.search.elasticsearch.ElasticsearchAdminService;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.alias.Alias;
+import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.client.GetAliasesResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -124,12 +127,17 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      */
     @Override
     public void deleteIndex(final String indexName) throws ElasticsearchException {
-        String[] name = new String[]{ indexName };
         try {
-            logger.info("Deleting index {}", indexName);
-            elasticsearchClient.indices().delete(new DeleteIndexRequest(name), RequestOptions.DEFAULT);
+            GetAliasesResponse indices = elasticsearchClient.indices().getAlias(
+                new GetAliasesRequest(indexName),
+                RequestOptions.DEFAULT);
+            Set<String> actualIndices = indices.getAliases().keySet();
+            logger.info("Deleting indices {}", actualIndices);
+            elasticsearchClient.indices().delete(
+                new DeleteIndexRequest(actualIndices.toArray(new String[]{})),
+                RequestOptions.DEFAULT);
         } catch (IOException e) {
-            throw new ElasticsearchException(indexName, "Error deleting index", e);
+            throw new ElasticsearchException(indexName, "Error deleting index " + indexName, e);
         }
     }
 
