@@ -18,6 +18,7 @@
 package org.craftercms.search.elasticsearch.batch;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.craftercms.search.elasticsearch.ElasticsearchService;
@@ -31,6 +32,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 /**
@@ -114,8 +116,10 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
                                    final Content content, final UpdateDetail updateDetail,
-                                   final UpdateStatus updateStatus) {
-        doUpdateContent(indexId, siteName, binaryPath, content, updateDetail, updateStatus);
+                                   final UpdateStatus updateStatus, final Map<String, String> metadata) {
+        MultiValueMap<String, String> additionalFields = new LinkedMultiValueMap<>();
+        additionalFields.setAll(metadata);
+        doUpdateContent(indexId, siteName, binaryPath, content, additionalFields, updateDetail, updateStatus);
     }
 
 }

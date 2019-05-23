@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,20 +71,22 @@ public abstract class AbstractXmlFileBatchIndexer extends AbstractBatchIndexer {
     @Override
     protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService,
                                       Context context, String path, boolean delete,
-                                      UpdateDetail updateDetail, UpdateStatus updateStatus) {
+                                      UpdateDetail updateDetail, UpdateStatus updateStatus,
+                                      Map<String, String> metadata) {
         if (delete) {
             doDelete(indexId, siteName, path, updateStatus);
         } else {
             String xml = processXml(siteName, contentStoreService, context, path);
 
-            doUpdate(indexId, siteName, path, xml, updateDetail, updateStatus);
+            doUpdate(indexId, siteName, path, xml, updateDetail, updateStatus, metadata);
         }
     }
 
     protected abstract void doDelete(String indexId, String siteName, String path, UpdateStatus updateStatus);
 
     protected abstract void doUpdate(String indexId, String siteName, String path, String xml,
-                                     UpdateDetail updateDetail, UpdateStatus updateStatus);
+                                     UpdateDetail updateDetail, UpdateStatus updateStatus,
+                                     Map<String, String> metadata);
 
     protected String processXml(String siteName, ContentStoreService contentStoreService, Context context,
                                 String path) throws CrafterException {

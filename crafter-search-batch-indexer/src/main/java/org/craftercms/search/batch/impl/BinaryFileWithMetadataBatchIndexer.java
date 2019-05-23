@@ -84,7 +84,7 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBinaryFileWithMe
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
                                    final Content content, final UpdateDetail updateDetail,
-                                   final UpdateStatus updateStatus) {
+                                   final UpdateStatus updateStatus, final Map<String, String> metadata) {
         CrafterSearchIndexingUtils.doUpdateContent(searchService, indexId, siteName, binaryPath, content, updateStatus);
     }
 

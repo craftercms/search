@@ -59,9 +59,13 @@ public abstract class ElasticsearchIndexingUtils extends IndexingUtils {
 
     public static void doUpdate(final ElasticsearchService elasticsearch, final String indexName,
                                 final String siteName, final String path, final String xml,
-                                final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
+                                final UpdateDetail updateDetail, final UpdateStatus updateStatus,
+                                Map<String, String> metadata) {
         try {
-            elasticsearch.index(indexName, siteName, path, xml, getAdditionalFields(updateDetail));
+            MultiValueMap<String, String> additionalFields = new LinkedMultiValueMap<>();
+            additionalFields.setAll(metadata);
+            elasticsearch.index(indexName, siteName, path, xml,
+                mergeAdditionalFields(additionalFields, getAdditionalFields(updateDetail)));
             updateStatus.addSuccessfulUpdate(path);
         } catch (ElasticsearchException e) {
             throw new SearchException(indexName, "Error indexing document " + path, e);

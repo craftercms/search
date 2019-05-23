@@ -95,10 +95,10 @@ public interface ElasticsearchService {
     void delete(String indexName, String siteId, String docId) throws ElasticsearchException;
 
     /**
-     * Performs a flush for a given index
+     * Performs a refresh for a given index
      * @param indexName the name of the index
      * @throws ElasticsearchException if there is any error during the operation
      */
-    void flush(String indexName) throws ElasticsearchException;
+    void refresh(String indexName) throws ElasticsearchException;
 
 }

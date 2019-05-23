@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.batch.impl;
+package org.craftercms.search.metadata.impl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,12 +24,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.core.service.Item;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
- * Implementation of {@link AbstractXmlMetadataBatchIndexer} that handles Crafter's content-type metadata
+ * Implementation of {@link org.craftercms.search.metadata.MetadataExtractor} for content-type metadata
+ *
  * @author joseross
+ * @since 3.1.1
  */
-public abstract class AbstractContentTypeMetadataBatchIndexer extends AbstractXmlMetadataBatchIndexer {
+public class ContentTypeMetadadataExtractor extends AbstractMetadataExtractor {
 
     public static final String NAME_PLACEHOLDER = "\\{name\\}";
     public static final String FILE_PLACEHOLDER = "\\{file\\}";
@@ -39,7 +42,17 @@ public abstract class AbstractContentTypeMetadataBatchIndexer extends AbstractXm
     public static final String DEFAULT_THUMBNAIL_TEMPLATE = "/config/studio/content-types{name}/{file}";
     public static final String DEFAULT_THUMBNAIL_XPATH = "*/image-thumbnail";
 
-    public static final String PROPERTY_NAME_THUMBNAIL = "thumbnail";
+    public static final String DEFAULT_PROPERTY_NAME_THUMBNAIL = "thumbnail";
+
+    /**
+     * The XPath of the field to check
+     */
+    protected String fieldXpath;
+
+    /**
+     * The expected value of the field to check (optional)
+     */
+    protected String fieldValue;
 
     /**
      * The pattern for the configuration file
@@ -61,6 +74,20 @@ public abstract class AbstractContentTypeMetadataBatchIndexer extends AbstractXm
      */
     protected String thumbnailXpath = DEFAULT_THUMBNAIL_XPATH;
 
+    /**
+     * The name of the metadata property for the thumbnail
+     */
+    protected String propertyNameThumbnail = DEFAULT_PROPERTY_NAME_THUMBNAIL;
+
+    @Required
+    public void setFieldXpath(final String fieldXpath) {
+        this.fieldXpath = fieldXpath;
+    }
+
+    public void setFieldValue(final String fieldValue) {
+        this.fieldValue = fieldValue;
+    }
+
     public void setConfigTemplate(final String configTemplate) {
         this.configTemplate = configTemplate;
     }
@@ -77,15 +104,30 @@ public abstract class AbstractContentTypeMetadataBatchIndexer extends AbstractXm
         this.thumbnailXpath = thumbnailXpath;
     }
 
+    public void setPropertyNameThumbnail(final String propertyNameThumbnail) {
+        this.propertyNameThumbnail = propertyNameThumbnail;
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    protected Map<String, Object> getMetadata(final Item item, final ContentStoreService contentStoreService,
-                                              final Context context) {
+    protected boolean isCompatible(final String path, final ContentStoreService contentStoreService,
+                                   final Context context) {
+        Item item = contentStoreService.getItem(context, path);
+        String value = item.queryDescriptorValue(fieldXpath);
+        return StringUtils.isEmpty(fieldValue)? StringUtils.isNotEmpty(value) : StringUtils.equals(fieldValue, value);
+    }
 
-        Map<String, Object> metadata = new HashMap<>();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Map<String, String> doExtract(final String path, final ContentStoreService contentStoreService,
+                                            final Context context) {
+        Map<String, String> metadata = new HashMap<>();
 
+        Item item = contentStoreService.getItem(context, path);
         String contentTypeName = item.queryDescriptorValue(fieldXpath);
 
         getConfigMetadata(contentTypeName, contentStoreService, context, metadata);
@@ -94,23 +136,29 @@ public abstract class AbstractContentTypeMetadataBatchIndexer extends AbstractXm
         return metadata;
     }
 
+    /**
+     * Extracts metadata from the form-definition file
+     */
     protected void getDefinitionMetadata(final String contentTypeName, final ContentStoreService contentStoreService,
-                                         final Context context, final Map<String, Object> metadata) {
+                                         final Context context, final Map<String, String> metadata) {
         String definitionPath = StringUtils.replaceFirst(definitionTemplate, NAME_PLACEHOLDER, contentTypeName);
-        Item definition = getItem(contentStoreService, context, definitionPath);
+        Item definition = contentStoreService.getItem(context, definitionPath);
 
-        //TODO: Extract metadata from the form definition
+        //TODO: Define the metadata to extract
     }
 
+    /**
+     * Extracts metadata from the configuratiion file
+     */
     protected void getConfigMetadata(final String contentTypeName, final ContentStoreService contentStoreService,
-                                     final Context context, final Map<String, Object> metadata) {
+                                     final Context context, final Map<String, String> metadata) {
         String configPath = StringUtils.replaceFirst(configTemplate, NAME_PLACEHOLDER, contentTypeName);
-        Item config = getItem(contentStoreService, context, configPath);
+        Item config = contentStoreService.getItem(context, configPath);
 
         String thumbnailFile = config.queryDescriptorValue(thumbnailXpath);
         String thumbnailValue = StringUtils.replaceFirst(thumbnailTemplate, NAME_PLACEHOLDER, contentTypeName);
         thumbnailValue = StringUtils.replaceFirst(thumbnailValue, FILE_PLACEHOLDER, thumbnailFile);
-        metadata.put(PROPERTY_NAME_THUMBNAIL, thumbnailValue);
+        metadata.put(propertyNameThumbnail, thumbnailValue);
     }
 
 }
