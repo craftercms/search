@@ -28,6 +28,7 @@ import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
 import javax.activation.FileTypeMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.craftercms.search.batch.utils.IndexingUtils.isMimeTypeSupported;
 
@@ -64,7 +65,7 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
     @Override
     protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService,
                                       Context context, String path, boolean delete, UpdateDetail updateDetail,
-                                      UpdateStatus updateStatus) {
+                                      UpdateStatus updateStatus, Map<String, String> metadata) {
         if (delete) {
             doDelete(indexId, siteName, path, updateStatus);
         } else {
@@ -72,7 +73,7 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
             if(binaryContent.getLength() > maxFileSize) {
                 logger.info("Skipping large binary file @ " + path);
             } else {
-                doUpdateContent(indexId, siteName, path, binaryContent, updateDetail, updateStatus);
+                doUpdateContent(indexId, siteName, path, binaryContent, updateDetail, updateStatus, metadata);
             }
         }
     }
@@ -80,7 +81,8 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
     protected abstract void doDelete(String indexId, String siteName, String path, UpdateStatus updateStatus);
 
     protected abstract void doUpdateContent(String indexId, String siteName, String path, Content binaryContent,
-                                            UpdateDetail updateDetail, UpdateStatus updateStatus);
+                                            UpdateDetail updateDetail, UpdateStatus updateStatus,
+                                            Map<String, String> metadata);
 
     @Override
     protected boolean include(String path) {

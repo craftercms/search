@@ -34,6 +34,7 @@ import org.craftercms.core.processors.impl.ItemProcessorPipeline;
 import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
+import org.craftercms.search.metadata.impl.AbstractMetadataCollector;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -62,7 +63,8 @@ import static org.craftercms.search.batch.utils.IndexingUtils.isMimeTypeSupporte
  *
  * @author avasquez
  */
-public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements BatchIndexer {
+public abstract class AbstractBinaryFileWithMetadataBatchIndexer
+    extends AbstractMetadataCollector implements BatchIndexer {
 
     private static final Log logger = LogFactory.getLog(AbstractBinaryFileWithMetadataBatchIndexer.class);
 
@@ -197,6 +199,9 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
                 for (String newBinaryPath : newBinaryPaths) {
                     binaryUpdatePaths.remove(newBinaryPath);
 
+                    Map<String, String> additionalFields = collectMetadata(metadataPath, contentStoreService, context);
+                    metadata.setAll(additionalFields);
+
                     updateBinaryWithMetadata(indexId, siteName, contentStoreService, context, newBinaryPath, metadata,
                         updateSet.getUpdateDetail(metadataPath), updateStatus);
                 }
@@ -210,6 +215,9 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
                 Document metadataDoc = loadMetadata(contentStoreService, context, siteName, metadataPath);
                 if (metadataDoc != null) {
                     MultiValueMap<String, String> metadata = extractMetadata(metadataPath, metadataDoc);
+
+                    Map<String, String> additionalFields = collectMetadata(metadataPath, contentStoreService, context);
+                    metadata.setAll(additionalFields);
 
                     updateBinaryWithMetadata(indexId, siteName, contentStoreService, context, binaryPath,
                                              metadata, updateSet.getUpdateDetail(metadataPath), updateStatus);
@@ -416,7 +424,9 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
                     if(binaryContent.getLength() > maxFileSize) {
                         logger.info("Skipping large binary file @ " + binaryPath);
                     } else {
-                        doUpdateContent(indexId, siteName, binaryPath, binaryContent, updateDetail, updateStatus);
+                        Map<String, String> metadata = collectMetadata(binaryPath, contentStoreService, context);
+                        doUpdateContent(indexId, siteName, binaryPath, binaryContent, updateDetail, updateStatus,
+                            metadata);
                     }
                 } else {
                     if (logger.isDebugEnabled()) {
@@ -437,7 +447,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer implements Batc
 
     protected abstract void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
                                             final Content content, final UpdateDetail updateDetail,
-                                            final UpdateStatus updateStatus);
+                                            final UpdateStatus updateStatus, final Map<String, String> metadata);
 
     protected MultiValueMap<String, String> extractMetadata(String path, Document document) {
         MultiValueMap<String, String> metadata = new LinkedMultiValueMap<>();

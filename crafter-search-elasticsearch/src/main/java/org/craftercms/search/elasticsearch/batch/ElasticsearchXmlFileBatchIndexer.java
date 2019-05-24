@@ -17,6 +17,8 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
+import java.util.Map;
+
 import org.craftercms.search.elasticsearch.ElasticsearchService;
 import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
@@ -46,9 +48,10 @@ public class ElasticsearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexe
 
     @Override
     protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
-                            final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
+                            final UpdateDetail updateDetail, final UpdateStatus updateStatus,
+                            Map<String, String> metadata) {
         ElasticsearchIndexingUtils.doUpdate(elasticsearchService, indexId, siteName, path, xml, updateDetail,
-            updateStatus);
+            updateStatus, metadata);
     }
 
 }

@@ -31,7 +31,7 @@ import org.craftercms.search.elasticsearch.ElasticsearchService;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.service.utils.ContentResource;
-import org.elasticsearch.action.admin.indices.flush.FlushRequest;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
@@ -229,10 +229,10 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      * {@inheritDoc}
      */
     @Override
-    public void flush(final String indexName) throws ElasticsearchException {
-        logger.info("[{}] Flushing index", indexName);
+    public void refresh(final String indexName) throws ElasticsearchException {
+        logger.info("[{}] Refreshing index", indexName);
         try {
-            client.indices().flush(new FlushRequest(indexName), RequestOptions.DEFAULT);
+            client.indices().refresh(new RefreshRequest(indexName), RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new ElasticsearchException(indexName, "Error flushing index", e);
         }

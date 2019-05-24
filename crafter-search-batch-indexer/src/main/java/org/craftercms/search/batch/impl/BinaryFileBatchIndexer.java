@@ -17,6 +17,8 @@
 
 package org.craftercms.search.batch.impl;
 
+import java.util.Map;
+
 import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.core.service.Content;
@@ -49,7 +51,7 @@ public class BinaryFileBatchIndexer extends AbstractBinaryFileBatchIndexer {
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String path,
                                    final Content binaryContent, final UpdateDetail updateDetail,
-                                   final UpdateStatus updateStatus) {
+                                   final UpdateStatus updateStatus, Map<String, String> metadata) {
         CrafterSearchIndexingUtils.doUpdateContent(searchService, indexId, siteName, path, binaryContent, updateStatus);
     }
 
