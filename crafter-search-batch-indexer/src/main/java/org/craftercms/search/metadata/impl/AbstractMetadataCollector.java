@@ -28,7 +28,7 @@ import org.craftercms.core.service.Context;
 import org.craftercms.search.metadata.MetadataExtractor;
 
 /**
- * Base implementation to support a list of {@link MetadataExtractor}s
+ * Base implementation for classes that use a list of {@link MetadataExtractor}s to process items
  *
  * @author joseross
  * @since 3.1.1
