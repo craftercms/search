@@ -123,6 +123,10 @@
                        value-ref="crafter.dateTimeConverter"/>
                 <entry key="${crafter.search.solr.field.type.datetime.multiValued.suffix}"
                        value-ref="crafter.dateTimeConverter"/>
+                <entry key="${crafter.search.solr.field.type.timeOnly.suffix}"
+                       value-ref="crafter.timeOnlyConverter"/>
+                <entry key="${crafter.search.solr.field.type.timeOnly.multiValued.suffix}"
+                       value-ref="crafter.timeOnlyConverter"/>
             </map>
         </property>
     </bean>
@@ -132,6 +136,10 @@
 
     <bean id="crafter.dateTimeConverter" class="org.craftercms.search.commons.service.impl.DateTimeConverter">
         <property name="dateTimeFieldPattern" value="${crafter.search.solr.field.type.datetime.pattern}"/>
+    </bean>
+
+    <bean id="crafter.timeOnlyConverter" class="org.craftercms.search.commons.service.impl.DateTimeConverter">
+        <property name="dateTimeFieldPattern" value="${crafter.search.solr.field.type.timeOnly.pattern}"/>
     </bean>
 
     <bean id="crafter.adminService" class="org.craftercms.search.service.impl.SolrAdminService">
@@ -175,6 +183,8 @@
                value="${crafter.search.solr.field.type.double.multiValued.suffix}"/>
         <entry key="${crafter.search.solr.field.type.datetime.suffix}"
                value="${crafter.search.solr.field.type.datetime.multiValued.suffix}"/>
+        <entry key="${crafter.search.solr.field.type.timeOnly.suffix}"
+               value="${crafter.search.solr.field.type.timeOnly.multiValued.suffix}"/>
     </util:map>
 
     <bean id="crafter.corsFilter" class="org.craftercms.commons.web.CORSFilter">

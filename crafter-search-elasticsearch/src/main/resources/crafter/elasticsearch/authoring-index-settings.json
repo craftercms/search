@@ -105,10 +105,10 @@
         {
           "date": {
             "match_pattern": "regex",
-            "match": ".+_(dt|dts)$",
+            "match": ".+_(dt|dts|to|tos)$",
             "mapping": {
               "type": "date",
-              "format" : "strict_date_optional_time||epoch_millis||yyyy-M-dd'T'HH:mm:ss.SSSZ"
+              "format" : "strict_date_optional_time||epoch_millis||yyyy-M-dd'T'HH:mm:ss.SSSZ||HH:mm:ss"
             }
           }
         },
