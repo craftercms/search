@@ -98,7 +98,9 @@ public class TikaDocumentParser extends AbstractDocumentParser {
     public String parseToXml(final String filename, final Resource resource,
                              final MultiValueMap<String, String> additionalFields) {
         Metadata metadata = new Metadata();
-        try (InputStream in = resource.getInputStream()) {
+        try {
+            // Tika will close the stream so it can't be used for anything after this, can't use auto close ...
+            InputStream in = resource.getInputStream();
             String parsedContent = tika.parseToString(in, metadata, charLimit);
             return extractMetadata(filename, resource, parsedContent, metadata, additionalFields);
         } catch (IOException | TikaException e) {
