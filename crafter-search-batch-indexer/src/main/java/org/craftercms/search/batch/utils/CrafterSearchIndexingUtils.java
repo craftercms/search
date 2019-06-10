@@ -40,7 +40,7 @@ public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
                                 UpdateStatus updateStatus) {
         searchService.update(indexId, siteName, id, xml, true);
 
-        logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
         updateStatus.addSuccessfulUpdate(id);
     }
@@ -49,7 +49,7 @@ public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
                                        Content content, UpdateStatus updateStatus) {
         searchService.updateContent(indexId, siteName, id, content);
 
-        logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
         updateStatus.addSuccessfulUpdate(id);
     }
@@ -60,7 +60,7 @@ public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
                                        UpdateStatus updateStatus)  {
         searchService.updateContent(indexId, siteName, id, content, additionalFields);
 
-        logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
         updateStatus.addSuccessfulUpdate(id);
     }
@@ -69,7 +69,7 @@ public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
                                        String id, Resource resource, UpdateStatus updateStatus)  {
         searchService.updateContent(indexId, siteName, id, resource);
 
-        logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
         updateStatus.addSuccessfulUpdate(id);
     }
@@ -79,7 +79,7 @@ public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
                                        UpdateStatus updateStatus)  {
         searchService.updateContent(indexId, siteName, id, resource, additionalFields);
 
-        logger.info("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
 
         updateStatus.addSuccessfulUpdate(id);
     }
@@ -88,7 +88,7 @@ public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
                                 UpdateStatus updateStatus) {
         searchService.delete(indexId, siteName, id);
 
-        logger.info("File " + getSiteBasedPath(siteName, id) + " deleted from index " + getIndexNameStr(indexId));
+        logger.debug("File " + getSiteBasedPath(siteName, id) + " deleted from index " + getIndexNameStr(indexId));
 
         updateStatus.addSuccessfulDelete(id);
     }

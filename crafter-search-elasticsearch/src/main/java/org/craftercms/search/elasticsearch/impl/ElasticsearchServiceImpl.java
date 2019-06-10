@@ -108,8 +108,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     @Override
     public List<String> searchField(final String indexName, final String field, final QueryBuilder queryBuilder)
         throws ElasticsearchException {
-        logger.info("[{}] Search values for field {}", indexName, field);
-        logger.debug("Using filters: {}", queryBuilder);
+        logger.debug("[{}] Search values for field {} (query -> {})", indexName, field, queryBuilder);
         SearchRequest request = new SearchRequest(indexName).source(
             new SearchSourceBuilder()
                 .fetchSource(field, null)
@@ -119,7 +118,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
 
         try {
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
-            logger.info("[{}] Found {} matching documents", indexName, response.getHits().totalHits);
+            logger.debug("[{}] Found {} matching documents", indexName, response.getHits().totalHits);
             List<String> ids = new LinkedList<>();
             response.getHits().forEach(hit -> {
                 ids.add((String) hit.getSourceAsMap().get(localIdFieldName));
@@ -132,7 +131,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
 
     @Override
     public Map<String, Object> searchId(final String indexName, final String docId) {
-        logger.info("[{}] Search for id {}", indexName, docId);
+        logger.debug("[{}] Search for id {}", indexName, docId);
         SearchRequest request = new SearchRequest(indexName).source(
             new SearchSourceBuilder()
                 .query(QueryBuilders.termQuery(localIdFieldName, docId))
@@ -154,7 +153,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     public void index(final String indexName, final String siteName, final String docId, final Map<String, Object> doc) {
         try {
             delete(indexName, siteName, docId);
-            logger.info("[{}] Indexing document {}", indexName, docId);
+            logger.debug("[{}] Indexing document {}", indexName, docId);
             client.index(new IndexRequest(indexName, DEFAULT_DOC, getId(docId)).source(doc), RequestOptions.DEFAULT);
         } catch (Exception e) {
             throw new ElasticsearchException(indexName, "Error indexing document " + docId, e);
@@ -217,7 +216,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     @Override
     public void delete(final String indexName, final String siteName, final String docId)
         throws ElasticsearchException {
-        logger.info("[{}] Deleting document {}", indexName, docId);
+        logger.debug("[{}] Deleting document {}", indexName, docId);
         try {
             client.delete(new DeleteRequest(indexName, DEFAULT_DOC, getId(docId)), RequestOptions.DEFAULT);
         } catch (Exception e) {
@@ -230,7 +229,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      */
     @Override
     public void refresh(final String indexName) throws ElasticsearchException {
-        logger.info("[{}] Refreshing index", indexName);
+        logger.debug("[{}] Refreshing index", indexName);
         try {
             client.indices().refresh(new RefreshRequest(indexName), RequestOptions.DEFAULT);
         } catch (IOException e) {

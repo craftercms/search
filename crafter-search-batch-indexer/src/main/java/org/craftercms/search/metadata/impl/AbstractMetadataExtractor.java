@@ -54,7 +54,7 @@ public abstract class AbstractMetadataExtractor implements MetadataExtractor {
     @Override
     public Map<String, String> extract(final String path, final ContentStoreService contentStoreService,
                                   final Context context) {
-        logger.info("Start processing {}", path);
+        logger.debug("Start processing {}", path);
 
         Map<String, String> metadata = Collections.emptyMap();
 
@@ -64,7 +64,7 @@ public abstract class AbstractMetadataExtractor implements MetadataExtractor {
             metadata = doExtract(path, contentStoreService, context);
         }
 
-        logger.info("Completed processing {}", path);
+        logger.debug("Completed processing {}", path);
 
         return metadata;
     }

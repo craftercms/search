@@ -362,7 +362,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
         try {
             // Check if the binary file is stored remotely
             if (remoteFileResolver != null && isRemoteBinary(binaryPath)) {
-                logger.info("Indexing remote file " + binaryPath);
+                logger.debug("Indexing remote file " + binaryPath);
 
                 RemoteFile remoteFile = remoteFileResolver.resolve(binaryPath);
 
@@ -370,7 +370,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                     logger.info("Skipping large binary file @ " + binaryPath);
                 } else {
                     doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), metadata, updateDetail,
-                        updateStatus);
+                                    updateStatus);
                 }
             } else {
                 Content binaryContent = contentStoreService.findContent(context, binaryPath);
