@@ -1,10 +1,5 @@
 {
   "settings": {
-    "index": {
-      "query": {
-        "default_field": "_main_text_"
-      }
-    },
     "analysis": {
       "analyzer": {
         "html_analyzer" : {
@@ -22,11 +17,6 @@
   },
   "mappings": {
     "_doc": {
-      "properties": {
-        "_main_text_": {
-          "type": "text"
-        }
-      },
       "dynamic_templates": [
         {
           "ints": {
@@ -70,7 +60,6 @@
             "match": ".+_(t|txt|en|html)$",
             "mapping": {
               "type": "text",
-              "copy_to": "_main_text_",
               "analyzer": "html_analyzer"
             }
           }
@@ -189,8 +178,7 @@
           "internal-name": {
             "match": "internal-name",
             "mapping": {
-              "type": "keyword",
-              "copy_to": "_main_text_"
+              "type": "keyword"
             }
           }
         },
@@ -284,10 +272,9 @@
         },
         {
           "title": {
-            "match": "title(_t)?",
+            "match": "title",
             "mapping": {
-              "type": "keyword",
-              "copy_to": "_main_text_"
+              "type": "keyword"
             }
           }
         },
@@ -295,8 +282,7 @@
           "content": {
             "match": "content",
             "mapping": {
-              "type": "text",
-              "copy_to": "_main_text_"
+              "type": "text"
             }
           }
         },
