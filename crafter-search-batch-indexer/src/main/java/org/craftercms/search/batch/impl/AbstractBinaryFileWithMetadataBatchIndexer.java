@@ -19,8 +19,6 @@ package org.craftercms.search.batch.impl;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.craftercms.commons.file.stores.RemoteFile;
 import org.craftercms.commons.file.stores.RemoteFileResolver;
 import org.craftercms.commons.lang.RegexUtils;
@@ -38,6 +36,8 @@ import org.craftercms.search.metadata.impl.AbstractMetadataCollector;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
@@ -50,7 +50,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-import static org.craftercms.search.batch.utils.IndexingUtils.getSiteBasedPath;
 import static org.craftercms.search.batch.utils.IndexingUtils.isMimeTypeSupported;
 
 
@@ -66,7 +65,7 @@ import static org.craftercms.search.batch.utils.IndexingUtils.isMimeTypeSupporte
 public abstract class AbstractBinaryFileWithMetadataBatchIndexer
     extends AbstractMetadataCollector implements BatchIndexer {
 
-    private static final Log logger = LogFactory.getLog(AbstractBinaryFileWithMetadataBatchIndexer.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractBinaryFileWithMetadataBatchIndexer.class);
 
     public static final String DEFAULT_METADATA_PATH_FIELD_NAME = "metadataPath";
     public static final String DEFAULT_LOCAL_ID_FIELD_NAME = "localId";
@@ -241,17 +240,14 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                     binaryUpdatePaths.remove(previousBinaryPath);
 
                     if (isChildBinary(previousBinaryPath)) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Reference of child binary " + previousBinaryPath + " removed from " +
-                                "parent " + metadataPath + ". Deleting binary from index...");
-                        }
+                        logger.debug(
+                                "Reference of child binary {} removed from  parent {}. Deleting binary from index...",
+                                previousBinaryPath, metadataPath);
 
                         doDelete(indexId, siteName, previousBinaryPath, updateStatus);
                     } else {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Reference of binary " + previousBinaryPath + " removed from " +
-                                metadataPath + ". Reindexing without metadata...");
-                        }
+                        logger.debug("Reference of binary {} removed from {}. Reindexing without metadata...",
+                                     previousBinaryPath, metadataPath);
 
                         updateBinary(indexId, siteName, contentStoreService, context,
                             previousBinaryPath, updateDetail, updateStatus);
@@ -271,17 +267,13 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                 List<String> binaryPaths = searchBinaryPathsFromMetadataPath(indexId, siteName, path);
                 for (String binaryPath : binaryPaths) {
                     if (isChildBinary(binaryPath)) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Parent of binary " + binaryPath + " deleted. Deleting child binary too");
-                        }
+                        logger.debug("Parent of binary {} deleted. Deleting child binary too", binaryPath);
 
                         // If the binary is a child binary, when the metadata file is deleted, then delete it
                         doDelete(indexId, siteName, binaryPath, updateStatus);
                     } else {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Metadata with reference of binary " + binaryPath + " deleted. Reindexing " +
-                                         "without metadata...");
-                        }
+                        logger.debug("Metadata with reference of binary {} deleted. Reindexing without metadata...",
+                                     binaryPath);
 
                         // Else, update binary without metadata
                         updateBinary(indexId, siteName, contentStoreService, context, binaryPath,null, updateStatus);
@@ -324,10 +316,10 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
             if (metadataDoc != null) {
                 return metadataDoc;
             } else {
-                logger.error("File " + getSiteBasedPath(siteName, metadataPath) + " is not a metadata XML descriptor");
+                logger.error("File {}:{} is not a metadata XML descriptor", siteName, metadataPath);
             }
         } catch (Exception e) {
-            logger.error("Error retrieving metadata file @ " + getSiteBasedPath(siteName, metadataPath), e);
+            logger.error("Error retrieving metadata file @ {}:{}", siteName, metadataPath, e);
         }
 
         return null;
@@ -362,36 +354,34 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
         try {
             // Check if the binary file is stored remotely
             if (remoteFileResolver != null && isRemoteBinary(binaryPath)) {
-                logger.info("Indexing remote file " + binaryPath);
+                logger.debug("Indexing remote file {}", binaryPath);
 
                 RemoteFile remoteFile = remoteFileResolver.resolve(binaryPath);
 
                 if(remoteFile.getContentLength() > maxFileSize) {
-                    logger.info("Skipping large binary file @ " + binaryPath);
+                    logger.info("Skipping large binary file @ {}", binaryPath);
                 } else {
                     doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), metadata, updateDetail,
-                        updateStatus);
+                                    updateStatus);
                 }
             } else {
                 Content binaryContent = contentStoreService.findContent(context, binaryPath);
                 if (binaryContent == null) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("No binary file found @ " + getSiteBasedPath(siteName, binaryPath) +
-                                     ". Empty content will be used for the update");
-                    }
+                    logger.debug("No binary file found @ {}:{}. Empty content will be used for the update", siteName,
+                                 binaryPath);
 
                     binaryContent = new EmptyContent();
                 }
 
                 if(binaryContent.getLength() > maxFileSize) {
-                    logger.info("Skipping large binary file @ " + binaryPath);
+                    logger.info("Skipping large binary file @ {}", binaryPath);
                 } else {
                     doUpdateContent(indexId, siteName, binaryPath, binaryContent, metadata, updateDetail, updateStatus);
                 }
             }
         } catch (Exception e) {
-            logger.error("Error when trying to send index update with metadata for binary file " +
-                         getSiteBasedPath(siteName, binaryPath), e);
+            logger.error("Error when trying to send index update with metadata for binary file {}:{}", siteName,
+                         binaryPath, e);
         }
     }
 
@@ -409,12 +399,12 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
         try {
             // Check if the binary file is stored remotely
             if (remoteFileResolver != null && isRemoteBinary(binaryPath)) {
-                logger.info("Indexing remote file " + binaryPath);
+                logger.info("Indexing remote file {}", binaryPath);
 
                 RemoteFile remoteFile = remoteFileResolver.resolve(binaryPath);
 
                 if(remoteFile.getContentLength() > maxFileSize) {
-                    logger.info("Skipping large binary file @ " + binaryPath);
+                    logger.info("Skipping large binary file @ {}", binaryPath);
                 } else {
                     doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), updateDetail, updateStatus);
                 }
@@ -422,22 +412,18 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                 Content binaryContent = contentStoreService.findContent(context, binaryPath);
                 if (binaryContent != null) {
                     if(binaryContent.getLength() > maxFileSize) {
-                        logger.info("Skipping large binary file @ " + binaryPath);
+                        logger.info("Skipping large binary file @ {}", binaryPath);
                     } else {
                         Map<String, String> metadata = collectMetadata(binaryPath, contentStoreService, context);
                         doUpdateContent(indexId, siteName, binaryPath, binaryContent, updateDetail, updateStatus,
-                            metadata);
+                                        metadata);
                     }
                 } else {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("No binary file found @ " + getSiteBasedPath(siteName, binaryPath) +
-                                     ". Skipping update");
-                    }
+                    logger.debug("No binary file found @ {}:{}. Skipping update", siteName, binaryPath);
                 }
             }
         } catch (Exception e) {
-            logger.error("Error when trying to send index update for binary file " +
-                         getSiteBasedPath(siteName, binaryPath), e);
+            logger.error("Error when trying to send index update for binary file {}:{}", siteName, binaryPath, e);
         }
     }
 
@@ -455,9 +441,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
 
         extractMetadataFromChildren(rootElem, StringUtils.EMPTY, metadata);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Extracted metadata: " + metadata);
-        }
+        logger.debug("Extracted metadata: {}", metadata);
 
         // Add extra metadata ID field
         metadata.set(metadataPathFieldName, path);
@@ -486,9 +470,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
             } else {
                 String value = node.getText();
                 if (StringUtils.isNotBlank(value) && shouldIncludeProperty(key)) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(String.format("Adding value [%s] for property [%s]", value, key));
-                    }
+                    logger.debug("Adding value [{}] for property [{}]", value, key);
 
                     metadata.add(key, StringUtils.trim(value));
                 }
