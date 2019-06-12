@@ -16,13 +16,13 @@
  */
 package org.craftercms.search.batch.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
@@ -43,7 +43,7 @@ import static org.craftercms.search.batch.utils.IndexingUtils.isMimeTypeSupporte
  */
 public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexer {
 
-    private static final Log logger = LogFactory.getLog(AbstractBinaryFileBatchIndexer.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractBinaryFileBatchIndexer.class);
 
     protected List<String> supportedMimeTypes;
     protected FileTypeMap mimeTypesMap;
@@ -71,7 +71,7 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
         } else {
             Content binaryContent = contentStoreService.getContent(context, path);
             if (binaryContent.getLength() > maxFileSize) {
-                logger.info("Skipping large binary file @ {}" + path);
+                logger.info("Skipping large binary file @ {}", path);
             } else {
                 doUpdateContent(indexId, siteName, path, binaryContent, updateDetail, updateStatus, metadata);
             }

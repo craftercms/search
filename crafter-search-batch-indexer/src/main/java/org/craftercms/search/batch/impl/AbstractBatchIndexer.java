@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.craftercms.commons.lang.RegexUtils;
 import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.core.service.ContentStoreService;
@@ -32,8 +30,8 @@ import org.craftercms.search.batch.UpdateSet;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.exception.BatchIndexingException;
 import org.craftercms.search.metadata.impl.AbstractMetadataCollector;
-
-import static org.craftercms.search.batch.utils.IndexingUtils.getSiteBasedPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for {@link BatchIndexer}s. Basically sub-classes only need to provide the processing of each of the files to be indexed.
@@ -42,7 +40,7 @@ import static org.craftercms.search.batch.utils.IndexingUtils.getSiteBasedPath;
  */
 public abstract class AbstractBatchIndexer extends AbstractMetadataCollector implements BatchIndexer {
 
-    private static final Log logger = LogFactory.getLog(AbstractBatchIndexer.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractBatchIndexer.class);
 
     protected List<String> includePathPatterns;
     protected List<String> excludePathPatterns;
@@ -65,7 +63,7 @@ public abstract class AbstractBatchIndexer extends AbstractMetadataCollector imp
                     doSingleFileUpdate(indexId, siteName, contentStoreService, context, path, false,
                         updateSet.getUpdateDetail(path), updateStatus, metadata);
                 } catch (Exception e) {
-                    logger.error("Error while trying to perform update of file " + getSiteBasedPath(siteName, path), e);
+                    logger.error("Error while trying to perform update of file {}:{}", siteName, path, e);
 
                     updateStatus.addFailedUpdate(path);
                 }
@@ -78,7 +76,7 @@ public abstract class AbstractBatchIndexer extends AbstractMetadataCollector imp
                     doSingleFileUpdate(indexId, siteName, contentStoreService, context, path, true, null,
                         updateStatus, Collections.emptyMap());
                 } catch (Exception e) {
-                    logger.error("Error while trying to perform delete of file " + getSiteBasedPath(siteName, path), e);
+                    logger.error("Error while trying to perform delete of file {}:{}", siteName, path, e);
 
                     updateStatus.addFailedDelete(path);
                 }

@@ -19,12 +19,13 @@ package org.craftercms.search.batch.utils;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.core.service.Content;
 import org.craftercms.search.service.ResourceAwareSearchService;
 import org.craftercms.search.service.SearchService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 /**
@@ -34,13 +35,13 @@ import org.springframework.core.io.Resource;
  */
 public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
 
-    private static final Log logger = LogFactory.getLog(CrafterSearchIndexingUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(CrafterSearchIndexingUtils.class);
 
     public static void doUpdate(SearchService searchService, String indexId, String siteName, String id, String xml,
                                 UpdateStatus updateStatus) {
         searchService.update(indexId, siteName, id, xml, true);
 
-        logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        logUpdate(indexId, siteName, id);
 
         updateStatus.addSuccessfulUpdate(id);
     }
@@ -49,7 +50,7 @@ public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
                                        Content content, UpdateStatus updateStatus) {
         searchService.updateContent(indexId, siteName, id, content);
 
-        logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        logUpdate(indexId, siteName, id);
 
         updateStatus.addSuccessfulUpdate(id);
     }
@@ -60,7 +61,7 @@ public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
                                        UpdateStatus updateStatus)  {
         searchService.updateContent(indexId, siteName, id, content, additionalFields);
 
-        logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        logUpdate(indexId, siteName, id);
 
         updateStatus.addSuccessfulUpdate(id);
     }
@@ -69,7 +70,7 @@ public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
                                        String id, Resource resource, UpdateStatus updateStatus)  {
         searchService.updateContent(indexId, siteName, id, resource);
 
-        logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        logUpdate(indexId, siteName, id);
 
         updateStatus.addSuccessfulUpdate(id);
     }
@@ -79,7 +80,7 @@ public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
                                        UpdateStatus updateStatus)  {
         searchService.updateContent(indexId, siteName, id, resource, additionalFields);
 
-        logger.debug("File " + getSiteBasedPath(siteName, id) + " added to index " + getIndexNameStr(indexId));
+        logUpdate(indexId, siteName, id);
 
         updateStatus.addSuccessfulUpdate(id);
     }
@@ -88,9 +89,19 @@ public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
                                 UpdateStatus updateStatus) {
         searchService.delete(indexId, siteName, id);
 
-        logger.debug("File " + getSiteBasedPath(siteName, id) + " deleted from index " + getIndexNameStr(indexId));
+        logDelete(indexId, siteName, id);
 
         updateStatus.addSuccessfulDelete(id);
+    }
+
+    private static void logUpdate(String indexId, String siteName, String id) {
+        logger.debug("File {}:{} added to index {}", siteName, id,
+                     StringUtils.isNotEmpty(indexId) ? indexId : "default");
+    }
+
+    private static void logDelete(String indexId, String siteName, String id) {
+        logger.debug("File {}:{} deleted to index {}", siteName, id,
+                     StringUtils.isNotEmpty(indexId) ? indexId : "default");
     }
 
 }
