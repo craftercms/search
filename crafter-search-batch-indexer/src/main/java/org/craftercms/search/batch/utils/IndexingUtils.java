@@ -48,14 +48,6 @@ public abstract class IndexingUtils {
         }
     }
 
-    public static String getSiteBasedPath(String siteName, String path) {
-        return siteName + ":" + path;
-    }
-
-    public static String getIndexNameStr(String indexId) {
-        return StringUtils.isNotEmpty(indexId)? "'" + indexId + "'": "default";
-    }
-
     public static MultiValueMap<String, String> getAdditionalFields(UpdateDetail updateDetail) {
         MultiValueMap<String, String> additionalFields = null;
         if(updateDetail != null) {

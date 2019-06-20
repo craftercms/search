@@ -24,8 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.core.exception.CrafterException;
@@ -39,9 +37,8 @@ import org.craftercms.core.service.Item;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-
-import static org.craftercms.search.batch.utils.IndexingUtils.getSiteBasedPath;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link org.craftercms.search.batch.BatchIndexer} that updates/deletes XML files from a search index.
@@ -50,7 +47,7 @@ import static org.craftercms.search.batch.utils.IndexingUtils.getSiteBasedPath;
  */
 public abstract class AbstractXmlFileBatchIndexer extends AbstractBatchIndexer {
 
-    private static final Log logger = LogFactory.getLog(AbstractXmlFileBatchIndexer.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractXmlFileBatchIndexer.class);
 
     public static final List<String> DEFAULT_INCLUDE_FILENAME_PATTERNS = Collections.singletonList("^.*\\.xml$");
 
@@ -90,9 +87,7 @@ public abstract class AbstractXmlFileBatchIndexer extends AbstractBatchIndexer {
 
     protected String processXml(String siteName, ContentStoreService contentStoreService, Context context,
                                 String path) throws CrafterException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Processing XML @ " + getSiteBasedPath(siteName, path) + " before indexing");
-        }
+        logger.debug("Processing XML @ {}:{} before indexing", siteName, path);
 
         Item item = contentStoreService.getItem(context, null, path, itemProcessor);
         Document doc = item.getDescriptorDom();
@@ -100,13 +95,11 @@ public abstract class AbstractXmlFileBatchIndexer extends AbstractBatchIndexer {
         if (doc != null) {
             String xml = documentToString(item.getDescriptorDom());
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("XML @ " + getSiteBasedPath(siteName, path) + " processed successfully:\n" + xml);
-            }
+            logger.debug("XML @ {} processed successfully:\n{}:{}", siteName, path, xml);
 
             return xml;
         } else {
-            throw new XmlException("Item @ " + getSiteBasedPath(siteName, path) + " doesn't seem to be an XML file");
+            throw new XmlException("Item @ " + siteName + ":" + path + " doesn't seem to be an XML file");
         }
     }
 

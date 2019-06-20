@@ -74,7 +74,7 @@ public class TikaMetadataExtractor implements MetadataExtractor<Metadata> {
                 return true;
             }
         }
-        logger.info("Type {} is not compatible with any type of {}", contentType, supportedMimeTypes);
+        logger.debug("Type {} is not compatible with any type of {}", contentType, supportedMimeTypes);
         return false;
     }
 
@@ -84,7 +84,7 @@ public class TikaMetadataExtractor implements MetadataExtractor<Metadata> {
     @Override
     public void extract(final Resource resource, final Metadata metadata, final Map<String, Object> properties) {
         if(isSupported(metadata)) {
-            logger.info("Extracting metadata");
+            logger.debug("Extracting metadata");
             mapping.forEach((property, key) -> {
                 String value;
                 if(key instanceof String) {
