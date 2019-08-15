@@ -1,3 +1,6 @@
+![build status](https://travis-ci.org/craftercms/search.svg?branch=develop)
+[![code quality](https://api.codacy.com/project/badge/Grade/3c76097de25940caaadb5234af1e9419)](https://www.codacy.com/app/CrafterCMS/search?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=craftercms/search&amp;utm_campaign=Badge_Grade)
+
 search
 ======
 
