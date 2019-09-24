@@ -33,6 +33,7 @@ import org.springframework.core.io.Resource;
  *
  * @author avasquez
  */
+@SuppressWarnings("unchecked")
 public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(CrafterSearchIndexingUtils.class);
@@ -55,7 +56,6 @@ public abstract class CrafterSearchIndexingUtils extends IndexingUtils {
         updateStatus.addSuccessfulUpdate(id);
     }
 
-    @SuppressWarnings("unchecked")
     public static void doUpdateContent(SearchService searchService, String indexId, String siteName, String id,
                                        Content content, Map<String, List<String>> additionalFields,
                                        UpdateStatus updateStatus)  {

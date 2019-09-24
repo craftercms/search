@@ -36,6 +36,7 @@ public class ElasticsearchElementParserImpl extends AbstractElementParser<Map<St
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchElementParserImpl.class);
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean parse(final Element element, final String fieldName, final String parentFieldName,
                          final Map<String, Object> doc, final ElementParserService<Map<String, Object>> parserService) {
         logger.debug("Parsing element '{}'", fieldName);
@@ -56,7 +57,7 @@ public class ElasticsearchElementParserImpl extends AbstractElementParser<Map<St
                 addField(doc, fieldName, map);
             }
         } else {
-            logger.debug("Element '{}' has no content. Ignoring it.");
+            logger.debug("Element '{}' has no content. Ignoring it.", fieldName);
         }
 
         return true;
