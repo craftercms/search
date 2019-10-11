@@ -70,10 +70,12 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
             doDelete(indexId, siteName, path, updateStatus);
         } else {
             Content binaryContent = contentStoreService.getContent(context, path);
-            if (binaryContent.getLength() > maxFileSize) {
-                logger.info("Skipping large binary file @ {}", path);
-            } else {
-                doUpdateContent(indexId, siteName, path, binaryContent, updateDetail, updateStatus, metadata);
+            if (binaryContent != null && binaryContent.getLength() > 0) {
+                if (binaryContent.getLength() > maxFileSize) {
+                    logger.info("Skipping large binary file @ {}", path);
+                } else {
+                    doUpdateContent(indexId, siteName, path, binaryContent, updateDetail, updateStatus, metadata);
+                }
             }
         }
     }

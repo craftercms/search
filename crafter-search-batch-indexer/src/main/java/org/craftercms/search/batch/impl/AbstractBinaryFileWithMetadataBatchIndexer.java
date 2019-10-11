@@ -410,7 +410,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                 }
             } else {
                 Content binaryContent = contentStoreService.findContent(context, binaryPath);
-                if (binaryContent != null) {
+                if (binaryContent != null && binaryContent.getLength() > 0) {
                     if(binaryContent.getLength() > maxFileSize) {
                         logger.info("Skipping large binary file @ {}", binaryPath);
                     } else {
