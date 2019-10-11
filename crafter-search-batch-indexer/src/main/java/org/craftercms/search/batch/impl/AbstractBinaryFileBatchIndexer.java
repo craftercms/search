@@ -72,7 +72,7 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
             Content binaryContent = contentStoreService.getContent(context, path);
             if (binaryContent != null && binaryContent.getLength() > 0) {
                 if (binaryContent.getLength() > maxFileSize) {
-                    logger.info("Skipping large binary file @ {}", path);
+                    logger.warn("Skipping large binary file @ {}", path);
                 } else {
                     doUpdateContent(indexId, siteName, path, binaryContent, updateDetail, updateStatus, metadata);
                 }
