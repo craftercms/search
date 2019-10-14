@@ -359,7 +359,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                 RemoteFile remoteFile = remoteFileResolver.resolve(binaryPath);
 
                 if(remoteFile.getContentLength() > maxFileSize) {
-                    logger.info("Skipping large binary file @ {}", binaryPath);
+                    logger.warn("Skipping large binary file @ {}", binaryPath);
                 } else {
                     doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), metadata, updateDetail,
                                     updateStatus);
@@ -374,7 +374,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                 }
 
                 if(binaryContent.getLength() > maxFileSize) {
-                    logger.info("Skipping large binary file @ {}", binaryPath);
+                    logger.warn("Skipping large binary file @ {}", binaryPath);
                 } else {
                     doUpdateContent(indexId, siteName, binaryPath, binaryContent, metadata, updateDetail, updateStatus);
                 }
@@ -404,15 +404,15 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                 RemoteFile remoteFile = remoteFileResolver.resolve(binaryPath);
 
                 if(remoteFile.getContentLength() > maxFileSize) {
-                    logger.info("Skipping large binary file @ {}", binaryPath);
+                    logger.warn("Skipping large binary file @ {}", binaryPath);
                 } else {
                     doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), updateDetail, updateStatus);
                 }
             } else {
                 Content binaryContent = contentStoreService.findContent(context, binaryPath);
-                if (binaryContent != null) {
+                if (binaryContent != null && binaryContent.getLength() > 0) {
                     if(binaryContent.getLength() > maxFileSize) {
-                        logger.info("Skipping large binary file @ {}", binaryPath);
+                        logger.warn("Skipping large binary file @ {}", binaryPath);
                     } else {
                         Map<String, String> metadata = collectMetadata(binaryPath, contentStoreService, context);
                         doUpdateContent(indexId, siteName, binaryPath, binaryContent, updateDetail, updateStatus,
