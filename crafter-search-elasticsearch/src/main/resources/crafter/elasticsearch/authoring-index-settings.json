@@ -17,6 +17,91 @@
   },
   "mappings": {
     "_doc": {
+      "properties": {
+        "crafterSite": {
+          "type": "keyword"
+        },
+        "localId": {
+          "type": "keyword"
+        },
+        "id": {
+          "type": "keyword"
+        },
+        "rootId": {
+          "type": "keyword"
+        },
+        "objectId": {
+          "type": "keyword"
+        },
+        "objectGroupId": {
+          "type": "keyword"
+        },
+        "merge-strategy": {
+          "type": "keyword"
+        },
+        "content-type": {
+          "type": "keyword"
+        },
+        "internal-name": {
+          "type": "keyword"
+        },
+        "file-name": {
+          "type": "keyword"
+        },
+        "includedDescriptors": {
+          "type": "keyword"
+        },
+        "crafterPublishedDate": {
+          "type": "keyword"
+        },
+        "createdDate": {
+          "type": "keyword"
+        },
+        "lastModifiedDate": {
+          "type": "keyword"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "disableFlattening": {
+          "type": "boolean"
+        },
+        "placeInNav": {
+          "type": "boolean"
+        },
+        "display-template": {
+          "type": "keyword"
+        },
+        "title": {
+          "type": "keyword"
+        },
+        "content": {
+          "type": "text"
+        },
+        "include": {
+          "type": "keyword",
+          "copy_to": "includedDescriptors"
+        },
+        "contentType": {
+          "type": "keyword"
+        },
+        "width": {
+          "type": "double"
+        },
+        "height": {
+          "type": "double"
+        },
+        "contentLength": {
+          "type": "long"
+        },
+        "lastEditedOn": {
+          "type": "date",
+          "format" : "strict_date_optional_time||epoch_millis||yyyy-M-dd'T'HH:mm:ss.SSSZ"
+        },
+        "internalName": {
+          "type": "keyword"
+        }
+      },
       "dynamic_templates": [
         {
           "ints": {
@@ -111,134 +196,6 @@
           }
         },
         {
-          "crafterSite": {
-            "match": "crafterSite",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "localId": {
-            "match": "localId",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "id": {
-            "match": "id",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "rootId": {
-            "match": "rootId",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "objectId": {
-            "match": "objectId",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "objectGroupId": {
-            "match": "objectGroupId",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "merge-strategy": {
-            "match": "merge-strategy",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "content-type": {
-            "match": "content-type",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "internal-name": {
-            "match": "internal-name",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "file-name": {
-            "match": "file-name",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "includedDescriptors": {
-            "match": "includedDescriptors",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "crafterPublishedDate": {
-            "match": "crafterPublishedDate",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "createdDate": {
-            "match": "createdDate",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "lastModifiedDate": {
-            "match": "lastModifiedDate",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "disabled": {
-            "match": "disabled",
-            "mapping": {
-              "type": "boolean"
-            }
-          }
-        },
-        {
-          "disableFlattening": {
-            "match": "disableFlattening",
-            "mapping": {
-              "type": "boolean"
-            }
-          }
-        },
-        {
           "includeKeys": {
             "path_match": "*.item.key",
             "mapping": {
@@ -249,97 +206,6 @@
         {
           "includeValues": {
             "path_match": "*.item.value",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "placeInNav": {
-            "match": "placeInNav",
-            "mapping": {
-              "type": "boolean"
-            }
-          }
-        },
-        {
-          "display-template": {
-            "match": "display-template",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "title": {
-            "match": "title",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "content": {
-            "match": "content",
-            "mapping": {
-              "type": "text"
-            }
-          }
-        },
-        {
-          "includes": {
-            "match": "include",
-            "mapping": {
-              "type": "keyword",
-              "copy_to": "includedDescriptors"
-            }
-          }
-        },
-
-        {
-          "contentType": {
-            "match": "contentType",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "width": {
-            "match": "width",
-            "mapping": {
-              "type": "double"
-            }
-          }
-        },
-        {
-          "height": {
-            "match": "height",
-            "mapping": {
-              "type": "double"
-            }
-          }
-        },
-        {
-          "contentLength": {
-            "match": "contentLength",
-            "mapping": {
-              "type": "long"
-            }
-          }
-        },
-        {
-          "lastEditedOn": {
-            "match": "lastEditedOn",
-            "mapping": {
-              "type": "date",
-              "format" : "strict_date_optional_time||epoch_millis||yyyy-M-dd'T'HH:mm:ss.SSSZ"
-            }
-          }
-        },
-        {
-          "internalName": {
-            "match": "internalName",
             "mapping": {
               "type": "keyword"
             }
