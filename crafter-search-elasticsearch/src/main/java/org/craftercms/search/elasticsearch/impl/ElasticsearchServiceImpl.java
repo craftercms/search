@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.craftercms.search.elasticsearch.DocumentParser;
 import org.craftercms.search.elasticsearch.ElasticsearchService;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
@@ -34,6 +35,7 @@ import org.craftercms.search.service.utils.ContentResource;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
@@ -125,6 +127,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         logger.debug("[{}] Search values for field {} (query -> {})", indexName, field, queryBuilder);
 
         List<String> ids = new LinkedList<>();
+        String scrollId = null;
         SearchRequest request = new SearchRequest(indexName).scroll(scrollTimeout).source(
             new SearchSourceBuilder()
                 .fetchSource(field, null)
@@ -134,18 +137,32 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         );
 
         try {
+            logger.debug("[{}] Opening scroll with timeout {}", indexName, scrollTimeout);
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+            scrollId = response.getScrollId();
 
             while(response.getHits().getHits().length > 0) {
                 response.getHits().forEach(hit -> ids.add((String) hit.getSourceAsMap().get(localIdFieldName)));
 
+                logger.debug("[{}] Getting next batch for scroll with id {}", indexName, scrollId);
                 SearchScrollRequest scrollRequest = new SearchScrollRequest()
                     .scroll(scrollTimeout)
-                    .scrollId(response.getScrollId());
+                    .scrollId(scrollId);
                 response = client.scroll(scrollRequest, RequestOptions.DEFAULT);
             }
         } catch (Exception e) {
             throw new ElasticsearchException(indexName, "Error executing search " + request, e);
+        } finally {
+            if (StringUtils.isNotEmpty(scrollId)) {
+                logger.debug("[{}] Clearing scroll with id {}", indexName, scrollId);
+                ClearScrollRequest clearRequest = new ClearScrollRequest();
+                clearRequest.addScrollId(scrollId);
+                try {
+                    client.clearScroll(clearRequest, RequestOptions.DEFAULT);
+                } catch (IOException e) {
+                    logger.error("[{}] Error clearing scroll with id {}", indexName, scrollId, e);
+                }
+            }
         }
 
         return ids;
