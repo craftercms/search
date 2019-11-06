@@ -72,8 +72,8 @@
         <commons.io.version>2.5</commons.io.version>
         <httpcomponents.httpclient.version>4.5.6</httpcomponents.httpclient.version>
         <httpcomponents.httpmime.version>4.5.6</httpcomponents.httpmime.version>
-        <jackson.version>2.9.9</jackson.version>
-        <jackson.databind.version>2.9.9.3</jackson.databind.version>
+        <jackson.version>2.9.10</jackson.version>
+        <jackson.databind.version>2.9.10.1</jackson.databind.version>
         <stax2.api.version>4.1</stax2.api.version> <!-- Workaround for jackson-dataformat-xml issue #340 of forgetting to update stax2-api  -->
         <spring.version>4.3.18.RELEASE</spring.version>
         <slf4j.version>1.7.7</slf4j.version>
@@ -89,8 +89,8 @@
         <bouncycastle.version>1.60</bouncycastle.version>
         <fontbox.version>2.0.11</fontbox.version>
         <hadoop.version>2.7.5</hadoop.version>
-        <elasticsearch.version>6.6.0</elasticsearch.version>
-        <tika.version>1.19.1</tika.version>
+        <elasticsearch.version>6.6.1</elasticsearch.version>
+        <tika.version>1.22</tika.version>
         <jsoup.version>1.11.3</jsoup.version>
         <google.protobuf.version>3.6.1</google.protobuf.version>
         <xerces.version>2.12.0</xerces.version>
