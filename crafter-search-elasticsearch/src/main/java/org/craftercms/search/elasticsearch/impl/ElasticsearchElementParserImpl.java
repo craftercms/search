@@ -20,7 +20,7 @@ package org.craftercms.search.elasticsearch.impl;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.craftercms.search.commons.service.ElementParserService;
 import org.craftercms.search.commons.service.impl.AbstractElementParser;
 import org.craftercms.search.elasticsearch.jackson.MixedMultivaluedMap;
