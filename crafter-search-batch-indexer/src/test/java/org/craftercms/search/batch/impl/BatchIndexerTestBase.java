@@ -27,6 +27,7 @@ import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.core.service.Item;
+import org.craftercms.core.store.impl.filesystem.FileSystemContent;
 import org.craftercms.core.store.impl.filesystem.FileSystemFile;
 import org.craftercms.search.service.SearchService;
 import org.dom4j.Document;
@@ -42,7 +43,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Base class for {@link org.craftercms.commons.search.batch.BatchIndexer} tests.
+ * Base class for {@link org.craftercms.search.batch.BatchIndexer} tests.
  *
  * @author avasquez
  */
@@ -155,7 +156,7 @@ public class BatchIndexerTestBase {
         FileSystemFile file = new FileSystemFile(rootFolder, path);
 
         if (file.getFile().exists()) {
-            return file;
+            return new FileSystemContent(file.getFile());
         } else {
             return null;
         }
