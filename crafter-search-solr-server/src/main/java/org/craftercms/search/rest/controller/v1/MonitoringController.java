@@ -29,6 +29,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(MonitoringController.URL_ROOT)
 public class MonitoringController extends MonitoringRestControllerBase {
 
+    private String configuredToken;
+
     public final static String URL_ROOT = "/api/1";
 
+    @Override
+    protected String getConfiguredToken() {
+        return configuredToken;
+    }
+
+    public void setConfiguredToken(String configuredToken) {
+        this.configuredToken = configuredToken;
+    }
 }
