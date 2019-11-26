@@ -60,6 +60,7 @@ import static org.craftercms.search.rest.v2.SearchRestApiConstants.URL_UPDATE_CO
  */
 @RestController
 @RequestMapping(URL_ROOT)
+@SuppressWarnings("unchecked")
 public class SearchRestController {
 
     private static final String[] NON_ADDITIONAL_FIELD_NAMES = {PARAM_INDEX_ID, PARAM_SITE, PARAM_ID, PARAM_CONTENT};
@@ -72,7 +73,6 @@ public class SearchRestController {
     }
 
     @RequestMapping(value = URL_SEARCH, method = RequestMethod.GET)
-    @SuppressWarnings("unchecked")
     public Map<String, Object> search(@RequestParam(value = PARAM_INDEX_ID, required = false) String indexId,
                                       HttpServletRequest request) throws SearchException {
         Query query = searchService.createQuery(request.getParameterMap());
@@ -107,7 +107,6 @@ public class SearchRestController {
         return Result.OK;
     }
 
-    @SuppressWarnings("unchecked")
     @RequestMapping(value = URL_UPDATE_CONTENT, method = RequestMethod.POST)
     public Result updateContent(@RequestParam(value = PARAM_INDEX_ID, required = false) String indexId,
                                 @RequestParam(PARAM_SITE) String site,

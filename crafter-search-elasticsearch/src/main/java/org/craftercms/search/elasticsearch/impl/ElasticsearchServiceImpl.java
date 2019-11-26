@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.craftercms.search.elasticsearch.DocumentParser;
 import org.craftercms.search.elasticsearch.ElasticsearchService;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
@@ -34,8 +35,10 @@ import org.craftercms.search.service.utils.ContentResource;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -56,16 +59,15 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchServiceImpl.class);
 
     /**
-     * Max number of documents to return, according to Elasticsearch documentation
-     */
-    public static final int MAX_RESULTS = 10000;
-
-    /**
      * According to Elasticsearch documentation this will be removed and this is the recommended value
      */
     public static final String DEFAULT_DOC = "_doc";
 
     public static final String DEFAULT_LOCAL_ID_NAME = "localId";
+
+    public static final int DEFAULT_SCROLL_SIZE = 100;
+
+    public static final String DEFAULT_SCROLL_TIMEOUT = "1m";
 
     /**
      * Document Builder
@@ -87,6 +89,16 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      */
     protected String localIdFieldName = DEFAULT_LOCAL_ID_NAME;
 
+    /**
+     * The number of results to return for each scroll request
+     */
+    protected int scrollSize = DEFAULT_SCROLL_SIZE;
+
+    /**
+     * The timeout for each the scroll request
+     */
+    protected String scrollTimeout = DEFAULT_SCROLL_TIMEOUT;
+
     @Required
     public void setDocumentBuilder(final ElasticsearchDocumentBuilder documentBuilder) {
         this.documentBuilder = documentBuilder;
@@ -102,6 +114,10 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         this.client = client;
     }
 
+    public void setLocalIdFieldName(final String localIdFieldName) {
+        this.localIdFieldName = localIdFieldName;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -109,24 +125,47 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     public List<String> searchField(final String indexName, final String field, final QueryBuilder queryBuilder)
         throws ElasticsearchException {
         logger.debug("[{}] Search values for field {} (query -> {})", indexName, field, queryBuilder);
-        SearchRequest request = new SearchRequest(indexName).source(
+
+        List<String> ids = new LinkedList<>();
+        String scrollId = null;
+        SearchRequest request = new SearchRequest(indexName).scroll(scrollTimeout).source(
             new SearchSourceBuilder()
                 .fetchSource(field, null)
-                .size(MAX_RESULTS)
+                .from(0)
+                .size(scrollSize)
                 .query(queryBuilder)
         );
 
         try {
+            logger.debug("[{}] Opening scroll with timeout {}", indexName, scrollTimeout);
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
-            logger.debug("[{}] Found {} matching documents", indexName, response.getHits().totalHits);
-            List<String> ids = new LinkedList<>();
-            response.getHits().forEach(hit -> {
-                ids.add((String) hit.getSourceAsMap().get(localIdFieldName));
-            });
-            return ids;
+            scrollId = response.getScrollId();
+
+            while(response.getHits().getHits().length > 0) {
+                response.getHits().forEach(hit -> ids.add((String) hit.getSourceAsMap().get(localIdFieldName)));
+
+                logger.debug("[{}] Getting next batch for scroll with id {}", indexName, scrollId);
+                SearchScrollRequest scrollRequest = new SearchScrollRequest()
+                    .scroll(scrollTimeout)
+                    .scrollId(scrollId);
+                response = client.scroll(scrollRequest, RequestOptions.DEFAULT);
+            }
         } catch (Exception e) {
             throw new ElasticsearchException(indexName, "Error executing search " + request, e);
+        } finally {
+            if (StringUtils.isNotEmpty(scrollId)) {
+                logger.debug("[{}] Clearing scroll with id {}", indexName, scrollId);
+                ClearScrollRequest clearRequest = new ClearScrollRequest();
+                clearRequest.addScrollId(scrollId);
+                try {
+                    client.clearScroll(clearRequest, RequestOptions.DEFAULT);
+                } catch (IOException e) {
+                    logger.error("[{}] Error clearing scroll with id {}", indexName, scrollId, e);
+                }
+            }
         }
+
+        return ids;
     }
 
     @Override

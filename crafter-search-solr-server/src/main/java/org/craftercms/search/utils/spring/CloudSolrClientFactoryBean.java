@@ -98,6 +98,7 @@ public class CloudSolrClientFactoryBean implements FactoryBean<CloudSolrClient> 
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public CloudSolrClient getObject() throws Exception {
         CloudSolrClient.Builder builder = new CloudSolrClient.Builder();
         if (zkHosts != null) {
