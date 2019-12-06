@@ -52,7 +52,7 @@
     </bean>
 
     <bean id="crafter.monitoringController" class="org.craftercms.search.rest.controller.v1.MonitoringController">
-            <property name="configuredToken" value="${crafter.search.monitoring.authorizationToken}"/>
+            <property name="configuredToken" value="${crafter.search.management.authorizationToken}"/>
     </bean>
 
     <bean id="multipartResolver"
