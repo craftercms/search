@@ -51,7 +51,9 @@
         <property name="multiValueIgnorePattern" value="${crafter.search.solr.field.multiValue.ignore.pattern}"/>
     </bean>
 
-    <bean id="crafter.monitoringController" class="org.craftercms.search.rest.controller.v1.MonitoringController"/>
+    <bean id="crafter.monitoringController" class="org.craftercms.search.rest.controller.v1.MonitoringController">
+            <property name="configuredToken" value="${crafter.search.management.authorizationToken}"/>
+    </bean>
 
     <bean id="multipartResolver"
           class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
