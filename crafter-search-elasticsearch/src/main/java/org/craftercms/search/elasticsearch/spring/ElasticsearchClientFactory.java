@@ -19,42 +19,71 @@ package org.craftercms.search.elasticsearch.spring;
 
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 /**
  * Factory class for the Elasticsearch rest client
  * @author joseross
  */
-public class ElasticsearchClientFactory implements FactoryBean<RestHighLevelClient> {
+public class ElasticsearchClientFactory extends AbstractFactoryBean<RestHighLevelClient> {
 
     /**
      * List of Elasticsearch urls
      */
     protected String[] serverUrls;
 
-    @Required
-    public void setServerUrls(final String[] serverUrls) {
+    /**
+     * The username for Elasticsearch
+     */
+    protected String username;
+
+    /**
+     * The password for Elasticsearch
+     */
+    protected String password;
+
+    public ElasticsearchClientFactory(final String[] serverUrls) {
         this.serverUrls = serverUrls;
     }
 
+    public void setUsername(final String username) {
+        this.username = username;
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
+    }
+
     @Override
-    public RestHighLevelClient getObject() {
-        return new RestHighLevelClient(RestClient.builder(
-            Stream.of(serverUrls).map(HttpHost::create).toArray(HttpHost[]::new)));
+    protected RestHighLevelClient createInstance() {
+        HttpHost[] hosts = Stream.of(serverUrls).map(HttpHost::create).toArray(HttpHost[]::new);
+        RestClientBuilder clientBuilder = RestClient.builder(hosts);
+        if (StringUtils.isNoneEmpty(username, password)) {
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+            clientBuilder
+                .setHttpClientConfigCallback(builder -> builder.setDefaultCredentialsProvider(credentialsProvider));
+        }
+        return new RestHighLevelClient(clientBuilder);
+    }
+
+    @Override
+    protected void destroyInstance(final RestHighLevelClient instance) throws Exception {
+        instance.close();
     }
 
     @Override
     public Class<?> getObjectType() {
         return RestHighLevelClient.class;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return true;
     }
 
 }

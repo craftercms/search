@@ -23,13 +23,19 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.craftercms.search.elasticsearch.ElasticsearchWrapper;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.DeprecationHandler;
@@ -66,6 +72,16 @@ public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapp
     protected String[] serverUrls;
 
     /**
+     * The username for Elasticsearch
+     */
+    protected String username;
+
+    /**
+     * The password for Elasticsearch
+     */
+    protected String password;
+
+    /**
      * The filter queries to apply to all searches
      */
     protected String[] filterQueries;
@@ -75,14 +91,29 @@ public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapp
         this.serverUrls = serverUrls;
     }
 
+    public void setUsername(final String username) {
+        this.username = username;
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
+    }
+
     public void setFilterQueries(final String[] filterQueries) {
         this.filterQueries = filterQueries;
     }
 
     @Override
     public void afterPropertiesSet() {
-        client = new RestHighLevelClient(RestClient.builder(
-            Stream.of(serverUrls).map(HttpHost::create).toArray(HttpHost[]::new)));
+        HttpHost[] hosts = Stream.of(serverUrls).map(HttpHost::create).toArray(HttpHost[]::new);
+        RestClientBuilder clientBuilder = RestClient.builder(hosts);
+        if (StringUtils.isNoneEmpty(username, password)) {
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+            clientBuilder
+                .setHttpClientConfigCallback(builder -> builder.setDefaultCredentialsProvider(credentialsProvider));
+        }
+        client = new RestHighLevelClient(clientBuilder);
     }
 
     @Override
