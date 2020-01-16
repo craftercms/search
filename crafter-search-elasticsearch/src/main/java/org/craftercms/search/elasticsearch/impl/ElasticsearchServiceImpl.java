@@ -46,7 +46,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
 import org.springframework.util.MultiValueMap;
 
@@ -82,7 +81,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     /**
      * The Elasticsearch client
      */
-    protected RestHighLevelClient client;
+    protected RestHighLevelClient elasticsearchClient;
 
     /**
      * The name of the field for full ids
@@ -99,23 +98,24 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      */
     protected String scrollTimeout = DEFAULT_SCROLL_TIMEOUT;
 
-    @Required
-    public void setDocumentBuilder(final ElasticsearchDocumentBuilder documentBuilder) {
+    public ElasticsearchServiceImpl(final ElasticsearchDocumentBuilder documentBuilder,
+                                    final DocumentParser documentParser,
+                                    final RestHighLevelClient elasticsearchClient) {
         this.documentBuilder = documentBuilder;
-    }
-
-    @Required
-    public void setDocumentParser(final DocumentParser documentParser) {
         this.documentParser = documentParser;
-    }
-
-    @Required
-    public void setClient(final RestHighLevelClient client) {
-        this.client = client;
+        this.elasticsearchClient = elasticsearchClient;
     }
 
     public void setLocalIdFieldName(final String localIdFieldName) {
         this.localIdFieldName = localIdFieldName;
+    }
+
+    public void setScrollSize(final int scrollSize) {
+        this.scrollSize = scrollSize;
+    }
+
+    public void setScrollTimeout(final String scrollTimeout) {
+        this.scrollTimeout = scrollTimeout;
     }
 
     /**
@@ -138,7 +138,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
 
         try {
             logger.debug("[{}] Opening scroll with timeout {}", indexName, scrollTimeout);
-            SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+            SearchResponse response = elasticsearchClient.search(request, RequestOptions.DEFAULT);
             scrollId = response.getScrollId();
 
             while(response.getHits().getHits().length > 0) {
@@ -148,7 +148,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
                 SearchScrollRequest scrollRequest = new SearchScrollRequest()
                     .scroll(scrollTimeout)
                     .scrollId(scrollId);
-                response = client.scroll(scrollRequest, RequestOptions.DEFAULT);
+                response = elasticsearchClient.scroll(scrollRequest, RequestOptions.DEFAULT);
             }
         } catch (Exception e) {
             throw new ElasticsearchException(indexName, "Error executing search " + request, e);
@@ -158,7 +158,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
                 ClearScrollRequest clearRequest = new ClearScrollRequest();
                 clearRequest.addScrollId(scrollId);
                 try {
-                    client.clearScroll(clearRequest, RequestOptions.DEFAULT);
+                    elasticsearchClient.clearScroll(clearRequest, RequestOptions.DEFAULT);
                 } catch (IOException e) {
                     logger.error("[{}] Error clearing scroll with id {}", indexName, scrollId, e);
                 }
@@ -177,7 +177,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         );
 
         try {
-            SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+            SearchResponse response = elasticsearchClient.search(request, RequestOptions.DEFAULT);
             if(response.getHits().totalHits > 0) {
                 return response.getHits().getHits()[0].getSourceAsMap();
             } else {
@@ -188,10 +188,21 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void index(final String indexName, final String siteName, final String docId, final Map<String, Object> doc) {
+        doIndex(elasticsearchClient, indexName, siteName, docId, doc);
+    }
+
+    /**
+     * Performs the index operation using the given Elasticsearch client
+     */
+    protected void doIndex(RestHighLevelClient client, String indexName, String siteName, String docId,
+                           Map<String, Object> doc) {
         try {
-            delete(indexName, siteName, docId);
+            doDelete(client, indexName, siteName, docId);
             logger.debug("[{}] Indexing document {}", indexName, docId);
             client.index(new IndexRequest(indexName, DEFAULT_DOC, getId(docId)).source(doc), RequestOptions.DEFAULT);
         } catch (Exception e) {
@@ -255,6 +266,13 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     @Override
     public void delete(final String indexName, final String siteName, final String docId)
         throws ElasticsearchException {
+        doDelete(elasticsearchClient, indexName, siteName, docId);
+    }
+
+    /**
+     * Performs the delete operation using the given Elasticsearch client
+     */
+    protected void doDelete(RestHighLevelClient client, String indexName, String siteName, String docId) {
         logger.debug("[{}] Deleting document {}", indexName, docId);
         try {
             client.delete(new DeleteRequest(indexName, DEFAULT_DOC, getId(docId)), RequestOptions.DEFAULT);
@@ -268,6 +286,13 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      */
     @Override
     public void refresh(final String indexName) throws ElasticsearchException {
+        doRefresh(elasticsearchClient, indexName);
+    }
+
+    /**
+     * Performs the refresh operation using the given Elasticsearch client
+     */
+    protected void doRefresh(RestHighLevelClient client, String indexName) throws ElasticsearchException {
         logger.debug("[{}] Refreshing index", indexName);
         try {
             client.indices().refresh(new RefreshRequest(indexName), RequestOptions.DEFAULT);
@@ -283,6 +308,11 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      */
     protected String getId(String path) {
         return DigestUtils.md5Hex(path);
+    }
+
+    @Override
+    public void close() throws Exception {
+        elasticsearchClient.close();
     }
 
 }

@@ -23,15 +23,7 @@ import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
  * Provides operations to manage indices in Elasticsearch
  * @author joseross
  */
-public interface ElasticsearchAdminService {
-
-    /**
-     * Check if an index already exists
-     * @param indexName the name of the index
-     * @return true if the index already exists
-     * @throws ElasticsearchException if there is any error during the operation
-     */
-    boolean exists(String indexName) throws ElasticsearchException;
+public interface ElasticsearchAdminService extends AutoCloseable {
 
     /**
      * Creates an index
