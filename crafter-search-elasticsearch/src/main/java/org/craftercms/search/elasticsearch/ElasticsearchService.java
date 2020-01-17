@@ -30,7 +30,7 @@ import org.springframework.util.MultiValueMap;
  * Provides access to indexing operations in Elasticsearch
  * @author joseross
  */
-public interface ElasticsearchService {
+public interface ElasticsearchService extends AutoCloseable {
 
     /**
      * Performs a search for a specific field
