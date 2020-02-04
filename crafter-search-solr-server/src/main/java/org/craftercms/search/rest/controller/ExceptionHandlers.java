@@ -16,6 +16,7 @@
  */
 package org.craftercms.search.rest.controller;
 
+import org.craftercms.commons.exceptions.InvalidManagementTokenException;
 import org.craftercms.commons.rest.BaseRestExceptionHandlers;
 import org.craftercms.search.exception.IndexNotFoundException;
 import org.craftercms.search.exception.SearchServerException;
@@ -43,6 +44,13 @@ public class ExceptionHandlers extends BaseRestExceptionHandlers {
     public ResponseEntity<Object> handleSearchServerException(SearchServerException ex, WebRequest request) {
         return handleExceptionInternal(ex, "Service unavailable, please try again later", new HttpHeaders(),
             HttpStatus.SERVICE_UNAVAILABLE, request);
+    }
+
+    @ExceptionHandler(InvalidManagementTokenException.class)
+    public ResponseEntity<Object> handleInvalidManagementTokenException(InvalidManagementTokenException ex,
+                                                                        WebRequest request) {
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.UNAUTHORIZED,
+                                       request);
     }
 
 }
