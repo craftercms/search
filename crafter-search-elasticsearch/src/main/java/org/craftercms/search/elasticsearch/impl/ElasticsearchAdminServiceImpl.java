@@ -36,7 +36,6 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
 
 /**
@@ -69,33 +68,26 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      */
     protected RestHighLevelClient elasticsearchClient;
 
+    public ElasticsearchAdminServiceImpl(final Resource authoringIndexSettings, final Resource previewIndexSettings,
+                                         final RestHighLevelClient elasticsearchClient) {
+        this.authoringIndexSettings = authoringIndexSettings;
+        this.previewIndexSettings = previewIndexSettings;
+        this.elasticsearchClient = elasticsearchClient;
+    }
+
     public void setIndexNameSuffix(final String indexNameSuffix) {
         this.indexNameSuffix = indexNameSuffix;
     }
 
-    @Required
-    public void setAuthoringIndexSettings(final Resource authoringIndexSettings) {
-        this.authoringIndexSettings = authoringIndexSettings;
-    }
-
-    @Required
-    public void setPreviewIndexSettings(final Resource previewIndexSettings) {
-        this.previewIndexSettings = previewIndexSettings;
-    }
-
-    @Required
-    public void setElasticsearchClient(final RestHighLevelClient elasticsearchClient) {
-        this.elasticsearchClient = elasticsearchClient;
-    }
-
     /**
-     * {@inheritDoc}
+     * Checks if a given index already exists in Elasticsearch
+     * @param client the elasticsearch client
+     * @param indexName the index name
      */
-    @Override
-    public boolean exists(final String indexName) throws ElasticsearchException {
+    protected boolean exists(RestHighLevelClient client, String indexName) {
         logger.debug("Checking if index {} exits", indexName);
         try {
-            return elasticsearchClient.indices().exists(
+            return client.indices().exists(
                 new GetIndexRequest().indices(indexName), RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new ElasticsearchException(indexName, "Error consulting index", e);
@@ -107,11 +99,18 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      */
     @Override
     public void createIndex(final String indexName, boolean isAuthoring) throws ElasticsearchException {
+        doCreateIndex(elasticsearchClient, indexName, isAuthoring);
+    }
+
+    /**
+     * Performs the index creation using the given Elasticsearch client
+     */
+    protected void doCreateIndex(RestHighLevelClient client, String indexName, boolean isAuthoring) {
         Resource settings = isAuthoring? authoringIndexSettings : previewIndexSettings;
-        if(!exists(indexName)) {
+        if(!exists(client, indexName)) {
             logger.info("Creating index {}", indexName);
             try(InputStream is = settings.getInputStream()) {
-                elasticsearchClient.indices().create(
+                client.indices().create(
                     new CreateIndexRequest(indexName + indexNameSuffix)
                         .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON)
                         .alias(new Alias(indexName)),
@@ -127,18 +126,30 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      */
     @Override
     public void deleteIndex(final String indexName) throws ElasticsearchException {
+        doDeleteIndex(elasticsearchClient, indexName);
+    }
+
+    /**
+     * Performs the index delete using the given Elasticsearch client
+     */
+    protected void doDeleteIndex(RestHighLevelClient client, String indexName) {
         try {
-            GetAliasesResponse indices = elasticsearchClient.indices().getAlias(
+            GetAliasesResponse indices = client.indices().getAlias(
                 new GetAliasesRequest(indexName),
                 RequestOptions.DEFAULT);
             Set<String> actualIndices = indices.getAliases().keySet();
             logger.info("Deleting indices {}", actualIndices);
-            elasticsearchClient.indices().delete(
+            client.indices().delete(
                 new DeleteIndexRequest(actualIndices.toArray(new String[]{})),
                 RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new ElasticsearchException(indexName, "Error deleting index " + indexName, e);
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        elasticsearchClient.close();
     }
 
 }
