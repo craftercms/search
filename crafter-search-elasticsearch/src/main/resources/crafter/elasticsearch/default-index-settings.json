@@ -77,10 +77,6 @@
         },
         "content": {
           "type": "text"
-        },
-        "include": {
-          "type": "keyword",
-          "copy_to": "includedDescriptors"
         }
       },
       "dynamic_templates": [
@@ -190,6 +186,15 @@
             "path_match": "*.item.value",
             "mapping": {
               "type": "keyword"
+            }
+          }
+        },
+        {
+          "includedDescriptors": {
+            "path_match": "*.include",
+            "mapping": {
+              "type": "keyword",
+              "copy_to": "includedDescriptors"
             }
           }
         }
