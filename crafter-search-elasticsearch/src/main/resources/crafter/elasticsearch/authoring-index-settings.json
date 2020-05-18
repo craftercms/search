@@ -78,10 +78,6 @@
         "content": {
           "type": "text"
         },
-        "include": {
-          "type": "keyword",
-          "copy_to": "includedDescriptors"
-        },
         "contentType": {
           "type": "keyword"
         },
@@ -208,6 +204,15 @@
             "path_match": "*.item.value",
             "mapping": {
               "type": "keyword"
+            }
+          }
+        },
+        {
+          "includedDescriptors": {
+            "path_match": "*.include",
+            "mapping": {
+              "type": "keyword",
+              "copy_to": "includedDescriptors"
             }
           }
         }
