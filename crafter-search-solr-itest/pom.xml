@@ -31,7 +31,7 @@
     <properties>
         <!-- Cargo -->
         <cargo.container>jetty9x</cargo.container>
-        <cargo.container.url>http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.14.v20181114/jetty-distribution-9.4.14.v20181114.tar.gz</cargo.container.url>
+        <cargo.container.url>https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.14.v20181114/jetty-distribution-9.4.14.v20181114.tar.gz</cargo.container.url>
         <cargo.container.downloadDir>${user.home}/.m2/cargo/containers</cargo.container.downloadDir>
         <cargo.port>7070</cargo.port>
         <!-- Solr -->
@@ -51,6 +51,12 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>crafter-search-solr-client</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>test</scope>
         </dependency>
         
