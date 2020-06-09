@@ -177,7 +177,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
 
         try {
             SearchResponse response = elasticsearchClient.search(request, RequestOptions.DEFAULT);
-            if(response.getHits().totalHits > 0) {
+            if(response.getHits().getTotalHits().value > 0) {
                 return response.getHits().getHits()[0].getSourceAsMap();
             } else {
                 return Collections.emptyMap();
