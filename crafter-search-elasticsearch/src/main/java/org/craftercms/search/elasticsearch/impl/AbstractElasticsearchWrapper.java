@@ -16,25 +16,13 @@
 
 package org.craftercms.search.elasticsearch.impl;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.stream.Stream;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.craftercms.search.elasticsearch.ElasticsearchWrapper;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.DeprecationHandler;
@@ -47,16 +35,16 @@ import org.elasticsearch.search.SearchModule;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Required;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Base implementation of {@link ElasticsearchWrapper}
  * @author joseross
  */
-public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapper, InitializingBean, DisposableBean {
+public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractElasticsearchWrapper.class);
 
@@ -66,58 +54,16 @@ public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapp
     protected RestHighLevelClient client;
 
     /**
-     * The server urls for Elasticsearch
-     */
-    protected String[] serverUrls;
-
-    /**
-     * The username for Elasticsearch
-     */
-    protected String username;
-
-    /**
-     * The password for Elasticsearch
-     */
-    protected String password;
-
-    /**
      * The filter queries to apply to all searches
      */
     protected String[] filterQueries;
 
-    @Required
-    public void setServerUrls(final String[] serverUrls) {
-        this.serverUrls = serverUrls;
-    }
-
-    public void setUsername(final String username) {
-        this.username = username;
-    }
-
-    public void setPassword(final String password) {
-        this.password = password;
+    public AbstractElasticsearchWrapper(RestHighLevelClient client) {
+        this.client = client;
     }
 
     public void setFilterQueries(final String[] filterQueries) {
         this.filterQueries = filterQueries;
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        HttpHost[] hosts = Stream.of(serverUrls).map(HttpHost::create).toArray(HttpHost[]::new);
-        RestClientBuilder clientBuilder = RestClient.builder(hosts);
-        if (StringUtils.isNoneEmpty(username, password)) {
-            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-            clientBuilder
-                .setHttpClientConfigCallback(builder -> builder.setDefaultCredentialsProvider(credentialsProvider));
-        }
-        client = new RestHighLevelClient(clientBuilder);
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        client.close();
     }
 
     /**
