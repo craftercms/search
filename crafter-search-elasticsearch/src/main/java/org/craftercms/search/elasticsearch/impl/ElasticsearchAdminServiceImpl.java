@@ -102,24 +102,24 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      */
     @Override
     public void createIndex(final String aliasName, boolean isAuthoring) throws ElasticsearchException {
-        doCreateIndex(elasticsearchClient, aliasName, isAuthoring);
+        doCreateIndexAndAlias(elasticsearchClient, aliasName, isAuthoring);
     }
 
     /**
      * Performs the index creation using the given Elasticsearch client
      */
-    protected void doCreateIndex(RestHighLevelClient client, String aliasName, boolean isAuthoring) {
-        doCreateIndex(client, aliasName, indexNameSuffix, isAuthoring);
+    protected void doCreateIndexAndAlias(RestHighLevelClient client, String aliasName, boolean isAuthoring) {
+        doCreateIndexAndAlias(client, aliasName, indexNameSuffix, isAuthoring);
     }
 
     /**
      * Performs the index creation using the given Elasticsearch client
      */
-    protected void doCreateIndex(RestHighLevelClient client, String aliasName, String indexSuffix,
-                                 boolean isAuthoring) {
+    protected void doCreateIndexAndAlias(RestHighLevelClient client, String aliasName, String indexSuffix,
+                                         boolean isAuthoring) {
         Resource settings = isAuthoring? authoringIndexSettings : previewIndexSettings;
         if(!exists(client, aliasName)) {
-            logger.info("Creating index {}", aliasName);
+            logger.info("Creating index and alias {}", aliasName);
             try(InputStream is = settings.getInputStream()) {
                 client.indices().create(
                     new CreateIndexRequest(aliasName + indexSuffix)
@@ -129,6 +129,23 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
             } catch (Exception e) {
                 throw new ElasticsearchException(aliasName, "Error creating index " + aliasName, e);
             }
+        }
+    }
+
+    /***
+     * Performs the index creation without any alias association
+     */
+    protected void doCreateIndex(RestHighLevelClient client, String aliasName, String indexSuffix,
+                                 boolean isAuthoring) {
+        logger.info("Creating index {}", aliasName + indexSuffix);
+        Resource settings = isAuthoring? authoringIndexSettings : previewIndexSettings;
+        try(InputStream is = settings.getInputStream()) {
+            client.indices().create(
+                    new CreateIndexRequest(aliasName + indexSuffix)
+                            .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON),
+                    RequestOptions.DEFAULT);
+        } catch (Exception e) {
+            throw new ElasticsearchException(aliasName, "Error creating index " + aliasName, e);
         }
     }
 
