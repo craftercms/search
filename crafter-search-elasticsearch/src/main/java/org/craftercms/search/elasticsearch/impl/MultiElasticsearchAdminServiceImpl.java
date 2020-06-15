@@ -48,7 +48,7 @@ public class MultiElasticsearchAdminServiceImpl extends ElasticsearchAdminServic
     @Override
     public void createIndex(final String aliasName, final boolean isAuthoring) throws ElasticsearchException {
         for(RestHighLevelClient client : writeClients) {
-            doCreateIndex(client, aliasName, isAuthoring);
+            doCreateIndexAndAlias(client, aliasName, isAuthoring);
         }
     }
 
