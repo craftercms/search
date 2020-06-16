@@ -21,7 +21,12 @@
         "type": "keyword"
       },
       "localId": {
-        "type": "keyword"
+        "type": "keyword",
+        "fields": {
+          "text": {
+            "type": "text"
+          }
+        }
       },
       "id": {
         "type": "keyword"
@@ -42,7 +47,12 @@
         "type": "keyword"
       },
       "internal-name": {
-        "type": "keyword"
+        "type": "keyword",
+        "fields":{
+          "text": {
+            "type": "text"
+          }
+        }
       },
       "file-name": {
         "type": "keyword"
@@ -72,7 +82,12 @@
         "type": "keyword"
       },
       "title": {
-        "type": "keyword"
+        "type": "keyword",
+        "fields": {
+          "text": {
+            "type": "text"
+          }
+        }
       },
       "content": {
         "type": "text"
