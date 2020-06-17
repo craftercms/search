@@ -258,6 +258,31 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
     }
 
     @Override
+    public void waitUntilReady() {
+        doWaitUntilReady(elasticsearchClient);
+    }
+
+    protected void doWaitUntilReady(RestHighLevelClient client) {
+        logger.info("Waiting for Elasticsearch cluster to be ready");
+        boolean ready = false;
+        do {
+            try {
+                ready = client.ping(RequestOptions.DEFAULT);
+            } catch (IOException e) {
+                logger.debug("Error pinging Elasticsearch cluster", e);
+            }
+            if (!ready) {
+                logger.info("Elasticsearch cluster not ready, will try again in 5 seconds");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    logger.error("Error waiting for Elasticsearch cluster to be ready", e);
+                }
+            }
+        } while(!ready);
+    }
+
+    @Override
     public void close() throws Exception {
         elasticsearchClient.close();
     }
