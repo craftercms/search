@@ -49,4 +49,9 @@ public interface ElasticsearchAdminService extends AutoCloseable {
      */
     void recreateIndex(String aliasName, boolean isAuthoring) throws ElasticsearchException;
 
+    /**
+     * Checks if the Elasticsearch cluster is ready to receive requests
+     */
+    void waitUntilReady();
+
 }
