@@ -70,6 +70,17 @@ public class MultiElasticsearchAdminServiceImpl extends ElasticsearchAdminServic
     }
 
     @Override
+    public void waitUntilReady() {
+        // wait for the read cluster to be ready
+        super.waitUntilReady();
+
+        // wait for the write clusters to be ready
+        for(RestHighLevelClient client : writeClients) {
+            doWaitUntilReady(client);
+        }
+    }
+
+    @Override
     public void close() throws Exception {
         for(RestHighLevelClient client : writeClients) {
             client.close();
