@@ -16,12 +16,9 @@
 
 package org.craftercms.search.elasticsearch.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.Set;
-
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.io.IOUtils;
+import org.craftercms.commons.locale.LocaleUtils;
 import org.craftercms.search.elasticsearch.ElasticsearchAdminService;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.alias.Alias;
@@ -33,12 +30,25 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.ReindexRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.contains;
+import static org.apache.commons.lang3.StringUtils.substringAfterLast;
+import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 
 /**
  * Default implementation of {@link ElasticsearchAdminService}
@@ -51,6 +61,10 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
 
     public static final String DEFAULT_INDEX_NAME_SUFFIX = "_v1";
 
+    public static final String ES_STANDARD_ANALYZER = "standard";
+
+    public static final String ES_KEY_DEFAULT_ANALYZER = "analysis.analyzer.default.type";
+
     /**
      * The suffix to add to all index names during creation
      */
@@ -59,22 +73,35 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
     /**
      * Index settings file for authoring indices
      */
-    protected Resource authoringIndexSettings;
+    protected Resource authoringMapping;
 
     /**
      * Index settings file for preview indices
      */
-    protected Resource previewIndexSettings;
+    protected Resource previewMapping;
+
+    /**
+     * Regex used to determine if an index is for authoring
+     */
+    protected String authoringNamePattern;
+
+    /**
+     * The map of locale codes to Elasticsearch languages
+     */
+    protected Map<String, String> localeMapping;
 
     /**
      * The Elasticsearch client
      */
     protected RestHighLevelClient elasticsearchClient;
 
-    public ElasticsearchAdminServiceImpl(final Resource authoringIndexSettings, final Resource previewIndexSettings,
-                                         final RestHighLevelClient elasticsearchClient) {
-        this.authoringIndexSettings = authoringIndexSettings;
-        this.previewIndexSettings = previewIndexSettings;
+    public ElasticsearchAdminServiceImpl(Resource authoringMapping, Resource previewMapping,
+                                         String authoringNamePattern, Map<String, String> localeMapping,
+                                         RestHighLevelClient elasticsearchClient) {
+        this.authoringMapping = authoringMapping;
+        this.previewMapping = previewMapping;
+        this.authoringNamePattern = authoringNamePattern;
+        this.localeMapping = localeMapping;
         this.elasticsearchClient = elasticsearchClient;
     }
 
@@ -97,55 +124,53 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
         }
     }
 
+    @Override
+    public void createIndex(String aliasName) throws ElasticsearchException {
+        createIndex(aliasName, null);
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void createIndex(final String aliasName, boolean isAuthoring) throws ElasticsearchException {
-        doCreateIndexAndAlias(elasticsearchClient, aliasName, isAuthoring);
+    public void createIndex(final String aliasName, Locale locale) throws ElasticsearchException {
+        doCreateIndex(elasticsearchClient, aliasName, indexNameSuffix, locale, true);
     }
 
     /**
      * Performs the index creation using the given Elasticsearch client
      */
-    protected void doCreateIndexAndAlias(RestHighLevelClient client, String aliasName, boolean isAuthoring) {
-        doCreateIndexAndAlias(client, aliasName, indexNameSuffix, isAuthoring);
+    protected void doCreateIndex(RestHighLevelClient client, String aliasName, Locale locale) {
+        doCreateIndex(client, aliasName, indexNameSuffix, locale, true);
     }
 
     /**
      * Performs the index creation using the given Elasticsearch client
      */
-    protected void doCreateIndexAndAlias(RestHighLevelClient client, String aliasName, String indexSuffix,
-                                         boolean isAuthoring) {
-        Resource settings = isAuthoring? authoringIndexSettings : previewIndexSettings;
-        if(!exists(client, aliasName)) {
-            logger.info("Creating index and alias {}", aliasName);
-            try(InputStream is = settings.getInputStream()) {
-                client.indices().create(
-                    new CreateIndexRequest(aliasName + indexSuffix)
-                        .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON)
-                        .alias(new Alias(aliasName)),
-                    RequestOptions.DEFAULT);
-            } catch (Exception e) {
-                throw new ElasticsearchException(aliasName, "Error creating index " + aliasName, e);
-            }
+    protected void doCreateIndex(RestHighLevelClient client, String aliasName, String indexSuffix, Locale locale,
+                                 boolean createAlias) {
+        String indexName = aliasName + indexSuffix;
+        Resource mapping = aliasName.matches(authoringNamePattern)? authoringMapping : previewMapping;
+        String defaultAnalyzer = ES_STANDARD_ANALYZER;
+        if (locale != null) {
+            aliasName += "-" + LocaleUtils.toString(locale);
+            defaultAnalyzer = localeMapping.getOrDefault(LocaleUtils.toString(locale), defaultAnalyzer);
         }
-    }
-
-    /***
-     * Performs the index creation without any alias association
-     */
-    protected void doCreateIndex(RestHighLevelClient client, String aliasName, String indexSuffix,
-                                 boolean isAuthoring) {
-        logger.info("Creating index {}", aliasName + indexSuffix);
-        Resource settings = isAuthoring? authoringIndexSettings : previewIndexSettings;
-        try(InputStream is = settings.getInputStream()) {
-            client.indices().create(
-                    new CreateIndexRequest(aliasName + indexSuffix)
-                            .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON),
-                    RequestOptions.DEFAULT);
-        } catch (Exception e) {
-            throw new ElasticsearchException(aliasName, "Error creating index " + aliasName, e);
+        if (!exists(client, indexName)) {
+            logger.info("Creating index {}", indexName);
+            try(InputStream is = mapping.getInputStream()) {
+                CreateIndexRequest request = new CreateIndexRequest(indexName)
+                        .settings(Settings.builder()
+                                .put(ES_KEY_DEFAULT_ANALYZER, defaultAnalyzer))
+                        .mapping(IOUtils.toString(is, UTF_8), XContentType.JSON);
+                if (createAlias) {
+                    logger.info("Creating alias {}", aliasName);
+                    request.alias(new Alias(aliasName));
+                }
+                client.indices().create(request, RequestOptions.DEFAULT);
+            } catch (Exception e) {
+                throw new ElasticsearchException(aliasName, "Error creating index " + indexName, e);
+            }
         }
     }
 
@@ -163,7 +188,7 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
     protected void doDeleteIndexes(RestHighLevelClient client, String aliasName) {
         try {
             GetAliasesResponse indices = client.indices().getAlias(
-                new GetAliasesRequest(aliasName),
+                new GetAliasesRequest(aliasName + "*"),
                 RequestOptions.DEFAULT);
             Set<String> actualIndices = indices.getAliases().keySet();
             logger.info("Deleting indices {}", actualIndices);
@@ -179,53 +204,63 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      * {@inheritDoc}
      */
     @Override
-    public void recreateIndex(String aliasName, boolean isAuthoring) throws ElasticsearchException {
-        doRecreateIndex(elasticsearchClient, aliasName, isAuthoring);
+    public void recreateIndex(String aliasName) throws ElasticsearchException {
+        doRecreateIndex(elasticsearchClient, aliasName);
     }
 
     /**
      * Performs all operations for recreating an index using the given Elasticsearch client
      */
-    protected void doRecreateIndex(RestHighLevelClient client, String aliasName, boolean isAuthoring) {
+    protected void doRecreateIndex(RestHighLevelClient client, String aliasName) {
         logger.info("Recreating index for alias {}", aliasName);
         try {
-            // get the version of the existing index
-            String existingIndexName = doGetIndexName(client, aliasName);
+            List<String> existingIndexes = doGetIndexes(client, aliasName);
+            for(String indexName : existingIndexes) {
+                logger.info("Found index {} for alias {}", indexName, aliasName);
 
-            logger.info("Found index {} for alias {}", existingIndexName, aliasName);
+                // get the locale from the alias name
+                Locale locale = null;
+                String localeValue = substringBeforeLast(substringAfterLast(indexName, "-"), "_");
+                if (contains(localeValue, "_")) {
+                    locale = LocaleUtils.parseLocale(localeValue);
+                    if (locale != null) {
+                        logger.info("Found locale {} for index {}", locale, indexName);
+                    }
+                }
 
-            String[] tokens = existingIndexName.split("_v");
-            if (tokens.length != 2) {
-                throw new IllegalStateException("Could not find current version for index: " + existingIndexName);
+                // get the version of the existing index
+                String[] tokens = indexName.split("_v");
+                if (tokens.length != 2) {
+                    throw new IllegalStateException("Could not find current version for index: " + indexName);
+                }
+                int currentVersion = Integer.parseInt(tokens[1]);
+
+                // create a new index
+                String newVersion = "_v" + (currentVersion + 1);
+                logger.debug("Using new version {} for index {}", newVersion, indexName);
+
+                doCreateIndex(client, aliasName, newVersion, locale, false);
+                String newIndexName = locale == null? aliasName + newVersion :
+                                                      aliasName + "-" + LocaleUtils.toString(locale) + newVersion;
+
+                // index all existing content into the new index
+                doReindex(client, indexName, newIndexName);
+
+                // swap indexes
+                doSwap(client, aliasName, indexName, newIndexName);
+
+                // delete the previous index
+                doDeleteIndex(client, indexName);
             }
-            int currentVersion = Integer.parseInt(tokens[1]);
-
-            // create a new index
-            String newVersion = "_v" + (currentVersion + 1);
-            logger.debug("Using new version {} for index {}", newVersion, aliasName);
-            doCreateIndex(client, aliasName, newVersion, isAuthoring);
-            String newIndexName = aliasName + newVersion;
-
-            // index all existing content into the new index
-            doReindex(client, existingIndexName, newIndexName);
-
-            // swap indexes
-            doSwap(client, aliasName, existingIndexName, newIndexName);
-
-            // delete the previous index
-            doDeleteIndex(client, existingIndexName);
         } catch (Exception e) {
             throw new ElasticsearchException(aliasName, "Error upgrading index " + aliasName, e);
         }
     }
 
-    protected String doGetIndexName(RestHighLevelClient client, String aliasName) throws IOException {
+    protected List<String> doGetIndexes(RestHighLevelClient client, String aliasName) throws IOException {
         GetAliasesResponse indices =
-                client.indices().getAlias(new GetAliasesRequest(aliasName), RequestOptions.DEFAULT);
-        if (indices.getAliases().size() != 1) {
-            throw new IllegalStateException("None or more than one index is associated with alias: " + aliasName);
-        }
-        return indices.getAliases().keySet().iterator().next();
+                client.indices().getAlias(new GetAliasesRequest(aliasName + "*"), RequestOptions.DEFAULT);
+        return IteratorUtils.toList(indices.getAliases().keySet().iterator());
     }
 
     protected void doReindex(RestHighLevelClient client, String sourceIndex, String destinationIndex)

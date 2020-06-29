@@ -56,11 +56,6 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchServiceImpl.class);
 
-    /**
-     * According to Elasticsearch documentation this will be removed and this is the recommended value
-     */
-    public static final String DEFAULT_DOC = "_doc";
-
     public static final String DEFAULT_LOCAL_ID_NAME = "localId";
 
     public static final int DEFAULT_SCROLL_SIZE = 100;
@@ -121,13 +116,13 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      * {@inheritDoc}
      */
     @Override
-    public List<String> searchField(final String indexName, final String field, final QueryBuilder queryBuilder)
+    public List<String> searchField(final String aliasName, final String field, final QueryBuilder queryBuilder)
         throws ElasticsearchException {
-        logger.debug("[{}] Search values for field {} (query -> {})", indexName, field, queryBuilder);
+        logger.debug("[{}] Search values for field {} (query -> {})", aliasName, field, queryBuilder);
 
         List<String> ids = new LinkedList<>();
         String scrollId = null;
-        SearchRequest request = new SearchRequest(indexName).scroll(scrollTimeout).source(
+        SearchRequest request = new SearchRequest(aliasName + "*").scroll(scrollTimeout).source(
             new SearchSourceBuilder()
                 .fetchSource(field, null)
                 .from(0)
@@ -136,30 +131,30 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         );
 
         try {
-            logger.debug("[{}] Opening scroll with timeout {}", indexName, scrollTimeout);
+            logger.debug("[{}] Opening scroll with timeout {}", aliasName, scrollTimeout);
             SearchResponse response = elasticsearchClient.search(request, RequestOptions.DEFAULT);
             scrollId = response.getScrollId();
 
             while(response.getHits().getHits().length > 0) {
                 response.getHits().forEach(hit -> ids.add((String) hit.getSourceAsMap().get(localIdFieldName)));
 
-                logger.debug("[{}] Getting next batch for scroll with id {}", indexName, scrollId);
+                logger.debug("[{}] Getting next batch for scroll with id {}", aliasName, scrollId);
                 SearchScrollRequest scrollRequest = new SearchScrollRequest()
                     .scroll(scrollTimeout)
                     .scrollId(scrollId);
                 response = elasticsearchClient.scroll(scrollRequest, RequestOptions.DEFAULT);
             }
         } catch (Exception e) {
-            throw new ElasticsearchException(indexName, "Error executing search " + request, e);
+            throw new ElasticsearchException(aliasName, "Error executing search " + request, e);
         } finally {
             if (StringUtils.isNotEmpty(scrollId)) {
-                logger.debug("[{}] Clearing scroll with id {}", indexName, scrollId);
+                logger.debug("[{}] Clearing scroll with id {}", aliasName, scrollId);
                 ClearScrollRequest clearRequest = new ClearScrollRequest();
                 clearRequest.addScrollId(scrollId);
                 try {
                     elasticsearchClient.clearScroll(clearRequest, RequestOptions.DEFAULT);
                 } catch (IOException e) {
-                    logger.error("[{}] Error clearing scroll with id {}", indexName, scrollId, e);
+                    logger.error("[{}] Error clearing scroll with id {}", aliasName, scrollId, e);
                 }
             }
         }
@@ -168,9 +163,9 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     }
 
     @Override
-    public Map<String, Object> searchId(final String indexName, final String docId) {
-        logger.debug("[{}] Search for id {}", indexName, docId);
-        SearchRequest request = new SearchRequest(indexName).source(
+    public Map<String, Object> searchId(final String aliasName, final String docId) {
+        logger.debug("[{}] Search for id {}", aliasName, docId);
+        SearchRequest request = new SearchRequest(aliasName + "*").source(
             new SearchSourceBuilder()
                 .query(QueryBuilders.termQuery(localIdFieldName, docId))
         );
@@ -183,7 +178,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
                 return Collections.emptyMap();
             }
         } catch (Exception e) {
-            throw new ElasticsearchException(indexName, "Error executing search " + request, e);
+            throw new ElasticsearchException(aliasName, "Error executing search " + request, e);
         }
     }
 
@@ -203,7 +198,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         try {
             doDelete(client, indexName, siteName, docId);
             logger.debug("[{}] Indexing document {}", indexName, docId);
-            client.index(new IndexRequest(indexName, DEFAULT_DOC, getId(docId)).source(doc), RequestOptions.DEFAULT);
+            client.index(new IndexRequest(indexName).id(getId(docId)).source(doc), RequestOptions.DEFAULT);
         } catch (Exception e) {
             throw new ElasticsearchException(indexName, "Error indexing document " + docId, e);
         }
@@ -274,7 +269,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     protected void doDelete(RestHighLevelClient client, String indexName, String siteName, String docId) {
         logger.debug("[{}] Deleting document {}", indexName, docId);
         try {
-            client.delete(new DeleteRequest(indexName, DEFAULT_DOC, getId(docId)), RequestOptions.DEFAULT);
+            client.delete(new DeleteRequest(indexName).id(getId(docId)), RequestOptions.DEFAULT);
         } catch (Exception e) {
             throw new ElasticsearchException(indexName, "Error deleting document " + docId, e);
         }
