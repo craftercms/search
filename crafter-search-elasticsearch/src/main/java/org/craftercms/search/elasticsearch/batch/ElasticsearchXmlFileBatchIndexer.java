@@ -16,13 +16,18 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
+import java.util.Locale;
 import java.util.Map;
 
+import org.craftercms.commons.locale.LocaleUtils;
+import org.craftercms.core.service.ContentStoreService;
+import org.craftercms.core.service.Context;
+import org.craftercms.search.elasticsearch.ElasticsearchAdminService;
 import org.craftercms.search.elasticsearch.ElasticsearchService;
 import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.impl.AbstractXmlFileBatchIndexer;
-import org.springframework.beans.factory.annotation.Required;
+import org.craftercms.search.locale.LocaleExtractor;
 
 /**
  * Implementation of {@link AbstractXmlFileBatchIndexer} for Elasticsearch
@@ -30,14 +35,42 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class ElasticsearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
 
+    protected ElasticsearchAdminService elasticsearchAdminService;
+
+    protected LocaleExtractor localeExtractor;
+
     /**
      * Elasticsearch service
      */
     protected ElasticsearchService elasticsearchService;
 
-    @Required
-    public void setElasticsearchService(final ElasticsearchService elasticsearchService) {
+    public ElasticsearchXmlFileBatchIndexer(ElasticsearchAdminService elasticsearchAdminService,
+                                            LocaleExtractor localeExtractor,
+                                            ElasticsearchService elasticsearchService) {
+        this.elasticsearchAdminService = elasticsearchAdminService;
+        this.localeExtractor = localeExtractor;
         this.elasticsearchService = elasticsearchService;
+    }
+
+    @Override
+    protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService,
+                                      Context context, String path, boolean delete, UpdateDetail updateDetail,
+                                      UpdateStatus updateStatus, Map<String, String> metadata) {
+        if (delete) {
+            doDelete(indexId, siteName, path, updateStatus);
+        } else {
+            String xml = processXml(siteName, contentStoreService, context, path);
+
+            // get the locale for the item
+            Locale locale = localeExtractor.extract(context, path);
+            if (locale != null) {
+                // check if locale specific index exists
+                elasticsearchAdminService.createIndex(indexId, locale);
+                // update the index name
+                indexId += "-" + LocaleUtils.toString(locale);
+            }
+            doUpdate(indexId, siteName, path, xml, updateDetail, updateStatus, metadata);
+        }
     }
 
     @Override

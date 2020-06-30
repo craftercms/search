@@ -46,9 +46,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractXmlFileBatchIndexer extends AbstractBatchIndexer {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractXmlFileBatchIndexer.class);
-
     public static final List<String> DEFAULT_INCLUDE_FILENAME_PATTERNS = Collections.singletonList("^.*\\.xml$");
+
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected ItemProcessor itemProcessor;
 
