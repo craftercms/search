@@ -149,13 +149,13 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      */
     protected void doCreateIndex(RestHighLevelClient client, String aliasName, String indexSuffix, Locale locale,
                                  boolean createAlias) {
-        String indexName = aliasName + indexSuffix;
         Resource mapping = aliasName.matches(authoringNamePattern)? authoringMapping : previewMapping;
         String defaultAnalyzer = ES_STANDARD_ANALYZER;
         if (locale != null) {
             aliasName += "-" + LocaleUtils.toString(locale);
             defaultAnalyzer = localeMapping.getOrDefault(LocaleUtils.toString(locale), defaultAnalyzer);
         }
+        String indexName = aliasName + indexSuffix;
         if (!exists(client, indexName)) {
             logger.info("Creating index {}", indexName);
             try(InputStream is = mapping.getInputStream()) {
