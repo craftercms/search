@@ -152,8 +152,13 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
         Resource mapping = aliasName.matches(authoringNamePattern)? authoringMapping : previewMapping;
         String defaultAnalyzer = ES_STANDARD_ANALYZER;
         if (locale != null) {
+            String localeValue = LocaleUtils.toString(locale);
             aliasName += "-" + LocaleUtils.toString(locale);
-            defaultAnalyzer = localeMapping.getOrDefault(LocaleUtils.toString(locale), defaultAnalyzer);
+            defaultAnalyzer = localeMapping.entrySet().stream()
+                    .filter(entry -> localeValue.matches(entry.getKey()))
+                    .map(Map.Entry::getValue)
+                    .findFirst()
+                    .orElse(defaultAnalyzer);
         }
         String indexName = aliasName + indexSuffix;
         if (!exists(client, indexName)) {

@@ -46,7 +46,7 @@ import java.util.Map;
  */
 public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapper {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractElasticsearchWrapper.class);
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * The Elasticsearch client
