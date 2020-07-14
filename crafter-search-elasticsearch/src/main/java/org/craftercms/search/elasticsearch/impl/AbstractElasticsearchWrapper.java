@@ -102,9 +102,10 @@ public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapp
      */
     @Override
     public SearchResponse search(final SearchRequest request, final RequestOptions options) {
-        logger.debug("Performing search for request: {}", request);
+        logger.debug("Original search request: {}", request);
         updateIndex(request);
         updateFilters(request);
+        logger.debug("Updated search request: {}", request);
         try {
             return client.search(request, options);
         } catch (Exception e) {
