@@ -14,19 +14,26 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>crafter-search-elasticsearch</artifactId>
+    <name>Crafter Search Elasticsearch</name>
+    <description>Crafter Search Elasticsearch</description>
+
     <parent>
         <artifactId>crafter-search</artifactId>
         <groupId>org.craftercms</groupId>
         <version>3.2.0-SNAPSHOT</version><!-- craftercms version flag -->
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>crafter-search-elasticsearch</artifactId>
-    <name>Crafter Search Elasticsearch</name>
-    <description>Crafter Search Elasticsearch</description>
+<!--
+    <properties>
+	<httpcomponents.httpclient.version>4.4.11</httpcomponents.httpclient.version>
+        <httpcomponents.httpmime.version>4.4.11</httpcomponents.httpmime.version>
+    </properties>
+-->
 
     <dependencies>
         <dependency>
@@ -107,5 +114,4 @@
             <version>${commons.io.version}</version>
         </dependency>
     </dependencies>
-
 </project>

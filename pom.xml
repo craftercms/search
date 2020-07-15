@@ -16,41 +16,30 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.craftercms</groupId>
     <artifactId>crafter-search</artifactId>
     <version>3.2.0-SNAPSHOT</version><!-- craftercms version flag -->
-    <packaging>pom</packaging>
+
     <name>Crafter Search</name>
     <description>Crafter Search Abstraction Layer</description>
     <url>https://github.com/craftercms/search</url>
 
-    <organization>
-        <name>CrafterCMS</name>
-        <url>http://craftercms.org</url>
-    </organization>
-    <licenses>
-        <license>
-            <name>GNU GENERAL PUBLIC LICENSE, Version 3</name>
-            <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <id>sumerjabri</id>
-            <name>Sumer Jabri</name>
-            <email>sumer.jabri@craftercms.org</email>
-        </developer>
-    </developers>
+    <packaging>pom</packaging>
 
     <scm>
         <connection>scm:git:git://github.com/craftercms/search</connection>
         <developerConnection>scm:git:git://github.com/craftercms/search</developerConnection>
         <url>scm:git:git://github.com/craftercms/search</url>
     </scm>
+
+    <parent>
+        <groupId>org.craftercms</groupId>
+        <artifactId>craftercms</artifactId>
+        <version>3.2.0-SNAPSHOT</version><!-- craftercms version flag -->
+    </parent>
 
     <modules>
         <module>crafter-search-solr-api</module>
@@ -62,57 +51,7 @@
         <module>crafter-search-commons</module>
     </modules>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <servlet.api.version>3.0.1</servlet.api.version>
-        <commons.lang3.version>3.5</commons.lang3.version>
-        <commons.collection4.version>4.1</commons.collection4.version>
-        <commons.fileupload.version>1.3.3</commons.fileupload.version>
-        <commons.io.version>2.5</commons.io.version>
-        <commons.compress.version>1.19</commons.compress.version>
-        <httpcomponents.httpclient.version>4.5.6</httpcomponents.httpclient.version>
-        <httpcomponents.httpmime.version>4.5.6</httpcomponents.httpmime.version>
-        <jackson.version>2.10.3</jackson.version>
-        <jackson.databind.version>2.10.3</jackson.databind.version>
-        <stax2.api.version>4.1</stax2.api.version> <!-- Workaround for jackson-dataformat-xml issue #340 of forgetting to update stax2-api  -->
-        <spring.version>4.3.18.RELEASE</spring.version>
-        <slf4j.version>1.7.7</slf4j.version>
-        <log4j.version>2.11.2</log4j.version>
-        <dom4j.version>1.6.1</dom4j.version>
-        <rome.version>0.9</rome.version>
-        <solrj.version>7.7.1</solrj.version>
-        <jodatime.version>2.1</jodatime.version>
-        <hibernate.validator.version>5.1.3.Final</hibernate.validator.version>
-        <junit.version>4.12</junit.version>
-        <mockito.version>1.9.5</mockito.version>
-        <java.version>1.8</java.version>
-        <bouncycastle.version>1.60</bouncycastle.version>
-        <fontbox.version>2.0.11</fontbox.version>
-        <hadoop.version>2.7.7</hadoop.version>
-        <elasticsearch.version>7.2.1</elasticsearch.version>
-        <tika.version>1.22</tika.version>
-        <metada.extractors.version>2.13.0</metada.extractors.version>
-        <jsoup.version>1.11.3</jsoup.version>
-        <google.protobuf.version>3.6.1</google.protobuf.version>
-        <xerces.version>2.12.0</xerces.version>
-    </properties>
-
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <inherited>true</inherited>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.1</version>
-                    <configuration>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
-                    </configuration>
-                </plugin>
-
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -124,32 +63,6 @@
                         <echo>${remote.tomcat.host.1}</echo>
                     </tasks>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
@@ -171,7 +84,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <version>${commons.collection4.version}</version>
+            <version>${commons.collections4.version}</version>
         </dependency>
         <!-- Commons end -->
 
@@ -258,78 +171,5 @@
             <version>${spring.version}</version>
         </dependency>
         <!-- Spring end -->
-
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>JDK8</id>
-            <activation>
-                <jdk>[1.8,)</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.4</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                                <configuration>
-                                    <additionalparam>-Xdoclint:none</additionalparam>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-deploy-plugin</artifactId>
-                        <version>2.7</version>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.4</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>sonatype-nexus-staging</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 </project>
