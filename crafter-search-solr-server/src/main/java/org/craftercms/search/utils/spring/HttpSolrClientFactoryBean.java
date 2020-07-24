@@ -20,8 +20,8 @@ import org.apache.solr.client.solrj.ResponseParser;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.DisposableBean;
 
-import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 /**
@@ -30,7 +30,7 @@ import java.io.IOException;
  *
  * @author avasquez
  */
-public class HttpSolrClientFactoryBean implements FactoryBean<HttpSolrClient> {
+public class HttpSolrClientFactoryBean implements FactoryBean<HttpSolrClient>, DisposableBean {
 
     private String baseSolrUrl;
     private HttpClient httpClient;
@@ -94,7 +94,6 @@ public class HttpSolrClientFactoryBean implements FactoryBean<HttpSolrClient> {
         return solrClient;
     }
 
-    @PreDestroy
     public void destroy() throws IOException {
         solrClient.close();
     }
