@@ -66,6 +66,13 @@
             <version>${tika.version}</version>
         </dependency>
 
+        <!-- Override the version included in Apache Tika -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcmail-jdk15on</artifactId>
+            <version>${bouncycastle.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.drewnoakes</groupId>
             <artifactId>metadata-extractor</artifactId>
