@@ -40,8 +40,9 @@ public class MultiElasticsearchAdminServiceImpl extends ElasticsearchAdminServic
     public MultiElasticsearchAdminServiceImpl(Resource authoringMapping, Resource previewMapping,
                                               String authoringNamePattern, Map<String, String> localeMapping,
                                               RestHighLevelClient elasticsearchClient,
-                                              RestHighLevelClient[] writeClients) {
-        super(authoringMapping, previewMapping, authoringNamePattern, localeMapping, elasticsearchClient);
+                                              Map<String, String> indexSettings, RestHighLevelClient[] writeClients) {
+        super(authoringMapping, previewMapping, authoringNamePattern, localeMapping, indexSettings,
+                elasticsearchClient);
         this.writeClients = writeClients;
     }
 

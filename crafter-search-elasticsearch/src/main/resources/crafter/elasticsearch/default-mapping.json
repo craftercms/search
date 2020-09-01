@@ -1,4 +1,5 @@
 {
+  "date_detection": false,
   "properties": {
     "crafterSite": {
       "type": "keyword"
