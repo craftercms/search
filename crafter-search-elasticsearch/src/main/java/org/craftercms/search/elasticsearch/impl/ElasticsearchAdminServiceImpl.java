@@ -161,7 +161,7 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
                     .orElse(defaultAnalyzer);
         }
         String indexName = aliasName + indexSuffix;
-        if (!exists(client, indexName)) {
+        if (!exists(client, createAlias? aliasName : indexName)) {
             logger.info("Creating index {}", indexName);
             try(InputStream is = mapping.getInputStream()) {
                 CreateIndexRequest request = new CreateIndexRequest(indexName)
@@ -272,7 +272,7 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
             throws IOException {
         logger.info("Reindexing all existing content from {} to {}", sourceIndex, destinationIndex);
         BulkByScrollResponse response = client.reindex(
-                new ReindexRequest().setSourceIndices(sourceIndex).setDestIndex(destinationIndex),
+                new ReindexRequest().setSourceIndices(sourceIndex).setDestIndex(destinationIndex).setRefresh(true),
                 RequestOptions.DEFAULT);
         logger.info("Successfully indexed {} docs into {}", response.getTotal(), destinationIndex);
     }
