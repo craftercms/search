@@ -25,6 +25,8 @@ import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.client.GetAliasesResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -40,6 +42,7 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -47,6 +50,7 @@ import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.contains;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 
@@ -71,12 +75,12 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
     protected String indexNameSuffix = DEFAULT_INDEX_NAME_SUFFIX;
 
     /**
-     * Index settings file for authoring indices
+     * Index mapping file for authoring indices
      */
     protected Resource authoringMapping;
 
     /**
-     * Index settings file for preview indices
+     * Index mapping file for preview indices
      */
     protected Resource previewMapping;
 
@@ -95,13 +99,19 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      */
     protected RestHighLevelClient elasticsearchClient;
 
+    /**
+     * The default settings used when creating indices
+     */
+    protected Map<String, String> defaultSettings;
+
     public ElasticsearchAdminServiceImpl(Resource authoringMapping, Resource previewMapping,
                                          String authoringNamePattern, Map<String, String> localeMapping,
-                                         RestHighLevelClient elasticsearchClient) {
+                                         Map<String, String> defaultSettings, RestHighLevelClient elasticsearchClient) {
         this.authoringMapping = authoringMapping;
         this.previewMapping = previewMapping;
         this.authoringNamePattern = authoringNamePattern;
         this.localeMapping = localeMapping;
+        this.defaultSettings = defaultSettings;
         this.elasticsearchClient = elasticsearchClient;
     }
 
@@ -134,21 +144,21 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      */
     @Override
     public void createIndex(final String aliasName, Locale locale) throws ElasticsearchException {
-        doCreateIndex(elasticsearchClient, aliasName, indexNameSuffix, locale, true);
+        doCreateIndex(elasticsearchClient, aliasName, indexNameSuffix, locale, true, defaultSettings);
     }
 
     /**
      * Performs the index creation using the given Elasticsearch client
      */
     protected void doCreateIndex(RestHighLevelClient client, String aliasName, Locale locale) {
-        doCreateIndex(client, aliasName, indexNameSuffix, locale, true);
+        doCreateIndex(client, aliasName, indexNameSuffix, locale, true, defaultSettings);
     }
 
     /**
      * Performs the index creation using the given Elasticsearch client
      */
     protected void doCreateIndex(RestHighLevelClient client, String aliasName, String indexSuffix, Locale locale,
-                                 boolean createAlias) {
+                                 boolean createAlias, Map<String, String> settings) {
         Resource mapping = aliasName.matches(authoringNamePattern)? authoringMapping : previewMapping;
         String defaultAnalyzer = ES_STANDARD_ANALYZER;
         if (locale != null) {
@@ -164,9 +174,12 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
         if (!exists(client, indexName)) {
             logger.info("Creating index {}", indexName);
             try(InputStream is = mapping.getInputStream()) {
+                Settings.Builder builder = Settings.builder();
+                settings.forEach(builder::put);
+                settings.put(ES_KEY_DEFAULT_ANALYZER, defaultAnalyzer);
+
                 CreateIndexRequest request = new CreateIndexRequest(indexName)
-                        .settings(Settings.builder()
-                                .put(ES_KEY_DEFAULT_ANALYZER, defaultAnalyzer))
+                        .settings(builder.build())
                         .mapping(IOUtils.toString(is, UTF_8), XContentType.JSON);
                 if (createAlias) {
                     logger.info("Creating alias {}", aliasName);
@@ -244,7 +257,10 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
                 String newVersion = "_v" + (currentVersion + 1);
                 logger.debug("Using new version {} for index {}", newVersion, indexName);
 
-                doCreateIndex(client, aliasName, newVersion, locale, false);
+                // copy the supported settings from the existing index
+                Map<String, String> settings = doGetIndexSettings(client, indexName);
+
+                doCreateIndex(client, aliasName, newVersion, locale, false, settings);
                 String newIndexName = locale == null? aliasName + newVersion :
                                                       aliasName + "-" + LocaleUtils.toString(locale) + newVersion;
 
@@ -266,6 +282,20 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
         GetAliasesResponse indices =
                 client.indices().getAlias(new GetAliasesRequest(aliasName + "*"), RequestOptions.DEFAULT);
         return IteratorUtils.toList(indices.getAliases().keySet().iterator());
+    }
+
+    protected Map<String, String> doGetIndexSettings(RestHighLevelClient client, String indexName) throws IOException {
+        GetSettingsResponse response =
+                client.indices().getSettings(new GetSettingsRequest().indices(indexName), RequestOptions.DEFAULT);
+        Map<String, String> settings = new HashMap<>(defaultSettings);
+        defaultSettings.keySet().forEach(key -> {
+            String value = response.getSetting(indexName, key);
+            if (isNotEmpty(value)) {
+                logger.debug("Using existing setting {}={} from index {}", key, value, indexName);
+                settings.put(key, value);
+            }
+        });
+        return settings;
     }
 
     protected void doReindex(RestHighLevelClient client, String sourceIndex, String destinationIndex)
