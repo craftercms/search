@@ -21,6 +21,8 @@ import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.core.io.Resource;
 
+import java.util.Map;
+
 /**
  * Extension of {@link ElasticsearchAdminServiceImpl} that handles multiple Elasticsearch clusters
  *
@@ -34,11 +36,10 @@ public class MultiElasticsearchAdminServiceImpl extends ElasticsearchAdminServic
      */
     protected RestHighLevelClient[] writeClients;
 
-    public MultiElasticsearchAdminServiceImpl(final Resource authoringIndexSettings,
-                                              final Resource previewIndexSettings,
-                                              final RestHighLevelClient readClient,
-                                              final RestHighLevelClient[] writeClients) {
-        super(authoringIndexSettings, previewIndexSettings, readClient);
+    public MultiElasticsearchAdminServiceImpl(Resource authoringMapping, Resource previewMapping,
+                                              RestHighLevelClient elasticsearchClient,
+                                              Map<String, String> indexSettings, RestHighLevelClient[] writeClients) {
+        super(authoringMapping, previewMapping, elasticsearchClient, indexSettings);
         this.writeClients = writeClients;
     }
 

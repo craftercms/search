@@ -18,7 +18,9 @@ package org.craftercms.search.elasticsearch.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -28,17 +30,23 @@ import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.client.GetAliasesResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.ReindexRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * Default implementation of {@link ElasticsearchAdminService}
@@ -57,25 +65,31 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
     protected String indexNameSuffix = DEFAULT_INDEX_NAME_SUFFIX;
 
     /**
-     * Index settings file for authoring indices
+     * Index mapping file for authoring indices
      */
-    protected Resource authoringIndexSettings;
+    protected Resource authoringMapping;
 
     /**
-     * Index settings file for preview indices
+     * Index mapping file for preview indices
      */
-    protected Resource previewIndexSettings;
+    protected Resource previewMapping;
 
     /**
      * The Elasticsearch client
      */
     protected RestHighLevelClient elasticsearchClient;
 
-    public ElasticsearchAdminServiceImpl(final Resource authoringIndexSettings, final Resource previewIndexSettings,
-                                         final RestHighLevelClient elasticsearchClient) {
-        this.authoringIndexSettings = authoringIndexSettings;
-        this.previewIndexSettings = previewIndexSettings;
+    /**
+     * The default settings used when creating indices
+     */
+    protected Map<String, String> defaultSettings;
+
+    public ElasticsearchAdminServiceImpl(Resource authoringMapping, Resource previewMapping,
+                                         RestHighLevelClient elasticsearchClient, Map<String, String> defaultSettings) {
+        this.authoringMapping = authoringMapping;
+        this.previewMapping = previewMapping;
         this.elasticsearchClient = elasticsearchClient;
+        this.defaultSettings = defaultSettings;
     }
 
     public void setIndexNameSuffix(final String indexNameSuffix) {
@@ -117,35 +131,33 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      */
     protected void doCreateIndexAndAlias(RestHighLevelClient client, String aliasName, String indexSuffix,
                                          boolean isAuthoring) {
-        Resource settings = isAuthoring? authoringIndexSettings : previewIndexSettings;
-        if(!exists(client, aliasName)) {
-            logger.info("Creating index and alias {}", aliasName);
-            try(InputStream is = settings.getInputStream()) {
-                client.indices().create(
-                    new CreateIndexRequest(aliasName + indexSuffix)
-                        .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON)
-                        .alias(new Alias(aliasName)),
-                    RequestOptions.DEFAULT);
-            } catch (Exception e) {
-                throw new ElasticsearchException(aliasName, "Error creating index " + aliasName, e);
-            }
-        }
+        doCreateIndex(client, aliasName, indexSuffix, isAuthoring, true, defaultSettings);
     }
 
     /***
      * Performs the index creation without any alias association
      */
     protected void doCreateIndex(RestHighLevelClient client, String aliasName, String indexSuffix,
-                                 boolean isAuthoring) {
-        logger.info("Creating index {}", aliasName + indexSuffix);
-        Resource settings = isAuthoring? authoringIndexSettings : previewIndexSettings;
-        try(InputStream is = settings.getInputStream()) {
-            client.indices().create(
-                    new CreateIndexRequest(aliasName + indexSuffix)
-                            .source(IOUtils.toString(is, Charset.defaultCharset()), XContentType.JSON),
-                    RequestOptions.DEFAULT);
-        } catch (Exception e) {
-            throw new ElasticsearchException(aliasName, "Error creating index " + aliasName, e);
+                                 boolean isAuthoring, boolean createAlias, Map<String, String> settings) {
+        Resource mapping = isAuthoring? authoringMapping : previewMapping;
+        String indexName = aliasName + indexSuffix;
+        if (!exists(client, createAlias? aliasName : indexName)) {
+            logger.info("Creating index {}", indexName);
+            try(InputStream is = mapping.getInputStream()) {
+                Settings.Builder builder = Settings.builder();
+                settings.forEach(builder::put);
+
+                CreateIndexRequest request = new CreateIndexRequest(indexName)
+                        .settings(builder.build())
+                        .mapping(IOUtils.toString(is, UTF_8), XContentType.JSON);
+                if (createAlias) {
+                    logger.info("Creating alias {}", aliasName);
+                    request.alias(new Alias(aliasName));
+                }
+                client.indices().create(request, RequestOptions.DEFAULT);
+            } catch (Exception e) {
+                throw new ElasticsearchException(aliasName, "Error creating index " + indexName, e);
+            }
         }
     }
 
@@ -190,8 +202,14 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
         logger.info("Recreating index for alias {}", aliasName);
         try {
             // get the version of the existing index
-            String existingIndexName = doGetIndexName(client, aliasName);
+            Optional<String> existingIndex = doGetIndexName(client, aliasName);
 
+            if (!existingIndex.isPresent()) {
+                logger.info("No index found for alias {}, skipping recreate operations", aliasName);
+                return;
+            }
+
+            String existingIndexName = existingIndex.get();
             logger.info("Found index {} for alias {}", existingIndexName, aliasName);
 
             String[] tokens = existingIndexName.split("_v");
@@ -203,7 +221,11 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
             // create a new index
             String newVersion = "_v" + (currentVersion + 1);
             logger.debug("Using new version {} for index {}", newVersion, aliasName);
-            doCreateIndex(client, aliasName, newVersion, isAuthoring);
+
+            // copy the supported settings from the existing index
+            Map<String, String> settings = doGetIndexSettings(client, existingIndexName);
+
+            doCreateIndex(client, aliasName, newVersion, isAuthoring, false, settings);
             String newIndexName = aliasName + newVersion;
 
             // index all existing content into the new index
@@ -219,20 +241,34 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
         }
     }
 
-    protected String doGetIndexName(RestHighLevelClient client, String aliasName) throws IOException {
+    protected Optional<String> doGetIndexName(RestHighLevelClient client, String aliasName) throws IOException {
         GetAliasesResponse indices =
                 client.indices().getAlias(new GetAliasesRequest(aliasName), RequestOptions.DEFAULT);
-        if (indices.getAliases().size() != 1) {
-            throw new IllegalStateException("None or more than one index is associated with alias: " + aliasName);
+        if (indices.getAliases().size() > 1) {
+            throw new IllegalStateException("More than one index is associated with alias: " + aliasName);
         }
-        return indices.getAliases().keySet().iterator().next();
+        return indices.getAliases().keySet().stream().findFirst();
+    }
+
+    protected Map<String, String> doGetIndexSettings(RestHighLevelClient client, String indexName) throws IOException {
+        GetSettingsResponse response =
+                client.indices().getSettings(new GetSettingsRequest().indices(indexName), RequestOptions.DEFAULT);
+        Map<String, String> settings = new HashMap<>(defaultSettings);
+        defaultSettings.keySet().forEach(key -> {
+            String value = response.getSetting(indexName, key);
+            if (isNotEmpty(value)) {
+                logger.debug("Using existing setting {}={} from index {}", key, value, indexName);
+                settings.put(key, value);
+            }
+        });
+        return settings;
     }
 
     protected void doReindex(RestHighLevelClient client, String sourceIndex, String destinationIndex)
             throws IOException {
         logger.info("Reindexing all existing content from {} to {}", sourceIndex, destinationIndex);
         BulkByScrollResponse response = client.reindex(
-                new ReindexRequest().setSourceIndices(sourceIndex).setDestIndex(destinationIndex),
+                new ReindexRequest().setSourceIndices(sourceIndex).setDestIndex(destinationIndex).setRefresh(true),
                 RequestOptions.DEFAULT);
         logger.info("Successfully indexed {} docs into {}", response.getTotal(), destinationIndex);
     }
