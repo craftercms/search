@@ -186,13 +186,17 @@
                value="${crafter.search.solr.field.type.timeOnly.multiValued.suffix}"/>
     </util:map>
 
-    <bean id="crafter.corsFilter" class="org.craftercms.commons.web.CORSFilter">
-        <property name="disableCORS" value="${crafter.search.cors.disable}"/>
-        <property name="allowOrigins" value="${crafter.search.cors.origins}"/>
-        <property name="allowMethods" value="${crafter.search.cors.headers}"/>
-        <property name="allowHeaders" value="${crafter.search.cors.methods}"/>
-        <property name="allowCredentials" value="${crafter.search.cors.credentials}"/>
-        <property name="maxAge" value="${crafter.search.cors.maxage}"/>
+    <bean id="crafter.corsConfigSource" class="org.craftercms.commons.spring.cors.FixedCorsConfigurationSource">
+        <constructor-arg name="disableCORS" value="${crafter.search.cors.disable}"/>
+        <constructor-arg name="allowOrigins" value="${crafter.search.cors.origins}"/>
+        <constructor-arg name="allowMethods" value="${crafter.search.cors.headers}"/>
+        <constructor-arg name="allowHeaders" value="${crafter.search.cors.methods}"/>
+        <constructor-arg name="allowCredentials" value="${crafter.search.cors.credentials}"/>
+        <constructor-arg name="maxAge" value="${crafter.search.cors.maxage}"/>
+    </bean>
+
+    <bean id="crafter.corsFilter" class="org.springframework.web.filter.CorsFilter">
+        <constructor-arg ref="crafter.corsConfigSource"/>
     </bean>
 
     <import resource="${crafter.search.extension.base}/services-context.xml"/>
