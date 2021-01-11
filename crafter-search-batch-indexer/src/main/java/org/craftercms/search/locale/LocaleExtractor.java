@@ -23,7 +23,7 @@ import java.util.Locale;
  * Obtains the locale from a given file
  *
  * @author joseross
- * @since 3.2.0
+ * @since 4.0.0
  */
 public interface LocaleExtractor {
 

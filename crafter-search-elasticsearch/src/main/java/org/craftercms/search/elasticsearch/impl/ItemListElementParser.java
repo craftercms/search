@@ -29,7 +29,7 @@ import static java.util.Collections.singletonMap;
  * Implementation of {@link ElementParser} that turns single objects into lists if the 'item-list' attribute is present
  *
  * @author joseross
- * @since 3.2.0
+ * @since 4.0.0
  */
 public class ItemListElementParser implements ElementParser<Map<String, Object>> {
 
