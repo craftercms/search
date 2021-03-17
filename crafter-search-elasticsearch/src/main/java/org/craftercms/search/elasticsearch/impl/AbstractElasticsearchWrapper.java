@@ -22,6 +22,7 @@ import org.craftercms.search.elasticsearch.ElasticsearchWrapper;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Node;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
@@ -39,6 +40,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Base implementation of {@link ElasticsearchWrapper}
@@ -106,6 +109,12 @@ public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapp
         updateIndex(request);
         updateFilters(request);
         logger.debug("Updated search request: {}", request);
+        if (logger.isDebugEnabled()) {
+            var urls = client.getLowLevelClient().getNodes().stream()
+                                    .map(Node::getHost)
+                                    .collect(toList());
+            logger.debug("Executing search request for urls {}", urls);
+        }
         try {
             return client.search(request, options);
         } catch (Exception e) {
