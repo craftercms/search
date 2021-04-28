@@ -102,7 +102,7 @@
         "match_pattern": "regex",
         "match": ".+_(i|is|imv)$",
         "mapping": {
-          "type": "float"
+          "type": "integer"
         }
       }
     },
