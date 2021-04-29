@@ -30,7 +30,6 @@ import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.SearchModule;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
@@ -39,6 +38,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 
 /**
  * Base implementation of {@link ElasticsearchWrapper}
@@ -91,7 +92,8 @@ public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapp
 
         for(String filterQuery : filterQueries) {
             logger.debug("Adding filter query: {}", filterQuery);
-            boolQueryBuilder.filter(new QueryStringQueryBuilder(filterQuery));
+            // Override the default field to prevent an unnecessary wildcard expansion
+            boolQueryBuilder.filter(queryStringQuery(filterQuery).defaultField("some_field"));
         }
 
         request.source().query(boolQueryBuilder);
