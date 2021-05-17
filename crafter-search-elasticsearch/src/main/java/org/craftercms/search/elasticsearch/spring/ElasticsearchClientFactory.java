@@ -16,6 +16,7 @@
 
 package org.craftercms.search.elasticsearch.spring;
 
+import java.beans.ConstructorProperties;
 import java.io.IOException;
 import java.util.stream.Stream;
 
@@ -91,6 +92,7 @@ public class ElasticsearchClientFactory extends AbstractFactoryBean<RestHighLeve
      */
     protected boolean socketKeepAlive = false;
 
+    @ConstructorProperties({"serverUrls"})
     public ElasticsearchClientFactory(final String[] serverUrls) {
         this.serverUrls = serverUrls;
     }
