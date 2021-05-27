@@ -30,6 +30,7 @@ import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.service.ResourceAwareSearchService;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.service.impl.SolrQuery;
+import org.craftercms.search.service.utils.AccessTokenAware;
 import org.craftercms.search.service.utils.ContentResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ import static org.craftercms.search.service.utils.RestClientUtils.*;
  *
  * @author Alfonso Vásquez
  */
-public class SolrRestClientSearchService implements ResourceAwareSearchService<SolrQuery> {
+public class SolrRestClientSearchService extends AccessTokenAware implements ResourceAwareSearchService<SolrQuery> {
 
     private static final Logger logger = LoggerFactory.getLogger(SolrRestClientSearchService.class);
 
@@ -288,17 +289,17 @@ public class SolrRestClientSearchService implements ResourceAwareSearchService<S
     }
 
     protected String createBaseUrl(String serviceUrl) {
-        return serverUrl + URL_ROOT + serviceUrl;
+        return createBaseUrl(serviceUrl, null);
     }
 
     protected String createBaseUrl(String serviceUrl, String indexId) {
-        String url = createBaseUrl(serviceUrl);
+        String url =serverUrl + URL_ROOT + serviceUrl;
 
         if (StringUtils.isNotEmpty(indexId)) {
             url = addParam(url, PARAM_INDEX_ID, indexId);
         }
 
-        return url;
+        return addTokenIfNeeded(url);
     }
 
 }

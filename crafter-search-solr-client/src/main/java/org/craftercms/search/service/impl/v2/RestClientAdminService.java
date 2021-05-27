@@ -26,6 +26,7 @@ import org.craftercms.search.exception.SearchException;
 import org.craftercms.search.rest.v2.requests.CreateIndexRequest;
 import org.craftercms.search.rest.v2.requests.DeleteIndexRequest;
 import org.craftercms.search.service.AdminService;
+import org.craftercms.search.service.utils.AccessTokenAware;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
@@ -39,7 +40,7 @@ import static org.craftercms.search.service.utils.RestClientUtils.getSearchExcep
 /**
  * Created by alfonsovasquez on 2/9/17.
  */
-public class RestClientAdminService implements AdminService {
+public class RestClientAdminService extends AccessTokenAware implements AdminService {
 
     protected String serverUrl;
     protected RestTemplate restTemplate;
@@ -111,7 +112,7 @@ public class RestClientAdminService implements AdminService {
     }
 
     protected String createBaseUrl(String serviceUrl) {
-        return UrlUtils.concat(serverUrl, URL_ROOT, serviceUrl);
+        return addTokenIfNeeded(UrlUtils.concat(serverUrl, URL_ROOT, serviceUrl));
     }
 
 }
