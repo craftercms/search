@@ -72,7 +72,7 @@ public class InternalNameMetadataExtractor extends AbstractMetadataExtractor {
      * {@inheritDoc}
      */
     @Override
-    protected Map<String, String> doExtract(final String path, final ContentStoreService contentStoreService,
+    protected Map<String, Object> doExtract(final String path, final ContentStoreService contentStoreService,
                                             final Context context) {
         Item item = contentStoreService.getItem(context, path);
         String internalName = item.queryDescriptorValue(internalNameFieldXpath);

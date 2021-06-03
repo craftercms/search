@@ -68,7 +68,7 @@ public abstract class AbstractXmlFileBatchIndexer extends AbstractBatchIndexer {
     protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService,
                                       Context context, String path, boolean delete,
                                       UpdateDetail updateDetail, UpdateStatus updateStatus,
-                                      Map<String, String> metadata) {
+                                      Map<String, Object> metadata) {
         if (delete) {
             doDelete(indexId, siteName, path, updateStatus);
         } else {
@@ -82,7 +82,7 @@ public abstract class AbstractXmlFileBatchIndexer extends AbstractBatchIndexer {
 
     protected abstract void doUpdate(String indexId, String siteName, String path, String xml,
                                      UpdateDetail updateDetail, UpdateStatus updateStatus,
-                                     Map<String, String> metadata);
+                                     Map<String, Object> metadata);
 
     protected String processXml(String siteName, ContentStoreService contentStoreService, Context context,
                                 String path) throws CrafterException {

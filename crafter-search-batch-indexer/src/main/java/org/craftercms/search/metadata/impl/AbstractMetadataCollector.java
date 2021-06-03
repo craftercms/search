@@ -50,7 +50,7 @@ public abstract class AbstractMetadataCollector {
      * @param context the current context
      * @return all extracted metadata
      */
-    protected Map<String, String> collectMetadata(final String path, final ContentStoreService contentStoreService,
+    protected Map<String, Object> collectMetadata(final String path, final ContentStoreService contentStoreService,
                                                   final Context context) {
         if (CollectionUtils.isEmpty(metadataExtractors)) {
             return Collections.emptyMap();

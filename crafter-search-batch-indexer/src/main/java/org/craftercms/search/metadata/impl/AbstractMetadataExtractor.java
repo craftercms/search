@@ -51,11 +51,11 @@ public abstract class AbstractMetadataExtractor implements MetadataExtractor {
      * {@inheritDoc}
      */
     @Override
-    public Map<String, String> extract(final String path, final ContentStoreService contentStoreService,
+    public Map<String, Object> extract(final String path, final ContentStoreService contentStoreService,
                                   final Context context) {
         logger.debug("Start processing {}", path);
 
-        Map<String, String> metadata = Collections.emptyMap();
+        Map<String, Object> metadata = Collections.emptyMap();
 
         if ((CollectionUtils.isEmpty(includePatterns) || RegexUtils.matchesAny(path, includePatterns))
             && isCompatible(path, contentStoreService, context)) {
@@ -84,7 +84,7 @@ public abstract class AbstractMetadataExtractor implements MetadataExtractor {
      * @param context the current context
      * @return the extracted metadata
      */
-    protected abstract Map<String, String> doExtract(String path, ContentStoreService contentStoreService,
+    protected abstract Map<String, Object> doExtract(String path, ContentStoreService contentStoreService,
                                                      Context context);
 
 }

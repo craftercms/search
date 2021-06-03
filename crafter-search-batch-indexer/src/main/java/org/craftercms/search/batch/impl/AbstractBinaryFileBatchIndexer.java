@@ -64,7 +64,7 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
     @Override
     protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService,
                                       Context context, String path, boolean delete, UpdateDetail updateDetail,
-                                      UpdateStatus updateStatus, Map<String, String> metadata) {
+                                      UpdateStatus updateStatus, Map<String, Object> metadata) {
         if (delete) {
             doDelete(indexId, siteName, path, updateStatus);
         } else {
@@ -83,7 +83,7 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
 
     protected abstract void doUpdateContent(String indexId, String siteName, String path, Content binaryContent,
                                             UpdateDetail updateDetail, UpdateStatus updateStatus,
-                                            Map<String, String> metadata);
+                                            Map<String, Object> metadata);
 
     @Override
     protected boolean include(String path) {

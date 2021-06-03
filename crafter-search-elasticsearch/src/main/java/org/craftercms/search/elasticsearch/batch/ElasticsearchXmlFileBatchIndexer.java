@@ -55,7 +55,7 @@ public class ElasticsearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexe
     @Override
     protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService,
                                       Context context, String path, boolean delete, UpdateDetail updateDetail,
-                                      UpdateStatus updateStatus, Map<String, String> metadata) {
+                                      UpdateStatus updateStatus, Map<String, Object> metadata) {
         if (delete) {
             doDelete(indexId, siteName, path, updateStatus);
         } else {
@@ -81,7 +81,7 @@ public class ElasticsearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexe
     @Override
     protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
                             final UpdateDetail updateDetail, final UpdateStatus updateStatus,
-                            Map<String, String> metadata) {
+                            Map<String, Object> metadata) {
         ElasticsearchIndexingUtils.doUpdate(elasticsearchService, indexId, siteName, path, xml, updateDetail,
             updateStatus, metadata);
     }

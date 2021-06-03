@@ -23,14 +23,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.craftercms.search.elasticsearch.DocumentParser;
 import org.craftercms.search.elasticsearch.ElasticsearchService;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.craftercms.core.service.Content;
-import org.craftercms.search.service.utils.ContentResource;
+import org.craftercms.search.commons.utils.ContentResource;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
@@ -46,7 +45,8 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.util.MultiValueMap;
+
+import static org.craftercms.search.commons.utils.MapUtils.mergeMaps;
 
 /**
  * Default implementation of {@link ElasticsearchService}
@@ -209,18 +209,10 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      */
     @Override
     public void index(final String indexName, final String siteName, final String docId, final String xml,
-                      final MultiValueMap<String, String> additionalFields) throws ElasticsearchException {
+                      final Map<String, Object> additionalFields) throws ElasticsearchException {
         Map<String, Object> doc = documentBuilder.build(siteName, docId, xml, true);
-        if(MapUtils.isNotEmpty(additionalFields)) {
-            additionalFields.forEach((key, value) -> {
-                if(value.size() == 1) {
-                    doc.put(key, value.get(0));
-                } else {
-                    doc.put(key, value);
-                }
-            });
-        }
-        index(indexName, siteName, docId, doc);
+        Map<String, Object> mergedDoc = mergeMaps(doc, additionalFields);
+        index(indexName, siteName, docId, mergedDoc);
     }
 
     /**
@@ -228,7 +220,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      */
     @Override
     public void indexBinary(final String indexName, final String siteName, final String path,
-                            MultiValueMap<String, String> additionalFields, final Content content)
+                            final Content content, final Map<String, Object> additionalFields)
         throws ElasticsearchException {
         String filename = FilenameUtils.getName(path);
         try {
@@ -244,7 +236,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      */
     @Override
     public void indexBinary(final String indexName, final String siteName, final String path,
-                            MultiValueMap<String, String> additionalFields, final Resource resource)
+                            final Resource resource, final Map<String, Object> additionalFields)
         throws ElasticsearchException {
         String filename = FilenameUtils.getName(path);
         try {

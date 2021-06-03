@@ -26,13 +26,11 @@ import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.impl.AbstractBinaryFileWithMetadataBatchIndexer;
 import org.craftercms.core.service.Content;
-import org.craftercms.search.exception.SearchException;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
+import org.craftercms.search.commons.exception.SearchException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
 /**
  * Implementation of {@link AbstractBinaryFileWithMetadataBatchIndexer} for Elasticsearch
@@ -60,11 +58,8 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
     protected List<String> searchBinaryPathsFromMetadataPath(final String indexId, final String siteName,
                                                              final String metadataPath) {
         try {
-            return elasticsearchService.searchField(indexId, "_id",
-                new BoolQueryBuilder()
-                    .filter(new TermQueryBuilder("crafterSite", siteName))
-                    .filter(new TermQueryBuilder("metadataPath", metadataPath))
-            );
+            return elasticsearchService.searchField(indexId, "localId",
+                matchQuery("metadataPath", metadataPath));
         } catch (ElasticsearchException e) {
             throw new SearchException(indexId, "Error executing search for " + metadataPath, e);
         }
@@ -75,10 +70,7 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
                                                       final String binaryPath) {
         try {
             List<String> paths = elasticsearchService.searchField(indexId, "metadataPath",
-                new BoolQueryBuilder()
-                    .filter(new TermQueryBuilder("crafterSite", siteName))
-                    .filter(new TermQueryBuilder("_id", binaryPath))
-            );
+                matchQuery("localId", binaryPath));
             if(CollectionUtils.isNotEmpty(paths)) {
                 return paths.get(0);
             } else {
@@ -91,7 +83,7 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
 
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
-                                   final Resource resource, final MultiValueMap<String, String> metadata,
+                                   final Resource resource, final Map<String, Object> metadata,
                                    final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
         ElasticsearchIndexingUtils.doUpdateBinary(elasticsearchService, indexId, siteName, binaryPath, metadata,
                 resource, updateDetail, updateStatus);
@@ -99,7 +91,7 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
 
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
-                                   final Content content, final MultiValueMap<String, String> metadata,
+                                   final Content content, final Map<String, Object> metadata,
                                    final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
         ElasticsearchIndexingUtils.doUpdateBinary(elasticsearchService, indexId, siteName, binaryPath, metadata,
                 content, updateDetail, updateStatus);
@@ -109,16 +101,7 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
     protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
                                    final Resource resource, final UpdateDetail updateDetail,
                                    final UpdateStatus updateStatus) {
-        doUpdateContent(indexId, siteName, binaryPath, resource, updateDetail, updateStatus);
-    }
-
-    @Override
-    protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
-                                   final Content content, final UpdateDetail updateDetail,
-                                   final UpdateStatus updateStatus, final Map<String, String> metadata) {
-        MultiValueMap<String, String> additionalFields = new LinkedMultiValueMap<>();
-        additionalFields.setAll(metadata);
-        doUpdateContent(indexId, siteName, binaryPath, content, additionalFields, updateDetail, updateStatus);
+        doUpdateContent(indexId, siteName, binaryPath, resource, null, updateDetail, updateStatus);
     }
 
 }

@@ -23,7 +23,6 @@ import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.craftercms.core.service.Content;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.core.io.Resource;
-import org.springframework.util.MultiValueMap;
 
 /**
  * Provides access to indexing operations in Elasticsearch
@@ -66,8 +65,8 @@ public interface ElasticsearchService extends AutoCloseable {
      * @param additionalFields additional fields to index
      * @throws ElasticsearchException if there is any error during the operation
      */
-    void index(String indexName, String siteId, String docId, String xml,
-               MultiValueMap<String, String> additionalFields) throws ElasticsearchException;
+    void index(String indexName, String siteId, String docId, String xml, Map<String, Object> additionalFields)
+            throws ElasticsearchException;
 
     /**
      * Performs an index for the given binary file
@@ -78,11 +77,21 @@ public interface ElasticsearchService extends AutoCloseable {
      * @param content the content of the document
      * @throws ElasticsearchException if there is any error during the operation
      */
-    void indexBinary(String indexName, String siteName, String path, MultiValueMap<String, String> additionalFields,
-                     Content content) throws ElasticsearchException;
+    void indexBinary(String indexName, String siteName, String path, Content content,
+                     Map<String, Object> additionalFields) throws ElasticsearchException;
 
-    void indexBinary(String indexName, String siteName, String path, MultiValueMap<String, String> additionalFields,
-                     Resource resource) throws ElasticsearchException;
+    default void indexBinary(String indexName, String siteName, String path, Content content)
+            throws ElasticsearchException {
+        indexBinary(indexName, siteName, path, content,null);
+    }
+
+    void indexBinary(String indexName, String siteName, String path, Resource resource,
+                     Map<String, Object> additionalFields) throws ElasticsearchException;
+
+    default void indexBinary(String indexName, String siteName, String path, Resource resource)
+            throws ElasticsearchException {
+        indexBinary(indexName, siteName, path, resource, null);
+    }
 
     /**
      * Performs a delete for the given document

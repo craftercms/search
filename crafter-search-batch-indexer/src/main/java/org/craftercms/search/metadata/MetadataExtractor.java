@@ -36,6 +36,6 @@ public interface MetadataExtractor {
      * @param context the current context
      * @return the extracted metadata
      */
-    Map<String, String> extract(String path, ContentStoreService contentStoreService, Context context);
+    Map<String, Object> extract(String path, ContentStoreService contentStoreService, Context context);
 
 }
