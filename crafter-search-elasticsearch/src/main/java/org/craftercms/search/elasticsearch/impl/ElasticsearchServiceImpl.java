@@ -46,7 +46,8 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.util.MultiValueMap;
+
+import static org.craftercms.search.commons.utils.MapUtils.mergeMaps;
 
 /**
  * Default implementation of {@link ElasticsearchService}
@@ -214,16 +215,10 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      */
     @Override
     public void index(final String indexName, final String siteName, final String docId, final String xml,
-                      final MultiValueMap<String, String> additionalFields) throws ElasticsearchException {
+                      final Map<String, Object> additionalFields) throws ElasticsearchException {
         Map<String, Object> doc = documentBuilder.build(siteName, docId, xml, true);
         if(MapUtils.isNotEmpty(additionalFields)) {
-            additionalFields.forEach((key, value) -> {
-                if(value.size() == 1) {
-                    doc.put(key, value.get(0));
-                } else {
-                    doc.put(key, value);
-                }
-            });
+            doc = mergeMaps(doc, additionalFields);
         }
         index(indexName, siteName, docId, doc);
     }
@@ -233,7 +228,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      */
     @Override
     public void indexBinary(final String indexName, final String siteName, final String path,
-                            MultiValueMap<String, String> additionalFields, final Content content)
+                            Map<String, Object> additionalFields, final Content content)
         throws ElasticsearchException {
         String filename = FilenameUtils.getName(path);
         try {
@@ -249,7 +244,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      */
     @Override
     public void indexBinary(final String indexName, final String siteName, final String path,
-                            MultiValueMap<String, String> additionalFields, final Resource resource)
+                            Map<String, Object> additionalFields, final Resource resource)
         throws ElasticsearchException {
         String filename = FilenameUtils.getName(path);
         try {
