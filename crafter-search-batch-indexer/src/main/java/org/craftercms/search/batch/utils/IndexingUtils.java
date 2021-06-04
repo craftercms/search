@@ -16,18 +16,17 @@
 
 package org.craftercms.search.batch.utils;
 
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.activation.FileTypeMap;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.craftercms.search.batch.UpdateDetail;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MimeType;
-import org.springframework.util.MultiValueMap;
+
+import static java.time.ZoneOffset.UTC;
 
 /**
  * @author joseross
@@ -47,13 +46,13 @@ public abstract class IndexingUtils {
         }
     }
 
-    public static MultiValueMap<String, String> getAdditionalFields(UpdateDetail updateDetail) {
-        MultiValueMap<String, String> additionalFields = null;
+    public static Map<String, Object> getAdditionalFields(UpdateDetail updateDetail) {
+        Map<String, Object> additionalFields = null;
         if(updateDetail != null) {
-            additionalFields = new LinkedMultiValueMap<>();
-            additionalFields.put(FIELD_NAME_EDITED_BY, Collections.singletonList(updateDetail.getAuthor()));
-            additionalFields.put(FIELD_NAME_EDITED_ON, Collections.singletonList(
-                DateTimeFormatter.ISO_INSTANT.format(updateDetail.getDate().atZone(ZoneId.of("UTC")))));
+            additionalFields = new HashMap<>();
+            additionalFields.put(FIELD_NAME_EDITED_BY, List.of(updateDetail.getAuthor()));
+            additionalFields.put(FIELD_NAME_EDITED_ON,
+                    List.of(DateTimeFormatter.ISO_INSTANT.format(updateDetail.getDate().atZone(UTC))));
         }
         return additionalFields;
     }

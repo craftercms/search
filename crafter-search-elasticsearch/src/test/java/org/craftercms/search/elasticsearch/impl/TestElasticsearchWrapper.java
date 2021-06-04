@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2020 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2021 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -13,23 +13,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.craftercms.search.elasticsearch.impl;
 
-package org.craftercms.search.elasticsearch.exception;
-
-import org.craftercms.search.commons.exception.SearchException;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.client.RestHighLevelClient;
 
 /**
- * Base exception for all Elasticsearch errors
+ * Dummy implementation of {@link AbstractElasticsearchWrapper} used for testing
+ *
  * @author joseross
+ * @since 4.0.0
  */
-public class ElasticsearchException extends SearchException {
+public class TestElasticsearchWrapper extends AbstractElasticsearchWrapper {
 
-    public ElasticsearchException(final String indexId, final String msg) {
-        super(indexId, msg);
+    public TestElasticsearchWrapper(RestHighLevelClient client) {
+        super(client);
     }
 
-    public ElasticsearchException(final String indexId, final String msg, final Throwable throwable) {
-        super(indexId, msg, throwable);
+    @Override
+    protected void updateIndex(SearchRequest request) {
+        // do nothing...
     }
 
 }

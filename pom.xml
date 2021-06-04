@@ -19,7 +19,6 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.craftercms</groupId>
     <artifactId>crafter-search</artifactId>
 
     <name>Crafter Search</name>
@@ -42,30 +41,10 @@
     </parent>
 
     <modules>
-        <module>crafter-search-solr-api</module>
-        <module>crafter-search-solr-server</module>
-        <module>crafter-search-solr-client</module>
-        <module>crafter-search-solr-itest</module>
         <module>crafter-search-batch-indexer</module>
         <module>crafter-search-elasticsearch</module>
         <module>crafter-search-commons</module>
     </modules>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <configuration>
-                    <tasks>
-                        <echo level="warn">+++++++++++++ build directory
-                            ${project.build.directory}
-                        </echo>
-                        <echo>${remote.tomcat.host.1}</echo>
-                    </tasks>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>

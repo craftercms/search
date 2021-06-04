@@ -15,7 +15,7 @@
  */
 package org.craftercms.search.batch.exception;
 
-import org.craftercms.search.exception.SearchException;
+import org.craftercms.search.commons.exception.SearchException;
 
 /**
  * Exception thrown when a batch indexing operation fails.

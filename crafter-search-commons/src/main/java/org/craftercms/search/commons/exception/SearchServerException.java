@@ -14,25 +14,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.craftercms.search.elasticsearch;
-
-import org.springframework.core.io.Resource;
-
-import java.util.Map;
+package org.craftercms.search.commons.exception;
 
 /**
- * Defines the operations to parse binary documents for indexing
+ * Exception thrown when the search engine is not available.
  * @author joseross
  */
-public interface DocumentParser {
+public class SearchServerException extends SearchException {
 
-    /**
-     * Parses the given document and generates an XML file
-     * @param filename the name of the file
-     * @param resource the document to parse
-     * @param additionalFields additional fields to add
-     * @return an XML ready to be indexed
-     */
-    String parseToXml(String filename, Resource resource, Map<String, Object> additionalFields);
+    public SearchServerException(final String msg) {
+        super(msg);
+    }
+
+    public SearchServerException(final String msg, final Throwable cause) {
+        super(msg, cause);
+    }
+
+    public SearchServerException(final String indexId, final String msg) {
+        super(indexId, msg);
+    }
+
+    public SearchServerException(final String indexId, final String msg, final Throwable throwable) {
+        super(indexId, msg, throwable);
+    }
 
 }

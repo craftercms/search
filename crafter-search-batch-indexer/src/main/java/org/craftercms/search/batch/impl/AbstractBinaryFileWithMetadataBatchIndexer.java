@@ -40,16 +40,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import javax.activation.FileTypeMap;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.trim;
 import static org.craftercms.search.batch.utils.IndexingUtils.isMimeTypeSupported;
+import static org.craftercms.search.commons.utils.MapUtils.mergeMaps;
 
 
 /**
@@ -191,17 +192,17 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                 binaryUpdatePaths, context, contentStoreService, updateSet.getUpdateDetail(metadataPath), updateStatus);
 
             // Index the new associated binaries
-            if (CollectionUtils.isNotEmpty(newBinaryPaths)) {
-                MultiValueMap<String, String> metadata = extractMetadata(metadataPath, metadataDoc);
+            if (isNotEmpty(newBinaryPaths)) {
+                Map<String, Object> metadata = extractMetadata(metadataPath, metadataDoc);
 
                 for (String newBinaryPath : newBinaryPaths) {
                     binaryUpdatePaths.remove(newBinaryPath);
 
-                    Map<String, String> additionalFields = collectMetadata(metadataPath, contentStoreService, context);
-                    metadata.setAll(additionalFields);
+                    Map<String, Object> additionalFields = collectMetadata(metadataPath, contentStoreService, context);
+                    Map<String, Object> mergedMetadata = mergeMaps(metadata, additionalFields);
 
-                    updateBinaryWithMetadata(indexId, siteName, contentStoreService, context, newBinaryPath, metadata,
-                        updateSet.getUpdateDetail(metadataPath), updateStatus);
+                    updateBinaryWithMetadata(indexId, siteName, contentStoreService, context, newBinaryPath,
+                            mergedMetadata, updateSet.getUpdateDetail(metadataPath), updateStatus);
                 }
             }
         }
@@ -212,13 +213,13 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                 // If the binary file has an associated metadata, index the file with the metadata
                 Document metadataDoc = loadMetadata(contentStoreService, context, siteName, metadataPath);
                 if (metadataDoc != null) {
-                    MultiValueMap<String, String> metadata = extractMetadata(metadataPath, metadataDoc);
+                    Map<String, Object> metadata = extractMetadata(metadataPath, metadataDoc);
 
-                    Map<String, String> additionalFields = collectMetadata(metadataPath, contentStoreService, context);
-                    metadata.setAll(additionalFields);
+                    Map<String, Object> additionalFields = collectMetadata(metadataPath, contentStoreService, context);
+                    Map<String, Object> mergedMetadata = mergeMaps(metadata, additionalFields);
 
                     updateBinaryWithMetadata(indexId, siteName, contentStoreService, context, binaryPath,
-                                             metadata, updateSet.getUpdateDetail(metadataPath), updateStatus);
+                                             mergedMetadata, updateSet.getUpdateDetail(metadataPath), updateStatus);
                 }
             } else {
                 // If not, index by itself
@@ -233,7 +234,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                                           Set<String> binaryUpdatePaths, Context context,
                                           ContentStoreService contentStoreService,
                                           UpdateDetail updateDetail, UpdateStatus updateStatus) {
-        if (CollectionUtils.isNotEmpty(previousBinaryPaths)) {
+        if (isNotEmpty(previousBinaryPaths)) {
             for (String previousBinaryPath : previousBinaryPaths) {
                 if (CollectionUtils.isEmpty(newBinaryPaths) || !newBinaryPaths.contains(previousBinaryPath)) {
                     binaryUpdatePaths.remove(previousBinaryPath);
@@ -324,13 +325,12 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     protected Collection<String> getBinaryFilePaths(Document document) {
-        if (CollectionUtils.isNotEmpty(referenceXPaths)) {
+        if (isNotEmpty(referenceXPaths)) {
             Set<String> binaryPaths = new LinkedHashSet<>();
             for (String refXpath : referenceXPaths) {
                 List<Node> references = document.selectNodes(refXpath);
-                if (CollectionUtils.isNotEmpty(references)) {
+                if (isNotEmpty(references)) {
                     for (Node reference : references) {
                         String referenceValue = reference.getText();
                         if (StringUtils.isNotBlank(referenceValue) &&
@@ -348,7 +348,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
 
     protected void updateBinaryWithMetadata(String indexId, String siteName,
                                             ContentStoreService contentStoreService, Context context,
-                                            String binaryPath, MultiValueMap<String, String> metadata,
+                                            String binaryPath, Map<String, Object> metadata,
                                             UpdateDetail updateDetail, UpdateStatus updateStatus) {
         try {
             // Check if the binary file is stored remotely
@@ -385,11 +385,11 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
     }
 
     protected abstract void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
-                                            final Resource resource, final MultiValueMap<String, String> metadata,
+                                            final Resource resource, final Map<String, Object> metadata,
                                             final UpdateDetail updateDetail, final UpdateStatus updateStatus);
 
     protected abstract void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
-                                            final Content content, final MultiValueMap<String, String> metadata,
+                                            final Content content, final Map<String, Object> metadata,
                                             final UpdateDetail updateDetail, final UpdateStatus updateStatus);
 
     protected void updateBinary(String indexId, String siteName, ContentStoreService contentStoreService,
@@ -413,9 +413,9 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                     if(binaryContent.getLength() > maxFileSize) {
                         logger.warn("Skipping large binary file @ {}", binaryPath);
                     } else {
-                        Map<String, String> metadata = collectMetadata(binaryPath, contentStoreService, context);
-                        doUpdateContent(indexId, siteName, binaryPath, binaryContent, updateDetail, updateStatus,
-                                        metadata);
+                        Map<String, Object> metadata = collectMetadata(binaryPath, contentStoreService, context);
+                        doUpdateContent(indexId, siteName, binaryPath, binaryContent, metadata, updateDetail,
+                                        updateStatus);
                     }
                 } else {
                     logger.debug("No binary file found @ {}:{}. Skipping update", siteName, binaryPath);
@@ -430,48 +430,61 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                                             final Resource toResource, final UpdateDetail updateDetail,
                                             final UpdateStatus updateStatus);
 
-    protected abstract void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
-                                            final Content content, final UpdateDetail updateDetail,
-                                            final UpdateStatus updateStatus, final Map<String, String> metadata);
-
-    protected MultiValueMap<String, String> extractMetadata(String path, Document document) {
-        MultiValueMap<String, String> metadata = new LinkedMultiValueMap<>();
+    protected Map<String, Object> extractMetadata(String path, Document document) {
+        Map<String, Object> metadata = new TreeMap<>();
         Element rootElem = document.getRootElement();
 
-        extractMetadataFromChildren(rootElem, StringUtils.EMPTY, metadata);
+        extractMetadataFromChildren(rootElem, EMPTY, metadata);
 
         logger.debug("Extracted metadata: {}", metadata);
 
         // Add extra metadata ID field
-        metadata.set(metadataPathFieldName, path);
+        metadata.put(metadataPathFieldName, path);
 
         return metadata;
     }
 
     @SuppressWarnings("unchecked")
-    protected void extractMetadataFromChildren(Element element, String key, MultiValueMap<String, String> metadata) {
+    protected void extractMetadataFromChildren(Element element, String path, Map<String, Object> metadata) {
         for (Iterator<Node> iter = element.nodeIterator(); iter.hasNext(); ) {
             Node node = iter.next();
 
-            if (node instanceof Element) {
-                StringBuilder childKey = new StringBuilder(key);
+            StringBuilder childKey = new StringBuilder(path);
 
-                if (childKey.length() > 0) {
-                    childKey.append(".");
-                }
+            if (childKey.length() > 0) {
+                childKey.append(".");
+            }
 
-                childKey.append(node.getName());
+            childKey.append(node.getName());
 
-                if (CollectionUtils.isEmpty(excludeMetadataProperties) ||
-                    !excludeMetadataProperties.contains(childKey.toString())) {
-                    extractMetadataFromChildren((Element) node, childKey.toString(), metadata);
+            if (node instanceof Element && isNotEmpty(((Element) node).elements())) {
+                if (shouldIncludeProperty(childKey.toString()) &&
+                        (CollectionUtils.isEmpty(excludeMetadataProperties) ||
+                        !excludeMetadataProperties.contains(childKey.toString()))) {
+                    var childMetadata = new TreeMap<String, Object>();
+                    metadata.put(node.getName(), childMetadata);
+                    extractMetadataFromChildren((Element) node, childKey.toString(), childMetadata);
                 }
             } else {
-                String value = node.getText();
-                if (StringUtils.isNotBlank(value) && shouldIncludeProperty(key)) {
-                    logger.debug("Adding value [{}] for property [{}]", value, key);
+                String value = trim(node.getText());
+                if (StringUtils.isNotBlank(value) && shouldIncludeProperty(childKey.toString())) {
+                    logger.debug("Adding value [{}] for property [{}]", value, childKey.toString());
 
-                    metadata.add(key, StringUtils.trim(value));
+                    metadata.compute(node.getName(), (k, existingValue) -> {
+                        if (existingValue == null) {
+                            return value;
+                        } else {
+                            if (existingValue instanceof List) {
+                                ((List<Object>) existingValue).add(value);
+                                return existingValue;
+                            } else {
+                                var list = new LinkedList<>();
+                                list.add(existingValue);
+                                list.add(value);
+                                return list;
+                            }
+                        }
+                    });
                 }
             }
         }
@@ -497,7 +510,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
         }
 
         @Override
-        public InputStream getInputStream() throws IOException {
+        public InputStream getInputStream() {
             return new ByteArrayInputStream(new byte[0]);
         }
 
