@@ -17,6 +17,7 @@
 package org.craftercms.search.batch.impl;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,15 +31,21 @@ import org.craftercms.search.service.Query;
 import org.craftercms.search.service.ResourceAwareSearchService;
 import org.craftercms.search.service.SearchService;
 import org.craftercms.search.utils.SearchResultUtils;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.Node;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 /**
  * Implementation of {@link AbstractBinaryFileWithMetadataBatchIndexer} that uses {@link SearchService}.
  * @author joseross
  */
-public class BinaryFileWithMetadataBatchIndexer extends AbstractBinaryFileWithMetadataBatchIndexer {
+@SuppressWarnings("rawtypes")
+public class BinaryFileWithMetadataBatchIndexer extends
+        AbstractBinaryFileWithMetadataBatchIndexer<MultiValueMap<String, String>> {
 
     /**
      * Instance of {@link SearchService}
@@ -124,6 +131,58 @@ public class BinaryFileWithMetadataBatchIndexer extends AbstractBinaryFileWithMe
         } else {
             return null;
         }
+    }
+
+    protected MultiValueMap<String, String> extractMetadata(String path, Document document) {
+        MultiValueMap<String, String> metadata = new LinkedMultiValueMap<>();
+        Element rootElem = document.getRootElement();
+
+        extractMetadataFromChildren(rootElem, StringUtils.EMPTY, metadata);
+
+        logger.debug("Extracted metadata: {}", metadata);
+
+        // Add extra metadata ID field
+        metadata.set(metadataPathFieldName, path);
+
+        return metadata;
+    }
+
+    @SuppressWarnings("unchecked, deprecation")
+    protected void extractMetadataFromChildren(Element element, String key, MultiValueMap<String, String> metadata) {
+        for (Iterator<Node> iter = element.nodeIterator(); iter.hasNext(); ) {
+            Node node = iter.next();
+
+            if (node instanceof Element) {
+                StringBuilder childKey = new StringBuilder(key);
+
+                if (childKey.length() > 0) {
+                    childKey.append(".");
+                }
+
+                childKey.append(node.getName());
+
+                if (CollectionUtils.isEmpty(excludeMetadataProperties) ||
+                        !excludeMetadataProperties.contains(childKey.toString())) {
+                    extractMetadataFromChildren((Element) node, childKey.toString(), metadata);
+                }
+            } else {
+                String value = node.getText();
+                if (StringUtils.isNotBlank(value) && shouldIncludeProperty(key)) {
+                    logger.debug("Adding value [{}] for property [{}]", value, key);
+
+                    metadata.add(key, StringUtils.trim(value));
+                }
+            }
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected MultiValueMap<String, String> mergeMetadata(MultiValueMap<String, String> a, Object b) {
+        if (b instanceof Map) {
+            a.setAll((Map<String, String>) b);
+        }
+        return a;
     }
 
 }

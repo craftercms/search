@@ -17,7 +17,8 @@
 package org.craftercms.search.elasticsearch;
 
 import org.springframework.core.io.Resource;
-import org.springframework.util.MultiValueMap;
+
+import java.util.Map;
 
 /**
  * Defines the operations to parse binary documents for indexing
@@ -32,6 +33,6 @@ public interface DocumentParser {
      * @param additionalFields additional fields to add
      * @return an XML ready to be indexed
      */
-    String parseToXml(String filename, Resource resource, MultiValueMap<String, String> additionalFields);
+    String parseToXml(String filename, Resource resource, Map<String, Object> additionalFields);
 
 }

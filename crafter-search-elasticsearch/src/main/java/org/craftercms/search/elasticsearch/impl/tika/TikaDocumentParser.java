@@ -37,10 +37,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
-import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+
+import static org.craftercms.search.commons.utils.MapUtils.mergeMaps;
 
 /**
  * Implementation of {@link org.craftercms.search.elasticsearch.DocumentParser} that uses Apache Tika
@@ -95,7 +96,7 @@ public class TikaDocumentParser extends AbstractDocumentParser {
      */
     @Override
     public String parseToXml(final String filename, final Resource resource,
-                             final MultiValueMap<String, String> additionalFields) {
+                             final Map<String, Object> additionalFields) {
         Metadata metadata = new Metadata();
         try {
             // Tika will close the stream so it can't be used for anything after this, can't use auto close ...
@@ -116,7 +117,7 @@ public class TikaDocumentParser extends AbstractDocumentParser {
      * @return the XML ready to be indexed
      */
     protected String extractMetadata(String filename, Resource resource, String parsedContent, Metadata metadata,
-                                     MultiValueMap<String, String> additionalFields) {
+                                     Map<String, Object> additionalFields) {
         Map<String, Object> map = new HashMap<>();
 
         if(StringUtils.isNotEmpty(parsedContent)) {
@@ -135,11 +136,12 @@ public class TikaDocumentParser extends AbstractDocumentParser {
         }
         metadataExtractors.forEach(extractor -> extractor.extract(resource, metadata, map));
 
-        if(MapUtils.isNotEmpty(additionalFields)) {
-            map.putAll(additionalFields);
+        Map<String, Object> result = map;
+        if (MapUtils.isNotEmpty(additionalFields)) {
+            result = mergeMaps(map, additionalFields);
         }
         try {
-            return objectMapper.writeValueAsString(map);
+            return objectMapper.writeValueAsString(result);
         } catch (JsonProcessingException e) {
             logger.error("Error writing parsed document as XML");
             throw new SearchException("Error writing parsed document as XML", e);
