@@ -56,7 +56,8 @@ public abstract class MapUtils {
                 list.add(oldValue);
                 return list;
             } else {
-                return List.of(oldValue, newValue);
+                // single properties are not merged, only overwritten
+                return newValue;
             }
         }));
 

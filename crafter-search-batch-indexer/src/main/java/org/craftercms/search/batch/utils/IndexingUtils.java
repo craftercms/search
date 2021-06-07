@@ -50,9 +50,9 @@ public abstract class IndexingUtils {
         Map<String, Object> additionalFields = null;
         if(updateDetail != null) {
             additionalFields = new HashMap<>();
-            additionalFields.put(FIELD_NAME_EDITED_BY, List.of(updateDetail.getAuthor()));
+            additionalFields.put(FIELD_NAME_EDITED_BY, updateDetail.getAuthor());
             additionalFields.put(FIELD_NAME_EDITED_ON,
-                    List.of(DateTimeFormatter.ISO_INSTANT.format(updateDetail.getDate().atZone(UTC))));
+                    DateTimeFormatter.ISO_INSTANT.format(updateDetail.getDate().atZone(UTC)));
         }
         return additionalFields;
     }
