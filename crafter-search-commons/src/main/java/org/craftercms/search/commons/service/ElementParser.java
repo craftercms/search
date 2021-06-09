@@ -25,10 +25,10 @@ import org.dom4j.Element;
 public interface ElementParser<T> {
 
     /**
-     * Parses the given element, generating one or more Solr fields and adding them to the given document.
+     * Parses the given element, generating one or more fields and adding them to the given document.
      *
      * @param element           the element to parse
-     * @param fieldName         the field name that should be used for the main Solr field (by default will be the
+     * @param fieldName         the field name that should be used for the main field (by default will be the
      *                          path of the element in the tree plus the element name)
      * @param parentFieldName   the field name of the parent element
      * @param doc               the document to add the generated fields

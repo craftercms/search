@@ -42,7 +42,7 @@ public class ElasticsearchElementParserImpl extends AbstractElementParser<Map<St
 
         if (element.hasContent()) {
             if (element.isTextOnly()) {
-                logger.debug("Adding Solr field '{}'", fieldName);
+                logger.debug("Adding field '{}'", fieldName);
 
                 Object fieldValue = fieldValueConverter.convert(fieldName, element.getText());
 

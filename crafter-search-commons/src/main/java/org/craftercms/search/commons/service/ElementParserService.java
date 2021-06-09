@@ -26,7 +26,7 @@ import org.dom4j.Element;
 public interface ElementParserService<T> {
 
     /**
-     * Parses the given element, generating one or more Solr fields and adding them to the given document.
+     * Parses the given element, generating one or more fields and adding them to the given document.
      *
      * @param element           the element to parse
      * @param parentFieldName   the field name of the parent
