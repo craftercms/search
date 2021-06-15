@@ -45,7 +45,7 @@ public interface DocumentBuilder<T> {
      *
      * @param site      the Crafter site name the content belongs to
      * @param id        value for the "localId" field in the document (final doc id is built as site:localId)
-     * @param fields    fields to add to solr document.
+     * @param fields    fields to add to the document.
      *
      * @return the document
      */

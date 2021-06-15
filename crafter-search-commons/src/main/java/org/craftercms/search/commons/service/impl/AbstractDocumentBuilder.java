@@ -129,7 +129,7 @@ public abstract class AbstractDocumentBuilder<T> implements DocumentBuilder<T> {
         T doc = createDoc();
         String finalId = site + ":" + id;
 
-        logger.debug("Building Solr doc for {}", finalId);
+        logger.debug("Buildingdoc for {}", finalId);
 
         String now = formatAsIso(Instant.now());
 
@@ -186,7 +186,7 @@ public abstract class AbstractDocumentBuilder<T> implements DocumentBuilder<T> {
         T doc = createDoc();
         String finalId = site + ":" + id;
 
-        logger.debug("Building Solr doc for {}", finalId);
+        logger.debug("Building doc for {}", finalId);
 
         String now = formatAsIso(Instant.now());
 
