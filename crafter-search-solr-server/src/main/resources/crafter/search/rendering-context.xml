@@ -57,6 +57,18 @@
     <bean id="multipartResolver"
           class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
 
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="#{T(org.craftercms.search.rest.v1.SearchRestApiConstants).URL_ROOT}/**"/>
+            <mvc:mapping path="#{T(org.craftercms.search.rest.v2.SearchRestApiConstants).URL_ROOT}/**"/>
+            <mvc:mapping path="#{T(org.craftercms.search.rest.v2.AdminRestApiConstants).URL_ROOT}/**"/>
+            <bean class="org.craftercms.search.utils.spring.AccessTokenInterceptor">
+                <constructor-arg name="parameterName" value="${crafter.search.api.access.token.parameter}"/>
+                <constructor-arg name="accessToken" value="${crafter.search.api.access.token.value}"/>
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
     <import resource="${crafter.search.extension.base}/rendering-context.xml"/>
 
 </beans>

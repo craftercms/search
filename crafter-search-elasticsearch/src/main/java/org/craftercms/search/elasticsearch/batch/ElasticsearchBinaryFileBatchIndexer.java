@@ -24,8 +24,8 @@ import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.impl.AbstractBinaryFileBatchIndexer;
 import org.craftercms.core.service.Content;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Implementation of {@link AbstractBinaryFileBatchIndexer} for Elasticsearch
@@ -52,9 +52,12 @@ public class ElasticsearchBinaryFileBatchIndexer extends AbstractBinaryFileBatch
     protected void doUpdateContent(final String indexId, final String siteName, final String path,
                                    final Content binaryContent, final UpdateDetail updateDetail,
                                    final UpdateStatus updateStatus, Map<String, String> metadata) {
-        MultiValueMap<String, String> additionalFields = new LinkedMultiValueMap<>();
-        additionalFields.setAll(metadata);
-        ElasticsearchIndexingUtils.doUpdateBinary(elasticsearchService, indexId, siteName, path, additionalFields,
+
+        // This map transformation is required to bridge with the crafter-search API
+        Map<String, Object> map = metadata.entrySet().stream()
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        ElasticsearchIndexingUtils.doUpdateBinary(elasticsearchService, indexId, siteName, path, map,
             binaryContent, updateDetail, updateStatus);
     }
 
