@@ -24,6 +24,8 @@ import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.impl.AbstractXmlFileBatchIndexer;
 import org.springframework.beans.factory.annotation.Required;
 
+import static java.util.stream.Collectors.toMap;
+
 /**
  * Implementation of {@link AbstractXmlFileBatchIndexer} for Elasticsearch
  * @author joseross
@@ -49,8 +51,13 @@ public class ElasticsearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexe
     protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
                             final UpdateDetail updateDetail, final UpdateStatus updateStatus,
                             Map<String, String> metadata) {
+
+        // This map transformation is required to bridge with the crafter-search API
+        Map<String, Object> map = metadata.entrySet().stream()
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+
         ElasticsearchIndexingUtils.doUpdate(elasticsearchService, indexId, siteName, path, xml, updateDetail,
-            updateStatus, metadata);
+            updateStatus, map);
     }
 
 }

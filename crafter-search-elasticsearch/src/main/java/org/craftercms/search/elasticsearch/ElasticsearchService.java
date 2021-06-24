@@ -23,7 +23,6 @@ import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.craftercms.core.service.Content;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.core.io.Resource;
-import org.springframework.util.MultiValueMap;
 
 /**
  * Provides access to indexing operations in Elasticsearch
@@ -67,7 +66,7 @@ public interface ElasticsearchService extends AutoCloseable {
      * @throws ElasticsearchException if there is any error during the operation
      */
     void index(String indexName, String siteId, String docId, String xml,
-               MultiValueMap<String, String> additionalFields) throws ElasticsearchException;
+               Map<String, Object> additionalFields) throws ElasticsearchException;
 
     /**
      * Performs an index for the given binary file
@@ -78,10 +77,10 @@ public interface ElasticsearchService extends AutoCloseable {
      * @param content the content of the document
      * @throws ElasticsearchException if there is any error during the operation
      */
-    void indexBinary(String indexName, String siteName, String path, MultiValueMap<String, String> additionalFields,
+    void indexBinary(String indexName, String siteName, String path, Map<String, Object> additionalFields,
                      Content content) throws ElasticsearchException;
 
-    void indexBinary(String indexName, String siteName, String path, MultiValueMap<String, String> additionalFields,
+    void indexBinary(String indexName, String siteName, String path, Map<String, Object> additionalFields,
                      Resource resource) throws ElasticsearchException;
 
     /**
