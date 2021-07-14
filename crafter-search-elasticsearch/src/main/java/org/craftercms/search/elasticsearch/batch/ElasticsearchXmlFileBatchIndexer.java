@@ -16,6 +16,7 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
+import java.beans.ConstructorProperties;
 import java.util.Locale;
 import java.util.Map;
 
@@ -44,6 +45,7 @@ public class ElasticsearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexe
      */
     protected ElasticsearchService elasticsearchService;
 
+    @ConstructorProperties({"elasticsearchAdminService", "localeExtractor", "elasticsearchService"})
     public ElasticsearchXmlFileBatchIndexer(ElasticsearchAdminService elasticsearchAdminService,
                                             LocaleExtractor localeExtractor,
                                             ElasticsearchService elasticsearchService) {

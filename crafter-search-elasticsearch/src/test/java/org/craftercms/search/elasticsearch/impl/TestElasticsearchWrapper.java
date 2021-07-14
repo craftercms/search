@@ -18,6 +18,8 @@ package org.craftercms.search.elasticsearch.impl;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.client.RestHighLevelClient;
 
+import java.beans.ConstructorProperties;
+
 /**
  * Dummy implementation of {@link AbstractElasticsearchWrapper} used for testing
  *
@@ -26,6 +28,7 @@ import org.elasticsearch.client.RestHighLevelClient;
  */
 public class TestElasticsearchWrapper extends AbstractElasticsearchWrapper {
 
+    @ConstructorProperties({"client"})
     public TestElasticsearchWrapper(RestHighLevelClient client) {
         super(client);
     }

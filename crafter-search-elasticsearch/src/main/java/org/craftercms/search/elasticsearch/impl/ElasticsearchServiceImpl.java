@@ -16,6 +16,7 @@
 
 package org.craftercms.search.elasticsearch.impl;
 
+import java.beans.ConstructorProperties;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -92,6 +93,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
      */
     protected String scrollTimeout = DEFAULT_SCROLL_TIMEOUT;
 
+    @ConstructorProperties({"documentBuilder", "documentParser", "elasticsearchClient"})
     public ElasticsearchServiceImpl(final ElasticsearchDocumentBuilder documentBuilder,
                                     final DocumentParser documentParser,
                                     final RestHighLevelClient elasticsearchClient) {

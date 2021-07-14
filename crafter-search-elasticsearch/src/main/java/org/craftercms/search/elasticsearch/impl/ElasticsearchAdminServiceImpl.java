@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
+import java.beans.ConstructorProperties;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -104,6 +105,8 @@ public class ElasticsearchAdminServiceImpl implements ElasticsearchAdminService 
      */
     protected Map<String, String> defaultSettings;
 
+    @ConstructorProperties({"authoringMapping", "previewMapping", "authoringNamePattern", "localeMapping",
+            "defaultSettings", "elasticsearchClient"})
     public ElasticsearchAdminServiceImpl(Resource authoringMapping, Resource previewMapping,
                                          String authoringNamePattern, Map<String, String> localeMapping,
                                          Map<String, String> defaultSettings, RestHighLevelClient elasticsearchClient) {
