@@ -16,6 +16,7 @@
 
 package org.craftercms.core.processors.impl;
 
+import java.beans.ConstructorProperties;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -49,6 +50,7 @@ public class InheritedDescriptorsItemProcessor implements ItemProcessor {
      */
     protected DescriptorMergeStrategyResolver mergeStrategyResolver;
 
+    @ConstructorProperties({"inheritsFromElementName", "mergeStrategyResolver"})
     public InheritedDescriptorsItemProcessor(final String inheritsFromElementName,
                                              final DescriptorMergeStrategyResolver mergeStrategyResolver) {
         this.inheritsFromElementName = inheritsFromElementName;

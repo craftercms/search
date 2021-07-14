@@ -20,7 +20,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
     <bean id="searchClient" class="org.craftercms.search.elasticsearch.spring.ElasticsearchClientFactory">
-        <constructor-arg value="http://localhost:9229"/>
+        <constructor-arg name="serverUrls" value="http://localhost:9229"/>
     </bean>
 
     <bean id="fieldValueConverter" class="org.craftercms.search.commons.service.impl.CompositeSuffixBasedConverter">
@@ -44,7 +44,7 @@
     </bean>
 
     <bean id="searchService" class="org.craftercms.search.elasticsearch.impl.ElasticsearchServiceImpl">
-        <constructor-arg>
+        <constructor-arg name="documentBuilder">
             <bean class="org.craftercms.search.elasticsearch.impl.ElasticsearchDocumentBuilder">
                 <property name="idFieldName" value="id"/>
                 <property name="rootIdFieldName" value="rootId"/>
@@ -73,7 +73,7 @@
                 </property>
             </bean>
         </constructor-arg>
-        <constructor-arg>
+        <constructor-arg name="documentParser">
             <bean class="org.craftercms.search.elasticsearch.impl.tika.TikaDocumentParser">
                 <property name="charLimit" value="100"/>
                 <property name="metadataExtractors">
@@ -84,24 +84,24 @@
                 </property>
             </bean>
         </constructor-arg>
-        <constructor-arg ref="searchClient"/>
+        <constructor-arg name="elasticsearchClient" ref="searchClient"/>
     </bean>
 
     <bean id="adminService" class="org.craftercms.search.elasticsearch.impl.ElasticsearchAdminServiceImpl">
-        <constructor-arg value="classpath:crafter/elasticsearch/authoring-mapping.json"/>
-        <constructor-arg value="classpath:crafter/elasticsearch/default-mapping.json"/>
-        <constructor-arg value=".+-authoring"/>
-        <constructor-arg>
+        <constructor-arg name="authoringMapping" value="classpath:crafter/elasticsearch/authoring-mapping.json"/>
+        <constructor-arg name="previewMapping" value="classpath:crafter/elasticsearch/default-mapping.json"/>
+        <constructor-arg name="authoringNamePattern" value=".+-authoring"/>
+        <constructor-arg name="localeMapping">
             <map/>
         </constructor-arg>
-        <constructor-arg>
+        <constructor-arg name="defaultSettings">
             <map/>
         </constructor-arg>
-        <constructor-arg ref="searchClient"/>
+        <constructor-arg name="elasticsearchClient" ref="searchClient"/>
     </bean>
 
     <bean id="searchWrapper" class="org.craftercms.search.elasticsearch.impl.TestElasticsearchWrapper">
-        <constructor-arg ref="searchClient"/>
+        <constructor-arg name="client" ref="searchClient"/>
         <property name="filterQueries" value="-disabled:&quot;true&quot;,-expired_dt:[* TO now]"/>
     </bean>
 

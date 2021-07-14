@@ -23,6 +23,7 @@ import org.craftercms.search.locale.LocaleExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.beans.ConstructorProperties;
 import java.util.Locale;
 
 /**
@@ -45,6 +46,7 @@ public class DescriptorLocaleExtractor implements LocaleExtractor {
      */
     protected String localeXPath;
 
+    @ConstructorProperties({"contentStoreService", "localeXPath"})
     public DescriptorLocaleExtractor(ContentStoreService contentStoreService, String localeXPath) {
         this.contentStoreService = contentStoreService;
         this.localeXPath = localeXPath;
