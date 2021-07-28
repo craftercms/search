@@ -67,7 +67,7 @@
       {
         "ints": {
           "match_pattern": "regex",
-          "match": ".+_(i|is|imv)$",
+          "match": ".+_(i|is|imv|mvi)$",
           "mapping": {
             "type": "integer"
           }
@@ -76,7 +76,7 @@
       {
         "floats": {
           "match_pattern": "regex",
-          "match": ".+_(f|fs|fmv)$",
+          "match": ".+_(f|fs|fmv|mvf)$",
           "mapping": {
             "type": "float"
           }
@@ -85,7 +85,7 @@
       {
         "strings": {
           "match_pattern": "regex",
-          "match": ".+_(s|ss|smv)$",
+          "match": ".+_(s|ss|smv|mvs)$",
           "mapping": {
             "type": "keyword"
           }
@@ -94,7 +94,7 @@
       {
         "longs": {
           "match_pattern": "regex",
-          "match": ".+_(l|ls|lmv)$",
+          "match": ".+_(l|ls|lmv|mvl)$",
           "mapping": {
             "type": "long"
           }
@@ -121,7 +121,7 @@
       {
         "booleans": {
           "match_pattern": "regex",
-          "match": ".+_(b|bs|bmv)$",
+          "match": ".+_(b|bs|bmv|mvb)$",
           "mapping": {
             "type": "boolean"
           }
@@ -130,7 +130,7 @@
       {
         "doubles": {
           "match_pattern": "regex",
-          "match": ".+_(d|ds|dmv)$",
+          "match": ".+_(d|ds|dmv|mvd)$",
           "mapping": {
             "type": "double"
           }
