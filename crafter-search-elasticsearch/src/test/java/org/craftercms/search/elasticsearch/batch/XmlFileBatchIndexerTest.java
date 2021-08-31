@@ -117,7 +117,7 @@ public class XmlFileBatchIndexerTest extends BatchIndexerTestBase {
 
     protected ElasticsearchXmlFileBatchIndexer getBatchIndexer() throws Exception {
         ElasticsearchXmlFileBatchIndexer batchIndexer =
-                new ElasticsearchXmlFileBatchIndexer(adminService, localeExtractor, searchService);
+                new ElasticsearchXmlFileBatchIndexer(adminService, localeExtractor, searchService, false);
         batchIndexer.setItemProcessors(getDocumentProcessors());
 
         return batchIndexer;
