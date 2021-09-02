@@ -40,18 +40,23 @@ public class ElasticsearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexe
 
     protected LocaleExtractor localeExtractor;
 
+    protected final boolean enbleTranslation;
+
     /**
      * Elasticsearch service
      */
     protected ElasticsearchService elasticsearchService;
 
-    @ConstructorProperties({"elasticsearchAdminService", "localeExtractor", "elasticsearchService"})
+    @ConstructorProperties({"elasticsearchAdminService", "localeExtractor", "elasticsearchService",
+            "enableTranslation"})
     public ElasticsearchXmlFileBatchIndexer(ElasticsearchAdminService elasticsearchAdminService,
                                             LocaleExtractor localeExtractor,
-                                            ElasticsearchService elasticsearchService) {
+                                            ElasticsearchService elasticsearchService,
+                                            boolean enableTranslation) {
         this.elasticsearchAdminService = elasticsearchAdminService;
         this.localeExtractor = localeExtractor;
         this.elasticsearchService = elasticsearchService;
+        this.enbleTranslation = enableTranslation;
     }
 
     @Override
@@ -63,13 +68,15 @@ public class ElasticsearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexe
         } else {
             String xml = processXml(siteName, contentStoreService, context, path);
 
-            // get the locale for the item
-            Locale locale = localeExtractor.extract(context, path);
-            if (locale != null) {
-                // check if locale specific index exists
-                elasticsearchAdminService.createIndex(indexId, locale);
-                // update the index name
-                indexId += "-" + LocaleUtils.toString(locale);
+            if (enbleTranslation) {
+                // get the locale for the item
+                Locale locale = localeExtractor.extract(context, path);
+                if (locale != null) {
+                    // check if locale specific index exists
+                    elasticsearchAdminService.createIndex(indexId, locale);
+                    // update the index name
+                    indexId += "-" + LocaleUtils.toString(locale);
+                }
             }
             doUpdate(indexId, siteName, path, xml, updateDetail, updateStatus, metadata);
         }
