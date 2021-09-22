@@ -34,6 +34,7 @@ import org.craftercms.core.service.Context;
 import org.craftercms.search.metadata.impl.AbstractMetadataCollector;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.Namespace;
 import org.dom4j.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -448,6 +449,11 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
     protected void extractMetadataFromChildren(Element element, String path, Map<String, Object> metadata) {
         for (Iterator<Node> iter = element.nodeIterator(); iter.hasNext(); ) {
             Node node = iter.next();
+
+            // Skip namespace nodes to avoid issues during XML merging
+            if (node instanceof Namespace) {
+                continue;
+            }
 
             StringBuilder childKey = new StringBuilder(path);
 
