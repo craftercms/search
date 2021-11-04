@@ -23,6 +23,8 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 
+import static java.util.Collections.emptyMap;
+
 /**
  * Exposes the search related operations from the Elasticsearch client
  * @author joseross
@@ -65,7 +67,32 @@ public interface ElasticsearchWrapper {
      * @return the search response
      * @throws ElasticsearchException if there is any error executing the search
      */
-    SearchResponse search(Map<String, Object> request, RequestOptions options) throws ElasticsearchException;
+    default SearchResponse search(Map<String, Object> request, RequestOptions options) throws ElasticsearchException {
+        return search(request, emptyMap(), options);
+    }
+
+    /**
+     * Performs a search operation
+     * @param request the search request
+     * @param parameters the parameters for the search
+     * @param options the request options
+     * @return the search response
+     * @throws ElasticsearchException if there is any error executing the search
+     */
+    SearchResponse search(Map<String, Object> request, Map<String, Object> parameters, RequestOptions options)
+            throws ElasticsearchException;
+
+    /**
+     * Performs a search operation
+     * @param request the search request
+     * @param parameters the parameters for the search
+     * @return the search response
+     * @throws ElasticsearchException if there is any error executing the search
+     */
+    default SearchResponse search(Map<String, Object> request, Map<String, Object> parameters)
+            throws ElasticsearchException {
+        return search(request, parameters, RequestOptions.DEFAULT);
+    }
 
     /**
      * Performs a search operation
@@ -84,6 +111,30 @@ public interface ElasticsearchWrapper {
      * @return the search response
      * @throws ElasticsearchException if there is any error executing the search
      */
-    SearchResponse search(String request, RequestOptions options) throws ElasticsearchException;
+    default SearchResponse search(String request, RequestOptions options) throws ElasticsearchException {
+        return search(request, emptyMap(), options);
+    }
+
+    /**
+     * Performs a search operation
+     * @param request the search request
+     * @param parameters the parameters for the search
+     * @param options the request options
+     * @return the search response
+     * @throws ElasticsearchException if there is any error executing the search
+     */
+    SearchResponse search(String request, Map<String, Object> parameters, RequestOptions options)
+            throws ElasticsearchException;
+
+    /**
+     * Performs a search operation
+     * @param request the search request
+     * @param parameters the parameters for the search
+     * @return the search response
+     * @throws ElasticsearchException if there is any error executing the search
+     */
+    default SearchResponse search(String request, Map<String, Object> parameters) throws ElasticsearchException {
+        return search(request, parameters, RequestOptions.DEFAULT);
+    }
 
 }
