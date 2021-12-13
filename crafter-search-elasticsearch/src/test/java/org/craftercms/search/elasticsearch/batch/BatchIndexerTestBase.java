@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import org.craftercms.core.exception.PathNotFoundException;
 import org.craftercms.core.processors.ItemProcessor;
-import org.craftercms.core.service.CachingOptions;
 import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
@@ -37,7 +36,7 @@ import org.dom4j.io.SAXReader;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.xml.sax.SAXException;
 
@@ -77,8 +76,9 @@ public class BatchIndexerTestBase {
 
     protected ContentStoreService getContentStoreService() {
         ContentStoreService storeService = mock(ContentStoreService.class);
-
-        when(storeService.getItem(any(Context.class), any(CachingOptions.class), anyString(), any(ItemProcessor.class))).thenAnswer(
+//      TODO: Removed all stubs, look into this
+//
+        when(storeService.getItem(any(Context.class), any(), anyString(), any(ItemProcessor.class))).thenAnswer(
             invocationOnMock -> {
                 Object[] args = invocationOnMock.getArguments();
                 Context context = (Context)args[0];
@@ -93,7 +93,7 @@ public class BatchIndexerTestBase {
                 }
             }
         );
-        when(storeService.findItem(any(Context.class), any(CachingOptions.class), anyString(), any(ItemProcessor.class))).thenAnswer(
+        when(storeService.findItem(any(Context.class), any(), anyString(), any(ItemProcessor.class))).thenAnswer(
             invocationOnMock -> {
                 Object[] args = invocationOnMock.getArguments();
                 Context context = (Context)args[0];
@@ -101,27 +101,6 @@ public class BatchIndexerTestBase {
                 ItemProcessor processor = (ItemProcessor)args[3];
 
                 return findItem(path, context, processor);
-            }
-        );
-        when(storeService.getContent(any(Context.class), anyString())).thenAnswer(
-            invocationOnMock -> {
-                Object[] args = invocationOnMock.getArguments();
-                String path = (String)args[1];
-                Content content = findContent(path);
-
-                if (content != null) {
-                    return content;
-                } else {
-                    throw new PathNotFoundException();
-                }
-            }
-        );
-        when(storeService.findContent(any(Context.class), anyString())).thenAnswer(
-            invocationOnMock -> {
-                Object[] args = invocationOnMock.getArguments();
-                String path = (String)args[1];
-
-                return findContent(path);
             }
         );
 

@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.craftercms.core.exception.PathNotFoundException;
+import org.craftercms.core.service.Context;
 import org.craftercms.search.batch.UpdateSet;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.core.service.Content;
@@ -30,8 +32,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -55,6 +56,20 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
     @Before
     public void setUp() throws Exception {
         super.setUp();
+
+        when(contentStoreService.getContent(any(Context.class), anyString())).thenAnswer(
+                invocationOnMock -> {
+                    Object[] args = invocationOnMock.getArguments();
+                    String path = (String)args[1];
+                    Content content = findContent(path);
+
+                    if (content != null) {
+                        return content;
+                    } else {
+                        throw new PathNotFoundException();
+                    }
+                }
+        );
 
         batchIndexer = getBatchIndexer();
     }

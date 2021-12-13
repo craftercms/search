@@ -16,19 +16,19 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
+import org.craftercms.core.processors.ItemProcessor;
+import org.craftercms.core.processors.impl.AttributeAddingProcessor;
+import org.craftercms.core.processors.impl.FieldRenamingProcessor;
+import org.craftercms.core.processors.impl.PageAwareIncludeDescriptorsProcessor;
+import org.craftercms.search.batch.UpdateSet;
+import org.craftercms.search.batch.UpdateStatus;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.craftercms.core.processors.impl.PageAwareIncludeDescriptorsProcessor;
-import org.craftercms.search.batch.UpdateSet;
-import org.craftercms.search.batch.UpdateStatus;
-import org.craftercms.core.processors.ItemProcessor;
-import org.craftercms.core.processors.impl.AttributeAddingProcessor;
-import org.craftercms.core.processors.impl.FieldRenamingProcessor;
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
