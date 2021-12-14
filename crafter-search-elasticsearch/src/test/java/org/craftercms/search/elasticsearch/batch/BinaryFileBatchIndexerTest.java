@@ -16,23 +16,17 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
-import java.util.Collections;
-
-import org.craftercms.core.exception.PathNotFoundException;
-import org.craftercms.core.service.Context;
+import org.craftercms.core.service.Content;
 import org.craftercms.search.batch.UpdateSet;
 import org.craftercms.search.batch.UpdateStatus;
-import org.craftercms.core.service.Content;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.util.Collections.emptyMap;
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for {@link ElasticsearchBinaryFileBatchIndexer}.
