@@ -25,7 +25,7 @@
     <parent>
         <artifactId>crafter-search</artifactId>
         <groupId>org.craftercms</groupId>
-        <version>3.1.17.3</version><!-- craftercms version flag -->
+        <version>3.1.17.4</version><!-- craftercms version flag -->
     </parent>
 
     <properties>
