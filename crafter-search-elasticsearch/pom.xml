@@ -60,6 +60,11 @@
             <version>${tika.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.jdom</groupId>
+            <artifactId>jdom2</artifactId>
+            <version>${jdom2.version}</version>
+        </dependency>
         <!-- Override the version included in Apache Tika -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
