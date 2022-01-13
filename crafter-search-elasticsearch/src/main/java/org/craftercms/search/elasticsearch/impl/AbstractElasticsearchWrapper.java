@@ -22,6 +22,7 @@ import org.craftercms.search.elasticsearch.ElasticsearchWrapper;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
@@ -39,6 +40,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
+import static org.apache.commons.collections4.MapUtils.isNotEmpty;
+import static org.elasticsearch.action.search.SearchRequest.DEFAULT_INDICES_OPTIONS;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 
 /**
@@ -48,6 +51,9 @@ import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractElasticsearchWrapper.class);
+
+    public static final String PARAM_NAME_INDEX = "index";
+    public static final String PARAM_NAME_SEARCH_TYPE = "search_type";
 
     /**
      * The Elasticsearch client
@@ -118,11 +124,12 @@ public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapp
      * {@inheritDoc}
      */
     @Override
-    public SearchResponse search(final Map<String, Object> request, final RequestOptions options) {
+    public SearchResponse search(final Map<String, Object> request, final Map<String, Object> parameters,
+                                 final RequestOptions options) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             String json = mapper.writeValueAsString(request);
-            return search(json, options);
+            return search(json, parameters, options);
         } catch (IOException e) {
             throw new ElasticsearchException(null, "Error parsing request " + request, e);
         }
@@ -132,14 +139,27 @@ public abstract class AbstractElasticsearchWrapper implements ElasticsearchWrapp
      * {@inheritDoc}
      */
     @Override
-    public SearchResponse search(final String request, final RequestOptions options) {
+    public SearchResponse search(final String request, final Map<String, Object> parameters,
+                                 final RequestOptions options) {
         SearchModule module = new SearchModule(Settings.EMPTY, false, Collections.emptyList());
         try {
             SearchSourceBuilder builder =
                 SearchSourceBuilder.fromXContent(XContentFactory.xContent(XContentType.JSON)
                     .createParser(new NamedXContentRegistry(module.getNamedXContents()),
                         DeprecationHandler.THROW_UNSUPPORTED_OPERATION, request));
-            return search(new SearchRequest().source(builder), options);
+
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.source(builder);
+
+            if (isNotEmpty(parameters)) {
+                if (parameters.containsKey(PARAM_NAME_INDEX)) {
+                    searchRequest.indices(parameters.get(PARAM_NAME_INDEX).toString().split(","));
+                }
+                searchRequest.searchType((String) parameters.get(PARAM_NAME_SEARCH_TYPE));
+                searchRequest.indicesOptions(IndicesOptions.fromMap(parameters, DEFAULT_INDICES_OPTIONS));
+            }
+
+            return search(searchRequest, options);
         } catch (IOException e) {
             throw new ElasticsearchException(null, "Error parsing request " + request, e);
         }
