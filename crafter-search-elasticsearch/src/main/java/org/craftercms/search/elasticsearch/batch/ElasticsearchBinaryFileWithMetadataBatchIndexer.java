@@ -33,6 +33,7 @@ import org.craftercms.core.service.Content;
 import org.craftercms.search.exception.SearchException;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.Namespace;
 import org.dom4j.Node;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
@@ -150,6 +151,11 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends
     protected void extractMetadataFromChildren(Element element, String key, Map<String, Object> metadata) {
         for (Iterator<Node> iter = element.nodeIterator(); iter.hasNext(); ) {
             Node node = iter.next();
+
+            // Skip namespace nodes to avoid issues during XML merging
+            if (node instanceof Namespace) {
+                continue;
+            }
 
             StringBuilder childKey = new StringBuilder(key);
 
