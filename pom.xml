@@ -72,7 +72,7 @@
         <commons.compress.version>1.19</commons.compress.version>
         <httpcomponents.httpclient.version>4.5.13</httpcomponents.httpclient.version>
         <httpcomponents.httpmime.version>4.5.13</httpcomponents.httpmime.version>
-        <jackson.version>2.10.5</jackson.version>
+        <jackson.version>2.10.5.1</jackson.version>
         <jackson.databind.version>2.10.5.1</jackson.databind.version>
         <stax2.api.version>4.1</stax2.api.version> <!-- Workaround for jackson-dataformat-xml issue #340 of forgetting to update stax2-api  -->
         <spring.version>4.3.29.RELEASE</spring.version>
