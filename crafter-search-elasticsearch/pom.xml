@@ -53,11 +53,23 @@
             <version>${elasticsearch.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
-            <version>${tika.version}</version>
-        </dependency>
+	<dependency>
+		<groupId>org.apache.tika</groupId>
+		<artifactId>tika-parsers</artifactId>
+		<version>${tika.version}</version>
+		<exclusions>
+			<exclusion>
+				<groupId>org.jdom</groupId>
+				<artifactId>jdom2</artifactId>
+			</exclusion>
+		</exclusions>
+	</dependency>
+
+	<dependency>
+		<groupId>org.jdom</groupId>
+		<artifactId>jdom2</artifactId>
+		<version>${jdom2.version}</version>
+	</dependency>
 
         <dependency>
             <groupId>com.drewnoakes</groupId>

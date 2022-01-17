@@ -79,6 +79,7 @@
         <slf4j.version>1.7.7</slf4j.version>
         <log4j.version>2.17.1</log4j.version>
         <dom4j.version>1.6.1</dom4j.version>
+        <jdom2.version>2.0.6.1</jdom2.version>
         <rome.version>0.9</rome.version>
         <solrj.version>7.7.1</solrj.version>
         <jodatime.version>2.1</jodatime.version>
