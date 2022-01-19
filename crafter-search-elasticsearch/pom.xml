@@ -53,11 +53,17 @@
             <version>${elasticsearch.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
-            <version>${tika.version}</version>
-        </dependency>
+	<dependency>
+		<groupId>org.apache.tika</groupId>
+		<artifactId>tika-parsers</artifactId>
+		<version>${tika.version}</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.jdom</groupId>
+		<artifactId>jdom2</artifactId>
+		<version>${jdom2.version}</version>
+	</dependency>
 
         <dependency>
             <groupId>com.drewnoakes</groupId>
@@ -112,6 +118,12 @@
             <artifactId>commons-io</artifactId>
             <version>${commons.io.version}</version>
         </dependency>
+
+	<dependency>
+		<groupId>com.google.code.gson</groupId>
+		<artifactId>gson</artifactId>
+		<version>${gson.version}</version>
+	</dependency>
     </dependencies>
 
 </project>
