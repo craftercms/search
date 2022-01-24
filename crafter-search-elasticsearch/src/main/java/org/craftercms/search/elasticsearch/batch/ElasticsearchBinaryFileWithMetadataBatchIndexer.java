@@ -19,6 +19,7 @@ package org.craftercms.search.elasticsearch.batch;
 import java.util.List;
 import java.util.Map;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import org.apache.commons.collections4.CollectionUtils;
 import org.craftercms.search.elasticsearch.ElasticsearchService;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
@@ -29,8 +30,6 @@ import org.craftercms.core.service.Content;
 import org.craftercms.search.commons.exception.SearchException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
-
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
 /**
  * Implementation of {@link AbstractBinaryFileWithMetadataBatchIndexer} for Elasticsearch
@@ -58,8 +57,12 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
     protected List<String> searchBinaryPathsFromMetadataPath(final String indexId, final String siteName,
                                                              final String metadataPath) {
         try {
-            return elasticsearchService.searchField(indexId, localIdFieldName,
-                matchQuery(metadataPathFieldName, metadataPath));
+            return elasticsearchService.searchField(indexId, localIdFieldName, Query.of(q -> q
+                .match(m -> m
+                    .field(metadataPathFieldName)
+                    .query(v -> v.stringValue(metadataPath))
+                )
+            ));
         } catch (ElasticsearchException e) {
             throw new SearchException(indexId, "Error executing search for " + metadataPath, e);
         }
@@ -69,8 +72,12 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
     protected String searchMetadataPathFromBinaryPath(final String indexId, final String siteName,
                                                       final String binaryPath) {
         try {
-            List<String> paths = elasticsearchService.searchField(indexId, metadataPathFieldName,
-                matchQuery(localIdFieldName, binaryPath));
+            List<String> paths = elasticsearchService.searchField(indexId, metadataPathFieldName, Query.of(q -> q
+                .match(m -> m
+                    .field(localIdFieldName)
+                    .query(v -> v.stringValue(binaryPath))
+                )
+            ));
             if(CollectionUtils.isNotEmpty(paths)) {
                 return paths.get(0);
             } else {
