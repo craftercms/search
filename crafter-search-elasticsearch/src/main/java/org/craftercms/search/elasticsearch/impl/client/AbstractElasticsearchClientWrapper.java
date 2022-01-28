@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2020 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -85,27 +85,21 @@ public abstract class AbstractElasticsearchClientWrapper implements Elasticsearc
     }
 
     protected void updateIndex(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
-        if (isNotEmpty(parameters)) {
-            if (parameters.containsKey(PARAM_NAME_INDEX)) {
-                updates.index = Stream.of(parameters.get(PARAM_NAME_INDEX).toString().split(","))
-                                    .collect(toList());
-            }
+        if (isNotEmpty(parameters) && parameters.containsKey(PARAM_NAME_INDEX)) {
+            updates.index = Stream.of(parameters.get(PARAM_NAME_INDEX).toString().split(","))
+                                .collect(toList());
         }
     }
 
     protected void updateSearchType(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
-        if (isNotEmpty(parameters)) {
-            if (parameters.containsKey(PARAM_NAME_SEARCH_TYPE)) {
-                updates.searchType = SearchType._DESERIALIZER.parse(parameters.get(PARAM_NAME_SEARCH_TYPE).toString());
-            }
+        if (isNotEmpty(parameters) && parameters.containsKey(PARAM_NAME_SEARCH_TYPE)) {
+            updates.searchType = SearchType._DESERIALIZER.parse(parameters.get(PARAM_NAME_SEARCH_TYPE).toString());
         }
     }
 
     protected void updateIndicesOptions(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
-        if (isNotEmpty(parameters)) {
-            if (parameters.containsKey("ignore_unavailable")) {
-                updates.ignoreUnavailable = Boolean.parseBoolean(parameters.get("ignore_unavailable").toString());
-            }
+        if (isNotEmpty(parameters) && parameters.containsKey("ignore_unavailable")) {
+            updates.ignoreUnavailable = Boolean.parseBoolean(parameters.get("ignore_unavailable").toString());
         }
     }
 
@@ -131,12 +125,14 @@ public abstract class AbstractElasticsearchClientWrapper implements Elasticsearc
 
         Query originalQuery = request.query();
         BoolQuery.Builder builder = new BoolQuery.Builder();
-        if (originalQuery.isBool()) {
-            // copy the original query
-            copyQuery(originalQuery.bool(), builder);
-        } else {
-            // wrap the original query
-            builder.must(originalQuery);
+        if (originalQuery != null) {
+            if (originalQuery.isBool()) {
+                // copy the original query
+                copyQuery(originalQuery.bool(), builder);
+            } else {
+                // wrap the original query
+                builder.must(originalQuery);
+            }
         }
 
         for(String filterQuery : filterQueries) {

@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.util.stream.Stream;
 
 /**
+ * Implementation of {@link AbstractFactoryBean} to create instances of {@link ElasticsearchClient}
  * @author joseross
  * @since 4.0.0
  */
