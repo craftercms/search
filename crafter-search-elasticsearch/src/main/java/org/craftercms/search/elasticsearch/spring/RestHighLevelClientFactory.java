@@ -13,12 +13,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.craftercms.search.elasticsearch.spring;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.ElasticsearchTransport;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
+import java.beans.ConstructorProperties;
+import java.io.IOException;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -40,22 +41,19 @@ import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.ssl.SSLContexts;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import java.beans.ConstructorProperties;
-import java.io.IOException;
-import java.util.stream.Stream;
 
 /**
- * Implementation of {@link AbstractFactoryBean} to create instances of {@link ElasticsearchClient}
+ * Factory class for the Elasticsearch rest client
  * @author joseross
- * @since 4.0.0
  */
-public class ElasticsearchClientFactory extends AbstractFactoryBean<ElasticsearchClient> {
+public class RestHighLevelClientFactory extends AbstractFactoryBean<RestHighLevelClient> {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchClientFactory.class);
 
@@ -95,7 +93,7 @@ public class ElasticsearchClientFactory extends AbstractFactoryBean<Elasticsearc
     protected boolean socketKeepAlive = false;
 
     @ConstructorProperties({"serverUrls"})
-    public ElasticsearchClientFactory(final String[] serverUrls) {
+    public RestHighLevelClientFactory(final String[] serverUrls) {
         this.serverUrls = serverUrls;
     }
 
@@ -186,7 +184,7 @@ public class ElasticsearchClientFactory extends AbstractFactoryBean<Elasticsearc
                         .build());
     }
 
-    public static ElasticsearchClient createClient(String[] serverUrls, String username, String password,
+    public static RestHighLevelClient createClient(String[] serverUrls, String username, String password,
                                                    int connectTimeout, int socketTimeout, int threadCount,
                                                    boolean socketKeepAlive) {
         logger.debug("Building client for urls: {}", (Object) serverUrls);
@@ -228,24 +226,23 @@ public class ElasticsearchClientFactory extends AbstractFactoryBean<Elasticsearc
         };
         clientBuilder.setRequestConfigCallback(requestConfigCallback);
         clientBuilder.setHttpClientConfigCallback(httpClientConfigCallback);
-        ElasticsearchTransport transport = new RestClientTransport(clientBuilder.build(), new JacksonJsonpMapper());
-        return new ElasticsearchClient(transport);
+        return new RestHighLevelClient(clientBuilder);
     }
 
     @Override
-    public Class<?> getObjectType() {
-        return ElasticsearchClient.class;
-    }
-
-    @Override
-    protected ElasticsearchClient createInstance() {
+    protected RestHighLevelClient createInstance() {
         return createClient(serverUrls, username, password, connectTimeout, socketTimeout, threadCount,
                 socketKeepAlive);
     }
 
     @Override
-    protected void destroyInstance(ElasticsearchClient instance) throws Exception {
-        instance._transport().close();
+    protected void destroyInstance(final RestHighLevelClient instance) throws Exception {
+        instance.close();
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        return RestHighLevelClient.class;
     }
 
 }

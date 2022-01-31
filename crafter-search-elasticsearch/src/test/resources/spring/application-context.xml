@@ -19,7 +19,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-    <bean id="searchClient" class="org.craftercms.search.elasticsearch.spring.ElasticsearchClientFactory">
+    <bean id="searchClient" class="org.craftercms.search.elasticsearch.spring.LegacyElasticsearchClientFactory">
         <constructor-arg name="serverUrls" value="http://localhost:9229"/>
     </bean>
 

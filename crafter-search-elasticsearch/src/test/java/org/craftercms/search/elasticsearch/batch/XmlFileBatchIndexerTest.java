@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2020 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -45,7 +45,7 @@ public class XmlFileBatchIndexerTest extends BatchIndexerTestBase {
     private static final String DELETE_FILENAME = "deleteme.xml";
     private static final String EXPECTED_XML =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                                                 "<!--\n" +
-                                                "  ~ Copyright (C) 2007-2020 Crafter Software Corporation. All Rights Reserved.\n" +
+                                                "  ~ Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.\n" +
                                                 "  ~\n" +
                                                 "  ~ This program is free software: you can redistribute it and/or modify\n" +
                                                 "  ~ it under the terms of the GNU General Public License version 3 as published by\n" +

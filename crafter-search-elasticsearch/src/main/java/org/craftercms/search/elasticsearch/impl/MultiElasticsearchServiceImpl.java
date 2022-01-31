@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2020 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@ package org.craftercms.search.elasticsearch.impl;
 
 import java.util.Map;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.craftercms.search.elasticsearch.DocumentParser;
 import org.craftercms.search.elasticsearch.exception.ElasticsearchException;
-import org.elasticsearch.client.RestHighLevelClient;
 
 /**
  * Extension of {@link ElasticsearchServiceImpl} that handles multiple Elasticsearch clusters
@@ -34,11 +34,11 @@ public class MultiElasticsearchServiceImpl extends ElasticsearchServiceImpl {
     /**
      * Elasticsearch clients used for write-related operations
      */
-    protected RestHighLevelClient[] writeClients;
+    protected ElasticsearchClient[] writeClients;
 
     public MultiElasticsearchServiceImpl(final ElasticsearchDocumentBuilder documentBuilder,
-                                         final DocumentParser documentParser, final RestHighLevelClient readClient,
-                                         final RestHighLevelClient[] writeClients) {
+                                         final DocumentParser documentParser, final ElasticsearchClient readClient,
+                                         final ElasticsearchClient[] writeClients) {
         super(documentBuilder, documentParser, readClient);
         this.writeClients = writeClients;
     }
@@ -49,7 +49,7 @@ public class MultiElasticsearchServiceImpl extends ElasticsearchServiceImpl {
     @Override
     public void delete(final String indexName, final String siteName, final String docId)
         throws ElasticsearchException {
-        for(RestHighLevelClient client : writeClients) {
+        for(ElasticsearchClient client : writeClients) {
             doDelete(client, indexName, siteName, docId);
         }
     }
@@ -60,15 +60,15 @@ public class MultiElasticsearchServiceImpl extends ElasticsearchServiceImpl {
     @Override
     public void index(final String indexName, final String siteName, final String docId, final Map<String, Object> doc)
     throws ElasticsearchException {
-        for(RestHighLevelClient client : writeClients) {
+        for(ElasticsearchClient client : writeClients) {
             doIndex(client, indexName, siteName, docId, doc);
         }
     }
 
     @Override
     public void close() throws Exception {
-        for(RestHighLevelClient client : writeClients) {
-            client.close();
+        for(ElasticsearchClient client : writeClients) {
+            client._transport().close();
         }
         super.close();
     }
