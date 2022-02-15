@@ -185,7 +185,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
     protected Map<String, Object> getExpectedMetadata() {
         var map = new HashMap<String, Object>();
         map.put("copyright", Map.of(
-        "company", "Crafter Software",
+        "company", "CrafterCMS",
         "text", "All rights reserved",
         "year", "2017"
         ));
