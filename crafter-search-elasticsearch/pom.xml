@@ -74,6 +74,13 @@
             <version>${tika.version}</version>
         </dependency>
 
+	<!-- Override POI to fix security issues -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom2</artifactId>
