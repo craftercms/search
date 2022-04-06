@@ -19,6 +19,8 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -163,7 +165,7 @@ public class ElasticsearchClientFactory extends AbstractFactoryBean<Elasticsearc
 
         DefaultConnectingIOReactor reactor = new DefaultConnectingIOReactor(configBuilder.build());
 
-        // Setup a generic exception handler that just logs everything to prevent the client from shutting down
+        // Set up a generic exception handler that just logs everything to prevent the client from shutting down
         reactor.setExceptionHandler(new IOReactorExceptionHandler() {
             @Override
             public boolean handle(IOException e) {
@@ -228,7 +230,11 @@ public class ElasticsearchClientFactory extends AbstractFactoryBean<Elasticsearc
         };
         clientBuilder.setRequestConfigCallback(requestConfigCallback);
         clientBuilder.setHttpClientConfigCallback(httpClientConfigCallback);
-        ElasticsearchTransport transport = new RestClientTransport(clientBuilder.build(), new JacksonJsonpMapper());
+        ObjectMapper mapper = new ObjectMapper()
+                .findAndRegisterModules()
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        ElasticsearchTransport transport = new RestClientTransport(clientBuilder.build(),
+                                                                    new JacksonJsonpMapper(mapper));
         return new ElasticsearchClient(transport);
     }
 
