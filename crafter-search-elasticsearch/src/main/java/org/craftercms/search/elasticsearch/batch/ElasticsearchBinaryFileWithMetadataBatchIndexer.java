@@ -58,9 +58,9 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
                                                              final String metadataPath) {
         try {
             return elasticsearchService.searchField(indexId, localIdFieldName, Query.of(q -> q
-                .match(m -> m
+                .term(m -> m
                     .field(metadataPathFieldName)
-                    .query(v -> v.stringValue(metadataPath))
+                    .value(v -> v.stringValue(metadataPath))
                 )
             ));
         } catch (ElasticsearchException e) {
@@ -73,9 +73,9 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
                                                       final String binaryPath) {
         try {
             List<String> paths = elasticsearchService.searchField(indexId, metadataPathFieldName, Query.of(q -> q
-                .match(m -> m
+                .term(m -> m
                     .field(localIdFieldName)
-                    .query(v -> v.stringValue(binaryPath))
+                    .value(v -> v.stringValue(binaryPath))
                 )
             ));
             if(CollectionUtils.isNotEmpty(paths)) {
