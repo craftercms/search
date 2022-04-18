@@ -43,7 +43,7 @@ import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.trim;
 import static org.craftercms.search.commons.utils.MapUtils.mergeMaps;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 /**
  * Implementation of {@link AbstractBinaryFileWithMetadataBatchIndexer} for Elasticsearch
@@ -73,7 +73,7 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends
                                                              final String metadataPath) {
         try {
             return elasticsearchService.searchField(indexId, localIdFieldName,
-                    matchQuery(metadataPathFieldName, metadataPath));
+                    termQuery(metadataPathFieldName, metadataPath));
         } catch (ElasticsearchException e) {
             throw new SearchException(indexId, "Error executing search for " + metadataPath, e);
         }
@@ -84,7 +84,7 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends
                                                       final String binaryPath) {
         try {
             List<String> paths = elasticsearchService.searchField(indexId, metadataPathFieldName,
-                    matchQuery(localIdFieldName, binaryPath));
+                    termQuery(localIdFieldName, binaryPath));
 
             if(isNotEmpty(paths)) {
                 return paths.get(0);
