@@ -93,7 +93,12 @@
       "format": "strict_date_optional_time||epoch_millis||8yyyy-M-dd'T'HH:mm:ss.SSSZ"
     },
     "internalName": {
-      "type": "keyword"
+      "type": "keyword",
+      "fields": {
+        "text": {
+          "type": "text"
+        }
+      }
     },
     "expired_dt": {
       "type": "date",
