@@ -69,13 +69,13 @@
         <commons.collection4.version>4.1</commons.collection4.version>
         <commons.fileupload.version>1.3.3</commons.fileupload.version>
         <commons.io.version>2.5</commons.io.version>
-        <commons.compress.version>1.19</commons.compress.version>
+        <commons.compress.version>1.21</commons.compress.version>
         <httpcomponents.httpclient.version>4.5.13</httpcomponents.httpclient.version>
         <httpcomponents.httpmime.version>4.5.13</httpcomponents.httpmime.version>
         <jackson.version>2.13.1</jackson.version>
         <jackson.databind.version>2.13.2.2</jackson.databind.version>
         <stax2.api.version>4.1</stax2.api.version> <!-- Workaround for jackson-dataformat-xml issue #340 of forgetting to update stax2-api  -->
-        <spring.version>4.3.29.RELEASE</spring.version>
+        <spring.version>4.3.30.RELEASE</spring.version>
         <slf4j.version>1.7.7</slf4j.version>
         <log4j.version>2.17.1</log4j.version>
         <dom4j.version>1.6.1</dom4j.version>
@@ -92,7 +92,7 @@
         <fontbox.version>2.0.11</fontbox.version>
         <hadoop.version>2.7.7</hadoop.version>
         <elasticsearch.version>6.8.15</elasticsearch.version>
-        <tika.version>1.28.1</tika.version>
+        <tika.version>1.28.4</tika.version>
         <unit.version>2.0</unit.version>
         <metada.extractors.version>2.13.0</metada.extractors.version>
         <jsoup.version>1.14.3</jsoup.version>
