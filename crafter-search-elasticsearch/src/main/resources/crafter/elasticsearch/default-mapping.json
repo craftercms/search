@@ -113,7 +113,7 @@
         "match_pattern": "regex",
         "match": ".+_raw$",
         "mapping": {
-          "enabled": "false"
+          "index": "false"
         }
       }
     },
