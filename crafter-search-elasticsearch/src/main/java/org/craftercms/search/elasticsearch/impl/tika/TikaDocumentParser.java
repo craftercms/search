@@ -106,6 +106,9 @@ public class TikaDocumentParser extends AbstractDocumentParser {
         } catch (IOException | TikaException e) {
             logger.error("Error parsing file", e);
             throw new SearchException("Error parsing file", e);
+        } catch (NoClassDefFoundError e) {
+            logger.error("No class def found error", e);
+            throw new SearchException("Error parsing file", e);
         }
     }
 
