@@ -73,7 +73,7 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends
                                                              final String metadataPath) {
         try {
             return elasticsearchService.searchField(indexId, localIdFieldName,
-                    termQuery(metadataPathFieldName, metadataPath));
+                    termQuery(metadataPathFieldNameWithKeyword(), metadataPath));
         } catch (ElasticsearchException e) {
             throw new SearchException(indexId, "Error executing search for " + metadataPath, e);
         }
@@ -83,7 +83,7 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends
     protected String searchMetadataPathFromBinaryPath(final String indexId, final String siteName,
                                                       final String binaryPath) {
         try {
-            List<String> paths = elasticsearchService.searchField(indexId, metadataPathFieldName,
+            List<String> paths = elasticsearchService.searchField(indexId, metadataPathFieldNameWithKeyword(),
                     termQuery(localIdFieldName, binaryPath));
 
             if(isNotEmpty(paths)) {
@@ -206,6 +206,14 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends
         } else {
             return a;
         }
+    }
+
+    /**
+     * * Add `.keyword` to field name to search with keyword
+     * @return metadataPath with `.keyword` ending
+     */
+    protected String metadataPathFieldNameWithKeyword() {
+        return metadataPathFieldName + ".keyword";
     }
 
 }
