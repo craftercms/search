@@ -59,7 +59,7 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
         try {
             return elasticsearchService.searchField(indexId, localIdFieldName, Query.of(q -> q
                 .term(m -> m
-                    .field(metadataPathFieldName)
+                    .field(metadataPathFieldNameWithKeyword())
                     .value(v -> v.stringValue(metadataPath))
                 )
             ));
@@ -72,7 +72,7 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
     protected String searchMetadataPathFromBinaryPath(final String indexId, final String siteName,
                                                       final String binaryPath) {
         try {
-            List<String> paths = elasticsearchService.searchField(indexId, metadataPathFieldName, Query.of(q -> q
+            List<String> paths = elasticsearchService.searchField(indexId, metadataPathFieldNameWithKeyword(), Query.of(q -> q
                 .term(m -> m
                     .field(localIdFieldName)
                     .value(v -> v.stringValue(binaryPath))
@@ -109,6 +109,14 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
                                    final Resource resource, final UpdateDetail updateDetail,
                                    final UpdateStatus updateStatus) {
         doUpdateContent(indexId, siteName, binaryPath, resource, null, updateDetail, updateStatus);
+    }
+
+    /**
+     * * Add `.keyword` to field name to search with keyword
+     * @return metadataPath with `.keyword` ending
+     */
+    protected String metadataPathFieldNameWithKeyword() {
+        return metadataPathFieldName + ".keyword";
     }
 
 }
