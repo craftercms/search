@@ -76,7 +76,7 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
                     doUpdateContent(indexId, siteName, path, binaryContent, updateDetail, updateStatus, metadata);
                 }
             } else {
-                logger.debug("No binary file found @ {}:{}. Skipping update", siteName, path);
+                logger.debug("No binary file found at '{}':'{}'. Skipping update", siteName, path);
             }
         }
     }
