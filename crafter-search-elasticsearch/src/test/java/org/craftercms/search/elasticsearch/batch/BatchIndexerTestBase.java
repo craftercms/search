@@ -40,10 +40,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.xml.sax.SAXException;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Base class for {@link org.craftercms.search.batch.BatchIndexer} tests.
@@ -78,7 +75,7 @@ public class BatchIndexerTestBase {
         ContentStoreService storeService = mock(ContentStoreService.class);
 //      TODO: Removed all stubs, look into this
 //
-        when(storeService.getItem(any(Context.class), any(), anyString(), any(ItemProcessor.class))).thenAnswer(
+        lenient().when(storeService.getItem(any(Context.class), any(), anyString(), any(ItemProcessor.class))).thenAnswer(
             invocationOnMock -> {
                 Object[] args = invocationOnMock.getArguments();
                 Context context = (Context)args[0];
@@ -93,7 +90,7 @@ public class BatchIndexerTestBase {
                 }
             }
         );
-        when(storeService.findItem(any(Context.class), any(), anyString(), any(ItemProcessor.class))).thenAnswer(
+        lenient().when(storeService.findItem(any(Context.class), any(), anyString(), any(ItemProcessor.class))).thenAnswer(
             invocationOnMock -> {
                 Object[] args = invocationOnMock.getArguments();
                 Context context = (Context)args[0];
