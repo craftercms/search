@@ -20,7 +20,7 @@
     <parent>
         <artifactId>crafter-search</artifactId>
         <groupId>org.craftercms</groupId>
-        <version>3.1.26-SNAPSHOT</version><!-- craftercms version flag -->
+        <version>3.1.27-SNAPSHOT</version><!-- craftercms version flag -->
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -137,6 +137,12 @@
 		<artifactId>ehcache-core</artifactId>
 		<version>${ehcache.core.version}</version>
 	</dependency>
+
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
