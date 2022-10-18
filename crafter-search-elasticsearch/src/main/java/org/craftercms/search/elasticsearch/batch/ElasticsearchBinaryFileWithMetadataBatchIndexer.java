@@ -72,10 +72,19 @@ public class ElasticsearchBinaryFileWithMetadataBatchIndexer extends AbstractBin
     protected String searchMetadataPathFromBinaryPath(final String indexId, final String siteName,
                                                       final String binaryPath) {
         try {
-            List<String> paths = elasticsearchService.searchField(indexId, metadataPathFieldNameWithKeyword(), Query.of(q -> q
-                .term(m -> m
-                    .field(localIdFieldName)
-                    .value(v -> v.stringValue(binaryPath))
+            List<String> paths = elasticsearchService.searchField(indexId, metadataPathFieldName, Query.of(q -> q
+                .bool(b -> b
+                    .filter(m -> m
+                        .term(t -> t
+                            .field(localIdFieldName)
+                            .value(v -> v.stringValue(binaryPath))
+                        )
+                    )
+                    .filter(m -> m
+                        .exists(e -> e
+                            .field(metadataPathFieldName)
+                        )
+                    )
                 )
             ));
             if(CollectionUtils.isNotEmpty(paths)) {

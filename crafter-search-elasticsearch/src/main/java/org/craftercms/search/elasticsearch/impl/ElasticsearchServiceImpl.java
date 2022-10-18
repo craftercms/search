@@ -131,7 +131,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
             scrollId = innerScrollId;
 
             while(response.hits().hits().size() > 0) {
-                response.hits().hits().forEach(hit -> ids.add((String) hit.source().get(localIdFieldName)));
+                response.hits().hits().forEach(hit -> ids.add((String) hit.source().get(field)));
 
                 logger.debug("[{}] Getting next batch for scroll with id {}", aliasName, innerScrollId);
                 response = elasticsearchClient.scroll(s -> s
