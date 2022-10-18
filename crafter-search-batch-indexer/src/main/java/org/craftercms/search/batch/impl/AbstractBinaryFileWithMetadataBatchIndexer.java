@@ -77,6 +77,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
     protected ItemProcessor itemProcessor;
     protected List<String> metadataPathPatterns;
     protected List<String> binaryPathPatterns;
+    protected List<String> binarySearchablePathPatterns;
     protected List<String> remoteBinaryPathPatterns;
     protected List<String> childBinaryPathPatterns;
     protected List<String> referenceXPaths;
@@ -116,6 +117,10 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
 
     public void setBinaryPathPatterns(List<String> binaryPathPatterns) {
         this.binaryPathPatterns = binaryPathPatterns;
+    }
+
+    public void setBinarySearchablePathPatterns(List<String> binarySearchablePathPatterns) {
+        this.binarySearchablePathPatterns = binarySearchablePathPatterns;
     }
 
     public void setRemoteBinaryPathPatterns(List<String> remoteBinaryPathPatterns) {
@@ -169,12 +174,15 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
         List<String> updatePaths = updateSet.getUpdatePaths();
         Set<String> metadataUpdatePaths = new LinkedHashSet<>();
         Set<String> binaryUpdatePaths = new LinkedHashSet<>();
+        Set<String> binarySearchablePaths = new LinkedHashSet<>();
 
         for (String path : updatePaths) {
             if (isMetadata(path)) {
                 metadataUpdatePaths.add(path);
             } else if (isBinary(path)) {
                 binaryUpdatePaths.add(path);
+            } else if (isBinarySearchable(path)) {
+                binarySearchablePaths.add(path);
             }
         }
 
@@ -205,6 +213,20 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                     updateBinaryWithMetadata(indexId, siteName, contentStoreService, context, newBinaryPath,
                             mergedMetadata, updateSet.getUpdateDetail(metadataPath), updateStatus);
                 }
+            }
+        }
+
+        // add binary path from xml document which contains binaries references
+        for (String binarySearchPath : binarySearchablePaths) {
+            Collection<String> newBinaryPaths = Collections.emptyList();
+            Document metadataDoc = loadMetadata(contentStoreService, context, siteName, binarySearchPath);
+
+            if (metadataDoc != null) {
+                newBinaryPaths = getBinaryFilePaths(metadataDoc);
+            }
+
+            if (isNotEmpty(newBinaryPaths)) {
+                binaryUpdatePaths.addAll(newBinaryPaths);
             }
         }
 
@@ -293,6 +315,10 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
     protected boolean isBinary(String path) {
         return RegexUtils.matchesAny(path, binaryPathPatterns) &&
                isMimeTypeSupported(mimeTypesMap, supportedMimeTypes, path);
+    }
+
+    protected boolean isBinarySearchable(String path) {
+        return RegexUtils.matchesAny(path, binarySearchablePathPatterns);
     }
 
     protected boolean isRemoteBinary(String path) {
