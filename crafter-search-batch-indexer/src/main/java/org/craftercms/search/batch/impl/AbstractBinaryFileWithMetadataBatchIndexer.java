@@ -17,6 +17,7 @@
 package org.craftercms.search.batch.impl;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.craftercms.commons.file.stores.RemoteFile;
 import org.craftercms.commons.file.stores.RemoteFileResolver;
@@ -70,6 +71,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
 
     public static final String DEFAULT_METADATA_PATH_FIELD_NAME = "metadataPath";
     public static final String DEFAULT_LOCAL_ID_FIELD_NAME = "localId";
+    public static final String DEFAULT_INTERNAL_NAME_FIELD_NAME = "internalName";
 
     protected List<String> supportedMimeTypes;
     protected FileTypeMap mimeTypesMap;
@@ -88,11 +90,13 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
     protected String metadataPathFieldName;
     protected String localIdFieldName;
     protected long maxFileSize;
+    protected String internalNameFieldName;
 
     public AbstractBinaryFileWithMetadataBatchIndexer() {
         mimeTypesMap = new ConfigurableMimeFileTypeMap();
         metadataPathFieldName = DEFAULT_METADATA_PATH_FIELD_NAME;
         localIdFieldName = DEFAULT_LOCAL_ID_FIELD_NAME;
+        internalNameFieldName = DEFAULT_INTERNAL_NAME_FIELD_NAME;
     }
 
     public void setSupportedMimeTypes(List<String> supportedMimeTypes) {
@@ -154,6 +158,10 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
 
     public void setLocalIdFieldName(String localIdFieldName) {
         this.localIdFieldName = localIdFieldName;
+    }
+
+    public void setInternalNameFieldName(String internalNameFieldName) {
+        this.internalNameFieldName = internalNameFieldName;
     }
 
     @Required
@@ -432,7 +440,8 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                 if(remoteFile.getContentLength() > maxFileSize) {
                     logger.warn("Skipping large binary file @ {}", binaryPath);
                 } else {
-                    doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), updateDetail, updateStatus);
+                    Map<String, Object> metadata = collectRemoteAssetMetadata(binaryPath);
+                    doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), metadata, updateDetail, updateStatus);
                 }
             } else {
                 Content binaryContent = contentStoreService.findContent(context, binaryPath);
@@ -456,6 +465,13 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
     protected abstract void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
                                             final Resource toResource, final UpdateDetail updateDetail,
                                             final UpdateStatus updateStatus);
+
+    protected Map<String, Object> collectRemoteAssetMetadata(String binaryPath) {
+        Map<String, Object> metadata = new HashMap<>();
+        String internalName = FilenameUtils.getName(binaryPath);
+        metadata.put(internalNameFieldName, internalName);
+        return metadata;
+    }
 
     protected Map<String, Object> extractMetadata(String path, Document document) {
         Map<String, Object> metadata = new TreeMap<>();
