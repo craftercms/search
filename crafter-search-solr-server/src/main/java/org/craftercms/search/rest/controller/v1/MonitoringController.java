@@ -33,7 +33,7 @@ public class MonitoringController extends MonitoringRestControllerBase {
     public final static String URL_ROOT = "/api/1";
 
     @Override
-    protected String getConfiguredToken() {
+    public String getConfiguredToken() {
         return configuredToken;
     }
 
