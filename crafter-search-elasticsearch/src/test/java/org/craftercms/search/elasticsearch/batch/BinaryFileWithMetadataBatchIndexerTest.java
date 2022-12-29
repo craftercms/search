@@ -16,7 +16,6 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -172,7 +171,6 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
             new ElasticsearchBinaryFileWithMetadataBatchIndexer();
         batchIndexer.setElasticsearchService(searchService);
         batchIndexer.setMetadataPathPatterns(Collections.singletonList(".*metadata.*\\.xml$"));
-        batchIndexer.setBinaryPathPatterns(Arrays.asList(".*\\.pdf$", ".*\\.txt$"));
         batchIndexer.setChildBinaryPathPatterns(Collections.singletonList(".*\\.pdf$"));
         batchIndexer.setIncludePropertyPatterns(Collections.singletonList("copyright.*"));
         batchIndexer.setExcludePropertyPatterns(Collections.singletonList("copyright\\.ignore"));
