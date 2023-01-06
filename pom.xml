@@ -101,6 +101,7 @@
         <xerces.version>2.12.2</xerces.version>
         <ehcache.core.version>2.6.11</ehcache.core.version>
         <ehcache.version>2.10.9.2</ehcache.version>
+        <commons.text.version>1.10.0</commons.text.version>
     </properties>
 
     <build>
