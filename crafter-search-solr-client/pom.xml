@@ -24,7 +24,7 @@
     <parent>
         <artifactId>crafter-search</artifactId>
         <groupId>org.craftercms</groupId>
-        <version>3.1.29E</version><!-- craftercms version flag -->
+        <version>3.1.30-SNAPSHOT</version><!-- craftercms version flag -->
     </parent>
 
     <dependencies>
