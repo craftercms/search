@@ -75,7 +75,7 @@ public class BatchIndexerTestBase {
         ContentStoreService storeService = mock(ContentStoreService.class);
 //      TODO: Removed all stubs, look into this
 //
-        lenient().when(storeService.getItem(any(Context.class), any(), anyString(), any(ItemProcessor.class))).thenAnswer(
+        lenient().when(storeService.getItem(any(), any(), anyString(), any())).thenAnswer(
             invocationOnMock -> {
                 Object[] args = invocationOnMock.getArguments();
                 Context context = (Context)args[0];
@@ -90,7 +90,7 @@ public class BatchIndexerTestBase {
                 }
             }
         );
-        lenient().when(storeService.findItem(any(Context.class), any(), anyString(), any(ItemProcessor.class))).thenAnswer(
+        lenient().when(storeService.findItem(any(), any(), anyString(), any())).thenAnswer(
             invocationOnMock -> {
                 Object[] args = invocationOnMock.getArguments();
                 Context context = (Context)args[0];
