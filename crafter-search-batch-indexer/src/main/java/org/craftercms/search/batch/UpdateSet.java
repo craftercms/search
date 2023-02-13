@@ -24,8 +24,8 @@ import java.util.List;
  */
 public class UpdateSet extends AbstractUpdateDetailProvider {
 
-    private List<String> updatePaths;
-    private List<String> deletePaths;
+    private final List<String> updatePaths;
+    private final List<String> deletePaths;
 
     public UpdateSet(List<String> updatePaths, List<String> deletePaths) {
         this.updatePaths = updatePaths;

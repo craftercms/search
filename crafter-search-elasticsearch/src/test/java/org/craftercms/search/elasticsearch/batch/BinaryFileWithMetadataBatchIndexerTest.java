@@ -16,18 +16,18 @@
 
 package org.craftercms.search.elasticsearch.batch;
 
+import org.craftercms.core.exception.PathNotFoundException;
+import org.craftercms.core.service.Content;
+import org.craftercms.core.service.Context;
+import org.craftercms.search.batch.UpdateSet;
+import org.craftercms.search.batch.UpdateStatus;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.craftercms.core.exception.PathNotFoundException;
-import org.craftercms.core.service.Context;
-import org.craftercms.search.batch.UpdateSet;
-import org.craftercms.search.batch.UpdateStatus;
-import org.craftercms.core.service.Content;
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -59,7 +59,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         when(contentStoreService.findContent(any(Context.class), anyString())).thenAnswer(
                 invocationOnMock -> {
                     Object[] args = invocationOnMock.getArguments();
-                    String path = (String)args[1];
+                    String path = (String) args[1];
                     Content content = findContent(path);
 
                     if (content != null) {
@@ -84,11 +84,11 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME2));
         assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME3));
         verify(searchService).indexBinary(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadata()));
+                eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadata()));
         verify(searchService).indexBinary(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME2), any(Content.class), eq(getExpectedMetadata()));
+                eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME2), any(Content.class), eq(getExpectedMetadata()));
         verify(searchService).indexBinary(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME3), any(Content.class), eq(getExpectedMetadata()));
+                eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME3), any(Content.class), eq(getExpectedMetadata()));
     }
 
     @Test
@@ -105,13 +105,13 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         assertTrue(updateStatus.getSuccessfulDeletes().contains(BINARY_FILENAME2));
         assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME3));
         verify(searchService).indexBinary(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadataWithRemovedBinaries()));
+                eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadataWithRemovedBinaries()));
         verify(searchService).delete(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME2));
         verify(searchService).indexBinary(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME3), any(Content.class), any());
     }
 
     @Test
-    public void testUpdateBinary() throws Exception {
+    public void testUpdateBinary() {
         UpdateSet updateSet = new UpdateSet(Collections.singletonList(METADATA_WITH_REMOVED_BINARIES_XML_FILENAME), Collections.emptyList());
         UpdateStatus updateStatus = new UpdateStatus();
 
@@ -120,11 +120,11 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
         assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME1));
         verify(searchService).indexBinary(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadataWithRemovedBinaries()));
+                eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadataWithRemovedBinaries()));
     }
 
     @Test
-    public void testDeleteBinary() throws Exception {
+    public void testDeleteBinary() {
         when(searchService.searchField(eq(INDEX_ID), eq("localId"), any())).thenReturn(List.of(BINARY_FILENAME1));
         UpdateSet updateSet = new UpdateSet(Collections.emptyList(), Collections.singletonList(METADATA_WITH_REMOVED_BINARIES_XML_FILENAME));
         UpdateStatus updateStatus = new UpdateStatus();
@@ -137,7 +137,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
     }
 
     @Test
-    public void testDeleteMetadata() throws Exception {
+    public void testDeleteMetadata() {
         setupBinariesSearchResults();
 
         UpdateSet updateSet = new UpdateSet(Collections.emptyList(), Collections.singletonList(METADATA_XML_FILENAME));
@@ -164,9 +164,9 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
                 .thenReturn(List.of(getExpectedMetadata().get("metadataPath").toString()));
     }
 
-    protected ElasticsearchBinaryFileWithMetadataBatchIndexer getBatchIndexer() throws Exception {
+    protected ElasticsearchBinaryFileWithMetadataBatchIndexer getBatchIndexer() {
         ElasticsearchBinaryFileWithMetadataBatchIndexer batchIndexer =
-            new ElasticsearchBinaryFileWithMetadataBatchIndexer();
+                new ElasticsearchBinaryFileWithMetadataBatchIndexer();
         batchIndexer.setElasticsearchService(searchService);
         batchIndexer.setMetadataPathPatterns(Collections.singletonList(".*metadata.*\\.xml$"));
         batchIndexer.setChildBinaryPathPatterns(Collections.singletonList(".*\\.pdf$"));
@@ -181,9 +181,9 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
     protected Map<String, Object> getExpectedMetadata() {
         var map = new HashMap<String, Object>();
         map.put("copyright", Map.of(
-        "company", "CrafterCMS",
-        "text", "All rights reserved",
-        "year", "2017"
+                "company", "CrafterCMS",
+                "text", "All rights reserved",
+                "year", "2017"
         ));
         map.put("metadataPath", METADATA_XML_FILENAME);
         return map;
