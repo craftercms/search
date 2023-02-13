@@ -30,7 +30,7 @@
 
     <properties>
         <!-- Testing -->
-        <elasticsearch.maven.plugin.version>6.19</elasticsearch.maven.plugin.version>
+        <elasticsearch.maven.plugin.version>6.23</elasticsearch.maven.plugin.version>
         <elasticsearch.maven.plugin.transportPort>9339</elasticsearch.maven.plugin.transportPort>
         <elasticsearch.maven.plugin.httpPort>9229</elasticsearch.maven.plugin.httpPort>
     </properties>

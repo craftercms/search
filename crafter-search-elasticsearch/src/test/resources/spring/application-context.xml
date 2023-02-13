@@ -19,7 +19,11 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-    <bean id="searchClient" class="org.craftercms.search.elasticsearch.spring.LegacyElasticsearchClientFactory">
+    <bean id="restHighLevelSearchClient" class="org.craftercms.search.elasticsearch.spring.RestHighLevelClientFactory">
+        <constructor-arg name="serverUrls" value="http://localhost:9229"/>
+    </bean>
+
+    <bean id="searchClient" class="org.craftercms.search.elasticsearch.spring.ElasticsearchClientFactory">
         <constructor-arg name="serverUrls" value="http://localhost:9229"/>
     </bean>
 
@@ -97,11 +101,11 @@
         <constructor-arg name="defaultSettings">
             <map/>
         </constructor-arg>
-        <constructor-arg name="elasticsearchClient" ref="searchClient"/>
+        <constructor-arg name="elasticsearchClient" ref="restHighLevelSearchClient"/>
     </bean>
 
     <bean id="searchWrapper" class="org.craftercms.search.elasticsearch.impl.TestElasticsearchWrapper">
-        <constructor-arg name="client" ref="searchClient"/>
+        <constructor-arg name="client" ref="restHighLevelSearchClient"/>
         <property name="filterQueries" value="-disabled:&quot;true&quot;,-expired_dt:[* TO now]"/>
     </bean>
 
