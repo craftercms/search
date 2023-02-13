@@ -110,13 +110,9 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         verify(searchService).indexBinary(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME3), any(Content.class), any());
     }
 
-
-    // TODO: JM: Revisit test case
-//    @Test
+    @Test
     public void testUpdateBinary() throws Exception {
-        setupMetadataSearchResult();
-
-        UpdateSet updateSet = new UpdateSet(Collections.singletonList(BINARY_FILENAME1), Collections.emptyList());
+        UpdateSet updateSet = new UpdateSet(Collections.singletonList(METADATA_WITH_REMOVED_BINARIES_XML_FILENAME), Collections.emptyList());
         UpdateStatus updateStatus = new UpdateStatus();
 
         batchIndexer.updateIndex(INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
@@ -124,14 +120,13 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
         assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME1));
         verify(searchService).indexBinary(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadata()));
+            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadataWithRemovedBinaries()));
     }
 
-
-    // TODO: JM: Revisit test case
-//    @Test
+    @Test
     public void testDeleteBinary() throws Exception {
-        UpdateSet updateSet = new UpdateSet(Collections.emptyList(), Collections.singletonList(BINARY_FILENAME1));
+        when(searchService.searchField(eq(INDEX_ID), eq("localId"), any())).thenReturn(List.of(BINARY_FILENAME1));
+        UpdateSet updateSet = new UpdateSet(Collections.emptyList(), Collections.singletonList(METADATA_WITH_REMOVED_BINARIES_XML_FILENAME));
         UpdateStatus updateStatus = new UpdateStatus();
 
         batchIndexer.updateIndex(INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
