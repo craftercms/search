@@ -212,24 +212,25 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                                           Set<String> binaryUpdatePaths, Context context,
                                           ContentStoreService contentStoreService,
                                           UpdateDetail updateDetail, UpdateStatus updateStatus) {
-        if (isNotEmpty(previousBinaryPaths)) {
-            for (String previousBinaryPath : previousBinaryPaths) {
-                if (CollectionUtils.isEmpty(newBinaryPaths) || !newBinaryPaths.contains(previousBinaryPath)) {
-                    binaryUpdatePaths.remove(previousBinaryPath);
+        if (!isNotEmpty(previousBinaryPaths)) {
+            return;
+        }
+        for (String previousBinaryPath : previousBinaryPaths) {
+            if (CollectionUtils.isEmpty(newBinaryPaths) || !newBinaryPaths.contains(previousBinaryPath)) {
+                binaryUpdatePaths.remove(previousBinaryPath);
 
-                    if (isChildBinary(previousBinaryPath)) {
-                        logger.debug(
-                                "Reference of child binary {} removed from  parent {}. Deleting binary from index...",
-                                previousBinaryPath, metadataPath);
+                if (isChildBinary(previousBinaryPath)) {
+                    logger.debug(
+                            "Reference of child binary {} removed from  parent {}. Deleting binary from index...",
+                            previousBinaryPath, metadataPath);
 
-                        doDelete(indexId, siteName, previousBinaryPath, updateStatus);
-                    } else {
-                        logger.debug("Reference of binary {} removed from {}. Reindexing without metadata...",
-                                     previousBinaryPath, metadataPath);
+                    doDelete(indexId, siteName, previousBinaryPath, updateStatus);
+                } else {
+                    logger.debug("Reference of binary {} removed from {}. Reindexing without metadata...",
+                                 previousBinaryPath, metadataPath);
 
-                        updateBinary(indexId, siteName, contentStoreService, context,
-                            previousBinaryPath, updateDetail, updateStatus);
-                    }
+                    updateBinary(indexId, siteName, contentStoreService, context,
+                        previousBinaryPath, updateDetail, updateStatus);
                 }
             }
         }
@@ -298,24 +299,25 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
     }
 
     protected Collection<String> getBinaryFilePaths(Document document) {
-        if (isNotEmpty(referenceXPaths)) {
-            Set<String> binaryPaths = new LinkedHashSet<>();
-            for (String refXpath : referenceXPaths) {
-                List<Node> references = document.selectNodes(refXpath);
-                if (isNotEmpty(references)) {
-                    for (Node reference : references) {
-                        String referenceValue = reference.getText();
-                        if (StringUtils.isNotBlank(referenceValue) &&
-                            isMimeTypeSupported(mimeTypesMap, supportedMimeTypes, referenceValue)) {
-                            binaryPaths.add(referenceValue);
-                        }
-                    }
+        if (!isNotEmpty(referenceXPaths)) {
+            return null;
+        }
+        Set<String> binaryPaths = new LinkedHashSet<>();
+        for (String refXpath : referenceXPaths) {
+            List<Node> references = document.selectNodes(refXpath);
+            if (!isNotEmpty(references)) {
+                continue;
+            }
+            for (Node reference : references) {
+                String referenceValue = reference.getText();
+                if (StringUtils.isNotBlank(referenceValue) &&
+                    isMimeTypeSupported(mimeTypesMap, supportedMimeTypes, referenceValue)) {
+                    binaryPaths.add(referenceValue);
                 }
             }
-            return binaryPaths;
         }
+        return binaryPaths;
 
-        return null;
     }
 
     protected void updateBinaryWithMetadata(String indexId, String siteName,
