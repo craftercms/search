@@ -58,9 +58,8 @@ import static org.junit.Assert.assertNotNull;
  * @author Alfonso Vásquez
  * @author joseross
  */
-// TODO: JM: Revisit tests
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(locations = "classpath:/spring/application-context.xml")
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "classpath:/spring/application-context.xml")
 public class ElasticsearchIT {
 
     private static final String PLUTON_SITE = "pluton";
@@ -91,8 +90,7 @@ public class ElasticsearchIT {
         adminService.deleteIndexes(PLUTON_INDEX_ID);
     }
 
-    // TODO: JM: Revisit test case
-    //    @Test
+    @Test
     public void testMethods() throws Exception {
         SearchRequest request = new SearchRequest(PLUTON_INDEX_ID);
         request.source(searchSource().query(matchAllQuery()));
