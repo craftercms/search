@@ -1,0 +1,57 @@
+/*
+ * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as published by
+ * the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.craftercms.search.opensearch.batch;
+
+import java.util.Map;
+
+import org.craftercms.search.opensearch.OpenSearchService;
+import org.craftercms.search.batch.UpdateDetail;
+import org.craftercms.search.batch.UpdateStatus;
+import org.craftercms.search.batch.impl.AbstractBinaryFileBatchIndexer;
+import org.craftercms.core.service.Content;
+import org.springframework.beans.factory.annotation.Required;
+
+/**
+ * Implementation of {@link AbstractBinaryFileBatchIndexer} for Elasticsearch
+ * @author joseross
+ */
+public class OpenSearchBinaryFileBatchIndexer extends AbstractBinaryFileBatchIndexer {
+
+    /**
+     * Elasticsearch service
+     */
+    protected OpenSearchService openSearchService;
+
+    @Required
+    public void setOpenSearchService(final OpenSearchService openSearchService) {
+        this.openSearchService = openSearchService;
+    }
+
+    @Override
+    protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
+        OpenSearchIndexingUtils.doDelete(openSearchService, indexId, siteName, path, updateStatus);
+    }
+
+    @Override
+    protected void doUpdateContent(final String indexId, final String siteName, final String path,
+                                   final Content binaryContent, final UpdateDetail updateDetail,
+                                   final UpdateStatus updateStatus, Map<String, Object> metadata) {
+        OpenSearchIndexingUtils.doUpdateBinary(openSearchService, indexId, siteName, path, metadata,
+            binaryContent, updateDetail, updateStatus);
+    }
+
+}
