@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ public class MultiOpenSearchServiceImpl extends OpenSearchServiceImpl {
     /**
      * Elasticsearch clients used for write-related operations
      */
-    protected OpenSearchClient[] writeClients;
+    protected final OpenSearchClient[] writeClients;
 
     public MultiOpenSearchServiceImpl(final OpenSearchDocumentBuilder documentBuilder,
                                       final DocumentParser documentParser, final OpenSearchClient readClient,
@@ -48,8 +48,8 @@ public class MultiOpenSearchServiceImpl extends OpenSearchServiceImpl {
      */
     @Override
     public void delete(final String indexName, final String siteName, final String docId)
-        throws OpenSearchException {
-        for(OpenSearchClient client : writeClients) {
+            throws OpenSearchException {
+        for (OpenSearchClient client : writeClients) {
             doDelete(client, indexName, siteName, docId);
         }
     }
@@ -59,15 +59,15 @@ public class MultiOpenSearchServiceImpl extends OpenSearchServiceImpl {
      */
     @Override
     public void index(final String indexName, final String siteName, final String docId, final Map<String, Object> doc)
-    throws OpenSearchException {
-        for(OpenSearchClient client : writeClients) {
+            throws OpenSearchException {
+        for (OpenSearchClient client : writeClients) {
             doIndex(client, indexName, siteName, docId, doc);
         }
     }
 
     @Override
     public void close() throws Exception {
-        for(OpenSearchClient client : writeClients) {
+        for (OpenSearchClient client : writeClients) {
             client._transport().close();
         }
         super.close();

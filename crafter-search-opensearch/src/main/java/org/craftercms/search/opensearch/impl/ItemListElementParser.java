@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -46,22 +46,23 @@ public class ItemListElementParser implements ElementParser<Map<String, Object>>
                          ElementParserService<Map<String, Object>> parserService) {
         var attribute = element.attribute(attributeName);
         // If the attribute is present & the value is true
-        if (attribute != null && Boolean.parseBoolean(attribute.getText())) {
-            var items = element.elements();
-            // If there is a single item in the list
-            if (items.size() == 1) {
-                var itemElement = items.get(0);
-                var itemElementName = itemElement.getName();
+        if (attribute == null || !Boolean.parseBoolean(attribute.getText())) {
+            return false;
+        }
+        var items = element.elements();
+        // If there is a single item in the list
+        if (items.size() == 1) {
+            var itemElement = items.get(0);
+            var itemElementName = itemElement.getName();
 
-                // parse the item into a temporary map instead the main document
-                var itemMap = new HashMap<String, Object>();
-                parserService.parse(itemElement, parentFieldName, itemMap);
+            // parse the item into a temporary map instead the main document
+            var itemMap = new HashMap<String, Object>();
+            parserService.parse(itemElement, parentFieldName, itemMap);
 
-                // add the item as a singleton list in the main document
-                doc.put(fieldName, singletonMap(itemElementName, singletonList(itemMap.get(itemElementName))));
+            // add the item as a singleton list in the main document
+            doc.put(fieldName, singletonMap(itemElementName, singletonList(itemMap.get(itemElementName))));
 
-                return true;
-            }
+            return true;
         }
         return false;
     }

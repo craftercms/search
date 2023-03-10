@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ public class MultiOpenSearchAdminServiceImpl extends OpenSearchAdminServiceImpl 
     /**
      * Elasticsearch clients used for write-related operations
      */
-    protected RestHighLevelClient[] writeClients;
+    protected final RestHighLevelClient[] writeClients;
 
     public MultiOpenSearchAdminServiceImpl(Resource authoringMapping, Resource previewMapping,
                                            String authoringNamePattern, Map<String, String> localeMapping,
@@ -48,7 +48,7 @@ public class MultiOpenSearchAdminServiceImpl extends OpenSearchAdminServiceImpl 
 
     @Override
     public void createIndex(String aliasName) throws OpenSearchException {
-        for(RestHighLevelClient client : writeClients) {
+        for (RestHighLevelClient client : writeClients) {
             doCreateIndex(client, aliasName, null);
         }
     }
@@ -58,7 +58,7 @@ public class MultiOpenSearchAdminServiceImpl extends OpenSearchAdminServiceImpl 
      */
     @Override
     public void createIndex(final String aliasName, Locale locale) throws OpenSearchException {
-        for(RestHighLevelClient client : writeClients) {
+        for (RestHighLevelClient client : writeClients) {
             doCreateIndex(client, aliasName, locale);
         }
     }
@@ -68,7 +68,7 @@ public class MultiOpenSearchAdminServiceImpl extends OpenSearchAdminServiceImpl 
      */
     @Override
     public void deleteIndexes(final String aliasName) throws OpenSearchException {
-        for(RestHighLevelClient client : writeClients) {
+        for (RestHighLevelClient client : writeClients) {
             doDeleteIndexes(client, aliasName);
         }
     }
@@ -86,14 +86,14 @@ public class MultiOpenSearchAdminServiceImpl extends OpenSearchAdminServiceImpl 
         super.waitUntilReady();
 
         // wait for the write clusters to be ready
-        for(RestHighLevelClient client : writeClients) {
+        for (RestHighLevelClient client : writeClients) {
             doWaitUntilReady(client);
         }
     }
 
     @Override
     public void close() throws Exception {
-        for(RestHighLevelClient client : writeClients) {
+        for (RestHighLevelClient client : writeClients) {
             client.close();
         }
         super.close();

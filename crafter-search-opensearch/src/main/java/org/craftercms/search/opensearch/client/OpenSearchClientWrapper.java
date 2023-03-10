@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -28,7 +28,7 @@ import java.util.function.Function;
 import static java.util.Collections.emptyMap;
 
 /**
- * Exposes the search related operations from {@link co.elastic.clients.elasticsearch.OpenSearchClient}
+ * Exposes the search related operations from {@link org.opensearch.client.opensearch.OpenSearchClient}
  * @implNote The method signatures are copied from the original class because there is no interface and the class is
  *           final, so it can't be properly extended to be a drop-in replacement.
  * @author joseross

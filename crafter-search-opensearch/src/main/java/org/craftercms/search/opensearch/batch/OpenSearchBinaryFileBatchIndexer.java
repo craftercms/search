@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -16,14 +16,14 @@
 
 package org.craftercms.search.opensearch.batch;
 
-import java.util.Map;
-
-import org.craftercms.search.opensearch.OpenSearchService;
+import org.craftercms.core.service.Content;
 import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.impl.AbstractBinaryFileBatchIndexer;
-import org.craftercms.core.service.Content;
-import org.springframework.beans.factory.annotation.Required;
+import org.craftercms.search.opensearch.OpenSearchService;
+
+import java.beans.ConstructorProperties;
+import java.util.Map;
 
 /**
  * Implementation of {@link AbstractBinaryFileBatchIndexer} for Elasticsearch
@@ -34,10 +34,10 @@ public class OpenSearchBinaryFileBatchIndexer extends AbstractBinaryFileBatchInd
     /**
      * Elasticsearch service
      */
-    protected OpenSearchService openSearchService;
+    protected final OpenSearchService openSearchService;
 
-    @Required
-    public void setOpenSearchService(final OpenSearchService openSearchService) {
+    @ConstructorProperties({"openSearchService"})
+    public OpenSearchBinaryFileBatchIndexer(final OpenSearchService openSearchService) {
         this.openSearchService = openSearchService;
     }
 

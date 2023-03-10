@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -35,7 +35,6 @@ public class OpenSearchElementParserImpl extends AbstractElementParser<Map<Strin
     private static final Logger logger = LoggerFactory.getLogger(OpenSearchElementParserImpl.class);
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean parse(final Element element, final String fieldName, final String parentFieldName,
                          final Map<String, Object> doc, final ElementParserService<Map<String, Object>> parserService) {
         logger.debug("Parsing element '{}'", fieldName);

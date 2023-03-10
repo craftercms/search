@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -45,7 +45,7 @@ public class XmlFileBatchIndexerTest extends BatchIndexerTestBase {
     private static final String DELETE_FILENAME = "deleteme.xml";
     private static final String EXPECTED_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<!--\n" +
-            "  ~ Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.\n" +
+            "  ~ Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.\n" +
             "  ~\n" +
             "  ~ This program is free software: you can redistribute it and/or modify\n" +
             "  ~ it under the terms of the GNU General Public License version 3 as published by\n" +
@@ -82,7 +82,7 @@ public class XmlFileBatchIndexerTest extends BatchIndexerTestBase {
     }
 
     @Test
-    public void testUpdateIndex() throws Exception {
+    public void testUpdateIndex() {
         String indexId = SITE_NAME;
         UpdateSet updateSet = new UpdateSet(Collections.singletonList(UPDATE_FILENAME), Collections.singletonList(DELETE_FILENAME));
         UpdateStatus updateStatus = new UpdateStatus();
@@ -96,7 +96,7 @@ public class XmlFileBatchIndexerTest extends BatchIndexerTestBase {
         verify(searchService).delete(indexId, SITE_NAME, DELETE_FILENAME);
     }
 
-    protected List<ItemProcessor> getDocumentProcessors() throws Exception {
+    protected List<ItemProcessor> getDocumentProcessors() {
         PageAwareIncludeDescriptorsProcessor proc1 = new PageAwareIncludeDescriptorsProcessor();
         proc1.setIncludeElementXPathQuery("//include");
         proc1.setDisabledIncludeNodeXPathQuery("@disabled");
@@ -115,7 +115,7 @@ public class XmlFileBatchIndexerTest extends BatchIndexerTestBase {
         return Arrays.asList(proc1, proc2, proc3);
     }
 
-    protected OpenSearchXmlFileBatchIndexer getBatchIndexer() throws Exception {
+    protected OpenSearchXmlFileBatchIndexer getBatchIndexer() {
         OpenSearchXmlFileBatchIndexer batchIndexer =
                 new OpenSearchXmlFileBatchIndexer(adminService, localeExtractor, searchService, false);
         batchIndexer.setItemProcessors(getDocumentProcessors());

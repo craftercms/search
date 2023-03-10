@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -16,8 +16,6 @@
 
 package org.craftercms.search.opensearch.impl.tika;
 
-import java.util.Map;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.metadata.HttpHeaders;
@@ -26,9 +24,10 @@ import org.apache.tika.metadata.Property;
 import org.craftercms.search.opensearch.MetadataExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
 import org.springframework.util.MimeType;
+
+import java.util.Map;
 
 /**
  * Implementation of {@link MetadataExtractor} that uses Apache Tika to parse binary files.
@@ -46,14 +45,13 @@ public class TikaMetadataExtractor implements MetadataExtractor<Metadata> {
     /**
      * The mapping of Apache Tika properties to extract
      */
-    protected Map<String, Object> mapping;
+    protected final Map<String, Object> mapping;
 
     public void setSupportedMimeTypes(final String[] supportedMimeTypes) {
         this.supportedMimeTypes = supportedMimeTypes;
     }
 
-    @Required
-    public void setMapping(final Map<String, Object> mapping) {
+    public TikaMetadataExtractor(final Map<String, Object> mapping) {
         this.mapping = mapping;
     }
 
@@ -64,12 +62,12 @@ public class TikaMetadataExtractor implements MetadataExtractor<Metadata> {
      */
     protected boolean isSupported(final Metadata metadata) {
         String contentType = metadata.get(HttpHeaders.CONTENT_TYPE);
-        if(StringUtils.isEmpty(contentType) || ArrayUtils.isEmpty(supportedMimeTypes)) {
+        if (StringUtils.isEmpty(contentType) || ArrayUtils.isEmpty(supportedMimeTypes)) {
             return true;
         }
         MimeType mimeType = MimeType.valueOf(contentType);
-        for(String supportedMimeType : supportedMimeTypes) {
-            if(mimeType.isCompatibleWith(MimeType.valueOf(supportedMimeType))) {
+        for (String supportedMimeType : supportedMimeTypes) {
+            if (mimeType.isCompatibleWith(MimeType.valueOf(supportedMimeType))) {
                 return true;
             }
         }
@@ -82,22 +80,23 @@ public class TikaMetadataExtractor implements MetadataExtractor<Metadata> {
      */
     @Override
     public void extract(final Resource resource, final Metadata metadata, final Map<String, Object> properties) {
-        if(isSupported(metadata)) {
-            logger.debug("Extracting metadata");
-            mapping.forEach((property, key) -> {
-                String value;
-                if(key instanceof String) {
-                    value = metadata.get((String) key);
-                } else if(key instanceof Property) {
-                    value = metadata.get((Property) key);
-                } else {
-                    throw new IllegalArgumentException("Invalid metadata key " + key);
-                }
-                if(!properties.containsKey(property) && StringUtils.isNotEmpty(value)) {
-                    properties.put(property, value);
-                }
-            });
+        if (!isSupported(metadata)) {
+            return;
         }
+        logger.debug("Extracting metadata");
+        mapping.forEach((property, key) -> {
+            String value;
+            if (key instanceof String) {
+                value = metadata.get((String) key);
+            } else if (key instanceof Property) {
+                value = metadata.get((Property) key);
+            } else {
+                throw new IllegalArgumentException("Invalid metadata key " + key);
+            }
+            if (!properties.containsKey(property) && StringUtils.isNotEmpty(value)) {
+                properties.put(property, value);
+            }
+        });
     }
 
 }

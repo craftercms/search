@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -16,20 +16,20 @@
 
 package org.craftercms.search.opensearch.batch;
 
-import java.util.List;
-import java.util.Map;
-
-import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.apache.commons.collections4.CollectionUtils;
-import org.craftercms.search.opensearch.OpenSearchService;
-import org.craftercms.search.opensearch.exception.OpenSearchException;
+import org.craftercms.core.service.Content;
 import org.craftercms.search.batch.UpdateDetail;
 import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.search.batch.impl.AbstractBinaryFileWithMetadataBatchIndexer;
-import org.craftercms.core.service.Content;
 import org.craftercms.search.commons.exception.SearchException;
-import org.springframework.beans.factory.annotation.Required;
+import org.craftercms.search.opensearch.OpenSearchService;
+import org.craftercms.search.opensearch.exception.OpenSearchException;
+import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.springframework.core.io.Resource;
+
+import java.beans.ConstructorProperties;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of {@link AbstractBinaryFileWithMetadataBatchIndexer} for Elasticsearch
@@ -40,10 +40,10 @@ public class OpenSearchBinaryFileWithMetadataBatchIndexer extends AbstractBinary
     /**
      * Elasticsearch service
      */
-    protected OpenSearchService openSearchService;
+    protected final OpenSearchService openSearchService;
 
-    @Required
-    public void setOpenSearchService(final OpenSearchService openSearchService) {
+    @ConstructorProperties({"openSearchService"})
+    public OpenSearchBinaryFileWithMetadataBatchIndexer(final OpenSearchService openSearchService) {
         this.openSearchService = openSearchService;
     }
 

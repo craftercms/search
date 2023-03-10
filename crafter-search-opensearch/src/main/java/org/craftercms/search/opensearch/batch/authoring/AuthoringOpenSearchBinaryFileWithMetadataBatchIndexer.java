@@ -23,6 +23,7 @@ import org.craftercms.commons.lang.RegexUtils;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.search.batch.UpdateSet;
+import org.craftercms.search.opensearch.OpenSearchService;
 import org.craftercms.search.opensearch.batch.OpenSearchBinaryFileWithMetadataBatchIndexer;
 import org.craftercms.search.batch.UpdateStatus;
 import org.dom4j.Document;
@@ -45,6 +46,10 @@ public class AuthoringOpenSearchBinaryFileWithMetadataBatchIndexer extends OpenS
     private static final Logger logger = LoggerFactory.getLogger(AuthoringOpenSearchBinaryFileWithMetadataBatchIndexer.class);
     protected List<String> binaryPathPatterns;
     protected List<String> binarySearchablePathPatterns;
+
+    public AuthoringOpenSearchBinaryFileWithMetadataBatchIndexer(final OpenSearchService openSearchService) {
+        super(openSearchService);
+    }
 
     @Override
     protected void doUpdates(String indexId, String siteName, ContentStoreService contentStoreService, Context context,

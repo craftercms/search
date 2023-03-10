@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -25,7 +25,6 @@ import org.junit.Test;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -58,7 +57,7 @@ public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
     }
 
     @Test
-    public void testProcess() throws Exception {
+    public void testProcess() {
         String indexId = SITE_NAME;
         UpdateSet updateSet = new UpdateSet(Collections.singletonList(SUPPORTED_FILENAME), Collections.singletonList(NON_SUPPORTED_FILENAME));
         UpdateStatus updateStatus = new UpdateStatus();
@@ -72,9 +71,8 @@ public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
         verify(searchService, never()).delete(indexId, SITE_NAME, NON_SUPPORTED_FILENAME);
     }
 
-    protected OpenSearchBinaryFileBatchIndexer getBatchIndexer() throws Exception {
-        OpenSearchBinaryFileBatchIndexer batchIndexer = new OpenSearchBinaryFileBatchIndexer();
-        batchIndexer.setOpenSearchService(searchService);
+    protected OpenSearchBinaryFileBatchIndexer getBatchIndexer() {
+        OpenSearchBinaryFileBatchIndexer batchIndexer = new OpenSearchBinaryFileBatchIndexer(searchService);
         batchIndexer.setSupportedMimeTypes(Collections.singletonList("application/pdf"));
         batchIndexer.setMaxFileSize(Long.MAX_VALUE);
 

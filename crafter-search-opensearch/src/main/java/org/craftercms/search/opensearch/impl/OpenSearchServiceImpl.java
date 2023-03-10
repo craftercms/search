@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -42,6 +42,7 @@ import static org.craftercms.search.commons.utils.MapUtils.mergeMaps;
 
 /**
  * Default implementation of {@link OpenSearchService}
+ *
  * @author joseross
  */
 public class OpenSearchServiceImpl implements OpenSearchService {
@@ -57,17 +58,17 @@ public class OpenSearchServiceImpl implements OpenSearchService {
     /**
      * Document Builder
      */
-    protected OpenSearchDocumentBuilder documentBuilder;
+    protected final OpenSearchDocumentBuilder documentBuilder;
 
     /**
      * Document Parser
      */
-    protected DocumentParser documentParser;
+    protected final DocumentParser documentParser;
 
     /**
      * The Elasticsearch client
      */
-    protected OpenSearchClient openSearchClient;
+    protected final OpenSearchClient openSearchClient;
 
     /**
      * The name of the field for full ids
@@ -111,7 +112,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
     @Override
     @SuppressWarnings("rawtypes")
     public List<String> searchField(final String aliasName, final String field, final Query query)
-        throws OpenSearchException {
+            throws OpenSearchException {
         logger.debug("[{}] Search values for field {} (query -> {})", aliasName, field, query);
 
         List<String> ids = new LinkedList<>();
@@ -120,24 +121,24 @@ public class OpenSearchServiceImpl implements OpenSearchService {
         try {
             logger.debug("[{}] Opening scroll with timeout {}", aliasName, scrollTimeout);
             SearchResponse<Map> response = openSearchClient.search(r -> r
-                .index(aliasName + "*")
-                .scroll(s -> s.time(scrollTimeout))
-                .from(0)
-                .size(scrollSize)
-                .query(query),
-                Map.class
+                            .index(aliasName + "*")
+                            .scroll(s -> s.time(scrollTimeout))
+                            .from(0)
+                            .size(scrollSize)
+                            .query(query),
+                    Map.class
             );
             String innerScrollId = response.scrollId();
             scrollId = innerScrollId;
 
-            while(response.hits().hits().size() > 0) {
+            while (response.hits().hits().size() > 0) {
                 response.hits().hits().forEach(hit -> ids.add((String) hit.source().get(field)));
 
                 logger.debug("[{}] Getting next batch for scroll with id {}", aliasName, innerScrollId);
                 response = openSearchClient.scroll(s -> s
-                    .scrollId(innerScrollId)
-                    .scroll(t -> t.time(scrollTimeout)),
-                    Map.class
+                                .scrollId(innerScrollId)
+                                .scroll(t -> t.time(scrollTimeout)),
+                        Map.class
                 );
             }
         } catch (Exception e) {
@@ -163,20 +164,19 @@ public class OpenSearchServiceImpl implements OpenSearchService {
         logger.debug("[{}] Search for id {}", aliasName, docId);
         try {
             SearchResponse<Map> response = openSearchClient.search(r -> r
-                .index(aliasName + "*")
-                .query(q -> q
-                    .term(t -> t
-                        .field(localIdFieldName)
-                        .value(v -> v.stringValue(docId))
-                    )
-                ),
-                Map.class
+                            .index(aliasName + "*")
+                            .query(q -> q
+                                    .term(t -> t
+                                            .field(localIdFieldName)
+                                            .value(v -> v.stringValue(docId))
+                                    )
+                            ),
+                    Map.class
             );
-            if(response.hits().total().value() > 0) {
+            if (response.hits().total().value() > 0) {
                 return response.hits().hits().get(0).source();
-            } else {
-                return Collections.emptyMap();
             }
+            return Collections.emptyMap();
         } catch (Exception e) {
             throw new OpenSearchException(aliasName, "Error executing search for id " + docId, e);
         }
@@ -225,7 +225,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
     @Override
     public void indexBinary(final String indexName, final String siteName, final String path,
                             final Content content, final Map<String, Object> additionalFields)
-        throws OpenSearchException {
+            throws OpenSearchException {
         String filename = FilenameUtils.getName(path);
         try {
             index(indexName, siteName, path, documentParser.parseToXml(filename, new ContentResource(content,
@@ -241,7 +241,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
     @Override
     public void indexBinary(final String indexName, final String siteName, final String path,
                             final Resource resource, final Map<String, Object> additionalFields)
-        throws OpenSearchException {
+            throws OpenSearchException {
         String filename = FilenameUtils.getName(path);
         try {
             index(indexName, siteName, path, documentParser.parseToXml(filename, resource, additionalFields));
@@ -255,7 +255,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
      */
     @Override
     public void delete(final String indexName, final String siteName, final String docId)
-        throws OpenSearchException {
+            throws OpenSearchException {
         doDelete(openSearchClient, indexName, siteName, docId);
     }
 
@@ -266,8 +266,8 @@ public class OpenSearchServiceImpl implements OpenSearchService {
         logger.debug("[{}] Deleting document {}", indexName, docId);
         try {
             client.delete(r -> r
-                .index(indexName)
-                .id(getId(docId))
+                    .index(indexName)
+                    .id(getId(docId))
             );
         } catch (Exception e) {
             throw new OpenSearchException(indexName, "Error deleting document " + docId, e);
@@ -289,7 +289,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
         logger.debug("[{}] Refreshing index", indexName);
         try {
             client.indices().refresh(r -> r
-                .index(indexName)
+                    .index(indexName)
             );
         } catch (IOException e) {
             throw new OpenSearchException(indexName, "Error flushing index", e);
@@ -298,6 +298,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
 
     /**
      * Hashes the full path to use as a unique id for Elasticsearch
+     *
      * @param path the path of the file
      * @return MD5 hash for the path
      */

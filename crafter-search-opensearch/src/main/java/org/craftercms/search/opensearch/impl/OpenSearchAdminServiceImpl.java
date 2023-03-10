@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -57,6 +57,7 @@ import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 
 /**
  * Default implementation of {@link OpenSearchAdminService}
+ *
  * @author joseross
  * @since 3.1.0
  */
@@ -78,38 +79,38 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     /**
      * Index mapping file for authoring indices
      */
-    protected Resource authoringMapping;
+    protected final Resource authoringMapping;
 
     /**
      * Index mapping file for preview indices
      */
-    protected Resource previewMapping;
+    protected final Resource previewMapping;
 
     /**
      * Regex used to determine if an index is for authoring
      */
-    protected String authoringNamePattern;
+    protected final String authoringNamePattern;
 
     /**
      * The map of locale codes to Elasticsearch languages
      */
-    protected Map<String, String> localeMapping;
+    protected final Map<String, String> localeMapping;
 
     /**
      * The Elasticsearch client
      */
-    protected RestHighLevelClient openSearchClient;
+    protected final RestHighLevelClient openSearchClient;
 
     /**
      * The default settings used when creating indices
      */
-    protected Map<String, String> defaultSettings;
+    protected final Map<String, String> defaultSettings;
 
     @ConstructorProperties({"authoringMapping", "previewMapping", "authoringNamePattern", "localeMapping",
             "defaultSettings", "openSearchClient"})
-    public OpenSearchAdminServiceImpl(Resource authoringMapping, Resource previewMapping,
-                                      String authoringNamePattern, Map<String, String> localeMapping,
-                                      Map<String, String> defaultSettings, RestHighLevelClient openSearchClient) {
+    public OpenSearchAdminServiceImpl(final Resource authoringMapping, final Resource previewMapping,
+                                      final String authoringNamePattern, final Map<String, String> localeMapping,
+                                      final Map<String, String> defaultSettings, final RestHighLevelClient openSearchClient) {
         this.authoringMapping = authoringMapping;
         this.previewMapping = previewMapping;
         this.authoringNamePattern = authoringNamePattern;
@@ -124,14 +125,15 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
 
     /**
      * Checks if a given index already exists in Elasticsearch
-     * @param client the elasticsearch client
+     *
+     * @param client    the elasticsearch client
      * @param indexName the index name
      */
     protected boolean exists(RestHighLevelClient client, String indexName) {
         logger.debug("Checking if index {} exits", indexName);
         try {
             return client.indices().exists(
-                new GetIndexRequest(indexName), RequestOptions.DEFAULT);
+                    new GetIndexRequest(indexName), RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new OpenSearchException(indexName, "Error consulting index", e);
         }
@@ -162,7 +164,7 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
      */
     protected void doCreateIndex(RestHighLevelClient client, String aliasName, String indexSuffix, Locale locale,
                                  boolean createAlias, Map<String, String> settings) {
-        Resource mapping = aliasName.matches(authoringNamePattern)? authoringMapping : previewMapping;
+        Resource mapping = aliasName.matches(authoringNamePattern) ? authoringMapping : previewMapping;
         String defaultAnalyzer = ES_STANDARD_ANALYZER;
         if (locale != null) {
             String localeValue = LocaleUtils.toString(locale);
@@ -174,24 +176,25 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
                     .orElse(defaultAnalyzer);
         }
         String indexName = aliasName + indexSuffix;
-        if (!exists(client, createAlias? aliasName : indexName)) {
-            logger.info("Creating index {}", indexName);
-            try(InputStream is = mapping.getInputStream()) {
-                Settings.Builder builder = Settings.builder();
-                settings.forEach(builder::put);
-                settings.put(ES_KEY_DEFAULT_ANALYZER, defaultAnalyzer);
+        if (exists(client, createAlias ? aliasName : indexName)) {
+            return;
+        }
+        logger.info("Creating index {}", indexName);
+        try (InputStream is = mapping.getInputStream()) {
+            Settings.Builder builder = Settings.builder();
+            settings.forEach(builder::put);
+            settings.put(ES_KEY_DEFAULT_ANALYZER, defaultAnalyzer);
 
-                CreateIndexRequest request = new CreateIndexRequest(indexName)
-                        .settings(builder.build())
-                        .mapping(IOUtils.toString(is, UTF_8), XContentType.JSON);
-                if (createAlias) {
-                    logger.info("Creating alias {}", aliasName);
-                    request.alias(new Alias(aliasName));
-                }
-                client.indices().create(request, RequestOptions.DEFAULT);
-            } catch (Exception e) {
-                throw new OpenSearchException(aliasName, "Error creating index " + indexName, e);
+            CreateIndexRequest request = new CreateIndexRequest(indexName)
+                    .settings(builder.build())
+                    .mapping(IOUtils.toString(is, UTF_8), XContentType.JSON);
+            if (createAlias) {
+                logger.info("Creating alias {}", aliasName);
+                request.alias(new Alias(aliasName));
             }
+            client.indices().create(request, RequestOptions.DEFAULT);
+        } catch (Exception e) {
+            throw new OpenSearchException(aliasName, "Error creating index " + indexName, e);
         }
     }
 
@@ -209,13 +212,13 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     protected void doDeleteIndexes(RestHighLevelClient client, String aliasName) {
         try {
             GetAliasesResponse indices = client.indices().getAlias(
-                new GetAliasesRequest(aliasName + "*"),
-                RequestOptions.DEFAULT);
+                    new GetAliasesRequest(aliasName + "*"),
+                    RequestOptions.DEFAULT);
             Set<String> actualIndices = indices.getAliases().keySet();
             logger.info("Deleting indices {}", actualIndices);
             client.indices().delete(
-                new DeleteIndexRequest(actualIndices.toArray(new String[]{})),
-                RequestOptions.DEFAULT);
+                    new DeleteIndexRequest(actualIndices.toArray(new String[]{})),
+                    RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new OpenSearchException(aliasName, "Error deleting index " + aliasName, e);
         }
@@ -236,7 +239,7 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
         logger.info("Recreating index for alias {}", aliasName);
         try {
             List<String> existingIndexes = doGetIndexes(client, aliasName);
-            for(String indexName : existingIndexes) {
+            for (String indexName : existingIndexes) {
                 logger.info("Found index {} for alias {}", indexName, aliasName);
 
                 // get the locale from the alias name
@@ -264,8 +267,8 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
                 Map<String, String> settings = doGetIndexSettings(client, indexName);
 
                 doCreateIndex(client, aliasName, newVersion, locale, false, settings);
-                String newIndexName = locale == null? aliasName + newVersion :
-                                                      aliasName + "-" + LocaleUtils.toString(locale) + newVersion;
+                String newIndexName = locale == null ? aliasName + newVersion :
+                        aliasName + "-" + LocaleUtils.toString(locale) + newVersion;
 
                 // index all existing content into the new index
                 doReindex(client, indexName, newIndexName);
@@ -352,7 +355,7 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
                     logger.error("Error waiting for Elasticsearch cluster to be ready", e);
                 }
             }
-        } while(!ready);
+        } while (!ready);
     }
 
     @Override

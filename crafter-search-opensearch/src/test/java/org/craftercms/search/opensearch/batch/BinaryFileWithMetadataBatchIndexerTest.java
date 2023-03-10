@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -113,7 +113,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
 
     // TODO: JM: Revisit test case
 //    @Test
-    public void testUpdateBinary() throws Exception {
+    public void testUpdateBinary() {
         setupMetadataSearchResult();
 
         UpdateSet updateSet = new UpdateSet(Collections.singletonList(BINARY_FILENAME1), Collections.emptyList());
@@ -130,7 +130,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
 
     // TODO: JM: Revisit test case
 //    @Test
-    public void testDeleteBinary() throws Exception {
+    public void testDeleteBinary() {
         UpdateSet updateSet = new UpdateSet(Collections.emptyList(), Collections.singletonList(BINARY_FILENAME1));
         UpdateStatus updateStatus = new UpdateStatus();
 
@@ -142,7 +142,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
     }
 
     @Test
-    public void testDeleteMetadata() throws Exception {
+    public void testDeleteMetadata() {
         setupBinariesSearchResults();
 
         UpdateSet updateSet = new UpdateSet(Collections.emptyList(), Collections.singletonList(METADATA_XML_FILENAME));
@@ -169,10 +169,9 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
                 .thenReturn(List.of(getExpectedMetadata().get("metadataPath").toString()));
     }
 
-    protected OpenSearchBinaryFileWithMetadataBatchIndexer getBatchIndexer() throws Exception {
+    protected OpenSearchBinaryFileWithMetadataBatchIndexer getBatchIndexer() {
         OpenSearchBinaryFileWithMetadataBatchIndexer batchIndexer =
-            new OpenSearchBinaryFileWithMetadataBatchIndexer();
-        batchIndexer.setOpenSearchService(searchService);
+            new OpenSearchBinaryFileWithMetadataBatchIndexer(searchService);
         batchIndexer.setMetadataPathPatterns(Collections.singletonList(".*metadata.*\\.xml$"));
         batchIndexer.setChildBinaryPathPatterns(Collections.singletonList(".*\\.pdf$"));
         batchIndexer.setIncludePropertyPatterns(Collections.singletonList("copyright.*"));

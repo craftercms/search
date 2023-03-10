@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Implementation of {@link Map} that can hold a single value or a list for a given key.
+ *
  * @author joseross
  */
 public class MixedMultivaluedMap extends HashMap<String, Object> {
@@ -34,28 +35,26 @@ public class MixedMultivaluedMap extends HashMap<String, Object> {
     public Object put(final String key, Object value) {
 
         // This is needed because of the way Jackson parses XML elements with attributes.
-        if(value instanceof Map) {
+        if (value instanceof Map) {
             Map map = (Map) value;
-            if(map.containsKey(StringUtils.EMPTY)) {
+            if (map.containsKey(StringUtils.EMPTY)) {
                 value = map.get(StringUtils.EMPTY);
             }
         }
 
-        if(containsKey(key)) {
-            Object currentValue = get(key);
-            if(currentValue instanceof List) {
-                List<Object> original = new LinkedList<>((List<Object>)currentValue);
-                ((List)currentValue).add(value);
-                return original;
-            } else {
-                List<Object> list = new LinkedList<>();
-                list.add(currentValue);
-                list.add(value);
-                return super.put(key, list);
-            }
-        } else {
+        if (!containsKey(key)) {
             return super.put(key, value);
         }
+        Object currentValue = get(key);
+        if (currentValue instanceof List) {
+            List<Object> original = new LinkedList<>((List<Object>) currentValue);
+            ((List) currentValue).add(value);
+            return original;
+        }
+        List<Object> list = new LinkedList<>();
+        list.add(currentValue);
+        list.add(value);
+        return super.put(key, list);
     }
 
 }

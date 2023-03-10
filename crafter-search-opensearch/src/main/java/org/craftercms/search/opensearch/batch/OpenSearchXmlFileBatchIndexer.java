@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -36,27 +36,27 @@ import org.craftercms.search.locale.LocaleExtractor;
  */
 public class OpenSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
 
-    protected OpenSearchAdminService openSearchAdminService;
+    protected final OpenSearchAdminService openSearchAdminService;
 
-    protected LocaleExtractor localeExtractor;
+    protected final LocaleExtractor localeExtractor;
 
-    protected final boolean enbleTranslation;
+    protected final boolean enableTranslation;
 
     /**
      * Elasticsearch service
      */
-    protected OpenSearchService openSearchService;
+    protected final OpenSearchService openSearchService;
 
     @ConstructorProperties({"openSearchAdminService", "localeExtractor", "openSearchService",
             "enableTranslation"})
-    public OpenSearchXmlFileBatchIndexer(OpenSearchAdminService openSearchAdminService,
-                                         LocaleExtractor localeExtractor,
-                                         OpenSearchService openSearchService,
-                                         boolean enableTranslation) {
+    public OpenSearchXmlFileBatchIndexer(final OpenSearchAdminService openSearchAdminService,
+                                         final LocaleExtractor localeExtractor,
+                                         final OpenSearchService openSearchService,
+                                         final boolean enableTranslation) {
         this.openSearchAdminService = openSearchAdminService;
         this.localeExtractor = localeExtractor;
         this.openSearchService = openSearchService;
-        this.enbleTranslation = enableTranslation;
+        this.enableTranslation = enableTranslation;
     }
 
     @Override
@@ -68,7 +68,7 @@ public class OpenSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
         } else {
             String xml = processXml(siteName, contentStoreService, context, path);
 
-            if (enbleTranslation) {
+            if (enableTranslation) {
                 // get the locale for the item
                 Locale locale = localeExtractor.extract(context, path);
                 if (locale != null) {
