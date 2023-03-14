@@ -25,7 +25,7 @@ import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.springframework.core.io.Resource;
 
 /**
- * Provides access to indexing operations in Elasticsearch
+ * Provides access to indexing operations in OpenSearch
  * @author joseross
  */
 public interface OpenSearchService extends AutoCloseable {

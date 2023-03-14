@@ -19,7 +19,7 @@ package org.craftercms.search.opensearch.exception;
 import org.craftercms.search.commons.exception.SearchException;
 
 /**
- * Base exception for all Elasticsearch errors
+ * Base exception for all OpenSearch errors
  * @author joseross
  */
 public class OpenSearchException extends SearchException {

@@ -26,31 +26,31 @@ import java.beans.ConstructorProperties;
 import java.util.Map;
 
 /**
- * Implementation of {@link AbstractBinaryFileBatchIndexer} for Elasticsearch
+ * Implementation of {@link AbstractBinaryFileBatchIndexer} for OpenSearch
  * @author joseross
  */
 public class OpenSearchBinaryFileBatchIndexer extends AbstractBinaryFileBatchIndexer {
 
     /**
-     * Elasticsearch service
+     * OpenSearch service
      */
-    protected final OpenSearchService openSearchService;
+    protected final OpenSearchService searchService;
 
-    @ConstructorProperties({"openSearchService"})
-    public OpenSearchBinaryFileBatchIndexer(final OpenSearchService openSearchService) {
-        this.openSearchService = openSearchService;
+    @ConstructorProperties({"searchService"})
+    public OpenSearchBinaryFileBatchIndexer(final OpenSearchService searchService) {
+        this.searchService = searchService;
     }
 
     @Override
     protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
-        OpenSearchIndexingUtils.doDelete(openSearchService, indexId, siteName, path, updateStatus);
+        OpenSearchIndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
     }
 
     @Override
     protected void doUpdateContent(final String indexId, final String siteName, final String path,
                                    final Content binaryContent, final UpdateDetail updateDetail,
                                    final UpdateStatus updateStatus, Map<String, Object> metadata) {
-        OpenSearchIndexingUtils.doUpdateBinary(openSearchService, indexId, siteName, path, metadata,
+        OpenSearchIndexingUtils.doUpdateBinary(searchService, indexId, siteName, path, metadata,
             binaryContent, updateDetail, updateStatus);
     }
 

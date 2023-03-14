@@ -30,7 +30,7 @@ import org.springframework.core.io.Resource;
 import static org.craftercms.search.commons.utils.MapUtils.mergeMaps;
 
 /**
- * Utility class to perform Elasticsearch operations
+ * Utility class to perform OpenSearch operations
  * @author joseross
  */
 public abstract class OpenSearchIndexingUtils extends IndexingUtils {

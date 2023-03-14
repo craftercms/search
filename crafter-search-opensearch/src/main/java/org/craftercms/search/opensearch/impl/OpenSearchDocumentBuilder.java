@@ -23,7 +23,7 @@ import org.craftercms.search.commons.service.impl.AbstractDocumentBuilder;
 import org.craftercms.search.opensearch.jackson.MixedMultivaluedMap;
 
 /**
- * Implementation of {@link DocumentBuilder} for Elasticsearch
+ * Implementation of {@link DocumentBuilder} for OpenSearch
  * @author joseross
  */
 public class OpenSearchDocumentBuilder extends AbstractDocumentBuilder<Map<String, Object>> {

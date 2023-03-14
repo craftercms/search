@@ -31,31 +31,31 @@ import org.craftercms.search.batch.impl.AbstractXmlFileBatchIndexer;
 import org.craftercms.search.locale.LocaleExtractor;
 
 /**
- * Implementation of {@link AbstractXmlFileBatchIndexer} for Elasticsearch
+ * Implementation of {@link AbstractXmlFileBatchIndexer} for OpenSearch
  * @author joseross
  */
 public class OpenSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
 
-    protected final OpenSearchAdminService openSearchAdminService;
+    protected final OpenSearchAdminService searchAdminService;
 
     protected final LocaleExtractor localeExtractor;
 
     protected final boolean enableTranslation;
 
     /**
-     * Elasticsearch service
+     * OpenSearch service
      */
-    protected final OpenSearchService openSearchService;
+    protected final OpenSearchService searchService;
 
-    @ConstructorProperties({"openSearchAdminService", "localeExtractor", "openSearchService",
+    @ConstructorProperties({"searchAdminService", "localeExtractor", "searchService",
             "enableTranslation"})
-    public OpenSearchXmlFileBatchIndexer(final OpenSearchAdminService openSearchAdminService,
+    public OpenSearchXmlFileBatchIndexer(final OpenSearchAdminService searchAdminService,
                                          final LocaleExtractor localeExtractor,
-                                         final OpenSearchService openSearchService,
+                                         final OpenSearchService searchService,
                                          final boolean enableTranslation) {
-        this.openSearchAdminService = openSearchAdminService;
+        this.searchAdminService = searchAdminService;
         this.localeExtractor = localeExtractor;
-        this.openSearchService = openSearchService;
+        this.searchService = searchService;
         this.enableTranslation = enableTranslation;
     }
 
@@ -73,7 +73,7 @@ public class OpenSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
                 Locale locale = localeExtractor.extract(context, path);
                 if (locale != null) {
                     // check if locale specific index exists
-                    openSearchAdminService.createIndex(indexId, locale);
+                    searchAdminService.createIndex(indexId, locale);
                     // update the index name
                     indexId += "-" + LocaleUtils.toString(locale);
                 }
@@ -84,14 +84,14 @@ public class OpenSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
 
     @Override
     protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
-        OpenSearchIndexingUtils.doDelete(openSearchService, indexId, siteName, path, updateStatus);
+        OpenSearchIndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
     }
 
     @Override
     protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
                             final UpdateDetail updateDetail, final UpdateStatus updateStatus,
                             Map<String, Object> metadata) {
-        OpenSearchIndexingUtils.doUpdate(openSearchService, indexId, siteName, path, xml, updateDetail,
+        OpenSearchIndexingUtils.doUpdate(searchService, indexId, siteName, path, xml, updateDetail,
             updateStatus, metadata);
     }
 

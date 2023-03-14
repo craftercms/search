@@ -38,26 +38,26 @@ import java.util.Map;
 public class OpenSearchBinaryFileWithMetadataBatchIndexer extends AbstractBinaryFileWithMetadataBatchIndexer {
 
     /**
-     * Elasticsearch service
+     * OpenSearch service
      */
-    protected final OpenSearchService openSearchService;
+    protected final OpenSearchService searchService;
 
-    @ConstructorProperties({"openSearchService"})
-    public OpenSearchBinaryFileWithMetadataBatchIndexer(final OpenSearchService openSearchService) {
-        this.openSearchService = openSearchService;
+    @ConstructorProperties({"searchService"})
+    public OpenSearchBinaryFileWithMetadataBatchIndexer(final OpenSearchService searchService) {
+        this.searchService = searchService;
     }
 
     @Override
     protected void doDelete(final String indexId, final String siteName, final String previousBinaryPath,
                             final UpdateStatus updateStatus) {
-        OpenSearchIndexingUtils.doDelete(openSearchService, indexId, siteName, previousBinaryPath, updateStatus);
+        OpenSearchIndexingUtils.doDelete(searchService, indexId, siteName, previousBinaryPath, updateStatus);
     }
 
     @Override
     protected List<String> searchBinaryPathsFromMetadataPath(final String indexId, final String siteName,
                                                              final String metadataPath) {
         try {
-            return openSearchService.searchField(indexId, localIdFieldName, Query.of(q -> q
+            return searchService.searchField(indexId, localIdFieldName, Query.of(q -> q
                 .term(m -> m
                     .field(metadataPathFieldNameWithKeyword())
                     .value(v -> v.stringValue(metadataPath))
@@ -72,7 +72,7 @@ public class OpenSearchBinaryFileWithMetadataBatchIndexer extends AbstractBinary
     protected String searchMetadataPathFromBinaryPath(final String indexId, final String siteName,
                                                       final String binaryPath) {
         try {
-            List<String> paths = openSearchService.searchField(indexId, metadataPathFieldName, Query.of(q -> q
+            List<String> paths = searchService.searchField(indexId, metadataPathFieldName, Query.of(q -> q
                 .bool(b -> b
                     .filter(m -> m
                         .term(t -> t
@@ -101,7 +101,7 @@ public class OpenSearchBinaryFileWithMetadataBatchIndexer extends AbstractBinary
     protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
                                    final Resource resource, final Map<String, Object> metadata,
                                    final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
-        OpenSearchIndexingUtils.doUpdateBinary(openSearchService, indexId, siteName, binaryPath, metadata,
+        OpenSearchIndexingUtils.doUpdateBinary(searchService, indexId, siteName, binaryPath, metadata,
                 resource, updateDetail, updateStatus);
     }
 
@@ -109,7 +109,7 @@ public class OpenSearchBinaryFileWithMetadataBatchIndexer extends AbstractBinary
     protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
                                    final Content content, final Map<String, Object> metadata,
                                    final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
-        OpenSearchIndexingUtils.doUpdateBinary(openSearchService, indexId, siteName, binaryPath, metadata,
+        OpenSearchIndexingUtils.doUpdateBinary(searchService, indexId, siteName, binaryPath, metadata,
                 content, updateDetail, updateStatus);
     }
 

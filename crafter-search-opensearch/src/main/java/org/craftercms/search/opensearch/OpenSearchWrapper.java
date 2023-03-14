@@ -26,7 +26,7 @@ import java.util.Map;
 import static java.util.Collections.emptyMap;
 
 /**
- * Exposes the search related operations from the Elasticsearch client
+ * Exposes the search related operations from the OpenSearch client
  * @author joseross
  */
 public interface OpenSearchWrapper {

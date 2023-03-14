@@ -21,7 +21,7 @@ import org.craftercms.search.opensearch.exception.OpenSearchException;
 import java.util.Locale;
 
 /**
- * Provides operations to manage indices in Elasticsearch
+ * Provides operations to manage indices in OpenSearch
  * @author joseross
  * @since 3.1.0
  */
@@ -57,7 +57,7 @@ public interface OpenSearchAdminService extends AutoCloseable {
     void recreateIndex(String aliasName) throws OpenSearchException;
 
     /**
-     * Checks if the Elasticsearch cluster is ready to receive requests
+     * Checks if the OpenSearch cluster is ready to receive requests
      */
     void waitUntilReady();
 
