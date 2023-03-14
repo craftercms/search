@@ -35,7 +35,7 @@ import static org.craftercms.search.batch.utils.IndexingUtils.isMimeTypeSupporte
 import static org.craftercms.search.commons.utils.MapUtils.mergeMaps;
 
 /**
- * Implementation of {@link OpenSearchBinaryFileWithMetadataBatchIndexer} for Elasticsearch of authoring.
+ * Implementation of {@link OpenSearchBinaryFileWithMetadataBatchIndexer} for OpenSearch of authoring.
  * Override method {@link org.craftercms.search.batch.impl.AbstractBinaryFileWithMetadataBatchIndexer#doUpdates(String, String, ContentStoreService, Context, UpdateSet, UpdateStatus)}
  * and method {@link org.craftercms.search.batch.impl.AbstractBinaryFileWithMetadataBatchIndexer#doDeletes(String, String, ContentStoreService, Context, List, UpdateStatus)}
  * to support authoring binary indexing

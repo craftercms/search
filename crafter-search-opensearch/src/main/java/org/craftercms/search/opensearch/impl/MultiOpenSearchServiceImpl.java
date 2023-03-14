@@ -24,7 +24,7 @@ import org.opensearch.client.opensearch.OpenSearchClient;
 import java.util.Map;
 
 /**
- * Extension of {@link OpenSearchServiceImpl} that handles multiple Elasticsearch clusters
+ * Extension of {@link OpenSearchServiceImpl} that handles multiple OpenSearch clusters
  *
  * @author joseross
  * @since 3.1.5
@@ -32,7 +32,7 @@ import java.util.Map;
 public class MultiOpenSearchServiceImpl extends OpenSearchServiceImpl {
 
     /**
-     * Elasticsearch clients used for write-related operations
+     * OpenSearch clients used for write-related operations
      */
     protected final OpenSearchClient[] writeClients;
 

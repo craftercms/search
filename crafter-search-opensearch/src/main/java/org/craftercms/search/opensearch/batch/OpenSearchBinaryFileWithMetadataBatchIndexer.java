@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementation of {@link AbstractBinaryFileWithMetadataBatchIndexer} for Elasticsearch
+ * Implementation of {@link AbstractBinaryFileWithMetadataBatchIndexer} for OpenSearch
  * @author joseross
  */
 public class OpenSearchBinaryFileWithMetadataBatchIndexer extends AbstractBinaryFileWithMetadataBatchIndexer {

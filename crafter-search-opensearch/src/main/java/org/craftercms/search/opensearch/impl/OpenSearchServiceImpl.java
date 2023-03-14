@@ -66,7 +66,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
     protected final DocumentParser documentParser;
 
     /**
-     * The Elasticsearch client
+     * The OpenSearch client
      */
     protected final OpenSearchClient openSearchClient;
 
@@ -191,7 +191,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
     }
 
     /**
-     * Performs the index operation using the given Elasticsearch client
+     * Performs the index operation using the given OpenSearch client
      */
     protected void doIndex(OpenSearchClient client, String indexName, String siteName, String docId,
                            Map<String, Object> doc) {
@@ -260,7 +260,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
     }
 
     /**
-     * Performs the delete operation using the given Elasticsearch client
+     * Performs the delete operation using the given OpenSearch client
      */
     protected void doDelete(OpenSearchClient client, String indexName, String siteName, String docId) {
         logger.debug("[{}] Deleting document {}", indexName, docId);
@@ -283,7 +283,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
     }
 
     /**
-     * Performs the refresh operation using the given Elasticsearch client
+     * Performs the refresh operation using the given OpenSearch client
      */
     protected void doRefresh(OpenSearchClient client, String indexName) throws OpenSearchException {
         logger.debug("[{}] Refreshing index", indexName);
@@ -297,7 +297,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
     }
 
     /**
-     * Hashes the full path to use as a unique id for Elasticsearch
+     * Hashes the full path to use as a unique id for OpenSearch
      *
      * @param path the path of the file
      * @return MD5 hash for the path

@@ -49,7 +49,7 @@ import java.io.IOException;
 import java.util.stream.Stream;
 
 /**
- * Factory class for the Elasticsearch rest client
+ * Factory class for the OpenSearch rest client
  * @author joseross
  */
 public class RestHighLevelClientFactory extends AbstractFactoryBean<RestHighLevelClient> {
@@ -57,17 +57,17 @@ public class RestHighLevelClientFactory extends AbstractFactoryBean<RestHighLeve
     private static final Logger logger = LoggerFactory.getLogger(OpenSearchClientFactory.class);
 
     /**
-     * List of Elasticsearch urls
+     * List of OpenSearch urls
      */
     protected final String[] serverUrls;
 
     /**
-     * The username for Elasticsearch
+     * The username for OpenSearch
      */
     protected String username;
 
     /**
-     * The password for Elasticsearch
+     * The password for OpenSearch
      */
     protected String password;
 

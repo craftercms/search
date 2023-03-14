@@ -92,12 +92,12 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     protected final String authoringNamePattern;
 
     /**
-     * The map of locale codes to Elasticsearch languages
+     * The map of locale codes to OpenSearch languages
      */
     protected final Map<String, String> localeMapping;
 
     /**
-     * The Elasticsearch client
+     * The OpenSearch client
      */
     protected final RestHighLevelClient openSearchClient;
 
@@ -124,9 +124,9 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     }
 
     /**
-     * Checks if a given index already exists in Elasticsearch
+     * Checks if a given index already exists in OpenSearch
      *
-     * @param client    the elasticsearch client
+     * @param client    the OpenSearch client
      * @param indexName the index name
      */
     protected boolean exists(RestHighLevelClient client, String indexName) {
@@ -153,14 +153,14 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     }
 
     /**
-     * Performs the index creation using the given Elasticsearch client
+     * Performs the index creation using the given OpenSearch client
      */
     protected void doCreateIndex(RestHighLevelClient client, String aliasName, Locale locale) {
         doCreateIndex(client, aliasName, indexNameSuffix, locale, true, defaultSettings);
     }
 
     /**
-     * Performs the index creation using the given Elasticsearch client
+     * Performs the index creation using the given OpenSearch client
      */
     protected void doCreateIndex(RestHighLevelClient client, String aliasName, String indexSuffix, Locale locale,
                                  boolean createAlias, Map<String, String> settings) {
@@ -207,7 +207,7 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     }
 
     /**
-     * Performs the index delete using the given Elasticsearch client
+     * Performs the index delete using the given OpenSearch client
      */
     protected void doDeleteIndexes(RestHighLevelClient client, String aliasName) {
         try {
@@ -233,7 +233,7 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     }
 
     /**
-     * Performs all operations for recreating an index using the given Elasticsearch client
+     * Performs all operations for recreating an index using the given OpenSearch client
      */
     protected void doRecreateIndex(RestHighLevelClient client, String aliasName) {
         logger.info("Recreating index for alias {}", aliasName);
@@ -339,20 +339,20 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     }
 
     protected void doWaitUntilReady(RestHighLevelClient client) {
-        logger.info("Waiting for Elasticsearch cluster to be ready");
+        logger.info("Waiting for OpenSearch cluster to be ready");
         boolean ready = false;
         do {
             try {
                 ready = client.ping(RequestOptions.DEFAULT);
             } catch (IOException e) {
-                logger.debug("Error pinging Elasticsearch cluster", e);
+                logger.debug("Error pinging OpenSearch cluster", e);
             }
             if (!ready) {
-                logger.info("Elasticsearch cluster not ready, will try again in 5 seconds");
+                logger.info("OpenSearch cluster not ready, will try again in 5 seconds");
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
-                    logger.error("Error waiting for Elasticsearch cluster to be ready", e);
+                    logger.error("Error waiting for OpenSearch cluster to be ready", e);
                 }
             }
         } while (!ready);

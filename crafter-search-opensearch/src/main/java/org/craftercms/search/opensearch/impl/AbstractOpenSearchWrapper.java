@@ -59,7 +59,7 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
     public static final String PARAM_NAME_SEARCH_TYPE = "search_type";
 
     /**
-     * The Elasticsearch client
+     * The OpenSearch client
      */
     protected final RestHighLevelClient client;
 
