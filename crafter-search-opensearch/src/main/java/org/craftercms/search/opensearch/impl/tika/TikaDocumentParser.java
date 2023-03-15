@@ -70,7 +70,7 @@ public class TikaDocumentParser extends AbstractDocumentParser {
      */
     protected Tika tika = new Tika();
 
-    protected FileTypeMap fileTypeMap = new MimetypesFileTypeMap();
+    protected final FileTypeMap fileTypeMap = new MimetypesFileTypeMap();
 
 
 
