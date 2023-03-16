@@ -18,6 +18,7 @@ package org.craftercms.search.opensearch.impl;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.io.IOUtils;
+import org.codelibs.opensearch.runner.OpenSearchRunner;
 import org.craftercms.search.opensearch.OpenSearchAdminService;
 import org.craftercms.search.opensearch.OpenSearchService;
 import org.craftercms.search.opensearch.OpenSearchWrapper;
@@ -43,6 +44,7 @@ import java.util.stream.Stream;
 
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static java.util.stream.Collectors.toMap;
+import static org.codelibs.opensearch.runner.OpenSearchRunner.newConfigs;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -70,7 +72,7 @@ public class OpenSearchIT {
     private static final String WP_REASONS_PDF_DOC_ID = "crafter-wp-7-reasons.pdf";
 
     private static final List<String> WP_REASONS_PDF_TAGS = Arrays.asList("Crafter", "reasons", "white paper");
-    
+
     @Autowired
     private OpenSearchWrapper searchClient;
 
@@ -80,14 +82,25 @@ public class OpenSearchIT {
     @Autowired
     private OpenSearchAdminService adminService;
 
+    private OpenSearchRunner runner;
+
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        runner = new OpenSearchRunner();
+        runner.onBuild((number, settingsBuilder) -> {
+            settingsBuilder.put("http.port", "9229-9230");
+            settingsBuilder.put("network.host", "localhost");
+        }).build(newConfigs().clusterName("crafter-opensearch").numOfNode(2));
+        runner.ensureYellow();
+
         adminService.createIndex(PLUTON_INDEX_ID);
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
         adminService.deleteIndexes(PLUTON_INDEX_ID);
+        runner.close();
+        runner.clean();
     }
 
     @Test
@@ -175,7 +188,7 @@ public class OpenSearchIT {
     private Map<String, DocumentContext> getDocs(SearchResponse response) {
         return Stream.of(response.getHits().getHits())
                 .collect(toMap(hit -> hit.getSourceAsMap().get("localId").toString(),
-                               hit -> JsonPath.parse(hit.getSourceAsString())));
+                        hit -> JsonPath.parse(hit.getSourceAsString())));
     }
 
     private void assertIPadDocCommonFields(DocumentContext doc) {

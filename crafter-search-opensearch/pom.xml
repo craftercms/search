@@ -29,11 +29,6 @@
     </parent>
 
     <properties>
-        <!-- Testing -->
-        <!-- TODO: JM: Revisit this to see if there is a way to do the same for OS -->
-        <!--        <elasticsearch.maven.plugin.version>6.23</elasticsearch.maven.plugin.version>-->
-        <!--        <elasticsearch.maven.plugin.transportPort>9339</elasticsearch.maven.plugin.transportPort>-->
-        <!--        <elasticsearch.maven.plugin.httpPort>9229</elasticsearch.maven.plugin.httpPort>-->
     </properties>
 
     <dependencies>
@@ -67,6 +62,13 @@
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
             <version>${tika.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.opensearch/opensearch-testcontainers -->
+        <dependency>
+            <groupId>org.codelibs.opensearch</groupId>
+            <artifactId>opensearch-runner</artifactId>
+            <version>2.6.0.0</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
