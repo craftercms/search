@@ -42,7 +42,7 @@
 
     <modules>
         <module>crafter-search-batch-indexer</module>
-        <module>crafter-search-elasticsearch</module>
+        <module>crafter-search-opensearch</module>
         <module>crafter-search-commons</module>
     </modules>
 

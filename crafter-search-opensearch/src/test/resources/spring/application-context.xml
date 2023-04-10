@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License version 3 as published by
+  ~ the Free Software Foundation.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="restHighLevelSearchClient" class="org.craftercms.search.opensearch.spring.RestHighLevelClientFactory">
+        <constructor-arg name="serverUrls" value="http://localhost:9229"/>
+    </bean>
+
+    <bean id="searchClient" class="org.craftercms.search.opensearch.spring.OpenSearchClientFactory">
+        <constructor-arg name="serverUrls" value="http://localhost:9229"/>
+    </bean>
+
+    <bean id="fieldValueConverter" class="org.craftercms.search.commons.service.impl.CompositeSuffixBasedConverter">
+        <property name="converterMappings">
+            <map>
+                <entry key="_html">
+                    <bean class="org.craftercms.search.commons.service.impl.HtmlStrippingConverter"/>
+                </entry>
+                <entry key="_dt">
+                    <bean class="org.craftercms.search.commons.service.impl.DateTimeConverter">
+                        <property name="dateTimeFieldPattern" value="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+                    </bean>
+                </entry>
+                <entry key="_to">
+                    <bean class="org.craftercms.search.commons.service.impl.DateTimeConverter">
+                        <property name="dateTimeFieldPattern" value="HH:mm:ss"/>
+                    </bean>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="searchService" class="org.craftercms.search.opensearch.impl.OpenSearchServiceImpl">
+        <constructor-arg name="documentBuilder">
+            <bean class="org.craftercms.search.opensearch.impl.OpenSearchDocumentBuilder">
+                <property name="idFieldName" value="id"/>
+                <property name="rootIdFieldName" value="rootId"/>
+                <property name="siteFieldName" value="crafterSite"/>
+                <property name="localIdFieldName" value="localId"/>
+                <property name="publishingDateFieldName" value="crafterPublishedDate"/>
+                <property name="publishingDateAltFieldName" value="crafterPublishedDate_dt"/>
+                <property name="fieldValueConverter" ref="fieldValueConverter"/>
+                <property name="parserService">
+                    <bean class="org.craftercms.search.commons.service.impl.ElementParserServiceImpl">
+                        <property name="parsers">
+                            <list>
+                                <bean class="org.craftercms.search.opensearch.impl.ItemListElementParser"/>
+                                <bean class="org.craftercms.search.commons.service.impl.TokenizedElementParser"/>
+                                <bean class="org.craftercms.search.opensearch.impl.OpenSearchElementParserImpl">
+                                    <property name="fieldValueConverter" ref="fieldValueConverter"/>
+                                </bean>
+                            </list>
+                        </property>
+                    </bean>
+                </property>
+                <property name="copyFields">
+                    <map>
+                        <entry key=".+_html" value="_raw"/>
+                    </map>
+                </property>
+            </bean>
+        </constructor-arg>
+        <constructor-arg name="documentParser">
+            <bean class="org.craftercms.search.opensearch.impl.tika.TikaDocumentParser">
+                <property name="charLimit" value="100"/>
+                <constructor-arg name="metadataExtractors">
+                    <list/>
+                </constructor-arg>
+                <property name="tika">
+                    <bean class="org.apache.tika.Tika"/>
+                </property>
+            </bean>
+        </constructor-arg>
+        <constructor-arg name="openSearchClient" ref="searchClient"/>
+    </bean>
+
+    <bean id="adminService" class="org.craftercms.search.opensearch.impl.OpenSearchAdminServiceImpl">
+        <constructor-arg name="authoringMapping" value="classpath:crafter/opensearch/authoring-mapping.json"/>
+        <constructor-arg name="previewMapping" value="classpath:crafter/opensearch/default-mapping.json"/>
+        <constructor-arg name="authoringNamePattern" value=".+-authoring"/>
+        <constructor-arg name="localeMapping">
+            <map/>
+        </constructor-arg>
+        <constructor-arg name="defaultSettings">
+            <map/>
+        </constructor-arg>
+        <constructor-arg name="openSearchClient" ref="restHighLevelSearchClient"/>
+    </bean>
+
+    <bean id="searchWrapper" class="org.craftercms.search.opensearch.impl.TestOpenSearchWrapper">
+        <constructor-arg name="client" ref="restHighLevelSearchClient"/>
+        <property name="filterQueries" value="-disabled:&quot;true&quot;,-expired_dt:[* TO now]"/>
+    </bean>
+
+</beans>
