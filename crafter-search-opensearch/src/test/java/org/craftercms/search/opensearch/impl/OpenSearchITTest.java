@@ -62,7 +62,7 @@ import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/application-context.xml")
-public class OpenSearchIT {
+public class OpenSearchITTest {
 
     private static final String PLUTON_SITE = "pluton";
     private static final String PLUTON_INDEX_ID = "pluton";
