@@ -29,11 +29,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for {@link OpenSearchBinaryFileWithMetadataBatchIndexer}.
@@ -112,7 +110,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
 
 
     // TODO: JM: Revisit test case
-//    @Test
+    @Test
     public void testUpdateBinary() {
         setupMetadataSearchResult();
 
@@ -121,24 +119,24 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
 
         batchIndexer.updateIndex(INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
-        assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
-        assertTrue(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME1));
-        verify(searchService).indexBinary(
-            eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadata()));
+        // Binary files are no longer processed by AbstractBinaryFileWithMetadataBatchIndexer
+        assertEquals(0, updateStatus.getAttemptedUpdatesAndDeletes());
+        assertFalse(updateStatus.getSuccessfulUpdates().contains(BINARY_FILENAME1));
+        verify(searchService, times(0)).indexBinary(
+                eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1), any(Content.class), eq(getExpectedMetadata()));
     }
 
-
-    // TODO: JM: Revisit test case
-//    @Test
+    @Test
     public void testDeleteBinary() {
         UpdateSet updateSet = new UpdateSet(Collections.emptyList(), Collections.singletonList(BINARY_FILENAME1));
         UpdateStatus updateStatus = new UpdateStatus();
 
         batchIndexer.updateIndex(INDEX_ID, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
-        assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
-        assertTrue(updateStatus.getSuccessfulDeletes().contains(BINARY_FILENAME1));
-        verify(searchService).delete(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1));
+        // Binary files are no longer processed by AbstractBinaryFileWithMetadataBatchIndexer
+        assertEquals(0, updateStatus.getAttemptedUpdatesAndDeletes());
+        assertFalse(updateStatus.getSuccessfulDeletes().contains(BINARY_FILENAME1));
+        verify(searchService, times(0)).delete(eq(INDEX_ID), eq(SITE_NAME), eq(BINARY_FILENAME1));
     }
 
     @Test
@@ -165,7 +163,7 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
     }
 
     protected void setupMetadataSearchResult() {
-        when(searchService.searchField(eq(INDEX_ID), eq("metadataPath"), any()))
+        lenient().when(searchService.searchField(eq(INDEX_ID), eq("metadataPath"), any()))
                 .thenReturn(List.of(getExpectedMetadata().get("metadataPath").toString()));
     }
 

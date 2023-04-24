@@ -233,8 +233,6 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
             maxConcurrentShardRequests(request.maxConcurrentShardRequests());
             minCompatibleShardNode(request.minCompatibleShardNode());
             minScore(request.minScore());
-            // TODO: JM: Review
-//            pit(request.pit());
             postFilter(request.postFilter());
             preFilterShardSize(request.preFilterShardSize());
             preference(request.preference());
@@ -258,8 +256,6 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
             timeout(request.timeout());
             trackScores(request.trackScores());
             trackTotalHits(request.trackTotalHits());
-            // TODO: JM: Review
-//            type(request.type());
             version(request.version());
 
             // override values
