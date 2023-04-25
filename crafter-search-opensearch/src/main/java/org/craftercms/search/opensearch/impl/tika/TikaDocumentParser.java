@@ -19,6 +19,8 @@ package org.craftercms.search.opensearch.impl.tika;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import jakarta.activation.FileTypeMap;
+import jakarta.activation.MimetypesFileTypeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
@@ -31,8 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
-import javax.activation.FileTypeMap;
-import javax.activation.MimetypesFileTypeMap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;

@@ -16,6 +16,7 @@
 
 package org.craftercms.search.batch.impl;
 
+import jakarta.activation.FileTypeMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,11 +40,10 @@ import org.dom4j.Namespace;
 import org.dom4j.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
-import javax.activation.FileTypeMap;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.*;
@@ -154,7 +154,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
         this.internalNameFieldName = internalNameFieldName;
     }
 
-    @Required
+    @Autowired
     public void setMaxFileSize(final long maxFileSize) {
         this.maxFileSize = maxFileSize;
     }

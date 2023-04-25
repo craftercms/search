@@ -37,7 +37,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.SAXException;
 
 /**
@@ -101,12 +101,12 @@ public abstract class AbstractDocumentBuilder<T> implements DocumentBuilder<T> {
         this.publishingDateAltFieldName = publishingDateAltFieldName;
     }
 
-    @Required
+    @Autowired
     public void setParserService(ElementParserService<T> parserService) {
         this.parserService = parserService;
     }
 
-    @Required
+    @Autowired
     public void setFieldValueConverter(FieldValueConverter fieldValueConverter) {
         this.fieldValueConverter = fieldValueConverter;
     }

@@ -19,7 +19,7 @@ import org.craftercms.search.commons.service.FieldValueConverter;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * {@link FieldValueConverter} that formats a field in a source pattern to the ISO date format.
@@ -30,7 +30,7 @@ public class DateTimeConverter implements FieldValueConverter {
 
     private String dateTimeFieldPattern;
 
-    @Required
+    @Autowired
     public void setDateTimeFieldPattern(String dateTimeFieldPattern) {
         this.dateTimeFieldPattern = dateTimeFieldPattern;
     }

@@ -26,7 +26,7 @@ import org.craftercms.core.service.Context;
 import org.craftercms.core.service.Item;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implementation of {@link org.craftercms.search.metadata.MetadataExtractor} for the internalName field
@@ -54,7 +54,7 @@ public class InternalNameMetadataExtractor extends AbstractMetadataExtractor {
         this.propertyName = propertyName;
     }
 
-    @Required
+    @Autowired
     public void setInternalNameFieldXpath(final String internalNameFieldXpath) {
         this.internalNameFieldXpath = internalNameFieldXpath;
     }

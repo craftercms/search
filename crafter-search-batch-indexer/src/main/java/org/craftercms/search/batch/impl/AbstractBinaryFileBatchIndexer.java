@@ -22,10 +22,10 @@ import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
-import javax.activation.FileTypeMap;
+import jakarta.activation.FileTypeMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +56,7 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
         this.supportedMimeTypes = supportedMimeTypes;
     }
 
-    @Required
+    @Autowired
     public void setMaxFileSize(final long maxFileSize) {
         this.maxFileSize = maxFileSize;
     }
