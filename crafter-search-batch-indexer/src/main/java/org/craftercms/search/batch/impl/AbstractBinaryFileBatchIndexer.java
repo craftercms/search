@@ -15,14 +15,13 @@
  */
 package org.craftercms.search.batch.impl;
 
-import org.craftercms.search.batch.UpdateDetail;
-import org.craftercms.search.batch.UpdateStatus;
 import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
+import org.craftercms.search.batch.UpdateDetail;
+import org.craftercms.search.batch.UpdateStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
 import javax.activation.FileTypeMap;
@@ -46,7 +45,6 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
 
     protected List<String> supportedMimeTypes;
     protected FileTypeMap mimeTypesMap;
-    protected long maxFileSize;
 
     public AbstractBinaryFileBatchIndexer() {
         mimeTypesMap = new ConfigurableMimeFileTypeMap();
@@ -54,11 +52,6 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
 
     public void setSupportedMimeTypes(List<String> supportedMimeTypes) {
         this.supportedMimeTypes = supportedMimeTypes;
-    }
-
-    @Required
-    public void setMaxFileSize(final long maxFileSize) {
-        this.maxFileSize = maxFileSize;
     }
 
     @Override
@@ -70,11 +63,7 @@ public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexe
         } else {
             Content binaryContent = contentStoreService.findContent(context, path);
             if (binaryContent != null && binaryContent.getLength() > 0) {
-                if (binaryContent.getLength() > maxFileSize) {
-                    logger.warn("Skipping large binary file @ {}", path);
-                } else {
-                    doUpdateContent(indexId, siteName, path, binaryContent, updateDetail, updateStatus, metadata);
-                }
+                doUpdateContent(indexId, siteName, path, binaryContent, updateDetail, updateStatus, metadata);
             } else {
                 logger.debug("No binary file found at '{}':'{}'. Skipping update", siteName, path);
             }
