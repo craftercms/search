@@ -22,16 +22,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.craftercms.commons.file.stores.RemoteFile;
 import org.craftercms.commons.file.stores.RemoteFileResolver;
 import org.craftercms.commons.lang.RegexUtils;
-import org.craftercms.search.batch.BatchIndexer;
-import org.craftercms.search.batch.UpdateDetail;
-import org.craftercms.search.batch.UpdateSet;
-import org.craftercms.search.batch.UpdateStatus;
-import org.craftercms.search.batch.exception.BatchIndexingException;
 import org.craftercms.core.processors.ItemProcessor;
 import org.craftercms.core.processors.impl.ItemProcessorPipeline;
 import org.craftercms.core.service.Content;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
+import org.craftercms.search.batch.BatchIndexer;
+import org.craftercms.search.batch.UpdateDetail;
+import org.craftercms.search.batch.UpdateSet;
+import org.craftercms.search.batch.UpdateStatus;
+import org.craftercms.search.batch.exception.BatchIndexingException;
 import org.craftercms.search.metadata.impl.AbstractMetadataCollector;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -39,7 +39,6 @@ import org.dom4j.Namespace;
 import org.dom4j.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
@@ -87,7 +86,6 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
     protected List<String> excludeMetadataProperties;
     protected String metadataPathFieldName;
     protected String localIdFieldName;
-    protected long maxFileSize;
     protected String internalNameFieldName;
 
     public AbstractBinaryFileWithMetadataBatchIndexer() {
@@ -152,11 +150,6 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
 
     public void setInternalNameFieldName(String internalNameFieldName) {
         this.internalNameFieldName = internalNameFieldName;
-    }
-
-    @Required
-    public void setMaxFileSize(final long maxFileSize) {
-        this.maxFileSize = maxFileSize;
     }
 
     @Override
@@ -330,13 +323,8 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
                 logger.debug("Indexing remote file {}", binaryPath);
 
                 RemoteFile remoteFile = remoteFileResolver.resolve(binaryPath);
-
-                if (remoteFile.getContentLength() > maxFileSize) {
-                    logger.warn("Skipping large binary file @ {}", binaryPath);
-                } else {
-                    doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), metadata, updateDetail,
-                                    updateStatus);
-                }
+                doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), metadata, updateDetail,
+                                updateStatus);
             } else {
                 Content binaryContent = contentStoreService.findContent(context, binaryPath);
                 if (binaryContent == null) {
@@ -345,12 +333,7 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
 
                     binaryContent = new EmptyContent();
                 }
-
-                if(binaryContent.getLength() > maxFileSize) {
-                    logger.warn("Skipping large binary file @ {}", binaryPath);
-                } else {
-                    doUpdateContent(indexId, siteName, binaryPath, binaryContent, metadata, updateDetail, updateStatus);
-                }
+                doUpdateContent(indexId, siteName, binaryPath, binaryContent, metadata, updateDetail, updateStatus);
             }
         } catch (Exception e) {
             logger.error("Error when trying to send index update with metadata for binary file {}:{}", siteName,
@@ -376,22 +359,14 @@ public abstract class AbstractBinaryFileWithMetadataBatchIndexer
 
                 RemoteFile remoteFile = remoteFileResolver.resolve(binaryPath);
 
-                if (remoteFile.getContentLength() > maxFileSize) {
-                    logger.warn("Skipping large binary file @ {}", binaryPath);
-                } else {
-                    Map<String, Object> metadata = collectRemoteAssetMetadata(binaryPath);
-                    doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), metadata, updateDetail, updateStatus);
-                }
+                Map<String, Object> metadata = collectRemoteAssetMetadata(binaryPath);
+                doUpdateContent(indexId, siteName, binaryPath, remoteFile.toResource(), metadata, updateDetail, updateStatus);
             } else {
                 Content binaryContent = contentStoreService.findContent(context, binaryPath);
                 if (binaryContent != null && binaryContent.getLength() > 0) {
-                    if(binaryContent.getLength() > maxFileSize) {
-                        logger.warn("Skipping large binary file @ {}", binaryPath);
-                    } else {
-                        Map<String, Object> metadata = collectMetadata(binaryPath, contentStoreService, context);
-                        doUpdateContent(indexId, siteName, binaryPath, binaryContent, metadata, updateDetail,
-                                        updateStatus);
-                    }
+                    Map<String, Object> metadata = collectMetadata(binaryPath, contentStoreService, context);
+                    doUpdateContent(indexId, siteName, binaryPath, binaryContent, metadata, updateDetail,
+                                    updateStatus);
                 } else {
                     logger.debug("No binary file found @ {}:{}. Skipping update", siteName, binaryPath);
                 }
