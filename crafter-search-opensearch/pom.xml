@@ -99,7 +99,7 @@
         <dependency>
             <groupId>com.drewnoakes</groupId>
             <artifactId>metadata-extractor</artifactId>
-            <version>${metadata.extractors.version}</version>
+            <version>${metadata.extractor.version}</version>
         </dependency>
 
         <dependency>
@@ -111,13 +111,13 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>${google.protobuf.version}</version>
+            <version>${protobuf.java.version}</version>
         </dependency>
 
         <dependency>
             <groupId>javax.measure</groupId>
             <artifactId>unit-api</artifactId>
-            <version>${unit.version}</version>
+            <version>${unit.api.version}</version>
         </dependency>
 
         <dependency>
@@ -166,7 +166,7 @@
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path-assert</artifactId>
-            <version>${jsonpath.version}</version>
+            <version>${json.path.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
