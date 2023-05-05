@@ -175,7 +175,6 @@ public class BinaryFileWithMetadataBatchIndexerTest extends BatchIndexerTestBase
         batchIndexer.setIncludePropertyPatterns(Collections.singletonList("copyright.*"));
         batchIndexer.setExcludePropertyPatterns(Collections.singletonList("copyright\\.ignore"));
         batchIndexer.setReferenceXPaths(Collections.singletonList("//file"));
-        batchIndexer.setMaxFileSize(Long.MAX_VALUE);
 
         return batchIndexer;
     }

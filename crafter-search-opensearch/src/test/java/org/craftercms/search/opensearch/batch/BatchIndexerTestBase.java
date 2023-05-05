@@ -48,7 +48,7 @@ import static org.mockito.Mockito.*;
  * @author avasquez
  */
 @RunWith(MockitoJUnitRunner.class)
-public class BatchIndexerTestBase {
+public abstract class BatchIndexerTestBase {
 
     protected FileSystemFile rootFolder;
     protected ContentStoreService contentStoreService;
