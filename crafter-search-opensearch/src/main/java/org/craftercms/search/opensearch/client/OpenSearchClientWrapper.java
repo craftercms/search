@@ -29,8 +29,8 @@ import static java.util.Collections.emptyMap;
 
 /**
  * Exposes the search related operations from {@link org.opensearch.client.opensearch.OpenSearchClient}
- * @implNote The method signatures are copied from the original class because there is no interface and the class is
- *           final, so it can't be properly extended to be a drop-in replacement.
+ * <p><b>Note:</b> The method signatures are copied from the original class because there is no interface and the class is
+ *           final, so it can't be properly extended to be a drop-in replacement.</p>
  * @author joseross
  * @since 4.0.0
  */

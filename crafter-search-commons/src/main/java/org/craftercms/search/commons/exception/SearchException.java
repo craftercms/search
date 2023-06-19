@@ -18,7 +18,7 @@ package org.craftercms.search.commons.exception;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Thrown when an error occurs in the {@link org.craftercms.search.service.SearchService}.
+ * Thrown when an error occurs while performing a search or indexing operation.
  *
  * @author Alfonso Vásquez
  */
