@@ -49,6 +49,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -243,14 +244,7 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
                 logger.info("Found index {} for alias {}", indexName, aliasName);
 
                 // get the locale from the alias name
-                Locale locale = null;
-                String localeValue = substringBeforeLast(substringAfterLast(indexName, "-"), "_");
-                if (contains(localeValue, "_")) {
-                    locale = LocaleUtils.parseLocale(localeValue);
-                    if (locale != null) {
-                        logger.info("Found locale {} for index {}", locale, indexName);
-                    }
-                }
+                Locale locale = getLocale(indexName);
 
                 // get the version of the existing index
                 String[] tokens = indexName.split("_v");
@@ -282,6 +276,18 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
         } catch (Exception e) {
             throw new OpenSearchException(aliasName, "Error upgrading index " + aliasName, e);
         }
+    }
+
+    private static Locale getLocale(String indexName) {
+        Locale locale = null;
+        String localeValue = substringBeforeLast(substringAfterLast(indexName, "-"), "_");
+        if (contains(localeValue, "_")) {
+            locale = LocaleUtils.parseLocale(localeValue);
+            if (locale != null) {
+                logger.info("Found locale {} for index {}", locale, indexName);
+            }
+        }
+        return locale;
     }
 
     protected List<String> doGetIndexes(RestHighLevelClient client, String aliasName) throws IOException {
@@ -336,6 +342,17 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     @Override
     public void waitUntilReady() {
         doWaitUntilReady(openSearchClient);
+    }
+
+    @Override
+    public void duplicateIndex(String srcAliasName, String destAliasName) throws OpenSearchException {
+        try {
+            doCreateIndex(openSearchClient, destAliasName, indexNameSuffix,
+                    getLocale(srcAliasName), true, doGetIndexSettings(openSearchClient, srcAliasName));
+            doReindex(openSearchClient, srcAliasName, destAliasName);
+        } catch (IOException e) {
+            throw new OpenSearchException(srcAliasName, format("Error duplicating index '%s'", srcAliasName), e);
+        }
     }
 
     protected void doWaitUntilReady(RestHighLevelClient client) {
