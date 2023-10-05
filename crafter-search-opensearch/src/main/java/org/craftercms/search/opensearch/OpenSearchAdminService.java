@@ -18,6 +18,7 @@ package org.craftercms.search.opensearch;
 
 import org.craftercms.search.opensearch.exception.OpenSearchException;
 
+import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -60,5 +61,15 @@ public interface OpenSearchAdminService extends AutoCloseable {
      * Checks if the OpenSearch cluster is ready to receive requests
      */
     void waitUntilReady();
+
+    /**
+     * Create a new index with the same settings and mappings as the source index,
+     * then reindex all data to the newly created index.
+     *
+     * @param srcIndex  the existing source index
+     * @param destIndex the new index to be created
+     * @throws OpenSearchException if there is any error during the operation
+     */
+    void duplicateIndex(String srcIndex, String destIndex) throws OpenSearchException;
 
 }
