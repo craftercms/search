@@ -61,4 +61,14 @@ public interface ElasticsearchAdminService extends AutoCloseable {
      */
     void waitUntilReady();
 
+    /**
+     * Create a new index with the same settings and mappings as the source index,
+     * then reindex all data to the newly created index.
+     *
+     * @param srcIndex  the existing source index
+     * @param destIndex the new index to be created
+     * @throws ElasticsearchException if there is any error during the operation
+     */
+    void duplicateIndex(String srcIndex, String destIndex) throws ElasticsearchException;
+
 }
