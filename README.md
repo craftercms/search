@@ -1,8 +1,17 @@
-![build status](https://travis-ci.org/craftercms/search.svg?branch=develop)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/524ba026c06d430995d1a51a0a6f06d2)](https://www.codacy.com/gh/craftercms/search/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=craftercms/search&amp;utm_campaign=Badge_Grade)
-
 search
 ======
 
-Crafter Search is the search facade for CrafterCMS. Crafter Search proxies the real search engine deployed behind it. For more information, please visit: http://docs.craftercms.org/en/4.0/developers/projects/search/index.html
+Crafter Search is the search facade for CrafterCMS. Crafter Search proxies the real search engine deployed behind it. For more information, please visit: http://docs.craftercms.org.
 
+# Community
+## Contributors
+https://github.com/craftercms/craftercms/blob/develop/CONTRIBUTORS.md
+
+## Code of Conduct
+https://github.com/craftercms/craftercms/blob/develop/CODE_OF_CONDUCT.md
+
+## Contributing
+https://github.com/craftercms/craftercms/blob/develop/CONTRIBUTING.md
+
+## Git Workflow
+https://github.com/craftercms/craftercms/blob/develop/GIT_WORKFLOW.md
