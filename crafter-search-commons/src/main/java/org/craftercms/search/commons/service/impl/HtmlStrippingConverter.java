@@ -17,7 +17,7 @@ package org.craftercms.search.commons.service.impl;
 
 import org.craftercms.search.commons.service.FieldValueConverter;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 /**
  * {@link FieldValueConverter} that strips all HTML tags from a field.
@@ -28,7 +28,7 @@ public class HtmlStrippingConverter implements FieldValueConverter {
 
     @Override
     public Object convert(String name, String value) {
-        return Jsoup.clean(value, Whitelist.none());
+        return Jsoup.clean(value, Safelist.none());
     }
 
 }
