@@ -15,182 +15,159 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>crafter-search-opensearch</artifactId>
-    <name>Crafter Search OpenSearch</name>
-    <description>Crafter Search OpenSearch</description>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>crafter-search-opensearch</artifactId>
+	<name>Crafter Search OpenSearch</name>
+	<description>Crafter Search OpenSearch</description>
 
-    <parent>
-        <artifactId>crafter-search</artifactId>
-        <groupId>org.craftercms</groupId>
-        <version>4.2.0-SNAPSHOT</version><!-- craftercms version flag -->
-    </parent>
+	<parent>
+		<artifactId>crafter-search</artifactId>
+		<groupId>org.craftercms</groupId>
+		<version>4.2.0-SNAPSHOT</version><!-- craftercms version flag -->
+	</parent>
 
-    <properties>
-    </properties>
+	<properties>
+	</properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.craftercms</groupId>
-            <artifactId>crafter-search-batch-indexer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>org.craftercms</groupId>
+			<artifactId>crafter-search-batch-indexer</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.craftercms</groupId>
-            <artifactId>crafter-search-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>org.craftercms</groupId>
+			<artifactId>crafter-search-commons</artifactId>
+		</dependency>
 
-        <!-- Deprecated client, in process to be removed -->
-        <dependency>
-            <groupId>org.opensearch.client</groupId>
-            <artifactId>opensearch-rest-high-level-client</artifactId>
-            <version>${opensearch.version}</version>
-        </dependency>
+		<!-- Deprecated client, in process to be removed -->
+		<dependency>
+			<groupId>org.opensearch.client</groupId>
+			<artifactId>opensearch-rest-high-level-client</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.opensearch.client</groupId>
-            <artifactId>opensearch-java</artifactId>
-            <version>${opensearch.client.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>org.opensearch.client</groupId>
+			<artifactId>opensearch-java</artifactId>
+		</dependency>
 
-        <!-- Tika -->
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-core</artifactId>
-            <version>${tika.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.opensearch/opensearch-testcontainers -->
-        <dependency>
-            <groupId>org.codelibs.opensearch</groupId>
-            <artifactId>opensearch-runner</artifactId>
-            <version>${opensearch.runner.version}</version>
-            <scope>test</scope>
-        </dependency>
+		<!-- Tika -->
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.opensearch/opensearch-testcontainers -->
+		<dependency>
+			<groupId>org.codelibs.opensearch</groupId>
+			<artifactId>opensearch-runner</artifactId>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers-standard-package</artifactId>
-            <version>${tika.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parsers-standard-package</artifactId>
+		</dependency>
 
-        <!-- Override POI to fix security issues -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-scratchpad</artifactId>
-            <version>${poi.version}</version>
-        </dependency>
+		<!-- Override POI to fix security issues -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-scratchpad</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.jdom</groupId>
-            <artifactId>jdom2</artifactId>
-            <version>${jdom2.version}</version>
-        </dependency>
-        <!-- Override the version included in Apache Tika -->
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcmail-jdk18on</artifactId>
-            <version>${bouncycastle.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>org.jdom</groupId>
+			<artifactId>jdom2</artifactId>
+		</dependency>
+		<!-- Override the version included in Apache Tika -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcmail-jdk18on</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>com.drewnoakes</groupId>
-            <artifactId>metadata-extractor</artifactId>
-            <version>${metadata.extractor.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>com.drewnoakes</groupId>
+			<artifactId>metadata-extractor</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-            <version>${commons.compress.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>${protobuf.java.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>javax.measure</groupId>
-            <artifactId>unit-api</artifactId>
-            <version>${unit.api.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>javax.measure</groupId>
+			<artifactId>unit-api</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-xml</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+		</dependency>
 
-        <dependency> <!-- Workaround for jackson-dataformat-xml issue #340 of forgetting to update stax2-api  -->
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>stax2-api</artifactId>
-            <version>${stax2.api.version}</version>
-        </dependency>
+		<dependency> <!-- Workaround for jackson-dataformat-xml issue #340 of forgetting to update stax2-api  -->
+			<groupId>org.codehaus.woodstox</groupId>
+			<artifactId>stax2-api</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons.io.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
 
-        <!-- test dependencies -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${spring.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest</artifactId>
-            <version>${hamcrest.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path-assert</artifactId>
-            <version>${json.path.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+		<!-- test dependencies -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path-assert</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
