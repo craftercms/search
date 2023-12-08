@@ -16,40 +16,37 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
-    <name>Crafter Search Commons</name>
-    <artifactId>crafter-search-commons</artifactId>
+	<modelVersion>4.0.0</modelVersion>
+	<name>Crafter Search Commons</name>
+	<artifactId>crafter-search-commons</artifactId>
 
-    <parent>
-        <artifactId>crafter-search</artifactId>
-        <groupId>org.craftercms</groupId>
-        <version>4.2.0-SNAPSHOT</version><!-- craftercms version flag -->
-    </parent>
+	<parent>
+		<artifactId>crafter-search</artifactId>
+		<groupId>org.craftercms</groupId>
+		<version>4.2.0-SNAPSHOT</version><!-- craftercms version flag -->
+	</parent>
 
-    <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>crafter-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>crafter-core</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>${joda.time.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
-        </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+		</dependency>
+	</dependencies>
 </project>
