@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2024 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -16,9 +16,18 @@
 
 package org.craftercms.search.opensearch.impl.client;
 
+import jakarta.json.stream.JsonParser;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.craftercms.search.opensearch.client.OpenSearchClientWrapper;
+import org.craftercms.search.opensearch.exception.OpenSearchException;
+import org.craftercms.search.opensearch.exception.TooManyNestedClausesSearchException;
+import org.opensearch.client.ResponseException;
+import org.opensearch.client.json.JsonpMapper;
+import org.opensearch.client.json.jackson.JacksonJsonProvider;
 import org.opensearch.client.opensearch.OpenSearchClient;
+import org.opensearch.client.opensearch._types.ErrorCause;
+import org.opensearch.client.opensearch._types.ErrorResponse;
 import org.opensearch.client.opensearch._types.SearchType;
 import org.opensearch.client.opensearch._types.query_dsl.BoolQuery;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
@@ -45,6 +54,11 @@ import static org.apache.commons.collections4.MapUtils.isNotEmpty;
  */
 public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClientWrapper {
 
+    /**
+     * Error returned by OpenSearch when the number of nested clauses exceeds the limit
+     */
+    protected static final String TOO_MANY_NESTED_CLAUSES_ERROR = "too_many_nested_clauses";
+
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     public static final String PARAM_NAME_INDEX = "index";
@@ -70,8 +84,37 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 
     @Override
     public <T> SearchResponse<T> search(SearchRequest request, Class<T> docClass, Map<String, Object> parameters)
-            throws IOException {
-        return client.search(new SearchRequestWrapper(request, parameters).build(), docClass);
+            throws IOException, OpenSearchException {
+        try {
+            return client.search(new SearchRequestWrapper(request, parameters).build(), docClass);
+        } catch (ResponseException e) {
+            String errorType = getErrorRootCauseType(e);
+            if (TOO_MANY_NESTED_CLAUSES_ERROR.equalsIgnoreCase(errorType)) {
+                throw new TooManyNestedClausesSearchException(null, e.getMessage(), e);
+            }
+            throw e;
+        }
+    }
+
+    /**
+     * Get the error type from an error response
+     *
+     * @param e the response exception
+     * @return the error type, or null if couldn't be determined
+     * @throws IOException if there is an error reading the response
+     */
+    protected String getErrorRootCauseType(ResponseException e) throws IOException {
+        if (e == null) {
+            return null;
+        }
+        JsonpMapper mapper = client._transport().jsonpMapper();
+        JsonParser parser = mapper.jsonProvider().createParser(e.getResponse().getEntity().getContent());
+        ErrorResponse errorResponse = ErrorResponse._DESERIALIZER.deserialize(parser, mapper);
+        List<ErrorCause> errorCauses = errorResponse.error().rootCause();
+        if (CollectionUtils.isNotEmpty(errorCauses)) {
+            return errorCauses.get(0).type();
+        }
+        return null;
     }
 
     //TODO: Figure out the right order
