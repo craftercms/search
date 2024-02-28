@@ -72,7 +72,7 @@ public class OpenSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
                 // get the locale for the item
                 Locale locale = localeExtractor.extract(context, path);
                 if (locale != null) {
-                    // check if locale specific index exists
+                    // check if locale specific index indexExists
                     searchAdminService.createIndex(indexId, locale);
                     // update the index name
                     indexId += "-" + LocaleUtils.toString(locale);
