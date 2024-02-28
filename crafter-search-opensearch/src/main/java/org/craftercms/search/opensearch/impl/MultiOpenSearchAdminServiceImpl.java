@@ -23,6 +23,7 @@ import org.springframework.core.io.Resource;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Extension of {@link OpenSearchAdminServiceImpl} that handles multiple OpenSearch clusters
@@ -40,8 +41,10 @@ public class MultiOpenSearchAdminServiceImpl extends OpenSearchAdminServiceImpl 
     public MultiOpenSearchAdminServiceImpl(Resource authoringMapping, Resource previewMapping,
                                            String authoringNamePattern, Map<String, String> localeMapping,
                                            RestHighLevelClient OpenSearchClient,
-                                           Map<String, String> indexSettings, RestHighLevelClient[] writeClients) {
-        super(authoringMapping, previewMapping, authoringNamePattern, localeMapping, indexSettings,
+                                           Map<String, String> indexSettings,
+                                           Set<String> ignoredSettings,
+                                           RestHighLevelClient[] writeClients) {
+        super(authoringMapping, previewMapping, authoringNamePattern, localeMapping, indexSettings, ignoredSettings,
                 OpenSearchClient);
         this.writeClients = writeClients;
     }
@@ -50,6 +53,13 @@ public class MultiOpenSearchAdminServiceImpl extends OpenSearchAdminServiceImpl 
     public void createIndex(String aliasName) throws OpenSearchException {
         for (RestHighLevelClient client : writeClients) {
             doCreateIndex(client, aliasName, null);
+        }
+    }
+
+    @Override
+    public void duplicateIndex(String srcAliasName, String destAliasName) throws OpenSearchException {
+        for (RestHighLevelClient client : writeClients) {
+            doDuplicateIndex(client, srcAliasName, destAliasName);
         }
     }
 
