@@ -274,7 +274,7 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
                 logger.debug("Using new version {} for index {}", newVersion, indexName);
 
                 // copy the supported settings from the existing index
-                Map<String, String> settings = doGetIndexSettings(client, indexName);
+                Map<String, String> settings = doGetIndexSettings(client, aliasName);
 
                 doCreateIndex(client, aliasName, newVersion, locale, false, settings);
                 String newIndexName = locale == null ? aliasName + newVersion :
