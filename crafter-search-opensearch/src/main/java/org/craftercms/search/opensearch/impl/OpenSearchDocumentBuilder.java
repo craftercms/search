@@ -19,6 +19,8 @@ package org.craftercms.search.opensearch.impl;
 import java.util.Map;
 
 import org.craftercms.search.commons.service.DocumentBuilder;
+import org.craftercms.search.commons.service.ElementParserService;
+import org.craftercms.search.commons.service.FieldValueConverter;
 import org.craftercms.search.commons.service.impl.AbstractDocumentBuilder;
 import org.craftercms.search.opensearch.jackson.MixedMultivaluedMap;
 
@@ -27,6 +29,10 @@ import org.craftercms.search.opensearch.jackson.MixedMultivaluedMap;
  * @author joseross
  */
 public class OpenSearchDocumentBuilder extends AbstractDocumentBuilder<Map<String, Object>> {
+
+    public OpenSearchDocumentBuilder(ElementParserService<Map<String, Object>> parserService, FieldValueConverter fieldValueConverter) {
+        super(parserService, fieldValueConverter);
+    }
 
     @Override
     protected Map<String, Object> createDoc() {

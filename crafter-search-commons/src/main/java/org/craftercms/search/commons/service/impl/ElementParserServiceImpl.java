@@ -25,7 +25,6 @@ import org.craftercms.search.commons.utils.BooleanUtils;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Default implementation of the {@link ElementParserService}. Parses the element using a list of
@@ -47,13 +46,10 @@ public class ElementParserServiceImpl<T> implements ElementParserService<T> {
     protected String fieldNameSeparator;
     protected String indexableAttributeName;
 
-    public ElementParserServiceImpl() {
+    public ElementParserServiceImpl(List<ElementParser<T>> parsers) {
         fieldNameSeparator = DEFAULT_FIELD_NAME_SEPARATOR;
         indexableAttributeName = DEFAULT_INDEXABLE_ATTRIBUTE_NAME;
-    }
 
-    @Required
-    public void setParsers(List<ElementParser<T>> parsers) {
         this.parsers = parsers;
     }
 
