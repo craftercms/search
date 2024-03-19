@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
-import javax.activation.FileTypeMap;
+import jakarta.activation.FileTypeMap;
 import java.util.List;
 import java.util.Map;
 

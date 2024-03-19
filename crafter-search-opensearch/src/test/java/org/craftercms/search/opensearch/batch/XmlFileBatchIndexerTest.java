@@ -97,9 +97,7 @@ public class XmlFileBatchIndexerTest extends BatchIndexerTestBase {
     }
 
     protected List<ItemProcessor> getDocumentProcessors() {
-        PageAwareIncludeDescriptorsProcessor proc1 = new PageAwareIncludeDescriptorsProcessor();
-        proc1.setIncludeElementXPathQuery("//include");
-        proc1.setDisabledIncludeNodeXPathQuery("@disabled");
+        PageAwareIncludeDescriptorsProcessor proc1 = new PageAwareIncludeDescriptorsProcessor("//include", "@disabled");
         proc1.setPagesPathPattern("test\\.xml|test2\\.xml");
         proc1.setIncludedItemsProcessor(proc1);
         proc1.setContentStoreService(contentStoreService);

@@ -37,7 +37,6 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 import org.xml.sax.SAXException;
 
 /**
@@ -68,13 +67,16 @@ public abstract class AbstractDocumentBuilder<T> implements DocumentBuilder<T> {
     protected List<DocumentPostProcessor<T>> postProcessors;
     protected Map<String, String> copyFields;
 
-    public AbstractDocumentBuilder() {
+    public AbstractDocumentBuilder(ElementParserService<T> parserService, FieldValueConverter fieldValueConverter) {
         idFieldName = DEFAULT_ID_FIELD_NAME;
         rootIdFieldName = DEFAULT_ROOT_ID_FIELD_NAME;
         siteFieldName = DEFAULT_SITE_FIELD_NAME;
         localIdFieldName = DEFAULT_LOCAL_ID_FIELD_NAME;
         publishingDateFieldName = DEFAULT_PUBLISHING_DATE_FIELD_NAME;
         publishingDateAltFieldName = DEFAULT_PUBLISHING_DATE_ALT_FIELD_NAME;
+
+        this.parserService = parserService;
+        this.fieldValueConverter = fieldValueConverter;
     }
 
     public void setIdFieldName(String idFieldName) {
@@ -99,16 +101,6 @@ public abstract class AbstractDocumentBuilder<T> implements DocumentBuilder<T> {
 
     public void setPublishingDateAltFieldName(String publishingDateAltFieldName) {
         this.publishingDateAltFieldName = publishingDateAltFieldName;
-    }
-
-    @Required
-    public void setParserService(ElementParserService<T> parserService) {
-        this.parserService = parserService;
-    }
-
-    @Required
-    public void setFieldValueConverter(FieldValueConverter fieldValueConverter) {
-        this.fieldValueConverter = fieldValueConverter;
     }
 
     public void setPostProcessors(List<DocumentPostProcessor<T>> postProcessors) {

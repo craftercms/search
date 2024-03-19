@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.activation.FileTypeMap;
+import jakarta.activation.FileTypeMap;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.craftercms.search.batch.UpdateDetail;

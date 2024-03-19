@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.core.service.Item;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Implementation of {@link org.craftercms.search.metadata.MetadataExtractor} for content-type metadata
@@ -78,8 +77,7 @@ public class ContentTypeMetadataExtractor extends AbstractMetadataExtractor {
      */
     protected String propertyNameThumbnail = DEFAULT_PROPERTY_NAME_THUMBNAIL;
 
-    @Required
-    public void setFieldXpath(final String fieldXpath) {
+    public ContentTypeMetadataExtractor(final String fieldXpath) {
         this.fieldXpath = fieldXpath;
     }
 

@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.craftercms.search.commons.service.ElementParserService;
+import org.craftercms.search.commons.service.FieldValueConverter;
 import org.craftercms.search.commons.service.impl.AbstractElementParser;
 import org.craftercms.search.opensearch.jackson.MixedMultivaluedMap;
 import org.dom4j.Element;
@@ -33,6 +34,10 @@ import org.slf4j.LoggerFactory;
 public class OpenSearchElementParserImpl extends AbstractElementParser<Map<String, Object>> {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenSearchElementParserImpl.class);
+
+    public OpenSearchElementParserImpl(FieldValueConverter fieldValueConverter) {
+        super(fieldValueConverter);
+    }
 
     @Override
     public boolean parse(final Element element, final String fieldName, final String parentFieldName,
