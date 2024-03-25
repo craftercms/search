@@ -27,6 +27,7 @@ import org.craftercms.search.opensearch.exception.OpenSearchException;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.core.SearchResponse;
+import org.opensearch.client.opensearch.core.search.SourceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -125,6 +126,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
                             .scroll(s -> s.time(scrollTimeout))
                             .from(0)
                             .size(scrollSize)
+                            .source(b -> b.filter(new SourceFilter.Builder().includes(field).build()))
                             .query(query),
                     Map.class
             );
