@@ -26,6 +26,7 @@ import java.util.Map;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.SourceFilter;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -124,6 +125,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
                 .scroll(s -> s.time(scrollTimeout))
                 .from(0)
                 .size(scrollSize)
+                .source(b -> b.filter(new SourceFilter.Builder().includes(field).build()))
                 .query(query),
                 Map.class
             );
