@@ -102,7 +102,7 @@
             <map/>
         </constructor-arg>
         <constructor-arg name="ignoredSettings">
-            <map/>
+            <set/>
         </constructor-arg>
         <constructor-arg name="openSearchClient" ref="restHighLevelSearchClient"/>
     </bean>
