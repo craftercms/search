@@ -19,17 +19,21 @@ package org.craftercms.search.opensearch.impl;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.io.IOUtils;
 import org.craftercms.commons.locale.LocaleUtils;
+import org.craftercms.search.commons.exception.IndexNotFoundException;
 import org.craftercms.search.opensearch.OpenSearchAdminService;
 import org.craftercms.search.opensearch.exception.OpenSearchException;
 import org.opensearch.action.admin.indices.alias.Alias;
 import org.opensearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.opensearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.opensearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.opensearch.action.admin.indices.open.OpenIndexRequest;
 import org.opensearch.action.admin.indices.settings.get.GetSettingsRequest;
 import org.opensearch.action.admin.indices.settings.get.GetSettingsResponse;
+import org.opensearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.opensearch.client.GetAliasesResponse;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.client.indices.CloseIndexRequest;
 import org.opensearch.client.indices.CreateIndexRequest;
 import org.opensearch.client.indices.GetIndexRequest;
 import org.opensearch.common.settings.Settings;
@@ -43,18 +47,11 @@ import org.springframework.core.io.Resource;
 import java.beans.ConstructorProperties;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.StringUtils.contains;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.apache.commons.lang3.StringUtils.substringAfterLast;
-import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * Default implementation of {@link OpenSearchAdminService}
@@ -107,16 +104,23 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
      */
     protected final Map<String, String> defaultSettings;
 
+    /**
+     * The settings to ignore on duplicate index
+     */
+    protected final Set<String> ignoredSettings;
+
     @ConstructorProperties({"authoringMapping", "previewMapping", "authoringNamePattern", "localeMapping",
-            "defaultSettings", "openSearchClient"})
+            "defaultSettings", "ignoredSettings", "openSearchClient"})
     public OpenSearchAdminServiceImpl(final Resource authoringMapping, final Resource previewMapping,
                                       final String authoringNamePattern, final Map<String, String> localeMapping,
-                                      final Map<String, String> defaultSettings, final RestHighLevelClient openSearchClient) {
+                                      final Map<String, String> defaultSettings, final Set<String> ignoredSettings,
+                                      final RestHighLevelClient openSearchClient) {
         this.authoringMapping = authoringMapping;
         this.previewMapping = previewMapping;
         this.authoringNamePattern = authoringNamePattern;
         this.localeMapping = localeMapping;
         this.defaultSettings = defaultSettings;
+        this.ignoredSettings = ignoredSettings;
         this.openSearchClient = openSearchClient;
     }
 
@@ -124,16 +128,15 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
         this.indexNameSuffix = indexNameSuffix;
     }
 
-    /**
-     * Checks if a given index already exists in OpenSearch
-     *
-     * @param client    the OpenSearch client
-     * @param indexName the index name
-     */
-    protected boolean exists(RestHighLevelClient client, String indexName) {
+    @Override
+    public boolean indexExists(String indexName) {
+        return doIndexExist(openSearchClient, indexName);
+    }
+
+    protected boolean doIndexExist(RestHighLevelClient client, String indexName) {
         logger.debug("Checking if index {} exits", indexName);
         try {
-            return client.indices().exists(
+            return openSearchClient.indices().exists(
                     new GetIndexRequest(indexName), RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new OpenSearchException(indexName, "Error consulting index", e);
@@ -176,18 +179,31 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
                     .findFirst()
                     .orElse(defaultAnalyzer);
         }
+
+        Settings.Builder settingsBuilder = Settings.builder();
+        settings.forEach(settingsBuilder::put);
+        ignoredSettings.forEach(settingsBuilder::remove);
+
         String indexName = aliasName + indexSuffix;
-        if (exists(client, createAlias ? aliasName : indexName)) {
+        if (doIndexExist(client, createAlias ? aliasName : indexName)) {
+
+            try {
+                client.indices().close(new CloseIndexRequest(indexName), RequestOptions.DEFAULT);
+                logger.info("Index '{}' already indexExists, updating settings", indexName);
+                client.indices().putSettings(new UpdateSettingsRequest().indices(indexName).settings(settingsBuilder), RequestOptions.DEFAULT);
+
+                client.indices().open(new OpenIndexRequest(indexName), RequestOptions.DEFAULT);
+            } catch (IOException e) {
+                throw new OpenSearchException(aliasName, format("Error updating settings for index '%s'", indexName), e);
+            }
             return;
         }
         logger.info("Creating index {}", indexName);
-        try (InputStream is = mapping.getInputStream()) {
-            Settings.Builder builder = Settings.builder();
-            settings.forEach(builder::put);
-            settings.put(ES_KEY_DEFAULT_ANALYZER, defaultAnalyzer);
 
+        settingsBuilder.put(ES_KEY_DEFAULT_ANALYZER, defaultAnalyzer);
+        try (InputStream is = mapping.getInputStream()) {
             CreateIndexRequest request = new CreateIndexRequest(indexName)
-                    .settings(builder.build())
+                    .settings(settingsBuilder.build())
                     .mapping(IOUtils.toString(is, UTF_8), XContentType.JSON);
             if (createAlias) {
                 logger.info("Creating alias {}", aliasName);
@@ -258,7 +274,7 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
                 logger.debug("Using new version {} for index {}", newVersion, indexName);
 
                 // copy the supported settings from the existing index
-                Map<String, String> settings = doGetIndexSettings(client, indexName);
+                Map<String, String> settings = doGetIndexSettings(client, aliasName);
 
                 doCreateIndex(client, aliasName, newVersion, locale, false, settings);
                 String newIndexName = locale == null ? aliasName + newVersion :
@@ -296,17 +312,17 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
         return IteratorUtils.toList(indices.getAliases().keySet().iterator());
     }
 
-    protected Map<String, String> doGetIndexSettings(RestHighLevelClient client, String indexName) throws IOException {
+    protected Map<String, String> doGetIndexSettings(RestHighLevelClient client, String indexAlias) throws IOException {
+        List<String> indices = doGetIndexes(client, indexAlias);
+        if (indices.isEmpty()) {
+            throw new IndexNotFoundException(indexAlias);
+        }
+        String indexName = indices.get(0);
         GetSettingsResponse response =
-                client.indices().getSettings(new GetSettingsRequest().indices(indexName), RequestOptions.DEFAULT);
+                client.indices().getSettings(new GetSettingsRequest().indices(indexAlias), RequestOptions.DEFAULT);
+        Settings indexSettings = response.getIndexToSettings().get(indexName);
         Map<String, String> settings = new HashMap<>(defaultSettings);
-        defaultSettings.keySet().forEach(key -> {
-            String value = response.getSetting(indexName, key);
-            if (isNotEmpty(value)) {
-                logger.debug("Using existing setting {}={} from index {}", key, value, indexName);
-                settings.put(key, value);
-            }
-        });
+        indexSettings.keySet().forEach(key -> settings.put(key, indexSettings.get(key)));
         return settings;
     }
 
@@ -346,10 +362,14 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
 
     @Override
     public void duplicateIndex(String srcAliasName, String destAliasName) throws OpenSearchException {
+        doDuplicateIndex(openSearchClient, srcAliasName, destAliasName);
+    }
+
+    protected void doDuplicateIndex(RestHighLevelClient client, String srcAliasName, String destAliasName) throws OpenSearchException {
         try {
-            doCreateIndex(openSearchClient, destAliasName, indexNameSuffix,
-                    getLocale(srcAliasName), true, doGetIndexSettings(openSearchClient, srcAliasName));
-            doReindex(openSearchClient, srcAliasName, destAliasName);
+            doCreateIndex(client, destAliasName, indexNameSuffix,
+                    getLocale(srcAliasName), true, doGetIndexSettings(client, srcAliasName));
+            doReindex(client, srcAliasName, destAliasName);
         } catch (IOException e) {
             throw new OpenSearchException(srcAliasName, format("Error duplicating index '%s'", srcAliasName), e);
         }

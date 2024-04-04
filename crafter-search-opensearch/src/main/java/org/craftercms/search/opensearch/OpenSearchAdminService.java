@@ -36,6 +36,15 @@ public interface OpenSearchAdminService extends AutoCloseable {
     void createIndex(String aliasName) throws OpenSearchException;
 
     /**
+     * Indicates if an index exists for the given alias
+     *
+     * @param aliasName the index alias
+     * @return true if the index exists, false otherwise
+     * @throws OpenSearchException if there is any error while checking the index
+     */
+    boolean indexExists(String aliasName) throws OpenSearchException;
+
+    /**
      * Creates an index for the given locale
      * @param aliasName the name of the alias
      * @param locale the locale for the index
