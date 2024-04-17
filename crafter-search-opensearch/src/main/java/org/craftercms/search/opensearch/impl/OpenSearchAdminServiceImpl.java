@@ -229,7 +229,7 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     protected void doDeleteIndexes(RestHighLevelClient client, String aliasName) {
         try {
             GetAliasesResponse indices = client.indices().getAlias(
-                    new GetAliasesRequest(aliasName + "*"),
+                    new GetAliasesRequest(aliasName),
                     RequestOptions.DEFAULT);
             Set<String> actualIndices = indices.getAliases().keySet();
             logger.info("Deleting indices {}", actualIndices);
@@ -308,7 +308,7 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
 
     protected List<String> doGetIndexes(RestHighLevelClient client, String aliasName) throws IOException {
         GetAliasesResponse indices =
-                client.indices().getAlias(new GetAliasesRequest(aliasName + "*"), RequestOptions.DEFAULT);
+                client.indices().getAlias(new GetAliasesRequest(aliasName), RequestOptions.DEFAULT);
         return IteratorUtils.toList(indices.getAliases().keySet().iterator());
     }
 
