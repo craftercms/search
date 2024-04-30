@@ -23,7 +23,6 @@ import org.craftercms.search.commons.service.FieldValueConverter;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Base implementation of {@link ElementParser}. For text only fields it adds the field with the provided field
@@ -38,8 +37,7 @@ public abstract class AbstractElementParser<T> implements ElementParser<T> {
 
     protected FieldValueConverter fieldValueConverter;
 
-    @Required
-    public void setFieldValueConverter(FieldValueConverter fieldValueConverter) {
+    public AbstractElementParser(FieldValueConverter fieldValueConverter) {
         this.fieldValueConverter = fieldValueConverter;
     }
 
