@@ -35,12 +35,12 @@
                 </entry>
                 <entry key="_dt">
                     <bean class="org.craftercms.search.commons.service.impl.DateTimeConverter">
-                        <property name="dateTimeFieldPattern" value="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+                        <constructor-arg name="dateTimeFieldPattern" value="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
                     </bean>
                 </entry>
                 <entry key="_to">
                     <bean class="org.craftercms.search.commons.service.impl.DateTimeConverter">
-                        <property name="dateTimeFieldPattern" value="HH:mm:ss"/>
+                        <constructor-arg name="dateTimeFieldPattern" value="HH:mm:ss"/>
                     </bean>
                 </entry>
             </map>
@@ -50,26 +50,26 @@
     <bean id="searchService" class="org.craftercms.search.opensearch.impl.OpenSearchServiceImpl">
         <constructor-arg name="documentBuilder">
             <bean class="org.craftercms.search.opensearch.impl.OpenSearchDocumentBuilder">
+                <constructor-arg name="parserService">
+                    <bean class="org.craftercms.search.commons.service.impl.ElementParserServiceImpl">
+                        <constructor-arg name="parsers">
+                            <list>
+                                <bean class="org.craftercms.search.opensearch.impl.ItemListElementParser"/>
+                                <bean class="org.craftercms.search.commons.service.impl.TokenizedElementParser"/>
+                                <bean class="org.craftercms.search.opensearch.impl.OpenSearchElementParserImpl">
+                                    <constructor-arg name="fieldValueConverter" ref="fieldValueConverter"/>
+                                </bean>
+                            </list>
+                        </constructor-arg>
+                    </bean>
+                </constructor-arg>
+                <constructor-arg name="fieldValueConverter" ref="fieldValueConverter"/>
                 <property name="idFieldName" value="id"/>
                 <property name="rootIdFieldName" value="rootId"/>
                 <property name="siteFieldName" value="crafterSite"/>
                 <property name="localIdFieldName" value="localId"/>
                 <property name="publishingDateFieldName" value="crafterPublishedDate"/>
                 <property name="publishingDateAltFieldName" value="crafterPublishedDate_dt"/>
-                <property name="fieldValueConverter" ref="fieldValueConverter"/>
-                <property name="parserService">
-                    <bean class="org.craftercms.search.commons.service.impl.ElementParserServiceImpl">
-                        <property name="parsers">
-                            <list>
-                                <bean class="org.craftercms.search.opensearch.impl.ItemListElementParser"/>
-                                <bean class="org.craftercms.search.commons.service.impl.TokenizedElementParser"/>
-                                <bean class="org.craftercms.search.opensearch.impl.OpenSearchElementParserImpl">
-                                    <property name="fieldValueConverter" ref="fieldValueConverter"/>
-                                </bean>
-                            </list>
-                        </property>
-                    </bean>
-                </property>
                 <property name="copyFields">
                     <map>
                         <entry key=".+_html" value="_raw"/>

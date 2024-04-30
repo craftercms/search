@@ -31,8 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
-import javax.activation.FileTypeMap;
-import javax.activation.MimetypesFileTypeMap;
+import jakarta.activation.FileTypeMap;
+import jakarta.activation.MimetypesFileTypeMap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;

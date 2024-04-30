@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
-import javax.activation.FileTypeMap;
+import jakarta.activation.FileTypeMap;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.*;
