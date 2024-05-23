@@ -27,10 +27,9 @@ import org.opensearch.client.Node;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.settings.Settings;
+import org.opensearch.common.xcontent.json.JsonXContent;
 import org.opensearch.core.xcontent.DeprecationHandler;
 import org.opensearch.core.xcontent.NamedXContentRegistry;
-import org.opensearch.common.xcontent.XContentFactory;
-import org.opensearch.common.xcontent.XContentType;
 import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryStringQueryBuilder;
 import org.opensearch.search.SearchModule;
@@ -155,7 +154,7 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
         SearchModule module = new SearchModule(Settings.EMPTY, Collections.emptyList());
         try {
             SearchSourceBuilder builder =
-                    SearchSourceBuilder.fromXContent(XContentFactory.xContent(XContentType.JSON)
+                    SearchSourceBuilder.fromXContent(JsonXContent.jsonXContent
                             .createParser(new NamedXContentRegistry(module.getNamedXContents()),
                                     DeprecationHandler.THROW_UNSUPPORTED_OPERATION, request));
 
