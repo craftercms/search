@@ -136,7 +136,7 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     protected boolean doIndexExist(RestHighLevelClient client, String indexName) {
         logger.debug("Checking if index {} exits", indexName);
         try {
-            return openSearchClient.indices().exists(
+            return client.indices().exists(
                     new GetIndexRequest(indexName), RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new OpenSearchException(indexName, "Error consulting index", e);
