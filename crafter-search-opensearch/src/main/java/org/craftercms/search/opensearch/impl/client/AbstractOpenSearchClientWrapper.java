@@ -24,7 +24,6 @@ import org.craftercms.search.opensearch.exception.OpenSearchException;
 import org.craftercms.search.opensearch.exception.TooManyNestedClausesSearchException;
 import org.opensearch.client.ResponseException;
 import org.opensearch.client.json.JsonpMapper;
-import org.opensearch.client.json.jackson.JacksonJsonProvider;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.ErrorCause;
 import org.opensearch.client.opensearch._types.ErrorResponse;
@@ -287,7 +286,9 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
             runtimeMappings(request.runtimeMappings());
             scriptFields(request.scriptFields());
             scroll(request.scroll());
-            searchAfter(request.searchAfter());
+            if (CollectionUtils.isNotEmpty(request.searchAfter())) {
+                searchAfter(request.searchAfter());
+            }
             seqNoPrimaryTerm(request.seqNoPrimaryTerm());
             size(request.size());
             slice(request.slice());
