@@ -25,5 +25,5 @@ script:
   - if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then bash -c "mvn clean install"; fi
 env:
   global:
-    - secure: "c0yAresXzNflAIjp2wZUqcHKNDi3grf/m9bj3EcZtgZjqfS9V5fMeVxzqqzADZChW1iTsFRbum50EooC1kwAUlgrSd3udJB5Op+t2DGSl8LxpE+Vs9hdZzRstYtNR0jP9wXLqwQi895qSyRChPgClTLKPC5RsT0Sawa3xbwIKg8="
-    -  secure: "Q2CDrYsljdc60I0adiIU5DBvHRCL/aDPcQw5AXm2hsCCSW27GKvNdZ8lZh+kAJhAhMEU4Z6Q3YxrfxHP5rr0kAecEINnR+LLrOAsmM89ovq9rFg5EHutZFfTWE5lpXHcX1bqsKNiQJoBdRLzP6STUBWAMPQZg9Cck7MjgOK5m4s="
+    - secure: "pRfOzskTdP4oHclA4QRdXhXzDCpHA4eLd07QDm/xpXviqps7zfMwOUFxDXWIcfI/GbdM7ZupkiOxsg0BFLRxERR2rgS1sIjSIKNGx3SqjglVUGPI2QaDM1Yl+kbuTnOkEeix1zTIOO7hOrHj9m6kBn6WMN78PTtFFtpJPLYdxaw="
+    - secure: "Q2CDrYsljdc60I0adiIU5DBvHRCL/aDPcQw5AXm2hsCCSW27GKvNdZ8lZh+kAJhAhMEU4Z6Q3YxrfxHP5rr0kAecEINnR+LLrOAsmM89ovq9rFg5EHutZFfTWE5lpXHcX1bqsKNiQJoBdRLzP6STUBWAMPQZg9Cck7MjgOK5m4s="
