@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2024 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -20,6 +20,7 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.io.IOUtils;
 import org.craftercms.commons.locale.LocaleUtils;
 import org.craftercms.search.commons.exception.IndexNotFoundException;
+import org.craftercms.search.commons.exception.SearchException;
 import org.craftercms.search.opensearch.OpenSearchAdminService;
 import org.craftercms.search.opensearch.exception.OpenSearchException;
 import org.opensearch.action.admin.indices.alias.Alias;
@@ -36,9 +37,12 @@ import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.CloseIndexRequest;
 import org.opensearch.client.indices.CreateIndexRequest;
 import org.opensearch.client.indices.GetIndexRequest;
+import org.opensearch.client.tasks.GetTaskRequest;
+import org.opensearch.client.tasks.GetTaskResponse;
+import org.opensearch.client.tasks.TaskId;
+import org.opensearch.client.tasks.TaskSubmissionResponse;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.xcontent.XContentType;
-import org.opensearch.index.reindex.BulkByScrollResponse;
 import org.opensearch.index.reindex.ReindexRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,10 +52,13 @@ import java.beans.ConstructorProperties;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.StringUtils.*;
+import static org.opensearch.index.reindex.AbstractBulkByScrollRequest.AUTO_SLICES;
 
 /**
  * Default implementation of {@link OpenSearchAdminService}
@@ -62,6 +69,8 @@ import static org.apache.commons.lang3.StringUtils.*;
 public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenSearchAdminServiceImpl.class);
+
+    public static final int DEFAULT_WAIT_SLEEP_TIME_MILLIS = 5000;
 
     public static final String DEFAULT_INDEX_NAME_SUFFIX = "_v1";
 
@@ -109,6 +118,10 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
      */
     protected final Set<String> ignoredSettings;
 
+    private int reindexSlices = AUTO_SLICES;
+
+    private int reindexTimeoutSeconds = 5 * 60;
+
     @ConstructorProperties({"authoringMapping", "previewMapping", "authoringNamePattern", "localeMapping",
             "defaultSettings", "ignoredSettings", "openSearchClient"})
     public OpenSearchAdminServiceImpl(final Resource authoringMapping, final Resource previewMapping,
@@ -124,8 +137,19 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
         this.openSearchClient = openSearchClient;
     }
 
+    @SuppressWarnings("unused")
     public void setIndexNameSuffix(final String indexNameSuffix) {
         this.indexNameSuffix = indexNameSuffix;
+    }
+
+    @SuppressWarnings("unused")
+    public void setReindexSlices(final int reindexSlices) {
+        this.reindexSlices = reindexSlices;
+    }
+
+    @SuppressWarnings("unused")
+    public void setReindexTimeoutSeconds(final int reindexTimeoutSeconds) {
+        this.reindexTimeoutSeconds = reindexTimeoutSeconds;
     }
 
     @Override
@@ -329,10 +353,40 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     protected void doReindex(RestHighLevelClient client, String sourceIndex, String destinationIndex)
             throws IOException {
         logger.info("Reindexing all existing content from {} to {}", sourceIndex, destinationIndex);
-        BulkByScrollResponse response = client.reindex(
-                new ReindexRequest().setSourceIndices(sourceIndex).setDestIndex(destinationIndex).setRefresh(true),
-                RequestOptions.DEFAULT);
-        logger.info("Successfully indexed {} docs into {}", response.getTotal(), destinationIndex);
+        TaskSubmissionResponse response = client.submitReindexTask(
+                new ReindexRequest()
+                        .setSourceIndices(sourceIndex)
+                        .setDestIndex(destinationIndex)
+                        .setRefresh(true)
+                        .setSlices(reindexSlices),
+                RequestOptions.DEFAULT
+        );
+        logger.debug("Wait for reindex task '{}' to complete", response.getTask());
+        TaskId taskId = new TaskId(response.getTask());
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            logger.debug("Get reindex task '{}' status", taskId);
+            try {
+                GetTaskResponse getTaskResponse;
+                while (!(getTaskResponse = getTask(client, taskId)).isCompleted()) {
+                    logger.trace("Reindex task '{}' not completed yet, waiting...", taskId);
+                    Thread.sleep(DEFAULT_WAIT_SLEEP_TIME_MILLIS);
+                }
+                logger.debug("Reindex task '{}' completed", getTaskResponse.getTaskInfo().getStatus());
+                logger.info("Completed task '{}'. Reindexing from '{}' into '{}'", taskId, sourceIndex, destinationIndex);
+            } catch (Exception e) {
+                throw new SearchException(format("Failed to retrieve reindex task '%s' status", taskId.getId()), e);
+            }
+        });
+
+        // Don't wait forever
+        future.orTimeout(reindexTimeoutSeconds, SECONDS).join();
+    }
+
+    private GetTaskResponse getTask(final RestHighLevelClient client, final TaskId taskId) throws IOException {
+        GetTaskRequest taskQuery = new GetTaskRequest(taskId.getNodeId(), taskId.getId());
+        return client.tasks()
+                .get(taskQuery, RequestOptions.DEFAULT)
+                .orElseThrow(() -> new SearchException("Reindex task not found. id=" + taskId));
     }
 
     protected void doSwap(RestHighLevelClient client, String aliasName, String existingIndexName, String newIndexName)
@@ -387,7 +441,7 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
             if (!ready) {
                 logger.info("OpenSearch cluster not ready, will try again in 5 seconds");
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(DEFAULT_WAIT_SLEEP_TIME_MILLIS);
                 } catch (InterruptedException e) {
                     logger.error("Error waiting for OpenSearch cluster to be ready", e);
                 }
@@ -399,5 +453,4 @@ public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
     public void close() throws Exception {
         openSearchClient.close();
     }
-
 }
