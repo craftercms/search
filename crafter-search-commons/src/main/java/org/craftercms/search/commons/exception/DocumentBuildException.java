@@ -22,12 +22,12 @@ package org.craftercms.search.commons.exception;
  */
 public class DocumentBuildException extends RuntimeException {
 
-    public DocumentBuildException(String msg) {
-        super(msg);
-    }
+	public DocumentBuildException(String msg) {
+		super(msg);
+	}
 
-    public DocumentBuildException(String msg, Throwable throwable) {
-        super(msg, throwable);
-    }
+	public DocumentBuildException(String msg, Throwable throwable) {
+		super(msg, throwable);
+	}
 
 }

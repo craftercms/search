@@ -54,204 +54,205 @@ import java.util.stream.Stream;
 
 /**
  * Implementation of {@link AbstractFactoryBean} to create instances of {@link OpenSearchClient}
+ *
  * @author joseross
  * @since 4.0.0
  */
 public class OpenSearchClientFactory extends AbstractFactoryBean<OpenSearchClient> {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenSearchClientFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(OpenSearchClientFactory.class);
 
-    /**
-     * List of OpenSearch urls
-     */
-    protected final String[] serverUrls;
+	/**
+	 * List of OpenSearch urls
+	 */
+	protected final String[] serverUrls;
 
-    /**
-     * The username for OpenSearch
-     */
-    protected String username;
+	/**
+	 * The username for OpenSearch
+	 */
+	protected String username;
 
-    /**
-     * The password for OpenSearch
-     */
-    protected String password;
+	/**
+	 * The password for OpenSearch
+	 */
+	protected String password;
 
-    /**
-     * The connection timeout in milliseconds
-     */
-    protected int connectTimeout = -1;
+	/**
+	 * The connection timeout in milliseconds
+	 */
+	protected int connectTimeout = -1;
 
-    /**
-     * The socket timeout in milliseconds
-     */
-    protected int socketTimeout = -1;
+	/**
+	 * The socket timeout in milliseconds
+	 */
+	protected int socketTimeout = -1;
 
-    /**
-     * The number of threads to use
-     */
-    protected int threadCount = -1;
+	/**
+	 * The number of threads to use
+	 */
+	protected int threadCount = -1;
 
-    /**
-     * Indicates if socket keep alive should be enabled
-     */
-    protected boolean socketKeepAlive = false;
+	/**
+	 * Indicates if socket keep alive should be enabled
+	 */
+	protected boolean socketKeepAlive = false;
 
-    @ConstructorProperties({"serverUrls"})
-    public OpenSearchClientFactory(final String[] serverUrls) {
-        this.serverUrls = serverUrls;
-    }
+	@ConstructorProperties({"serverUrls"})
+	public OpenSearchClientFactory(final String[] serverUrls) {
+		this.serverUrls = serverUrls;
+	}
 
-    public void setUsername(final String username) {
-        this.username = username;
-    }
+	public void setUsername(final String username) {
+		this.username = username;
+	}
 
-    public void setPassword(final String password) {
-        this.password = password;
-    }
+	public void setPassword(final String password) {
+		this.password = password;
+	}
 
-    public void setConnectTimeout(int connectTimeout) {
-        this.connectTimeout = connectTimeout;
-    }
+	public void setConnectTimeout(int connectTimeout) {
+		this.connectTimeout = connectTimeout;
+	}
 
-    public void setSocketTimeout(int socketTimeout) {
-        this.socketTimeout = socketTimeout;
-    }
+	public void setSocketTimeout(int socketTimeout) {
+		this.socketTimeout = socketTimeout;
+	}
 
-    public void setThreadCount(int threadCount) {
-        this.threadCount = threadCount;
-    }
+	public void setThreadCount(int threadCount) {
+		this.threadCount = threadCount;
+	}
 
-    public void setSocketKeepAlive(boolean socketKeepAlive) {
-        this.socketKeepAlive = socketKeepAlive;
-    }
+	public void setSocketKeepAlive(boolean socketKeepAlive) {
+		this.socketKeepAlive = socketKeepAlive;
+	}
 
-    public static PoolingNHttpClientConnectionManager createConnectionManager(int connectionTimeout, int socketTimeout,
-                                                                              int threadCount, boolean socketKeepAlive)
-            throws IOReactorException {
-        // Setup with everything just as the builder would do it
-        SSLContext sslcontext = SSLContexts.createDefault();
-        PublicSuffixMatcher publicSuffixMatcher = PublicSuffixMatcherLoader.getDefault();
-        HostnameVerifier hostnameVerifier = new DefaultHostnameVerifier(publicSuffixMatcher);
-        SchemeIOSessionStrategy sslStrategy = new SSLIOSessionStrategy(sslcontext, null, null, hostnameVerifier);
+	public static PoolingNHttpClientConnectionManager createConnectionManager(int connectionTimeout, int socketTimeout,
+										  int threadCount, boolean socketKeepAlive)
+		throws IOReactorException {
+		// Setup with everything just as the builder would do it
+		SSLContext sslcontext = SSLContexts.createDefault();
+		PublicSuffixMatcher publicSuffixMatcher = PublicSuffixMatcherLoader.getDefault();
+		HostnameVerifier hostnameVerifier = new DefaultHostnameVerifier(publicSuffixMatcher);
+		SchemeIOSessionStrategy sslStrategy = new SSLIOSessionStrategy(sslcontext, null, null, hostnameVerifier);
 
-        // Create the custom reactor
-        IOReactorConfig.Builder configBuilder = IOReactorConfig.custom();
+		// Create the custom reactor
+		IOReactorConfig.Builder configBuilder = IOReactorConfig.custom();
 
-        if (threadCount > 0) {
-            logger.debug("Using custom thread count: {}", threadCount);
-            configBuilder.setIoThreadCount(threadCount);
-        } else {
-            logger.debug("Using default thread count");
-        }
+		if (threadCount > 0) {
+			logger.debug("Using custom thread count: {}", threadCount);
+			configBuilder.setIoThreadCount(threadCount);
+		} else {
+			logger.debug("Using default thread count");
+		}
 
-        if (connectionTimeout >= 0) {
-            logger.debug("Using custom connect timeout: {}", connectionTimeout);
-            configBuilder.setConnectTimeout(connectionTimeout);
-        } else {
-            logger.debug("Using default connect timeout");
-        }
+		if (connectionTimeout >= 0) {
+			logger.debug("Using custom connect timeout: {}", connectionTimeout);
+			configBuilder.setConnectTimeout(connectionTimeout);
+		} else {
+			logger.debug("Using default connect timeout");
+		}
 
-        if (socketTimeout >= 0) {
-            logger.debug("Using custom socket timeout: {}", socketTimeout);
-            configBuilder.setSoTimeout(socketTimeout);
-        } else {
-            logger.debug("Using default socket timeout");
-        }
+		if (socketTimeout >= 0) {
+			logger.debug("Using custom socket timeout: {}", socketTimeout);
+			configBuilder.setSoTimeout(socketTimeout);
+		} else {
+			logger.debug("Using default socket timeout");
+		}
 
-        if (socketKeepAlive) {
-            logger.debug("Using socket keep alive");
-            configBuilder.setSoKeepAlive(true);
-        }
+		if (socketKeepAlive) {
+			logger.debug("Using socket keep alive");
+			configBuilder.setSoKeepAlive(true);
+		}
 
-        DefaultConnectingIOReactor reactor = new DefaultConnectingIOReactor(configBuilder.build());
+		DefaultConnectingIOReactor reactor = new DefaultConnectingIOReactor(configBuilder.build());
 
-        // Set up a generic exception handler that just logs everything to prevent the client from shutting down
-        reactor.setExceptionHandler(new IOReactorExceptionHandler() {
-            @Override
-            public boolean handle(IOException e) {
-                logger.error("Error executing request", e);
-                return true;
-            }
+		// Set up a generic exception handler that just logs everything to prevent the client from shutting down
+		reactor.setExceptionHandler(new IOReactorExceptionHandler() {
+			@Override
+			public boolean handle(IOException e) {
+				logger.error("Error executing request", e);
+				return true;
+			}
 
-            @Override
-            public boolean handle(RuntimeException e) {
-                logger.error("Error executing request", e);
-                return true;
-            }
-        });
+			@Override
+			public boolean handle(RuntimeException e) {
+				logger.error("Error executing request", e);
+				return true;
+			}
+		});
 
-        return new PoolingNHttpClientConnectionManager(
-                reactor,
-                RegistryBuilder.<SchemeIOSessionStrategy>create()
-                        .register("http", NoopIOSessionStrategy.INSTANCE)
-                        .register("https", sslStrategy)
-                        .build());
-    }
+		return new PoolingNHttpClientConnectionManager(
+			reactor,
+			RegistryBuilder.<SchemeIOSessionStrategy>create()
+				.register("http", NoopIOSessionStrategy.INSTANCE)
+				.register("https", sslStrategy)
+				.build());
+	}
 
-    public static OpenSearchClient createClient(String[] serverUrls, String username, String password,
-                                                   int connectTimeout, int socketTimeout, int threadCount,
-                                                   boolean socketKeepAlive) {
-        logger.debug("Building client for urls: {}", (Object) serverUrls);
-        HttpHost[] hosts = Stream.of(serverUrls).map(HttpHost::create).toArray(HttpHost[]::new);
-        RestClientBuilder clientBuilder = RestClient.builder(hosts);
-        RestClientBuilder.RequestConfigCallback requestConfigCallback = builder -> {
-            if (connectTimeout >= 0) {
-                logger.debug("Using custom connect timeout: {}", connectTimeout);
-                builder.setConnectTimeout(connectTimeout);
-            } else {
-                logger.debug("Using default connect timeout");
-            }
-            if (socketTimeout >= 0) {
-                logger.debug("Using custom socket timeout: {}", socketTimeout);
-                builder.setSocketTimeout(socketTimeout);
-            } else {
-                logger.debug("Using default socket timeout");
-            }
-            return builder;
-        };
-        RestClientBuilder.HttpClientConfigCallback httpClientConfigCallback = builder -> {
-            if (StringUtils.isNoneEmpty(username, password)) {
-                logger.debug("Using basic auth with user: {}", username);
-                CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-                builder.setDefaultCredentialsProvider(credentialsProvider);
-            } else {
-                logger.debug("No credentials provided");
-            }
+	public static OpenSearchClient createClient(String[] serverUrls, String username, String password,
+						    int connectTimeout, int socketTimeout, int threadCount,
+						    boolean socketKeepAlive) {
+		logger.debug("Building client for urls: {}", (Object) serverUrls);
+		HttpHost[] hosts = Stream.of(serverUrls).map(HttpHost::create).toArray(HttpHost[]::new);
+		RestClientBuilder clientBuilder = RestClient.builder(hosts);
+		RestClientBuilder.RequestConfigCallback requestConfigCallback = builder -> {
+			if (connectTimeout >= 0) {
+				logger.debug("Using custom connect timeout: {}", connectTimeout);
+				builder.setConnectTimeout(connectTimeout);
+			} else {
+				logger.debug("Using default connect timeout");
+			}
+			if (socketTimeout >= 0) {
+				logger.debug("Using custom socket timeout: {}", socketTimeout);
+				builder.setSocketTimeout(socketTimeout);
+			} else {
+				logger.debug("Using default socket timeout");
+			}
+			return builder;
+		};
+		RestClientBuilder.HttpClientConfigCallback httpClientConfigCallback = builder -> {
+			if (StringUtils.isNoneEmpty(username, password)) {
+				logger.debug("Using basic auth with user: {}", username);
+				CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+				credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+				builder.setDefaultCredentialsProvider(credentialsProvider);
+			} else {
+				logger.debug("No credentials provided");
+			}
 
-            try {
-                builder.setConnectionManager(
-                        createConnectionManager(connectTimeout, socketTimeout, threadCount, socketKeepAlive));
-            } catch (IOReactorException e) {
-                logger.warn("Error setting up custom exception handler", e);
-            }
+			try {
+				builder.setConnectionManager(
+					createConnectionManager(connectTimeout, socketTimeout, threadCount, socketKeepAlive));
+			} catch (IOReactorException e) {
+				logger.warn("Error setting up custom exception handler", e);
+			}
 
-            return builder;
-        };
-        clientBuilder.setRequestConfigCallback(requestConfigCallback);
-        clientBuilder.setHttpClientConfigCallback(httpClientConfigCallback);
-        ObjectMapper mapper = new ObjectMapper()
-                .findAndRegisterModules()
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        OpenSearchTransport transport = new RestClientTransport(clientBuilder.build(),
-                                                                    new JacksonJsonpMapper(mapper));
-        return new OpenSearchClient(transport);
-    }
+			return builder;
+		};
+		clientBuilder.setRequestConfigCallback(requestConfigCallback);
+		clientBuilder.setHttpClientConfigCallback(httpClientConfigCallback);
+		ObjectMapper mapper = new ObjectMapper()
+			.findAndRegisterModules()
+			.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		OpenSearchTransport transport = new RestClientTransport(clientBuilder.build(),
+			new JacksonJsonpMapper(mapper));
+		return new OpenSearchClient(transport);
+	}
 
-    @Override
-    public Class<?> getObjectType() {
-        return OpenSearchClient.class;
-    }
+	@Override
+	public Class<?> getObjectType() {
+		return OpenSearchClient.class;
+	}
 
-    @Override
-    protected OpenSearchClient createInstance() {
-        return createClient(serverUrls, username, password, connectTimeout, socketTimeout, threadCount,
-                socketKeepAlive);
-    }
+	@Override
+	protected OpenSearchClient createInstance() {
+		return createClient(serverUrls, username, password, connectTimeout, socketTimeout, threadCount,
+			socketKeepAlive);
+	}
 
-    @Override
-    protected void destroyInstance(OpenSearchClient instance) throws Exception {
-        instance._transport().close();
-    }
+	@Override
+	protected void destroyInstance(OpenSearchClient instance) throws Exception {
+		instance._transport().close();
+	}
 
 }

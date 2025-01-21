@@ -35,50 +35,50 @@ import org.slf4j.LoggerFactory;
  */
 public class InternalNameMetadataExtractor extends AbstractMetadataExtractor {
 
-    private static final Logger logger = LoggerFactory.getLogger(InternalNameMetadataExtractor.class);
+	private static final Logger logger = LoggerFactory.getLogger(InternalNameMetadataExtractor.class);
 
-    public static final String DEFAULT_PROPERTY_NAME = "internalName";
+	public static final String DEFAULT_PROPERTY_NAME = "internalName";
 
-    /**
-     * The name of the metadata property to return
-     */
-    protected String propertyName = DEFAULT_PROPERTY_NAME;
+	/**
+	 * The name of the metadata property to return
+	 */
+	protected String propertyName = DEFAULT_PROPERTY_NAME;
 
-    /**
-     * The XPath selector used to extract the internal name from descriptors
-     */
-    protected String internalNameFieldXpath;
+	/**
+	 * The XPath selector used to extract the internal name from descriptors
+	 */
+	protected String internalNameFieldXpath;
 
-    public InternalNameMetadataExtractor(final String internalNameFieldXpath) {
-        this.internalNameFieldXpath = internalNameFieldXpath;
-    }
+	public InternalNameMetadataExtractor(final String internalNameFieldXpath) {
+		this.internalNameFieldXpath = internalNameFieldXpath;
+	}
 
-    public void setPropertyName(final String propertyName) {
-        this.propertyName = propertyName;
-    }
+	public void setPropertyName(final String propertyName) {
+		this.propertyName = propertyName;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean isCompatible(final String path, final ContentStoreService contentStoreService,
-                                   final Context context) {
-        return !contentStoreService.getItem(context, path).isFolder();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected boolean isCompatible(final String path, final ContentStoreService contentStoreService,
+				       final Context context) {
+		return !contentStoreService.getItem(context, path).isFolder();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Map<String, Object> doExtract(final String path, final ContentStoreService contentStoreService,
-                                            final Context context) {
-        Item item = contentStoreService.getItem(context, path);
-        String internalName = item.queryDescriptorValue(internalNameFieldXpath);
-        if(StringUtils.isEmpty(internalName)) {
-            logger.debug("Internal name not found in descriptor, using filename as fallback");
-            internalName = FilenameUtils.getName(item.getName());
-        }
-        return Collections.singletonMap(propertyName, internalName);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Map<String, Object> doExtract(final String path, final ContentStoreService contentStoreService,
+						final Context context) {
+		Item item = contentStoreService.getItem(context, path);
+		String internalName = item.queryDescriptorValue(internalNameFieldXpath);
+		if (StringUtils.isEmpty(internalName)) {
+			logger.debug("Internal name not found in descriptor, using filename as fallback");
+			internalName = FilenameUtils.getName(item.getName());
+		}
+		return Collections.singletonMap(propertyName, internalName);
+	}
 
 }

@@ -31,34 +31,34 @@ import org.craftercms.core.service.Context;
  */
 public class FileSizeMetadataExtractor extends AbstractMetadataExtractor {
 
-    public static final String DEFAULT_PROPERTY_NAME = "contentLength";
+	public static final String DEFAULT_PROPERTY_NAME = "contentLength";
 
-    /**
-     * The name of the metadata property to return
-     */
-    protected String propertyName = DEFAULT_PROPERTY_NAME;
+	/**
+	 * The name of the metadata property to return
+	 */
+	protected String propertyName = DEFAULT_PROPERTY_NAME;
 
-    public void setPropertyName(final String propertyName) {
-        this.propertyName = propertyName;
-    }
+	public void setPropertyName(final String propertyName) {
+		this.propertyName = propertyName;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean isCompatible(final String path, final ContentStoreService contentStoreService,
-                                   final Context context) {
-        return !contentStoreService.getItem(context, path).isFolder();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected boolean isCompatible(final String path, final ContentStoreService contentStoreService,
+				       final Context context) {
+		return !contentStoreService.getItem(context, path).isFolder();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Map<String, Object> doExtract(final String path, final ContentStoreService contentStoreService,
-                                       final Context context) {
-        Content content = contentStoreService.getContent(context, path);
-        return Collections.singletonMap(propertyName, Long.toString(content.getLength()));
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Map<String, Object> doExtract(final String path, final ContentStoreService contentStoreService,
+						final Context context) {
+		Content content = contentStoreService.getContent(context, path);
+		return Collections.singletonMap(propertyName, Long.toString(content.getLength()));
+	}
 
 }

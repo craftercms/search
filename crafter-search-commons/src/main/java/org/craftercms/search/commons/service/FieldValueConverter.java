@@ -23,6 +23,6 @@ package org.craftercms.search.commons.service;
  */
 public interface FieldValueConverter {
 
-    Object convert(String name, String value);
+	Object convert(String name, String value);
 
 }

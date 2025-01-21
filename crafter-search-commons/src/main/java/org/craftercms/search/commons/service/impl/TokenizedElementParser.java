@@ -32,71 +32,71 @@ import org.slf4j.LoggerFactory;
  * indicates that the field should be tokenized and analyzed by the search engine, and by definition it isn't
  * (like _s fields) so a copy of the field is created with a field name that can actually be tokenized (like those
  * ending with _t).
- * @param <T> the type of document for the search engine
  *
+ * @param <T> the type of document for the search engine
  * @author Dejan Brkic
  * @author Alfonso Vásqiuez
  */
 public class TokenizedElementParser<T> implements ElementParser<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(TokenizedElementParser.class);
+	private static final Logger logger = LoggerFactory.getLogger(TokenizedElementParser.class);
 
-    public static final String DEFAULT_TOKENIZED_ATTRIBUTE_NAME = "tokenized";
+	public static final String DEFAULT_TOKENIZED_ATTRIBUTE_NAME = "tokenized";
 
-    protected String tokenizedAttributeName;
-    protected Map<String, String> fieldSuffixMappings;
+	protected String tokenizedAttributeName;
+	protected Map<String, String> fieldSuffixMappings;
 
-    public TokenizedElementParser() {
-        tokenizedAttributeName = DEFAULT_TOKENIZED_ATTRIBUTE_NAME;
-        fieldSuffixMappings = new HashMap<>(2);
+	public TokenizedElementParser() {
+		tokenizedAttributeName = DEFAULT_TOKENIZED_ATTRIBUTE_NAME;
+		fieldSuffixMappings = new HashMap<>(2);
 
-        fieldSuffixMappings.put("_s", "_t");
-        fieldSuffixMappings.put("_smv", "_tmv");
-    }
+		fieldSuffixMappings.put("_s", "_t");
+		fieldSuffixMappings.put("_smv", "_tmv");
+	}
 
-    public void setTokenizedAttributeName(String tokenizedAttributeName) {
-        this.tokenizedAttributeName = tokenizedAttributeName;
-    }
+	public void setTokenizedAttributeName(String tokenizedAttributeName) {
+		this.tokenizedAttributeName = tokenizedAttributeName;
+	}
 
-    public void setFieldSuffixMappings(Map<String, String> fieldSuffixMappings) {
-        this.fieldSuffixMappings = fieldSuffixMappings;
-    }
+	public void setFieldSuffixMappings(Map<String, String> fieldSuffixMappings) {
+		this.fieldSuffixMappings = fieldSuffixMappings;
+	}
 
-    @Override
-    public boolean parse(Element element, String fieldName, String parentFieldName, T doc,
-                         ElementParserService<T> parserService) {
-        Attribute tokenizedAttribute = element.attribute(tokenizedAttributeName);
-        if (tokenizedAttribute != null && BooleanUtils.toBoolean(tokenizedAttribute.getValue())) {
-            logger.debug("Parsing element '{}' marked to tokenize", fieldName);
+	@Override
+	public boolean parse(Element element, String fieldName, String parentFieldName, T doc,
+			     ElementParserService<T> parserService) {
+		Attribute tokenizedAttribute = element.attribute(tokenizedAttributeName);
+		if (tokenizedAttribute != null && BooleanUtils.toBoolean(tokenizedAttribute.getValue())) {
+			logger.debug("Parsing element '{}' marked to tokenize", fieldName);
 
-            // Remove the attribute so that at the end the element can be parsed as a normal attribute.
-            element.remove(tokenizedAttribute);
+			// Remove the attribute so that at the end the element can be parsed as a normal attribute.
+			element.remove(tokenizedAttribute);
 
-            String elementName = element.getName();
+			String elementName = element.getName();
 
-            for (Map.Entry<String, String> mapping : fieldSuffixMappings.entrySet()) {
-                if (elementName.endsWith(mapping.getKey())) {
-                    String newElementName = StringUtils.substringBefore(elementName, mapping.getKey()) +
-                                            mapping.getValue();
+			for (Map.Entry<String, String> mapping : fieldSuffixMappings.entrySet()) {
+				if (elementName.endsWith(mapping.getKey())) {
+					String newElementName = StringUtils.substringBefore(elementName, mapping.getKey()) +
+						mapping.getValue();
 
-                    Element tokenizedElement = element.createCopy(newElementName);
+					Element tokenizedElement = element.createCopy(newElementName);
 
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Created new element for tokenized search: " + tokenizedElement.getName());
-                    }
+					if (logger.isDebugEnabled()) {
+						logger.debug("Created new element for tokenized search: " + tokenizedElement.getName());
+					}
 
-                    parserService.parse(tokenizedElement, parentFieldName, doc);
+					parserService.parse(tokenizedElement, parentFieldName, doc);
 
-                    break;
-                }
-            }
+					break;
+				}
+			}
 
-            parserService.parse(element, parentFieldName, doc);
+			parserService.parse(element, parentFieldName, doc);
 
-            return true;
-        } else {
-            return false;
-        }
-    }
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 }

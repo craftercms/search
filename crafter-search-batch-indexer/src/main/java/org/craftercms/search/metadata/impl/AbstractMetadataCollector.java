@@ -34,35 +34,36 @@ import org.craftercms.search.metadata.MetadataExtractor;
  */
 public abstract class AbstractMetadataCollector {
 
-    /**
-     * List of metadata extractors
-     */
-    protected List<MetadataExtractor> metadataExtractors;
+	/**
+	 * List of metadata extractors
+	 */
+	protected List<MetadataExtractor> metadataExtractors;
 
-    public void setMetadataExtractors(final List<MetadataExtractor> metadataExtractors) {
-        this.metadataExtractors = metadataExtractors;
-    }
+	public void setMetadataExtractors(final List<MetadataExtractor> metadataExtractors) {
+		this.metadataExtractors = metadataExtractors;
+	}
 
-    /**
-     * Executes all metadata extractors on the given file and returns an aggregation of all results
-     * @param path the path of the file
-     * @param contentStoreService the content store service
-     * @param context the current context
-     * @return all extracted metadata
-     */
-    protected Map<String, Object> collectMetadata(final String path, final ContentStoreService contentStoreService,
-                                                  final Context context) {
-        if (CollectionUtils.isEmpty(metadataExtractors)) {
-            return Collections.emptyMap();
-        } else {
-            return metadataExtractors
-                .stream()
-                .map(metadataExtractor -> metadataExtractor.extract(path, contentStoreService, context))
-                .reduce(new HashMap<>(), (map1, map2) -> {
-                    map1.putAll(map2);
-                    return map1;
-                });
-        }
-    }
+	/**
+	 * Executes all metadata extractors on the given file and returns an aggregation of all results
+	 *
+	 * @param path                the path of the file
+	 * @param contentStoreService the content store service
+	 * @param context             the current context
+	 * @return all extracted metadata
+	 */
+	protected Map<String, Object> collectMetadata(final String path, final ContentStoreService contentStoreService,
+						      final Context context) {
+		if (CollectionUtils.isEmpty(metadataExtractors)) {
+			return Collections.emptyMap();
+		} else {
+			return metadataExtractors
+				.stream()
+				.map(metadataExtractor -> metadataExtractor.extract(path, contentStoreService, context))
+				.reduce(new HashMap<>(), (map1, map2) -> {
+					map1.putAll(map2);
+					return map1;
+				});
+		}
+	}
 
 }

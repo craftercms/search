@@ -24,19 +24,18 @@ import org.dom4j.Element;
  */
 public interface ElementParser<T> {
 
-    /**
-     * Parses the given element, generating one or more fields and adding them to the given document.
-     *
-     * @param element           the element to parse
-     * @param fieldName         the field name that should be used for the main field (by default will be the
-     *                          path of the element in the tree plus the element name)
-     * @param parentFieldName   the field name of the parent element
-     * @param doc               the document to add the generated fields
-     * @param parserService     the parser service used normally to parse sub elements
-     *
-     * @return true if the element was parsed or handled, false otherwise
-     */
-    boolean parse(Element element, String fieldName, String parentFieldName, T doc,
-                  ElementParserService<T> parserService);
+	/**
+	 * Parses the given element, generating one or more fields and adding them to the given document.
+	 *
+	 * @param element         the element to parse
+	 * @param fieldName       the field name that should be used for the main field (by default will be the
+	 *                        path of the element in the tree plus the element name)
+	 * @param parentFieldName the field name of the parent element
+	 * @param doc             the document to add the generated fields
+	 * @param parserService   the parser service used normally to parse sub elements
+	 * @return true if the element was parsed or handled, false otherwise
+	 */
+	boolean parse(Element element, String fieldName, String parentFieldName, T doc,
+		      ElementParserService<T> parserService);
 
 }

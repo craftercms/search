@@ -27,46 +27,46 @@ import org.slf4j.LoggerFactory;
 /**
  * Base implementation of {@link ElementParser}. For text only fields it adds the field with the provided field
  * name. For elements with children is uses the {@link ElementParserService} to parse the children.
- * @param <T> the type of document for the search engine
  *
+ * @param <T> the type of document for the search engine
  * @author avasquez
  */
 public abstract class AbstractElementParser<T> implements ElementParser<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractElementParser.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractElementParser.class);
 
-    protected FieldValueConverter fieldValueConverter;
+	protected FieldValueConverter fieldValueConverter;
 
-    public AbstractElementParser(FieldValueConverter fieldValueConverter) {
-        this.fieldValueConverter = fieldValueConverter;
-    }
+	public AbstractElementParser(FieldValueConverter fieldValueConverter) {
+		this.fieldValueConverter = fieldValueConverter;
+	}
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public boolean parse(Element element, String fieldName, String parentFieldName, T doc,
-                         ElementParserService<T> parserService) {
-        logger.debug("Parsing element '{}'", fieldName);
+	@Override
+	@SuppressWarnings("unchecked")
+	public boolean parse(Element element, String fieldName, String parentFieldName, T doc,
+			     ElementParserService<T> parserService) {
+		logger.debug("Parsing element '{}'", fieldName);
 
-        if (element.hasContent()) {
-            if (element.isTextOnly()) {
-                logger.debug("Adding field '{}'", fieldName);
+		if (element.hasContent()) {
+			if (element.isTextOnly()) {
+				logger.debug("Adding field '{}'", fieldName);
 
-                Object fieldValue = fieldValueConverter.convert(fieldName, element.getText());
+				Object fieldValue = fieldValueConverter.convert(fieldName, element.getText());
 
-                addField(doc, fieldName, fieldValue);
-            } else {
-                List<Element> children = element.elements();
-                for (Element child : children) {
-                    parserService.parse(child, fieldName, doc);
-                }
-            }
-        } else {
-            logger.debug("Element '{}' has no content. Ignoring it.");
-        }
+				addField(doc, fieldName, fieldValue);
+			} else {
+				List<Element> children = element.elements();
+				for (Element child : children) {
+					parserService.parse(child, fieldName, doc);
+				}
+			}
+		} else {
+			logger.debug("Element '{}' has no content. Ignoring it.");
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    protected abstract void addField(T doc, String fieldName, Object fieldValue);
+	protected abstract void addField(T doc, String fieldName, Object fieldValue);
 
 }

@@ -33,99 +33,101 @@ import java.util.Map;
 
 /**
  * Implementation of {@link AbstractBinaryFileWithMetadataBatchIndexer} for OpenSearch
+ *
  * @author joseross
  */
 public class OpenSearchBinaryFileWithMetadataBatchIndexer extends AbstractBinaryFileWithMetadataBatchIndexer {
 
-    /**
-     * OpenSearch service
-     */
-    protected final OpenSearchService searchService;
+	/**
+	 * OpenSearch service
+	 */
+	protected final OpenSearchService searchService;
 
-    @ConstructorProperties({"searchService"})
-    public OpenSearchBinaryFileWithMetadataBatchIndexer(final OpenSearchService searchService) {
-        this.searchService = searchService;
-    }
+	@ConstructorProperties({"searchService"})
+	public OpenSearchBinaryFileWithMetadataBatchIndexer(final OpenSearchService searchService) {
+		this.searchService = searchService;
+	}
 
-    @Override
-    protected void doDelete(final String indexId, final String siteName, final String previousBinaryPath,
-                            final UpdateStatus updateStatus) {
-        OpenSearchIndexingUtils.doDelete(searchService, indexId, siteName, previousBinaryPath, updateStatus);
-    }
+	@Override
+	protected void doDelete(final String indexId, final String siteName, final String previousBinaryPath,
+				final UpdateStatus updateStatus) {
+		OpenSearchIndexingUtils.doDelete(searchService, indexId, siteName, previousBinaryPath, updateStatus);
+	}
 
-    @Override
-    protected List<String> searchBinaryPathsFromMetadataPath(final String indexId, final String siteName,
-                                                             final String metadataPath) {
-        try {
-            return searchService.searchField(indexId, localIdFieldName, Query.of(q -> q
-                .term(m -> m
-                    .field(metadataPathFieldNameWithKeyword())
-                    .value(v -> v.stringValue(metadataPath))
-                )
-            ));
-        } catch (OpenSearchException e) {
-            throw new SearchException(indexId, "Error executing search for " + metadataPath, e);
-        }
-    }
+	@Override
+	protected List<String> searchBinaryPathsFromMetadataPath(final String indexId, final String siteName,
+								 final String metadataPath) {
+		try {
+			return searchService.searchField(indexId, localIdFieldName, Query.of(q -> q
+				.term(m -> m
+					.field(metadataPathFieldNameWithKeyword())
+					.value(v -> v.stringValue(metadataPath))
+				)
+			));
+		} catch (OpenSearchException e) {
+			throw new SearchException(indexId, "Error executing search for " + metadataPath, e);
+		}
+	}
 
-    @Override
-    protected String searchMetadataPathFromBinaryPath(final String indexId, final String siteName,
-                                                      final String binaryPath) {
-        try {
-            List<String> paths = searchService.searchField(indexId, metadataPathFieldName, Query.of(q -> q
-                .bool(b -> b
-                    .filter(m -> m
-                        .term(t -> t
-                            .field(localIdFieldName)
-                            .value(v -> v.stringValue(binaryPath))
-                        )
-                    )
-                    .filter(m -> m
-                        .exists(e -> e
-                            .field(metadataPathFieldName)
-                        )
-                    )
-                )
-            ));
-            if(CollectionUtils.isNotEmpty(paths)) {
-                return paths.get(0);
-            } else {
-                return null;
-            }
-        } catch (OpenSearchException e) {
-           throw new SearchException(indexId, "Error executing search for " + binaryPath, e);
-        }
-    }
+	@Override
+	protected String searchMetadataPathFromBinaryPath(final String indexId, final String siteName,
+							  final String binaryPath) {
+		try {
+			List<String> paths = searchService.searchField(indexId, metadataPathFieldName, Query.of(q -> q
+				.bool(b -> b
+					.filter(m -> m
+						.term(t -> t
+							.field(localIdFieldName)
+							.value(v -> v.stringValue(binaryPath))
+						)
+					)
+					.filter(m -> m
+						.exists(e -> e
+							.field(metadataPathFieldName)
+						)
+					)
+				)
+			));
+			if (CollectionUtils.isNotEmpty(paths)) {
+				return paths.get(0);
+			} else {
+				return null;
+			}
+		} catch (OpenSearchException e) {
+			throw new SearchException(indexId, "Error executing search for " + binaryPath, e);
+		}
+	}
 
-    @Override
-    protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
-                                   final Resource resource, final Map<String, Object> metadata,
-                                   final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
-        OpenSearchIndexingUtils.doUpdateBinary(searchService, indexId, siteName, binaryPath, metadata,
-                resource, updateDetail, updateStatus);
-    }
+	@Override
+	protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
+				       final Resource resource, final Map<String, Object> metadata,
+				       final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
+		OpenSearchIndexingUtils.doUpdateBinary(searchService, indexId, siteName, binaryPath, metadata,
+			resource, updateDetail, updateStatus);
+	}
 
-    @Override
-    protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
-                                   final Content content, final Map<String, Object> metadata,
-                                   final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
-        OpenSearchIndexingUtils.doUpdateBinary(searchService, indexId, siteName, binaryPath, metadata,
-                content, updateDetail, updateStatus);
-    }
+	@Override
+	protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
+				       final Content content, final Map<String, Object> metadata,
+				       final UpdateDetail updateDetail, final UpdateStatus updateStatus) {
+		OpenSearchIndexingUtils.doUpdateBinary(searchService, indexId, siteName, binaryPath, metadata,
+			content, updateDetail, updateStatus);
+	}
 
-    @Override
-    protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
-                                   final Resource resource, final UpdateDetail updateDetail,
-                                   final UpdateStatus updateStatus) {
-        doUpdateContent(indexId, siteName, binaryPath, resource, null, updateDetail, updateStatus);
-    }
+	@Override
+	protected void doUpdateContent(final String indexId, final String siteName, final String binaryPath,
+				       final Resource resource, final UpdateDetail updateDetail,
+				       final UpdateStatus updateStatus) {
+		doUpdateContent(indexId, siteName, binaryPath, resource, null, updateDetail, updateStatus);
+	}
 
-    /**
-     * * Add `.keyword` to field name to search with keyword
-     * @return metadataPath with `.keyword` ending
-     */
-    protected String metadataPathFieldNameWithKeyword() {
-        return metadataPathFieldName + ".keyword";
-    }
+	/**
+	 * * Add `.keyword` to field name to search with keyword
+	 *
+	 * @return metadataPath with `.keyword` ending
+	 */
+	protected String metadataPathFieldNameWithKeyword() {
+		return metadataPathFieldName + ".keyword";
+	}
 
 }

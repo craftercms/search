@@ -39,58 +39,58 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractBatchIndexer extends AbstractMetadataCollector implements BatchIndexer {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractBatchIndexer.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractBatchIndexer.class);
 
-    protected List<String> includePathPatterns;
-    protected List<String> excludePathPatterns;
+	protected List<String> includePathPatterns;
+	protected List<String> excludePathPatterns;
 
-    public void setIncludePathPatterns(List<String> includePathPatterns) {
-        this.includePathPatterns = includePathPatterns;
-    }
+	public void setIncludePathPatterns(List<String> includePathPatterns) {
+		this.includePathPatterns = includePathPatterns;
+	}
 
-    public void setExcludePathPatterns(List<String> excludePathPatterns) {
-        this.excludePathPatterns = excludePathPatterns;
-    }
+	public void setExcludePathPatterns(List<String> excludePathPatterns) {
+		this.excludePathPatterns = excludePathPatterns;
+	}
 
-    @Override
-    public void updateIndex(String indexId, String siteName, ContentStoreService contentStoreService,
-                            Context context, UpdateSet updateSet, UpdateStatus updateStatus) throws BatchIndexingException {
-        for (String path : updateSet.getUpdatePaths()) {
-            if (include(path)) {
-                try {
-                    Map<String, Object> metadata = collectMetadata(path, contentStoreService, context);
-                    doSingleFileUpdate(indexId, siteName, contentStoreService, context, path, false,
-                        updateSet.getUpdateDetail(path), updateStatus, metadata);
-                } catch (Exception e) {
-                    logger.error("Error while trying to perform update of file {}:{}", siteName, path, e);
+	@Override
+	public void updateIndex(String indexId, String siteName, ContentStoreService contentStoreService,
+				Context context, UpdateSet updateSet, UpdateStatus updateStatus) throws BatchIndexingException {
+		for (String path : updateSet.getUpdatePaths()) {
+			if (include(path)) {
+				try {
+					Map<String, Object> metadata = collectMetadata(path, contentStoreService, context);
+					doSingleFileUpdate(indexId, siteName, contentStoreService, context, path, false,
+						updateSet.getUpdateDetail(path), updateStatus, metadata);
+				} catch (Exception e) {
+					logger.error("Error while trying to perform update of file {}:{}", siteName, path, e);
 
-                    updateStatus.addFailedUpdate(path);
-                }
-            }
-        }
+					updateStatus.addFailedUpdate(path);
+				}
+			}
+		}
 
-        for (String path : updateSet.getDeletePaths()) {
-            if (include(path)) {
-                try {
-                    doSingleFileUpdate(indexId, siteName, contentStoreService, context, path, true, null,
-                        updateStatus, Collections.emptyMap());
-                } catch (Exception e) {
-                    logger.error("Error while trying to perform delete of file {}:{}", siteName, path, e);
+		for (String path : updateSet.getDeletePaths()) {
+			if (include(path)) {
+				try {
+					doSingleFileUpdate(indexId, siteName, contentStoreService, context, path, true, null,
+						updateStatus, Collections.emptyMap());
+				} catch (Exception e) {
+					logger.error("Error while trying to perform delete of file {}:{}", siteName, path, e);
 
-                    updateStatus.addFailedDelete(path);
-                }
-            }
-        }
-    }
+					updateStatus.addFailedDelete(path);
+				}
+			}
+		}
+	}
 
-    protected boolean include(String path) {
-        return (CollectionUtils.isEmpty(includePathPatterns) || RegexUtils.matchesAny(path, includePathPatterns)) &&
-               (CollectionUtils.isEmpty(excludePathPatterns) || !RegexUtils.matchesAny(path, excludePathPatterns));
-    }
+	protected boolean include(String path) {
+		return (CollectionUtils.isEmpty(includePathPatterns) || RegexUtils.matchesAny(path, includePathPatterns)) &&
+			(CollectionUtils.isEmpty(excludePathPatterns) || !RegexUtils.matchesAny(path, excludePathPatterns));
+	}
 
-    protected abstract void doSingleFileUpdate(String indexId, String siteName,
-                                               ContentStoreService contentStoreService, Context context,
-                                               String path, boolean delete, UpdateDetail updateDetail,
-                                               UpdateStatus updateStatus, Map<String, Object> metadata);
+	protected abstract void doSingleFileUpdate(String indexId, String siteName,
+						   ContentStoreService contentStoreService, Context context,
+						   String path, boolean delete, UpdateDetail updateDetail,
+						   UpdateStatus updateStatus, Map<String, Object> metadata);
 
 }

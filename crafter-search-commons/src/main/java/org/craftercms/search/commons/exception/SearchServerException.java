@@ -18,24 +18,25 @@ package org.craftercms.search.commons.exception;
 
 /**
  * Exception thrown when the search engine is not available.
+ *
  * @author joseross
  */
 public class SearchServerException extends SearchException {
 
-    public SearchServerException(final String msg) {
-        super(msg);
-    }
+	public SearchServerException(final String msg) {
+		super(msg);
+	}
 
-    public SearchServerException(final String msg, final Throwable cause) {
-        super(msg, cause);
-    }
+	public SearchServerException(final String msg, final Throwable cause) {
+		super(msg, cause);
+	}
 
-    public SearchServerException(final String indexId, final String msg) {
-        super(indexId, msg);
-    }
+	public SearchServerException(final String indexId, final String msg) {
+		super(indexId, msg);
+	}
 
-    public SearchServerException(final String indexId, final String msg, final Throwable throwable) {
-        super(indexId, msg, throwable);
-    }
+	public SearchServerException(final String indexId, final String msg, final Throwable throwable) {
+		super(indexId, msg, throwable);
+	}
 
 }

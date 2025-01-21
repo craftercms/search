@@ -22,46 +22,47 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Default implementation for {@link UpdateDetailProvider}
+ *
  * @author joseross
  */
 public class AbstractUpdateDetailProvider implements UpdateDetailProvider {
 
-    /**
-     * Holds all known instances of {@link UpdateDetail} mapped by their id
-     */
-    protected Map<String, UpdateDetail> updateDetails;
+	/**
+	 * Holds all known instances of {@link UpdateDetail} mapped by their id
+	 */
+	protected Map<String, UpdateDetail> updateDetails;
 
-    /**
-     * Holds all changed files mapped by the {@link UpdateDetail} id
-     */
-    protected Map<String, String> updateLog;
+	/**
+	 * Holds all changed files mapped by the {@link UpdateDetail} id
+	 */
+	protected Map<String, String> updateLog;
 
-    public Map<String, UpdateDetail> getUpdateDetails() {
-        return updateDetails;
-    }
+	public Map<String, UpdateDetail> getUpdateDetails() {
+		return updateDetails;
+	}
 
-    public void setUpdateDetails(final Map<String, UpdateDetail> updateDetails) {
-        this.updateDetails = updateDetails;
-    }
+	public void setUpdateDetails(final Map<String, UpdateDetail> updateDetails) {
+		this.updateDetails = updateDetails;
+	}
 
-    public Map<String, String> getUpdateLog() {
-        return updateLog;
-    }
+	public Map<String, String> getUpdateLog() {
+		return updateLog;
+	}
 
-    public void setUpdateLog(final Map<String, String> updateLog) {
-        this.updateLog = updateLog;
-    }
+	public void setUpdateLog(final Map<String, String> updateLog) {
+		this.updateLog = updateLog;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public UpdateDetail getUpdateDetail(final String file) {
-        if(updateDetails != null && updateLog != null) {
-            return updateDetails.get(updateLog.get(StringUtils.removeStart(file, "/")));
-        } else {
-            return null;
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UpdateDetail getUpdateDetail(final String file) {
+		if (updateDetails != null && updateLog != null) {
+			return updateDetails.get(updateLog.get(StringUtils.removeStart(file, "/")));
+		} else {
+			return null;
+		}
+	}
 
 }

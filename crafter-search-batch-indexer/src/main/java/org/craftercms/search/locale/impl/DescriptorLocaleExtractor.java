@@ -34,31 +34,31 @@ import java.util.Locale;
  */
 public class DescriptorLocaleExtractor implements LocaleExtractor {
 
-    private static final Logger logger = LoggerFactory.getLogger(DescriptorLocaleExtractor.class);
+	private static final Logger logger = LoggerFactory.getLogger(DescriptorLocaleExtractor.class);
 
-    /**
-     * The content store service
-     */
-    protected ContentStoreService contentStoreService;
+	/**
+	 * The content store service
+	 */
+	protected ContentStoreService contentStoreService;
 
-    /**
-     * The XPath to extract the locale from the descriptor
-     */
-    protected String localeXPath;
+	/**
+	 * The XPath to extract the locale from the descriptor
+	 */
+	protected String localeXPath;
 
-    @ConstructorProperties({"contentStoreService", "localeXPath"})
-    public DescriptorLocaleExtractor(ContentStoreService contentStoreService, String localeXPath) {
-        this.contentStoreService = contentStoreService;
-        this.localeXPath = localeXPath;
-    }
+	@ConstructorProperties({"contentStoreService", "localeXPath"})
+	public DescriptorLocaleExtractor(ContentStoreService contentStoreService, String localeXPath) {
+		this.contentStoreService = contentStoreService;
+		this.localeXPath = localeXPath;
+	}
 
-    @Override
-    public Locale extract(Context context, String path) {
-        Item item = contentStoreService.getItem(context, path);
-        String localeValue = item.queryDescriptorValue(localeXPath);
-        Locale locale = LocaleUtils.parseLocale(localeValue);
-        logger.debug("Resolved locale {} for item {}", locale, path);
-        return locale;
-    }
+	@Override
+	public Locale extract(Context context, String path) {
+		Item item = contentStoreService.getItem(context, path);
+		String localeValue = item.queryDescriptorValue(localeXPath);
+		Locale locale = LocaleUtils.parseLocale(localeValue);
+		logger.debug("Resolved locale {} for item {}", locale, path);
+		return locale;
+	}
 
 }

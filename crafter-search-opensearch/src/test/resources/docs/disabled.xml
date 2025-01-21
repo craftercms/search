@@ -16,6 +16,6 @@
   -->
 
 <product>
-    <name_s>Disabled</name_s>
-    <disabled>true</disabled>
+		<name_s>Disabled</name_s>
+		<disabled>true</disabled>
 </product>

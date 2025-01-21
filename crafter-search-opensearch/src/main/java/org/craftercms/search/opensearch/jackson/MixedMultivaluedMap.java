@@ -30,31 +30,31 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class MixedMultivaluedMap extends HashMap<String, Object> {
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public Object put(final String key, Object value) {
+	@Override
+	@SuppressWarnings("unchecked")
+	public Object put(final String key, Object value) {
 
-        // This is needed because of the way Jackson parses XML elements with attributes.
-        if (value instanceof Map) {
-            Map map = (Map) value;
-            if (map.containsKey(StringUtils.EMPTY)) {
-                value = map.get(StringUtils.EMPTY);
-            }
-        }
+		// This is needed because of the way Jackson parses XML elements with attributes.
+		if (value instanceof Map) {
+			Map map = (Map) value;
+			if (map.containsKey(StringUtils.EMPTY)) {
+				value = map.get(StringUtils.EMPTY);
+			}
+		}
 
-        if (!containsKey(key)) {
-            return super.put(key, value);
-        }
-        Object currentValue = get(key);
-        if (currentValue instanceof List) {
-            List<Object> original = new LinkedList<>((List<Object>) currentValue);
-            ((List) currentValue).add(value);
-            return original;
-        }
-        List<Object> list = new LinkedList<>();
-        list.add(currentValue);
-        list.add(value);
-        return super.put(key, list);
-    }
+		if (!containsKey(key)) {
+			return super.put(key, value);
+		}
+		Object currentValue = get(key);
+		if (currentValue instanceof List) {
+			List<Object> original = new LinkedList<>((List<Object>) currentValue);
+			((List) currentValue).add(value);
+			return original;
+		}
+		List<Object> list = new LinkedList<>();
+		list.add(currentValue);
+		list.add(value);
+		return super.put(key, list);
+	}
 
 }

@@ -32,67 +32,68 @@ import org.craftercms.search.locale.LocaleExtractor;
 
 /**
  * Implementation of {@link AbstractXmlFileBatchIndexer} for OpenSearch
+ *
  * @author joseross
  */
 public class OpenSearchXmlFileBatchIndexer extends AbstractXmlFileBatchIndexer {
 
-    protected final OpenSearchAdminService searchAdminService;
+	protected final OpenSearchAdminService searchAdminService;
 
-    protected final LocaleExtractor localeExtractor;
+	protected final LocaleExtractor localeExtractor;
 
-    protected final boolean enableTranslation;
+	protected final boolean enableTranslation;
 
-    /**
-     * OpenSearch service
-     */
-    protected final OpenSearchService searchService;
+	/**
+	 * OpenSearch service
+	 */
+	protected final OpenSearchService searchService;
 
-    @ConstructorProperties({"searchAdminService", "localeExtractor", "searchService",
-            "enableTranslation"})
-    public OpenSearchXmlFileBatchIndexer(final OpenSearchAdminService searchAdminService,
-                                         final LocaleExtractor localeExtractor,
-                                         final OpenSearchService searchService,
-                                         final boolean enableTranslation) {
-        this.searchAdminService = searchAdminService;
-        this.localeExtractor = localeExtractor;
-        this.searchService = searchService;
-        this.enableTranslation = enableTranslation;
-    }
+	@ConstructorProperties({"searchAdminService", "localeExtractor", "searchService",
+		"enableTranslation"})
+	public OpenSearchXmlFileBatchIndexer(final OpenSearchAdminService searchAdminService,
+					     final LocaleExtractor localeExtractor,
+					     final OpenSearchService searchService,
+					     final boolean enableTranslation) {
+		this.searchAdminService = searchAdminService;
+		this.localeExtractor = localeExtractor;
+		this.searchService = searchService;
+		this.enableTranslation = enableTranslation;
+	}
 
-    @Override
-    protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService,
-                                      Context context, String path, boolean delete, UpdateDetail updateDetail,
-                                      UpdateStatus updateStatus, Map<String, Object> metadata) {
-        if (delete) {
-            doDelete(indexId, siteName, path, updateStatus);
-        } else {
-            String xml = processXml(siteName, contentStoreService, context, path);
+	@Override
+	protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService,
+					  Context context, String path, boolean delete, UpdateDetail updateDetail,
+					  UpdateStatus updateStatus, Map<String, Object> metadata) {
+		if (delete) {
+			doDelete(indexId, siteName, path, updateStatus);
+		} else {
+			String xml = processXml(siteName, contentStoreService, context, path);
 
-            if (enableTranslation) {
-                // get the locale for the item
-                Locale locale = localeExtractor.extract(context, path);
-                if (locale != null) {
-                    // check if locale specific index indexExists
-                    searchAdminService.createIndex(indexId, locale);
-                    // update the index name
-                    indexId += "-" + LocaleUtils.toString(locale);
-                }
-            }
-            doUpdate(indexId, siteName, path, xml, updateDetail, updateStatus, metadata);
-        }
-    }
+			if (enableTranslation) {
+				// get the locale for the item
+				Locale locale = localeExtractor.extract(context, path);
+				if (locale != null) {
+					// check if locale specific index indexExists
+					searchAdminService.createIndex(indexId, locale);
+					// update the index name
+					indexId += "-" + LocaleUtils.toString(locale);
+				}
+			}
+			doUpdate(indexId, siteName, path, xml, updateDetail, updateStatus, metadata);
+		}
+	}
 
-    @Override
-    protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
-        OpenSearchIndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
-    }
+	@Override
+	protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
+		OpenSearchIndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
+	}
 
-    @Override
-    protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
-                            final UpdateDetail updateDetail, final UpdateStatus updateStatus,
-                            Map<String, Object> metadata) {
-        OpenSearchIndexingUtils.doUpdate(searchService, indexId, siteName, path, xml, updateDetail,
-            updateStatus, metadata);
-    }
+	@Override
+	protected void doUpdate(final String indexId, final String siteName, final String path, final String xml,
+				final UpdateDetail updateDetail, final UpdateStatus updateStatus,
+				Map<String, Object> metadata) {
+		OpenSearchIndexingUtils.doUpdate(searchService, indexId, siteName, path, xml, updateDetail,
+			updateStatus, metadata);
+	}
 
 }

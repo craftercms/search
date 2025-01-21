@@ -28,14 +28,14 @@ import java.beans.ConstructorProperties;
  */
 public class TestOpenSearchWrapper extends AbstractOpenSearchWrapper {
 
-    @ConstructorProperties({"client"})
-    public TestOpenSearchWrapper(RestHighLevelClient client) {
-        super(client);
-    }
+	@ConstructorProperties({"client"})
+	public TestOpenSearchWrapper(RestHighLevelClient client) {
+		super(client);
+	}
 
-    @Override
-    protected void updateIndex(SearchRequest request) {
-        // do nothing...
-    }
+	@Override
+	protected void updateIndex(SearchRequest request) {
+		// do nothing...
+	}
 
 }

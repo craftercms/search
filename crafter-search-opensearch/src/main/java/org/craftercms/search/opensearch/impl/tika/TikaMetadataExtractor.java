@@ -31,72 +31,74 @@ import java.util.Map;
 
 /**
  * Implementation of {@link MetadataExtractor} that uses Apache Tika to parse binary files.
+ *
  * @author joseross
  */
 public class TikaMetadataExtractor implements MetadataExtractor<Metadata> {
 
-    private static final Logger logger = LoggerFactory.getLogger(TikaMetadataExtractor.class);
+	private static final Logger logger = LoggerFactory.getLogger(TikaMetadataExtractor.class);
 
-    /**
-     * The list of mime types that can be handled by this extractor
-     */
-    protected String[] supportedMimeTypes;
+	/**
+	 * The list of mime types that can be handled by this extractor
+	 */
+	protected String[] supportedMimeTypes;
 
-    /**
-     * The mapping of Apache Tika properties to extract
-     */
-    protected final Map<String, Object> mapping;
+	/**
+	 * The mapping of Apache Tika properties to extract
+	 */
+	protected final Map<String, Object> mapping;
 
-    public void setSupportedMimeTypes(final String[] supportedMimeTypes) {
-        this.supportedMimeTypes = supportedMimeTypes;
-    }
+	public void setSupportedMimeTypes(final String[] supportedMimeTypes) {
+		this.supportedMimeTypes = supportedMimeTypes;
+	}
 
-    public TikaMetadataExtractor(final Map<String, Object> mapping) {
-        this.mapping = mapping;
-    }
+	public TikaMetadataExtractor(final Map<String, Object> mapping) {
+		this.mapping = mapping;
+	}
 
-    /**
-     * Indicates if the given metadata can be handled by this extractor
-     * @param metadata the metadata to check
-     * @return true if the metadata is supported
-     */
-    protected boolean isSupported(final Metadata metadata) {
-        String contentType = metadata.get(HttpHeaders.CONTENT_TYPE);
-        if (StringUtils.isEmpty(contentType) || ArrayUtils.isEmpty(supportedMimeTypes)) {
-            return true;
-        }
-        MimeType mimeType = MimeType.valueOf(contentType);
-        for (String supportedMimeType : supportedMimeTypes) {
-            if (mimeType.isCompatibleWith(MimeType.valueOf(supportedMimeType))) {
-                return true;
-            }
-        }
-        logger.debug("Type {} is not compatible with any type of {}", contentType, supportedMimeTypes);
-        return false;
-    }
+	/**
+	 * Indicates if the given metadata can be handled by this extractor
+	 *
+	 * @param metadata the metadata to check
+	 * @return true if the metadata is supported
+	 */
+	protected boolean isSupported(final Metadata metadata) {
+		String contentType = metadata.get(HttpHeaders.CONTENT_TYPE);
+		if (StringUtils.isEmpty(contentType) || ArrayUtils.isEmpty(supportedMimeTypes)) {
+			return true;
+		}
+		MimeType mimeType = MimeType.valueOf(contentType);
+		for (String supportedMimeType : supportedMimeTypes) {
+			if (mimeType.isCompatibleWith(MimeType.valueOf(supportedMimeType))) {
+				return true;
+			}
+		}
+		logger.debug("Type {} is not compatible with any type of {}", contentType, supportedMimeTypes);
+		return false;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void extract(final Resource resource, final Metadata metadata, final Map<String, Object> properties) {
-        if (!isSupported(metadata)) {
-            return;
-        }
-        logger.debug("Extracting metadata");
-        mapping.forEach((property, key) -> {
-            String value;
-            if (key instanceof String) {
-                value = metadata.get((String) key);
-            } else if (key instanceof Property) {
-                value = metadata.get((Property) key);
-            } else {
-                throw new IllegalArgumentException("Invalid metadata key " + key);
-            }
-            if (!properties.containsKey(property) && StringUtils.isNotEmpty(value)) {
-                properties.put(property, value);
-            }
-        });
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void extract(final Resource resource, final Metadata metadata, final Map<String, Object> properties) {
+		if (!isSupported(metadata)) {
+			return;
+		}
+		logger.debug("Extracting metadata");
+		mapping.forEach((property, key) -> {
+			String value;
+			if (key instanceof String) {
+				value = metadata.get((String) key);
+			} else if (key instanceof Property) {
+				value = metadata.get((Property) key);
+			} else {
+				throw new IllegalArgumentException("Invalid metadata key " + key);
+			}
+			if (!properties.containsKey(property) && StringUtils.isNotEmpty(value)) {
+				properties.put(property, value);
+			}
+		});
+	}
 
 }

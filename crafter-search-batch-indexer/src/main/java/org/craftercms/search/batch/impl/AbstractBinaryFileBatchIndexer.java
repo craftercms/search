@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
 import jakarta.activation.FileTypeMap;
+
 import java.util.List;
 import java.util.Map;
 
@@ -41,48 +42,48 @@ import static org.craftercms.search.batch.utils.IndexingUtils.isMimeTypeSupporte
  */
 public abstract class AbstractBinaryFileBatchIndexer extends AbstractBatchIndexer {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractBinaryFileBatchIndexer.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractBinaryFileBatchIndexer.class);
 
-    protected List<String> supportedMimeTypes;
-    protected FileTypeMap mimeTypesMap;
+	protected List<String> supportedMimeTypes;
+	protected FileTypeMap mimeTypesMap;
 
-    public AbstractBinaryFileBatchIndexer() {
-        mimeTypesMap = new ConfigurableMimeFileTypeMap();
-    }
+	public AbstractBinaryFileBatchIndexer() {
+		mimeTypesMap = new ConfigurableMimeFileTypeMap();
+	}
 
-    public void setSupportedMimeTypes(List<String> supportedMimeTypes) {
-        this.supportedMimeTypes = supportedMimeTypes;
-    }
+	public void setSupportedMimeTypes(List<String> supportedMimeTypes) {
+		this.supportedMimeTypes = supportedMimeTypes;
+	}
 
-    @Override
-    protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService,
-                                      Context context, String path, boolean delete, UpdateDetail updateDetail,
-                                      UpdateStatus updateStatus, Map<String, Object> metadata) {
-        if (delete) {
-            doDelete(indexId, siteName, path, updateStatus);
-        } else {
-            Content binaryContent = contentStoreService.findContent(context, path);
-            if (binaryContent != null && binaryContent.getLength() > 0) {
-                doUpdateContent(indexId, siteName, path, binaryContent, updateDetail, updateStatus, metadata);
-            } else {
-                logger.debug("No binary file found at '{}':'{}'. Skipping update", siteName, path);
-            }
-        }
-    }
+	@Override
+	protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService,
+					  Context context, String path, boolean delete, UpdateDetail updateDetail,
+					  UpdateStatus updateStatus, Map<String, Object> metadata) {
+		if (delete) {
+			doDelete(indexId, siteName, path, updateStatus);
+		} else {
+			Content binaryContent = contentStoreService.findContent(context, path);
+			if (binaryContent != null && binaryContent.getLength() > 0) {
+				doUpdateContent(indexId, siteName, path, binaryContent, updateDetail, updateStatus, metadata);
+			} else {
+				logger.debug("No binary file found at '{}':'{}'. Skipping update", siteName, path);
+			}
+		}
+	}
 
-    protected abstract void doDelete(String indexId, String siteName, String path, UpdateStatus updateStatus);
+	protected abstract void doDelete(String indexId, String siteName, String path, UpdateStatus updateStatus);
 
-    protected abstract void doUpdateContent(String indexId, String siteName, String path, Content binaryContent,
-                                            UpdateDetail updateDetail, UpdateStatus updateStatus,
-                                            Map<String, Object> metadata);
+	protected abstract void doUpdateContent(String indexId, String siteName, String path, Content binaryContent,
+						UpdateDetail updateDetail, UpdateStatus updateStatus,
+						Map<String, Object> metadata);
 
-    @Override
-    protected boolean include(String path) {
-        if (super.include(path)) {
-            return isMimeTypeSupported(mimeTypesMap, supportedMimeTypes, path);
-        }
+	@Override
+	protected boolean include(String path) {
+		if (super.include(path)) {
+			return isMimeTypeSupported(mimeTypesMap, supportedMimeTypes, path);
+		}
 
-        return false;
-    }
+		return false;
+	}
 
 }

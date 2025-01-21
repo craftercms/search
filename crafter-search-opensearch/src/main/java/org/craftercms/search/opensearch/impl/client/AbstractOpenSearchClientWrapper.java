@@ -48,269 +48,271 @@ import static org.apache.commons.collections4.MapUtils.isNotEmpty;
 
 /**
  * Base implementation of {@link OpenSearchClientWrapper}
+ *
  * @author joseross
  * @since 4.0.0
  */
 public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClientWrapper {
 
-    /**
-     * Error returned by OpenSearch when the number of nested clauses exceeds the limit
-     */
-    protected static final String TOO_MANY_NESTED_CLAUSES_ERROR = "too_many_nested_clauses";
+	/**
+	 * Error returned by OpenSearch when the number of nested clauses exceeds the limit
+	 */
+	protected static final String TOO_MANY_NESTED_CLAUSES_ERROR = "too_many_nested_clauses";
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public static final String PARAM_NAME_INDEX = "index";
-    public static final String PARAM_NAME_SEARCH_TYPE = "search_type";
+	public static final String PARAM_NAME_INDEX = "index";
+	public static final String PARAM_NAME_SEARCH_TYPE = "search_type";
 
-    /**
-     * The OpenSearch client
-     */
-    protected final OpenSearchClient client;
+	/**
+	 * The OpenSearch client
+	 */
+	protected final OpenSearchClient client;
 
-    /**
-     * The filter queries to apply to all searches
-     */
-    protected String[] filterQueries;
+	/**
+	 * The filter queries to apply to all searches
+	 */
+	protected String[] filterQueries;
 
-    public AbstractOpenSearchClientWrapper(OpenSearchClient client) {
-        this.client = client;
-    }
+	public AbstractOpenSearchClientWrapper(OpenSearchClient client) {
+		this.client = client;
+	}
 
-    public void setFilterQueries(final String[] filterQueries) {
-        this.filterQueries = filterQueries;
-    }
+	public void setFilterQueries(final String[] filterQueries) {
+		this.filterQueries = filterQueries;
+	}
 
-    @Override
-    public <T> SearchResponse<T> search(SearchRequest request, Class<T> docClass, Map<String, Object> parameters)
-            throws IOException, OpenSearchException {
-        try {
-            return client.search(new SearchRequestWrapper(request, parameters).build(), docClass);
-        } catch (ResponseException e) {
-            String errorType = getErrorRootCauseType(e);
-            if (TOO_MANY_NESTED_CLAUSES_ERROR.equalsIgnoreCase(errorType)) {
-                throw new TooManyNestedClausesSearchException(null, e.getMessage(), e);
-            }
-            throw e;
-        }
-    }
+	@Override
+	public <T> SearchResponse<T> search(SearchRequest request, Class<T> docClass, Map<String, Object> parameters)
+		throws IOException, OpenSearchException {
+		try {
+			return client.search(new SearchRequestWrapper(request, parameters).build(), docClass);
+		} catch (ResponseException e) {
+			String errorType = getErrorRootCauseType(e);
+			if (TOO_MANY_NESTED_CLAUSES_ERROR.equalsIgnoreCase(errorType)) {
+				throw new TooManyNestedClausesSearchException(null, e.getMessage(), e);
+			}
+			throw e;
+		}
+	}
 
-    /**
-     * Get the error type from an error response
-     *
-     * @param e the response exception
-     * @return the error type, or null if couldn't be determined
-     * @throws IOException if there is an error reading the response
-     */
-    protected String getErrorRootCauseType(ResponseException e) throws IOException {
-        if (e == null) {
-            return null;
-        }
-        JsonpMapper mapper = client._transport().jsonpMapper();
-        JsonParser parser = mapper.jsonProvider().createParser(e.getResponse().getEntity().getContent());
-        ErrorResponse errorResponse = ErrorResponse._DESERIALIZER.deserialize(parser, mapper);
-        List<ErrorCause> errorCauses = errorResponse.error().rootCause();
-        if (CollectionUtils.isNotEmpty(errorCauses)) {
-            return errorCauses.get(0).type();
-        }
-        return null;
-    }
+	/**
+	 * Get the error type from an error response
+	 *
+	 * @param e the response exception
+	 * @return the error type, or null if couldn't be determined
+	 * @throws IOException if there is an error reading the response
+	 */
+	protected String getErrorRootCauseType(ResponseException e) throws IOException {
+		if (e == null) {
+			return null;
+		}
+		JsonpMapper mapper = client._transport().jsonpMapper();
+		JsonParser parser = mapper.jsonProvider().createParser(e.getResponse().getEntity().getContent());
+		ErrorResponse errorResponse = ErrorResponse._DESERIALIZER.deserialize(parser, mapper);
+		List<ErrorCause> errorCauses = errorResponse.error().rootCause();
+		if (CollectionUtils.isNotEmpty(errorCauses)) {
+			return errorCauses.get(0).type();
+		}
+		return null;
+	}
 
-    //TODO: Figure out the right order
-    protected RequestUpdates getRequestUpdates(SearchRequest request, Map<String, Object> parameters) {
-        RequestUpdates updates = new RequestUpdates();
-        updateIndicesOptions(request, parameters, updates);
-        updateQuery(request, parameters, updates);
-        updateIndex(request, parameters, updates);
-        updateSearchType(request, parameters, updates);
-        return updates;
-    }
+	//TODO: Figure out the right order
+	protected RequestUpdates getRequestUpdates(SearchRequest request, Map<String, Object> parameters) {
+		RequestUpdates updates = new RequestUpdates();
+		updateIndicesOptions(request, parameters, updates);
+		updateQuery(request, parameters, updates);
+		updateIndex(request, parameters, updates);
+		updateSearchType(request, parameters, updates);
+		return updates;
+	}
 
-    protected void updateIndex(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
-        if (isNotEmpty(parameters) && parameters.containsKey(PARAM_NAME_INDEX)) {
-            updates.index = Stream.of(parameters.get(PARAM_NAME_INDEX).toString().split(","))
-                                .collect(toList());
-        }
-    }
+	protected void updateIndex(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
+		if (isNotEmpty(parameters) && parameters.containsKey(PARAM_NAME_INDEX)) {
+			updates.index = Stream.of(parameters.get(PARAM_NAME_INDEX).toString().split(","))
+				.collect(toList());
+		}
+	}
 
-    protected void updateSearchType(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
-        if (isNotEmpty(parameters) && parameters.containsKey(PARAM_NAME_SEARCH_TYPE)) {
-            updates.searchType = SearchType._DESERIALIZER.parse(parameters.get(PARAM_NAME_SEARCH_TYPE).toString());
-        }
-    }
+	protected void updateSearchType(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
+		if (isNotEmpty(parameters) && parameters.containsKey(PARAM_NAME_SEARCH_TYPE)) {
+			updates.searchType = SearchType._DESERIALIZER.parse(parameters.get(PARAM_NAME_SEARCH_TYPE).toString());
+		}
+	}
 
-    protected void updateIndicesOptions(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
-        if (isNotEmpty(parameters) && parameters.containsKey("ignore_unavailable")) {
-            updates.ignoreUnavailable = Boolean.parseBoolean(parameters.get("ignore_unavailable").toString());
-        }
-    }
+	protected void updateIndicesOptions(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
+		if (isNotEmpty(parameters) && parameters.containsKey("ignore_unavailable")) {
+			updates.ignoreUnavailable = Boolean.parseBoolean(parameters.get("ignore_unavailable").toString());
+		}
+	}
 
-    protected void copyQuery(BoolQuery originalQuery, BoolQuery.Builder builder) {
-        builder
-            .must(originalQuery.must())
-            .should(originalQuery.should())
-            .filter(originalQuery.filter())
-            .mustNot(originalQuery.mustNot())
-            .minimumShouldMatch(originalQuery.minimumShouldMatch());
-    }
+	protected void copyQuery(BoolQuery originalQuery, BoolQuery.Builder builder) {
+		builder
+			.must(originalQuery.must())
+			.should(originalQuery.should())
+			.filter(originalQuery.filter())
+			.mustNot(originalQuery.mustNot())
+			.minimumShouldMatch(originalQuery.minimumShouldMatch());
+	}
 
-    /**
-     * Updates the filter queries for the given request
-     * @param request the request to update
-     * @param updates the request updates
-     */
-    protected void updateQuery(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
-        if(ArrayUtils.isEmpty(filterQueries)) {
-            logger.debug("No additional filter queries configured");
-            return;
-        }
+	/**
+	 * Updates the filter queries for the given request
+	 *
+	 * @param request the request to update
+	 * @param updates the request updates
+	 */
+	protected void updateQuery(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
+		if (ArrayUtils.isEmpty(filterQueries)) {
+			logger.debug("No additional filter queries configured");
+			return;
+		}
 
-        Query originalQuery = request.query();
-        BoolQuery.Builder builder = new BoolQuery.Builder();
-        if (originalQuery != null) {
-            if (originalQuery.isBool()) {
-                // copy the original query
-                copyQuery(originalQuery.bool(), builder);
-            } else {
-                // wrap the original query
-                builder.must(originalQuery);
-            }
-        }
+		Query originalQuery = request.query();
+		BoolQuery.Builder builder = new BoolQuery.Builder();
+		if (originalQuery != null) {
+			if (originalQuery.isBool()) {
+				// copy the original query
+				copyQuery(originalQuery.bool(), builder);
+			} else {
+				// wrap the original query
+				builder.must(originalQuery);
+			}
+		}
 
-        for(String filterQuery : filterQueries) {
-            logger.debug("Adding filter query: {}", filterQuery);
-            builder.filter(f -> f
-                .queryString(q -> q
-                    .query(filterQuery)
-                )
-            );
-        }
+		for (String filterQuery : filterQueries) {
+			logger.debug("Adding filter query: {}", filterQuery);
+			builder.filter(f -> f
+				.queryString(q -> q
+					.query(filterQuery)
+				)
+			);
+		}
 
-        updates.query = Query.of(q -> q
-            .bool(builder.build())
-        );
-    }
+		updates.query = Query.of(q -> q
+			.bool(builder.build())
+		);
+	}
 
-    public static class RequestUpdates {
+	public static class RequestUpdates {
 
-        protected List<String> index;
+		protected List<String> index;
 
-        protected List<Map<String, Double>> indicesBoost;
+		protected List<Map<String, Double>> indicesBoost;
 
-        protected Query query;
+		protected Query query;
 
-        protected SearchType searchType;
+		protected SearchType searchType;
 
-        protected Boolean ignoreUnavailable;
+		protected Boolean ignoreUnavailable;
 
-        public List<String> getIndex() {
-            return index;
-        }
+		public List<String> getIndex() {
+			return index;
+		}
 
-        public void setIndex(List<String> index) {
-            this.index = index;
-        }
+		public void setIndex(List<String> index) {
+			this.index = index;
+		}
 
-        public List<Map<String, Double>> getIndicesBoost() {
-            return indicesBoost;
-        }
+		public List<Map<String, Double>> getIndicesBoost() {
+			return indicesBoost;
+		}
 
-        public void setIndicesBoost(List<Map<String, Double>> indicesBoost) {
-            this.indicesBoost = indicesBoost;
-        }
+		public void setIndicesBoost(List<Map<String, Double>> indicesBoost) {
+			this.indicesBoost = indicesBoost;
+		}
 
-        public Query getQuery() {
-            return query;
-        }
+		public Query getQuery() {
+			return query;
+		}
 
-        public void setQuery(Query query) {
-            this.query = query;
-        }
+		public void setQuery(Query query) {
+			this.query = query;
+		}
 
-        public void setQuery(Function<Query.Builder, ObjectBuilder<Query>> fn) {
-            this.query = fn.apply(new Query.Builder()).build();
-        }
+		public void setQuery(Function<Query.Builder, ObjectBuilder<Query>> fn) {
+			this.query = fn.apply(new Query.Builder()).build();
+		}
 
-        public SearchType getSearchType() {
-            return searchType;
-        }
+		public SearchType getSearchType() {
+			return searchType;
+		}
 
-        public void setSearchType(SearchType searchType) {
-            this.searchType = searchType;
-        }
+		public void setSearchType(SearchType searchType) {
+			this.searchType = searchType;
+		}
 
-        public Boolean isIgnoreUnavailable() {
-            return ignoreUnavailable;
-        }
+		public Boolean isIgnoreUnavailable() {
+			return ignoreUnavailable;
+		}
 
-        public void setIgnoreUnavailable(Boolean ignoreUnavailable) {
-            this.ignoreUnavailable = ignoreUnavailable;
-        }
+		public void setIgnoreUnavailable(Boolean ignoreUnavailable) {
+			this.ignoreUnavailable = ignoreUnavailable;
+		}
 
-    }
+	}
 
-    public class SearchRequestWrapper extends SearchRequest.Builder {
+	public class SearchRequestWrapper extends SearchRequest.Builder {
 
-        public SearchRequestWrapper(SearchRequest request, Map<String, Object> parameters) {
-            // make a copy of the original request
-            source(request.source());
-            aggregations(request.aggregations());
-            allowNoIndices(request.allowNoIndices());
-            allowPartialSearchResults(request.allowPartialSearchResults());
-            analyzeWildcard(request.analyzeWildcard());
-            analyzer(request.analyzer());
-            batchedReduceSize(request.batchedReduceSize());
-            ccsMinimizeRoundtrips(request.ccsMinimizeRoundtrips());
-            collapse(request.collapse());
-            defaultOperator(request.defaultOperator());
-            df(request.df());
-            docvalueFields(request.docvalueFields());
-            expandWildcards(request.expandWildcards());
-            explain(request.explain());
-            fields(request.fields());
-            from(request.from());
-            highlight(request.highlight());
-            ignoreThrottled(request.ignoreThrottled());
-            lenient(request.lenient());
-            maxConcurrentShardRequests(request.maxConcurrentShardRequests());
-            minCompatibleShardNode(request.minCompatibleShardNode());
-            minScore(request.minScore());
-            postFilter(request.postFilter());
-            preFilterShardSize(request.preFilterShardSize());
-            preference(request.preference());
-            profile(request.profile());
-            q(request.q());
-            requestCache(request.requestCache());
-            rescore(request.rescore());
-            routing(request.routing());
-            runtimeMappings(request.runtimeMappings());
-            scriptFields(request.scriptFields());
-            scroll(request.scroll());
-            if (CollectionUtils.isNotEmpty(request.searchAfter())) {
-                searchAfter(request.searchAfter());
-            }
-            seqNoPrimaryTerm(request.seqNoPrimaryTerm());
-            size(request.size());
-            slice(request.slice());
-            sort(request.sort());
-            stats(request.stats());
-            storedFields(request.storedFields());
-            suggest(request.suggest());
-            terminateAfter(request.terminateAfter());
-            timeout(request.timeout());
-            trackScores(request.trackScores());
-            trackTotalHits(request.trackTotalHits());
-            version(request.version());
+		public SearchRequestWrapper(SearchRequest request, Map<String, Object> parameters) {
+			// make a copy of the original request
+			source(request.source());
+			aggregations(request.aggregations());
+			allowNoIndices(request.allowNoIndices());
+			allowPartialSearchResults(request.allowPartialSearchResults());
+			analyzeWildcard(request.analyzeWildcard());
+			analyzer(request.analyzer());
+			batchedReduceSize(request.batchedReduceSize());
+			ccsMinimizeRoundtrips(request.ccsMinimizeRoundtrips());
+			collapse(request.collapse());
+			defaultOperator(request.defaultOperator());
+			df(request.df());
+			docvalueFields(request.docvalueFields());
+			expandWildcards(request.expandWildcards());
+			explain(request.explain());
+			fields(request.fields());
+			from(request.from());
+			highlight(request.highlight());
+			ignoreThrottled(request.ignoreThrottled());
+			lenient(request.lenient());
+			maxConcurrentShardRequests(request.maxConcurrentShardRequests());
+			minCompatibleShardNode(request.minCompatibleShardNode());
+			minScore(request.minScore());
+			postFilter(request.postFilter());
+			preFilterShardSize(request.preFilterShardSize());
+			preference(request.preference());
+			profile(request.profile());
+			q(request.q());
+			requestCache(request.requestCache());
+			rescore(request.rescore());
+			routing(request.routing());
+			runtimeMappings(request.runtimeMappings());
+			scriptFields(request.scriptFields());
+			scroll(request.scroll());
+			if (CollectionUtils.isNotEmpty(request.searchAfter())) {
+				searchAfter(request.searchAfter());
+			}
+			seqNoPrimaryTerm(request.seqNoPrimaryTerm());
+			size(request.size());
+			slice(request.slice());
+			sort(request.sort());
+			stats(request.stats());
+			storedFields(request.storedFields());
+			suggest(request.suggest());
+			terminateAfter(request.terminateAfter());
+			timeout(request.timeout());
+			trackScores(request.trackScores());
+			trackTotalHits(request.trackTotalHits());
+			version(request.version());
 
-            // override values
-            RequestUpdates updates = getRequestUpdates(request, parameters);
-            ignoreUnavailable(Optional.ofNullable(updates.ignoreUnavailable).orElse(request.ignoreUnavailable()));
-            index(Optional.ofNullable(updates.index).orElse(request.index()));
-            indicesBoost(Optional.ofNullable(updates.indicesBoost).orElse(request.indicesBoost()));
-            query(Optional.ofNullable(updates.query).orElse(request.query()));
-            searchType(Optional.ofNullable(updates.searchType).orElse(request.searchType()));
-        }
+			// override values
+			RequestUpdates updates = getRequestUpdates(request, parameters);
+			ignoreUnavailable(Optional.ofNullable(updates.ignoreUnavailable).orElse(request.ignoreUnavailable()));
+			index(Optional.ofNullable(updates.index).orElse(request.index()));
+			indicesBoost(Optional.ofNullable(updates.indicesBoost).orElse(request.indicesBoost()));
+			query(Optional.ofNullable(updates.query).orElse(request.query()));
+			searchType(Optional.ofNullable(updates.searchType).orElse(request.searchType()));
+		}
 
-    }
+	}
 
 }

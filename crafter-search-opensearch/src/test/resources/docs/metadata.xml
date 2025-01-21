@@ -16,15 +16,15 @@
   -->
 
 <metadata>
-    <copyright>
-        <company>CrafterCMS</company>
-        <text>All rights reserved</text>
-        <year>2017</year>
-        <ignore>Test</ignore>
-    </copyright>
-    <files>
-        <file>crafter-wp-7-reasons.pdf</file>
-        <file>crafter-wp-wem-v2.pdf</file>
-        <file>notes.txt</file>
-    </files>
+		<copyright>
+				<company>CrafterCMS</company>
+				<text>All rights reserved</text>
+				<year>2017</year>
+				<ignore>Test</ignore>
+		</copyright>
+		<files>
+				<file>crafter-wp-7-reasons.pdf</file>
+				<file>crafter-wp-wem-v2.pdf</file>
+				<file>notes.txt</file>
+		</files>
 </metadata>

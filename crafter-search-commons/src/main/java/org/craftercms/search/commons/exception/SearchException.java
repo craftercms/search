@@ -24,30 +24,30 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class SearchException extends RuntimeException {
 
-    protected String indexId;
+	protected String indexId;
 
-    public SearchException(String msg) {
-        super(msg);
-    }
+	public SearchException(String msg) {
+		super(msg);
+	}
 
-    public SearchException(String msg, Throwable cause) {
-        super(msg, cause);
-    }
+	public SearchException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
 
-    public SearchException(String indexId, String msg) {
-        super(StringUtils.isNotEmpty(indexId)? "[" + indexId + "] " + msg : msg);
+	public SearchException(String indexId, String msg) {
+		super(StringUtils.isNotEmpty(indexId) ? "[" + indexId + "] " + msg : msg);
 
-        this.indexId = indexId;
-    }
+		this.indexId = indexId;
+	}
 
-    public SearchException(String indexId, String msg, Throwable throwable) {
-        super(StringUtils.isNotEmpty(indexId)? "[" + indexId + "] " + msg : msg, throwable);
+	public SearchException(String indexId, String msg, Throwable throwable) {
+		super(StringUtils.isNotEmpty(indexId) ? "[" + indexId + "] " + msg : msg, throwable);
 
-        this.indexId = indexId;
-    }
+		this.indexId = indexId;
+	}
 
-    public String getIndexId() {
-        return indexId;
-    }
+	public String getIndexId() {
+		return indexId;
+	}
 
 }

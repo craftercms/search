@@ -33,6 +33,7 @@ import org.springframework.core.io.Resource;
 
 import jakarta.activation.FileTypeMap;
 import jakarta.activation.MimetypesFileTypeMap;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -43,106 +44,107 @@ import static org.craftercms.search.commons.utils.MapUtils.mergeMaps;
 
 /**
  * Implementation of {@link DocumentParser} that uses Apache Tika
+ *
  * @author joseross
  */
 public class TikaDocumentParser extends AbstractDocumentParser {
 
-    private static final Logger logger = LoggerFactory.getLogger(TikaDocumentParser.class);
+	private static final Logger logger = LoggerFactory.getLogger(TikaDocumentParser.class);
 
-    /**
-     * The maximum number of characters to parse from the document.
-     * Defaults to 0 to parse only metadata.
-     */
-    protected int charLimit = 0;
+	/**
+	 * The maximum number of characters to parse from the document.
+	 * Defaults to 0 to parse only metadata.
+	 */
+	protected int charLimit = 0;
 
-    /**
-     * Jackson {@link ObjectMapper} instance
-     */
-    protected ObjectMapper objectMapper = new XmlMapper();
+	/**
+	 * Jackson {@link ObjectMapper} instance
+	 */
+	protected ObjectMapper objectMapper = new XmlMapper();
 
-    /**
-     * List of metadata extractors to apply after parsing documents
-     */
-    protected final List<MetadataExtractor<Metadata>> metadataExtractors;
+	/**
+	 * List of metadata extractors to apply after parsing documents
+	 */
+	protected final List<MetadataExtractor<Metadata>> metadataExtractors;
 
-    /**
-     * Apache {@link Tika} instance
-     */
-    protected Tika tika = new Tika();
+	/**
+	 * Apache {@link Tika} instance
+	 */
+	protected Tika tika = new Tika();
 
-    protected final FileTypeMap fileTypeMap = new MimetypesFileTypeMap();
+	protected final FileTypeMap fileTypeMap = new MimetypesFileTypeMap();
 
 
+	public void setCharLimit(final int charLimit) {
+		this.charLimit = charLimit;
+	}
 
-    public void setCharLimit(final int charLimit) {
-        this.charLimit = charLimit;
-    }
+	public void setObjectMapper(final ObjectMapper objectMapper) {
+		this.objectMapper = objectMapper;
+	}
 
-    public void setObjectMapper(final ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+	public TikaDocumentParser(final List<MetadataExtractor<Metadata>> metadataExtractors) {
+		this.metadataExtractors = metadataExtractors;
+	}
 
-    public TikaDocumentParser(final List<MetadataExtractor<Metadata>> metadataExtractors) {
-        this.metadataExtractors = metadataExtractors;
-    }
+	public void setTika(final Tika tika) {
+		this.tika = tika;
+	}
 
-    public void setTika(final Tika tika) {
-        this.tika = tika;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String parseToXml(final String filename, final Resource resource,
+				 final Map<String, Object> additionalFields) {
+		Metadata metadata = new Metadata();
+		try {
+			// Tika will close the stream, so it can't be used for anything after this, can't use auto close ...
+			InputStream in = resource.getInputStream();
+			String parsedContent = tika.parseToString(in, metadata, charLimit);
+			return extractMetadata(filename, resource, parsedContent, metadata, additionalFields);
+		} catch (IOException | TikaException e) {
+			logger.error("Error parsing file", e);
+			throw new SearchException("Error parsing file", e);
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String parseToXml(final String filename, final Resource resource,
-                             final Map<String, Object> additionalFields) {
-        Metadata metadata = new Metadata();
-        try {
-            // Tika will close the stream, so it can't be used for anything after this, can't use auto close ...
-            InputStream in = resource.getInputStream();
-            String parsedContent = tika.parseToString(in, metadata, charLimit);
-            return extractMetadata(filename, resource, parsedContent, metadata, additionalFields);
-        } catch (IOException | TikaException e) {
-            logger.error("Error parsing file", e);
-            throw new SearchException("Error parsing file", e);
-        }
-    }
+	/**
+	 * Prepares the document to be indexed
+	 *
+	 * @param resource         the content of the parsed file
+	 * @param metadata         the metadata of the parsed file
+	 * @param additionalFields additional fields to be added
+	 * @return the XML ready to be indexed
+	 */
+	protected String extractMetadata(String filename, Resource resource, String parsedContent, Metadata metadata,
+					 Map<String, Object> additionalFields) {
+		Map<String, Object> map = new HashMap<>();
 
-    /**
-     * Prepares the document to be indexed
-     * @param resource the content of the parsed file
-     * @param metadata the metadata of the parsed file
-     * @param additionalFields additional fields to be added
-     * @return the XML ready to be indexed
-     */
-    protected String extractMetadata(String filename, Resource resource, String parsedContent, Metadata metadata,
-                                     Map<String, Object> additionalFields) {
-        Map<String, Object> map = new HashMap<>();
+		if (StringUtils.isNotEmpty(parsedContent)) {
+			map.put(fieldNameContent, parsedContent);
+		}
 
-        if (StringUtils.isNotEmpty(parsedContent)) {
-            map.put(fieldNameContent, parsedContent);
-        }
+		String type = fileTypeMap.getContentType(filename);
+		if (!"application/octet-stream".equals(type)) {
+			map.put("contentType", type);
+		}
 
-        String type = fileTypeMap.getContentType(filename);
-        if (!"application/octet-stream".equals(type)) {
-            map.put("contentType", type);
-        }
+		try {
+			map.put("contentLength", resource.contentLength());
+		} catch (IOException e) {
+			logger.warn("Could not find file size for {}", resource);
+		}
+		metadataExtractors.forEach(extractor -> extractor.extract(resource, metadata, map));
 
-        try {
-            map.put("contentLength", resource.contentLength());
-        } catch (IOException e) {
-            logger.warn("Could not find file size for {}", resource);
-        }
-        metadataExtractors.forEach(extractor -> extractor.extract(resource, metadata, map));
+		Map<String, Object> mergedMap = mergeMaps(map, additionalFields);
 
-        Map<String, Object> mergedMap = mergeMaps(map, additionalFields);
-
-        try {
-            return objectMapper.writeValueAsString(mergedMap);
-        } catch (JsonProcessingException e) {
-            logger.error("Error writing parsed document as XML");
-            throw new SearchException("Error writing parsed document as XML", e);
-        }
-    }
+		try {
+			return objectMapper.writeValueAsString(mergedMap);
+		} catch (JsonProcessingException e) {
+			logger.error("Error writing parsed document as XML");
+			throw new SearchException("Error writing parsed document as XML", e);
+		}
+	}
 
 }

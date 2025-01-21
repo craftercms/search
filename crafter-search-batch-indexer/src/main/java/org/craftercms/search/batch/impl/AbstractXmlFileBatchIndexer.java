@@ -46,93 +46,93 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractXmlFileBatchIndexer extends AbstractBatchIndexer {
 
-    public static final List<String> DEFAULT_INCLUDE_FILENAME_PATTERNS = Collections.singletonList("^.*\\.xml$");
+	public static final List<String> DEFAULT_INCLUDE_FILENAME_PATTERNS = Collections.singletonList("^.*\\.xml$");
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected ItemProcessor itemProcessor;
+	protected ItemProcessor itemProcessor;
 
-    public AbstractXmlFileBatchIndexer() {
-        includePathPatterns = DEFAULT_INCLUDE_FILENAME_PATTERNS;
-    }
+	public AbstractXmlFileBatchIndexer() {
+		includePathPatterns = DEFAULT_INCLUDE_FILENAME_PATTERNS;
+	}
 
-    public void setItemProcessor(ItemProcessor itemProcessor) {
-        this.itemProcessor = itemProcessor;
-    }
+	public void setItemProcessor(ItemProcessor itemProcessor) {
+		this.itemProcessor = itemProcessor;
+	}
 
-    public void setItemProcessors(List<ItemProcessor> itemProcessors) {
-        this.itemProcessor = new ItemProcessorPipeline(itemProcessors);
-    }
+	public void setItemProcessors(List<ItemProcessor> itemProcessors) {
+		this.itemProcessor = new ItemProcessorPipeline(itemProcessors);
+	}
 
-    @Override
-    protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService,
-                                      Context context, String path, boolean delete,
-                                      UpdateDetail updateDetail, UpdateStatus updateStatus,
-                                      Map<String, Object> metadata) {
-        if (delete) {
-            doDelete(indexId, siteName, path, updateStatus);
-        } else {
-            String xml = processXml(siteName, contentStoreService, context, path);
+	@Override
+	protected void doSingleFileUpdate(String indexId, String siteName, ContentStoreService contentStoreService,
+					  Context context, String path, boolean delete,
+					  UpdateDetail updateDetail, UpdateStatus updateStatus,
+					  Map<String, Object> metadata) {
+		if (delete) {
+			doDelete(indexId, siteName, path, updateStatus);
+		} else {
+			String xml = processXml(siteName, contentStoreService, context, path);
 
-            doUpdate(indexId, siteName, path, xml, updateDetail, updateStatus, metadata);
-        }
-    }
+			doUpdate(indexId, siteName, path, xml, updateDetail, updateStatus, metadata);
+		}
+	}
 
-    protected abstract void doDelete(String indexId, String siteName, String path, UpdateStatus updateStatus);
+	protected abstract void doDelete(String indexId, String siteName, String path, UpdateStatus updateStatus);
 
-    protected abstract void doUpdate(String indexId, String siteName, String path, String xml,
-                                     UpdateDetail updateDetail, UpdateStatus updateStatus,
-                                     Map<String, Object> metadata);
+	protected abstract void doUpdate(String indexId, String siteName, String path, String xml,
+					 UpdateDetail updateDetail, UpdateStatus updateStatus,
+					 Map<String, Object> metadata);
 
-    protected String processXml(String siteName, ContentStoreService contentStoreService, Context context,
-                                String path) throws CrafterException {
-        logger.debug("Processing XML @ {}:{} before indexing", siteName, path);
+	protected String processXml(String siteName, ContentStoreService contentStoreService, Context context,
+				    String path) throws CrafterException {
+		logger.debug("Processing XML @ {}:{} before indexing", siteName, path);
 
-        Item item = contentStoreService.getItem(context, null, path, itemProcessor);
-        Document doc = item.getDescriptorDom();
+		Item item = contentStoreService.getItem(context, null, path, itemProcessor);
+		Document doc = item.getDescriptorDom();
 
-        if (doc != null) {
-            String xml = documentToString(item.getDescriptorDom());
+		if (doc != null) {
+			String xml = documentToString(item.getDescriptorDom());
 
-            logger.debug("XML @ {} processed successfully:\n{}:{}", siteName, path, xml);
+			logger.debug("XML @ {} processed successfully:\n{}:{}", siteName, path, xml);
 
-            return xml;
-        } else {
-            throw new XmlException("Item @ " + siteName + ":" + path + " doesn't seem to be an XML file");
-        }
-    }
+			return xml;
+		} else {
+			throw new XmlException("Item @ " + siteName + ":" + path + " doesn't seem to be an XML file");
+		}
+	}
 
-    protected String documentToString(Document document) {
-        StringWriter stringWriter = new StringWriter();
-        OutputFormat format = OutputFormat.createCompactFormat();
-        XMLWriter xmlWriter = new XMLWriter(stringWriter, format);
+	protected String documentToString(Document document) {
+		StringWriter stringWriter = new StringWriter();
+		OutputFormat format = OutputFormat.createCompactFormat();
+		XMLWriter xmlWriter = new XMLWriter(stringWriter, format);
 
-        try {
-            xmlWriter.write(document);
-        } catch (IOException e) {
-            // Ignore, shouldn't happen.
-        }
+		try {
+			xmlWriter.write(document);
+		} catch (IOException e) {
+			// Ignore, shouldn't happen.
+		}
 
-        return stringWriter.toString();
-    }
+		return stringWriter.toString();
+	}
 
-    public static class EmptyContent implements Content {
+	public static class EmptyContent implements Content {
 
-        @Override
-        public long getLastModified() {
-            return System.currentTimeMillis();
-        }
+		@Override
+		public long getLastModified() {
+			return System.currentTimeMillis();
+		}
 
-        @Override
-        public long getLength() {
-            return 0;
-        }
+		@Override
+		public long getLength() {
+			return 0;
+		}
 
-        @Override
-        public InputStream getInputStream() {
-            return new ByteArrayInputStream(new byte[0]);
-        }
+		@Override
+		public InputStream getInputStream() {
+			return new ByteArrayInputStream(new byte[0]);
+		}
 
-    }
+	}
 
 }

@@ -22,11 +22,11 @@ package org.craftercms.search.commons.service;
  */
 public interface DocumentPostProcessor<T> {
 
-    /**
-     * Processes the specified document to modify or enhance it.
-     *
-     * @param doc the document to process
-     */
-    void postProcess(T doc);
+	/**
+	 * Processes the specified document to modify or enhance it.
+	 *
+	 * @param doc the document to process
+	 */
+	void postProcess(T doc);
 
 }

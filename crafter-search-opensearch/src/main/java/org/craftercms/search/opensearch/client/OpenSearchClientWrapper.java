@@ -30,41 +30,42 @@ import static java.util.Collections.emptyMap;
 /**
  * Exposes the search related operations from {@link org.opensearch.client.opensearch.OpenSearchClient}
  * <p><b>Note:</b> The method signatures are copied from the original class because there is no interface and the class is
- *           final, so it can't be properly extended to be a drop-in replacement.</p>
+ * final, so it can't be properly extended to be a drop-in replacement.</p>
+ *
  * @author joseross
  * @since 4.0.0
  */
 public interface OpenSearchClientWrapper {
 
-    /**
-     * Executes the given request
-     */
-    default <T> SearchResponse<T> search(SearchRequest request, Class<T> documentClass)
-            throws IOException, OpenSearchException {
-        return search(request, documentClass, emptyMap());
-    }
+	/**
+	 * Executes the given request
+	 */
+	default <T> SearchResponse<T> search(SearchRequest request, Class<T> documentClass)
+		throws IOException, OpenSearchException {
+		return search(request, documentClass, emptyMap());
+	}
 
-    /**
-     * Executes the given request
-     */
-    <T> SearchResponse<T> search(SearchRequest request, Class<T> documentClass, Map<String, Object> parameters)
-            throws IOException, OpenSearchException;
+	/**
+	 * Executes the given request
+	 */
+	<T> SearchResponse<T> search(SearchRequest request, Class<T> documentClass, Map<String, Object> parameters)
+		throws IOException, OpenSearchException;
 
-    /**
-     * Creates and executes a request using the given function
-     */
-    default <T> SearchResponse<T> search(Function<SearchRequest.Builder, ObjectBuilder<SearchRequest>> function,
-                                 Class<T> documentClass) throws IOException, OpenSearchException {
-        return search(function, documentClass, emptyMap());
-    }
+	/**
+	 * Creates and executes a request using the given function
+	 */
+	default <T> SearchResponse<T> search(Function<SearchRequest.Builder, ObjectBuilder<SearchRequest>> function,
+					     Class<T> documentClass) throws IOException, OpenSearchException {
+		return search(function, documentClass, emptyMap());
+	}
 
-    /**
-     * Creates and executes a request using the given function
-     */
-    default <T> SearchResponse<T> search(Function<SearchRequest.Builder, ObjectBuilder<SearchRequest>> function,
-                                         Class<T> documentClass, Map<String, Object> parameters)
-            throws IOException, OpenSearchException {
-        return search(SearchRequest.of(function), documentClass, parameters);
-    }
+	/**
+	 * Creates and executes a request using the given function
+	 */
+	default <T> SearchResponse<T> search(Function<SearchRequest.Builder, ObjectBuilder<SearchRequest>> function,
+					     Class<T> documentClass, Map<String, Object> parameters)
+		throws IOException, OpenSearchException {
+		return search(SearchRequest.of(function), documentClass, parameters);
+	}
 
 }

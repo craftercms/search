@@ -33,80 +33,80 @@ import java.util.Set;
  */
 public class MultiOpenSearchAdminServiceImpl extends OpenSearchAdminServiceImpl {
 
-    /**
-     * OpenSearch clients used for write-related operations
-     */
-    protected final RestHighLevelClient[] writeClients;
+	/**
+	 * OpenSearch clients used for write-related operations
+	 */
+	protected final RestHighLevelClient[] writeClients;
 
-    public MultiOpenSearchAdminServiceImpl(Resource authoringMapping, Resource previewMapping,
-                                           String authoringNamePattern, Map<String, String> localeMapping,
-                                           RestHighLevelClient OpenSearchClient,
-                                           Map<String, String> indexSettings,
-                                           Set<String> ignoredSettings,
-                                           RestHighLevelClient[] writeClients) {
-        super(authoringMapping, previewMapping, authoringNamePattern, localeMapping, indexSettings, ignoredSettings,
-                OpenSearchClient);
-        this.writeClients = writeClients;
-    }
+	public MultiOpenSearchAdminServiceImpl(Resource authoringMapping, Resource previewMapping,
+					       String authoringNamePattern, Map<String, String> localeMapping,
+					       RestHighLevelClient OpenSearchClient,
+					       Map<String, String> indexSettings,
+					       Set<String> ignoredSettings,
+					       RestHighLevelClient[] writeClients) {
+		super(authoringMapping, previewMapping, authoringNamePattern, localeMapping, indexSettings, ignoredSettings,
+			OpenSearchClient);
+		this.writeClients = writeClients;
+	}
 
-    @Override
-    public void createIndex(String aliasName) throws OpenSearchException {
-        for (RestHighLevelClient client : writeClients) {
-            doCreateIndex(client, aliasName, null);
-        }
-    }
+	@Override
+	public void createIndex(String aliasName) throws OpenSearchException {
+		for (RestHighLevelClient client : writeClients) {
+			doCreateIndex(client, aliasName, null);
+		}
+	}
 
-    @Override
-    public void duplicateIndex(String srcAliasName, String destAliasName) throws OpenSearchException {
-        for (RestHighLevelClient client : writeClients) {
-            doDuplicateIndex(client, srcAliasName, destAliasName);
-        }
-    }
+	@Override
+	public void duplicateIndex(String srcAliasName, String destAliasName) throws OpenSearchException {
+		for (RestHighLevelClient client : writeClients) {
+			doDuplicateIndex(client, srcAliasName, destAliasName);
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void createIndex(final String aliasName, Locale locale) throws OpenSearchException {
-        for (RestHighLevelClient client : writeClients) {
-            doCreateIndex(client, aliasName, locale);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void createIndex(final String aliasName, Locale locale) throws OpenSearchException {
+		for (RestHighLevelClient client : writeClients) {
+			doCreateIndex(client, aliasName, locale);
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deleteIndexes(final String aliasName) throws OpenSearchException {
-        for (RestHighLevelClient client : writeClients) {
-            doDeleteIndexes(client, aliasName);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deleteIndexes(final String aliasName) throws OpenSearchException {
+		for (RestHighLevelClient client : writeClients) {
+			doDeleteIndexes(client, aliasName);
+		}
+	}
 
-    @Override
-    public void recreateIndex(String aliasName) throws OpenSearchException {
-        for (RestHighLevelClient client : writeClients) {
-            doRecreateIndex(client, aliasName);
-        }
-    }
+	@Override
+	public void recreateIndex(String aliasName) throws OpenSearchException {
+		for (RestHighLevelClient client : writeClients) {
+			doRecreateIndex(client, aliasName);
+		}
+	}
 
-    @Override
-    public void waitUntilReady() {
-        // wait for the read cluster to be ready
-        super.waitUntilReady();
+	@Override
+	public void waitUntilReady() {
+		// wait for the read cluster to be ready
+		super.waitUntilReady();
 
-        // wait for the write clusters to be ready
-        for (RestHighLevelClient client : writeClients) {
-            doWaitUntilReady(client);
-        }
-    }
+		// wait for the write clusters to be ready
+		for (RestHighLevelClient client : writeClients) {
+			doWaitUntilReady(client);
+		}
+	}
 
-    @Override
-    public void close() throws Exception {
-        for (RestHighLevelClient client : writeClients) {
-            client.close();
-        }
-        super.close();
-    }
+	@Override
+	public void close() throws Exception {
+		for (RestHighLevelClient client : writeClients) {
+			client.close();
+		}
+		super.close();
+	}
 
 }

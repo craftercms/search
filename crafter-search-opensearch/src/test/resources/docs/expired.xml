@@ -16,6 +16,6 @@
   -->
 
 <product>
-    <name_s>Expired</name_s>
-    <expired_dt>2000-01-01T00:00:00.000Z</expired_dt>
+		<name_s>Expired</name_s>
+		<expired_dt>2000-01-01T00:00:00.000Z</expired_dt>
 </product>

@@ -32,130 +32,130 @@ import org.craftercms.core.service.Item;
  */
 public class ContentTypeMetadataExtractor extends AbstractMetadataExtractor {
 
-    public static final String NAME_PLACEHOLDER = "\\{name\\}";
-    public static final String FILE_PLACEHOLDER = "\\{file\\}";
+	public static final String NAME_PLACEHOLDER = "\\{name\\}";
+	public static final String FILE_PLACEHOLDER = "\\{file\\}";
 
-    public static final String DEFAULT_CONFIG_TEMPLATE = "/config/studio/content-types{name}/config.xml";
-    public static final String DEFAULT_DEFINITION_TEMPLATE = "/config/studio/content-types{name}/form-definition.xml";
-    public static final String DEFAULT_THUMBNAIL_TEMPLATE = "/config/studio/content-types{name}/{file}";
-    public static final String DEFAULT_THUMBNAIL_XPATH = "*/image-thumbnail";
+	public static final String DEFAULT_CONFIG_TEMPLATE = "/config/studio/content-types{name}/config.xml";
+	public static final String DEFAULT_DEFINITION_TEMPLATE = "/config/studio/content-types{name}/form-definition.xml";
+	public static final String DEFAULT_THUMBNAIL_TEMPLATE = "/config/studio/content-types{name}/{file}";
+	public static final String DEFAULT_THUMBNAIL_XPATH = "*/image-thumbnail";
 
-    public static final String DEFAULT_PROPERTY_NAME_THUMBNAIL = "thumbnail";
+	public static final String DEFAULT_PROPERTY_NAME_THUMBNAIL = "thumbnail";
 
-    /**
-     * The XPath of the field to check
-     */
-    protected String fieldXpath;
+	/**
+	 * The XPath of the field to check
+	 */
+	protected String fieldXpath;
 
-    /**
-     * The expected value of the field to check (optional)
-     */
-    protected String fieldValue;
+	/**
+	 * The expected value of the field to check (optional)
+	 */
+	protected String fieldValue;
 
-    /**
-     * The pattern for the configuration file
-     */
-    protected String configTemplate = DEFAULT_CONFIG_TEMPLATE;
+	/**
+	 * The pattern for the configuration file
+	 */
+	protected String configTemplate = DEFAULT_CONFIG_TEMPLATE;
 
-    /**
-     * The pattern for the form definition file
-     */
-    protected String definitionTemplate = DEFAULT_DEFINITION_TEMPLATE;
+	/**
+	 * The pattern for the form definition file
+	 */
+	protected String definitionTemplate = DEFAULT_DEFINITION_TEMPLATE;
 
-    /**
-     * The pattern for the thumbnail file
-     */
-    protected String thumbnailTemplate = DEFAULT_THUMBNAIL_TEMPLATE;
+	/**
+	 * The pattern for the thumbnail file
+	 */
+	protected String thumbnailTemplate = DEFAULT_THUMBNAIL_TEMPLATE;
 
-    /**
-     * The XPath for the thumbnail field
-     */
-    protected String thumbnailXpath = DEFAULT_THUMBNAIL_XPATH;
+	/**
+	 * The XPath for the thumbnail field
+	 */
+	protected String thumbnailXpath = DEFAULT_THUMBNAIL_XPATH;
 
-    /**
-     * The name of the metadata property for the thumbnail
-     */
-    protected String propertyNameThumbnail = DEFAULT_PROPERTY_NAME_THUMBNAIL;
+	/**
+	 * The name of the metadata property for the thumbnail
+	 */
+	protected String propertyNameThumbnail = DEFAULT_PROPERTY_NAME_THUMBNAIL;
 
-    public ContentTypeMetadataExtractor(final String fieldXpath) {
-        this.fieldXpath = fieldXpath;
-    }
+	public ContentTypeMetadataExtractor(final String fieldXpath) {
+		this.fieldXpath = fieldXpath;
+	}
 
-    public void setFieldValue(final String fieldValue) {
-        this.fieldValue = fieldValue;
-    }
+	public void setFieldValue(final String fieldValue) {
+		this.fieldValue = fieldValue;
+	}
 
-    public void setConfigTemplate(final String configTemplate) {
-        this.configTemplate = configTemplate;
-    }
+	public void setConfigTemplate(final String configTemplate) {
+		this.configTemplate = configTemplate;
+	}
 
-    public void setDefinitionTemplate(final String definitionTemplate) {
-        this.definitionTemplate = definitionTemplate;
-    }
+	public void setDefinitionTemplate(final String definitionTemplate) {
+		this.definitionTemplate = definitionTemplate;
+	}
 
-    public void setThumbnailTemplate(final String thumbnailTemplate) {
-        this.thumbnailTemplate = thumbnailTemplate;
-    }
+	public void setThumbnailTemplate(final String thumbnailTemplate) {
+		this.thumbnailTemplate = thumbnailTemplate;
+	}
 
-    public void setThumbnailXpath(final String thumbnailXpath) {
-        this.thumbnailXpath = thumbnailXpath;
-    }
+	public void setThumbnailXpath(final String thumbnailXpath) {
+		this.thumbnailXpath = thumbnailXpath;
+	}
 
-    public void setPropertyNameThumbnail(final String propertyNameThumbnail) {
-        this.propertyNameThumbnail = propertyNameThumbnail;
-    }
+	public void setPropertyNameThumbnail(final String propertyNameThumbnail) {
+		this.propertyNameThumbnail = propertyNameThumbnail;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean isCompatible(final String path, final ContentStoreService contentStoreService,
-                                   final Context context) {
-        Item item = contentStoreService.getItem(context, path);
-        String value = item.queryDescriptorValue(fieldXpath);
-        return StringUtils.isEmpty(fieldValue)? StringUtils.isNotEmpty(value) : StringUtils.equals(fieldValue, value);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected boolean isCompatible(final String path, final ContentStoreService contentStoreService,
+				       final Context context) {
+		Item item = contentStoreService.getItem(context, path);
+		String value = item.queryDescriptorValue(fieldXpath);
+		return StringUtils.isEmpty(fieldValue) ? StringUtils.isNotEmpty(value) : StringUtils.equals(fieldValue, value);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Map<String, Object> doExtract(final String path, final ContentStoreService contentStoreService,
-                                            final Context context) {
-        Map<String, Object> metadata = new HashMap<>();
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected Map<String, Object> doExtract(final String path, final ContentStoreService contentStoreService,
+						final Context context) {
+		Map<String, Object> metadata = new HashMap<>();
 
-        Item item = contentStoreService.getItem(context, path);
-        String contentTypeName = item.queryDescriptorValue(fieldXpath);
+		Item item = contentStoreService.getItem(context, path);
+		String contentTypeName = item.queryDescriptorValue(fieldXpath);
 
-        getConfigMetadata(contentTypeName, contentStoreService, context, metadata);
-        getDefinitionMetadata(contentTypeName, contentStoreService, context, metadata);
+		getConfigMetadata(contentTypeName, contentStoreService, context, metadata);
+		getDefinitionMetadata(contentTypeName, contentStoreService, context, metadata);
 
-        return metadata;
-    }
+		return metadata;
+	}
 
-    /**
-     * Extracts metadata from the form-definition file
-     */
-    protected void getDefinitionMetadata(final String contentTypeName, final ContentStoreService contentStoreService,
-                                         final Context context, final Map<String, Object> metadata) {
-        String definitionPath = StringUtils.replaceFirst(definitionTemplate, NAME_PLACEHOLDER, contentTypeName);
-        Item definition = contentStoreService.getItem(context, definitionPath);
+	/**
+	 * Extracts metadata from the form-definition file
+	 */
+	protected void getDefinitionMetadata(final String contentTypeName, final ContentStoreService contentStoreService,
+					     final Context context, final Map<String, Object> metadata) {
+		String definitionPath = StringUtils.replaceFirst(definitionTemplate, NAME_PLACEHOLDER, contentTypeName);
+		Item definition = contentStoreService.getItem(context, definitionPath);
 
-        //TODO: Define the metadata to extract
-    }
+		//TODO: Define the metadata to extract
+	}
 
-    /**
-     * Extracts metadata from the configuration file
-     */
-    protected void getConfigMetadata(final String contentTypeName, final ContentStoreService contentStoreService,
-                                     final Context context, final Map<String, Object> metadata) {
-        String configPath = StringUtils.replaceFirst(configTemplate, NAME_PLACEHOLDER, contentTypeName);
-        Item config = contentStoreService.getItem(context, configPath);
+	/**
+	 * Extracts metadata from the configuration file
+	 */
+	protected void getConfigMetadata(final String contentTypeName, final ContentStoreService contentStoreService,
+					 final Context context, final Map<String, Object> metadata) {
+		String configPath = StringUtils.replaceFirst(configTemplate, NAME_PLACEHOLDER, contentTypeName);
+		Item config = contentStoreService.getItem(context, configPath);
 
-        String thumbnailFile = config.queryDescriptorValue(thumbnailXpath);
-        String thumbnailValue = StringUtils.replaceFirst(thumbnailTemplate, NAME_PLACEHOLDER, contentTypeName);
-        thumbnailValue = StringUtils.replaceFirst(thumbnailValue, FILE_PLACEHOLDER, thumbnailFile);
-        metadata.put(propertyNameThumbnail, thumbnailValue);
-    }
+		String thumbnailFile = config.queryDescriptorValue(thumbnailXpath);
+		String thumbnailValue = StringUtils.replaceFirst(thumbnailTemplate, NAME_PLACEHOLDER, contentTypeName);
+		thumbnailValue = StringUtils.replaceFirst(thumbnailValue, FILE_PLACEHOLDER, thumbnailFile);
+		metadata.put(propertyNameThumbnail, thumbnailValue);
+	}
 
 }

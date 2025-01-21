@@ -27,13 +27,13 @@ import java.util.Locale;
  */
 public interface LocaleExtractor {
 
-    /**
-     * Extract the locale for the given file
-     *
-     * @param context the current context
-     * @param path the path of the file
-     * @return the locale
-     */
-    Locale extract(Context context, String path);
+	/**
+	 * Extract the locale for the given file
+	 *
+	 * @param context the current context
+	 * @param path    the path of the file
+	 * @return the locale
+	 */
+	Locale extract(Context context, String path);
 
 }

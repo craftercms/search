@@ -36,55 +36,57 @@ import org.springframework.util.CollectionUtils;
  */
 public abstract class AbstractMetadataExtractor implements MetadataExtractor {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractMetadataExtractor.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractMetadataExtractor.class);
 
-    /**
-     * Pattern of files that should be included
-     */
-    protected List<String> includePatterns;
+	/**
+	 * Pattern of files that should be included
+	 */
+	protected List<String> includePatterns;
 
-    public void setIncludePatterns(final List<String> includePatterns) {
-        this.includePatterns = includePatterns;
-    }
+	public void setIncludePatterns(final List<String> includePatterns) {
+		this.includePatterns = includePatterns;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Map<String, Object> extract(final String path, final ContentStoreService contentStoreService,
-                                  final Context context) {
-        logger.debug("Start processing {}", path);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<String, Object> extract(final String path, final ContentStoreService contentStoreService,
+					   final Context context) {
+		logger.debug("Start processing {}", path);
 
-        Map<String, Object> metadata = Collections.emptyMap();
+		Map<String, Object> metadata = Collections.emptyMap();
 
-        if ((CollectionUtils.isEmpty(includePatterns) || RegexUtils.matchesAny(path, includePatterns))
-            && isCompatible(path, contentStoreService, context)) {
-            logger.debug("Extracting metadata from {}", path);
-            metadata = doExtract(path, contentStoreService, context);
-        }
+		if ((CollectionUtils.isEmpty(includePatterns) || RegexUtils.matchesAny(path, includePatterns))
+			&& isCompatible(path, contentStoreService, context)) {
+			logger.debug("Extracting metadata from {}", path);
+			metadata = doExtract(path, contentStoreService, context);
+		}
 
-        logger.debug("Completed processing {}", path);
+		logger.debug("Completed processing {}", path);
 
-        return metadata;
-    }
+		return metadata;
+	}
 
-    /**
-     * Checks if a given file should be processed by the current instance
-     * @param path the path of the file to check
-     * @param contentStoreService the content store service
-     * @param context the current context
-     * @return true if the file should be processed
-     */
-    protected abstract boolean isCompatible(String path, ContentStoreService contentStoreService, Context context);
+	/**
+	 * Checks if a given file should be processed by the current instance
+	 *
+	 * @param path                the path of the file to check
+	 * @param contentStoreService the content store service
+	 * @param context             the current context
+	 * @return true if the file should be processed
+	 */
+	protected abstract boolean isCompatible(String path, ContentStoreService contentStoreService, Context context);
 
-    /**
-     * Performs the actual metadata extraction
-     * @param path the path of the file
-     * @param contentStoreService the content store service
-     * @param context the current context
-     * @return the extracted metadata
-     */
-    protected abstract Map<String, Object> doExtract(String path, ContentStoreService contentStoreService,
-                                                     Context context);
+	/**
+	 * Performs the actual metadata extraction
+	 *
+	 * @param path                the path of the file
+	 * @param contentStoreService the content store service
+	 * @param context             the current context
+	 * @return the extracted metadata
+	 */
+	protected abstract Map<String, Object> doExtract(String path, ContentStoreService contentStoreService,
+							 Context context);
 
 }

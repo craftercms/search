@@ -20,65 +20,66 @@ import org.craftercms.search.opensearch.DocumentParser;
 
 /**
  * Base class for all implementations of {@link DocumentParser}
+ *
  * @author joseross
  */
 public abstract class AbstractDocumentParser implements DocumentParser {
 
-    private static final String DEFAULT_FIELD_NAME_CONTENT = "content";
-    private static final String DEFAULT_FIELD_NAME_AUTHOR = "author";
-    private static final String DEFAULT_FIELD_NAME_TITLE = "title";
-    private static final String DEFAULT_FIELD_NAME_KEYWORDS = "keywords";
-    private static final String DEFAULT_FIELD_NAME_DESCRIPTION = "description";
-    private static final String DEFAULT_FIELD_NAME_CONTENT_TYPE = "content-type";
-    private static final String DEFAULT_FIELD_NAME_CREATED = "created";
-    private static final String DEFAULT_FIELD_NAME_MODIFIED = "modified";
+	private static final String DEFAULT_FIELD_NAME_CONTENT = "content";
+	private static final String DEFAULT_FIELD_NAME_AUTHOR = "author";
+	private static final String DEFAULT_FIELD_NAME_TITLE = "title";
+	private static final String DEFAULT_FIELD_NAME_KEYWORDS = "keywords";
+	private static final String DEFAULT_FIELD_NAME_DESCRIPTION = "description";
+	private static final String DEFAULT_FIELD_NAME_CONTENT_TYPE = "content-type";
+	private static final String DEFAULT_FIELD_NAME_CREATED = "created";
+	private static final String DEFAULT_FIELD_NAME_MODIFIED = "modified";
 
-    protected String fieldNameContent = DEFAULT_FIELD_NAME_CONTENT;
+	protected String fieldNameContent = DEFAULT_FIELD_NAME_CONTENT;
 
-    protected String fieldNameAuthor = DEFAULT_FIELD_NAME_AUTHOR;
+	protected String fieldNameAuthor = DEFAULT_FIELD_NAME_AUTHOR;
 
-    protected String fieldNAmeTitle = DEFAULT_FIELD_NAME_TITLE;
+	protected String fieldNAmeTitle = DEFAULT_FIELD_NAME_TITLE;
 
-    protected String fieldNameKeywords = DEFAULT_FIELD_NAME_KEYWORDS;
+	protected String fieldNameKeywords = DEFAULT_FIELD_NAME_KEYWORDS;
 
-    protected String fieldNameDescription = DEFAULT_FIELD_NAME_DESCRIPTION;
+	protected String fieldNameDescription = DEFAULT_FIELD_NAME_DESCRIPTION;
 
-    protected String fieldNameContentType = DEFAULT_FIELD_NAME_CONTENT_TYPE;
+	protected String fieldNameContentType = DEFAULT_FIELD_NAME_CONTENT_TYPE;
 
-    protected String fieldNameCreated = DEFAULT_FIELD_NAME_CREATED;
+	protected String fieldNameCreated = DEFAULT_FIELD_NAME_CREATED;
 
-    protected String fieldNameModified = DEFAULT_FIELD_NAME_MODIFIED;
+	protected String fieldNameModified = DEFAULT_FIELD_NAME_MODIFIED;
 
-    public void setFieldNameContent(final String fieldNameContent) {
-        this.fieldNameContent = fieldNameContent;
-    }
+	public void setFieldNameContent(final String fieldNameContent) {
+		this.fieldNameContent = fieldNameContent;
+	}
 
-    public void setFieldNameAuthor(final String fieldNameAuthor) {
-        this.fieldNameAuthor = fieldNameAuthor;
-    }
+	public void setFieldNameAuthor(final String fieldNameAuthor) {
+		this.fieldNameAuthor = fieldNameAuthor;
+	}
 
-    public void setFieldNAmeTitle(final String fieldNAmeTitle) {
-        this.fieldNAmeTitle = fieldNAmeTitle;
-    }
+	public void setFieldNAmeTitle(final String fieldNAmeTitle) {
+		this.fieldNAmeTitle = fieldNAmeTitle;
+	}
 
-    public void setFieldNameKeywords(final String fieldNameKeywords) {
-        this.fieldNameKeywords = fieldNameKeywords;
-    }
+	public void setFieldNameKeywords(final String fieldNameKeywords) {
+		this.fieldNameKeywords = fieldNameKeywords;
+	}
 
-    public void setFieldNameDescription(final String fieldNameDescription) {
-        this.fieldNameDescription = fieldNameDescription;
-    }
+	public void setFieldNameDescription(final String fieldNameDescription) {
+		this.fieldNameDescription = fieldNameDescription;
+	}
 
-    public void setFieldNameContentType(final String fieldNameContentType) {
-        this.fieldNameContentType = fieldNameContentType;
-    }
+	public void setFieldNameContentType(final String fieldNameContentType) {
+		this.fieldNameContentType = fieldNameContentType;
+	}
 
-    public void setFieldNameCreated(final String fieldNameCreated) {
-        this.fieldNameCreated = fieldNameCreated;
-    }
+	public void setFieldNameCreated(final String fieldNameCreated) {
+		this.fieldNameCreated = fieldNameCreated;
+	}
 
-    public void setFieldNameModified(final String fieldNameModified) {
-        this.fieldNameModified = fieldNameModified;
-    }
+	public void setFieldNameModified(final String fieldNameModified) {
+		this.fieldNameModified = fieldNameModified;
+	}
 
 }

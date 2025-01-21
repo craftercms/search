@@ -24,20 +24,20 @@ import java.util.List;
  */
 public class UpdateSet extends AbstractUpdateDetailProvider {
 
-    private final List<String> updatePaths;
-    private final List<String> deletePaths;
+	private final List<String> updatePaths;
+	private final List<String> deletePaths;
 
-    public UpdateSet(List<String> updatePaths, List<String> deletePaths) {
-        this.updatePaths = updatePaths;
-        this.deletePaths = deletePaths;
-    }
+	public UpdateSet(List<String> updatePaths, List<String> deletePaths) {
+		this.updatePaths = updatePaths;
+		this.deletePaths = deletePaths;
+	}
 
-    public List<String> getUpdatePaths() {
-        return updatePaths;
-    }
+	public List<String> getUpdatePaths() {
+		return updatePaths;
+	}
 
-    public List<String> getDeletePaths() {
-        return deletePaths;
-    }
+	public List<String> getDeletePaths() {
+		return deletePaths;
+	}
 
 }

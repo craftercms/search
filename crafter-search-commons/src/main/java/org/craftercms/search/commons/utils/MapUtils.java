@@ -28,40 +28,40 @@ import static org.apache.commons.collections4.ListUtils.union;
  */
 public abstract class MapUtils {
 
-    @SuppressWarnings("unchecked")
-    public static Map<String, Object> mergeMaps(Map<String, Object> a, Map<String, Object> b) {
-        if (org.apache.commons.collections.MapUtils.isEmpty(a)) {
-            return b;
-        }
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> mergeMaps(Map<String, Object> a, Map<String, Object> b) {
+		if (org.apache.commons.collections.MapUtils.isEmpty(a)) {
+			return b;
+		}
 
-        if (org.apache.commons.collections.MapUtils.isEmpty(b)) {
-            return a;
-        }
+		if (org.apache.commons.collections.MapUtils.isEmpty(b)) {
+			return a;
+		}
 
-        var map = new TreeMap<>(a);
-        b.forEach((key, value) -> map.merge(key, value, (oldValue, newValue) -> {
-            if (oldValue instanceof Map && newValue instanceof Map) {
-                return mergeMaps((Map<String, Object>) oldValue, (Map<String, Object>) newValue);
-            } else if (oldValue instanceof Map || newValue instanceof Map) {
-                // can't be merged, just return the original
-                return oldValue;
-            } else if (oldValue instanceof List && newValue instanceof List) {
-                return union((List<Object>) oldValue, (List<Object>) newValue);
-            } else if (oldValue instanceof List) {
-                var list = new LinkedList<>((List<Object>) oldValue);
-                list.add(newValue);
-                return list;
-            } else if (newValue instanceof List) {
-                var list = new LinkedList<>((List<Object>) newValue);
-                list.add(oldValue);
-                return list;
-            } else {
-                // single properties are not merged, only overwritten
-                return newValue;
-            }
-        }));
+		var map = new TreeMap<>(a);
+		b.forEach((key, value) -> map.merge(key, value, (oldValue, newValue) -> {
+			if (oldValue instanceof Map && newValue instanceof Map) {
+				return mergeMaps((Map<String, Object>) oldValue, (Map<String, Object>) newValue);
+			} else if (oldValue instanceof Map || newValue instanceof Map) {
+				// can't be merged, just return the original
+				return oldValue;
+			} else if (oldValue instanceof List && newValue instanceof List) {
+				return union((List<Object>) oldValue, (List<Object>) newValue);
+			} else if (oldValue instanceof List) {
+				var list = new LinkedList<>((List<Object>) oldValue);
+				list.add(newValue);
+				return list;
+			} else if (newValue instanceof List) {
+				var list = new LinkedList<>((List<Object>) newValue);
+				list.add(oldValue);
+				return list;
+			} else {
+				// single properties are not merged, only overwritten
+				return newValue;
+			}
+		}));
 
-        return map;
-    }
+		return map;
+	}
 
 }

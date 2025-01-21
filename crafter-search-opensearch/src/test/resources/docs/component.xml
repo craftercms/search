@@ -16,7 +16,7 @@
   -->
 
 <component>
-	<name>component.xml</name>
-	<title>Test</title>
-	<date>11/11/2015 10:00:00</date>
+		<name>component.xml</name>
+		<title>Test</title>
+		<date>11/11/2015 10:00:00</date>
 </component>

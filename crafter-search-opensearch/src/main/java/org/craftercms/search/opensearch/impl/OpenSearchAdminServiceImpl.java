@@ -68,389 +68,389 @@ import static org.opensearch.index.reindex.AbstractBulkByScrollRequest.AUTO_SLIC
  */
 public class OpenSearchAdminServiceImpl implements OpenSearchAdminService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenSearchAdminServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(OpenSearchAdminServiceImpl.class);
 
-    public static final int DEFAULT_WAIT_SLEEP_TIME_MILLIS = 5000;
+	public static final int DEFAULT_WAIT_SLEEP_TIME_MILLIS = 5000;
 
-    public static final String DEFAULT_INDEX_NAME_SUFFIX = "_v1";
+	public static final String DEFAULT_INDEX_NAME_SUFFIX = "_v1";
 
-    public static final String ES_STANDARD_ANALYZER = "standard";
+	public static final String ES_STANDARD_ANALYZER = "standard";
 
-    public static final String ES_KEY_DEFAULT_ANALYZER = "analysis.analyzer.default.type";
+	public static final String ES_KEY_DEFAULT_ANALYZER = "analysis.analyzer.default.type";
 
-    /**
-     * The suffix to add to all index names during creation
-     */
-    protected String indexNameSuffix = DEFAULT_INDEX_NAME_SUFFIX;
+	/**
+	 * The suffix to add to all index names during creation
+	 */
+	protected String indexNameSuffix = DEFAULT_INDEX_NAME_SUFFIX;
 
-    /**
-     * Index mapping file for authoring indices
-     */
-    protected final Resource authoringMapping;
+	/**
+	 * Index mapping file for authoring indices
+	 */
+	protected final Resource authoringMapping;
 
-    /**
-     * Index mapping file for preview indices
-     */
-    protected final Resource previewMapping;
+	/**
+	 * Index mapping file for preview indices
+	 */
+	protected final Resource previewMapping;
 
-    /**
-     * Regex used to determine if an index is for authoring
-     */
-    protected final String authoringNamePattern;
+	/**
+	 * Regex used to determine if an index is for authoring
+	 */
+	protected final String authoringNamePattern;
 
-    /**
-     * The map of locale codes to OpenSearch languages
-     */
-    protected final Map<String, String> localeMapping;
+	/**
+	 * The map of locale codes to OpenSearch languages
+	 */
+	protected final Map<String, String> localeMapping;
 
-    /**
-     * The OpenSearch client
-     */
-    protected final RestHighLevelClient openSearchClient;
+	/**
+	 * The OpenSearch client
+	 */
+	protected final RestHighLevelClient openSearchClient;
 
-    /**
-     * The default settings used when creating indices
-     */
-    protected final Map<String, String> defaultSettings;
+	/**
+	 * The default settings used when creating indices
+	 */
+	protected final Map<String, String> defaultSettings;
 
-    /**
-     * The settings to ignore on duplicate index
-     */
-    protected final Set<String> ignoredSettings;
+	/**
+	 * The settings to ignore on duplicate index
+	 */
+	protected final Set<String> ignoredSettings;
 
-    private int reindexSlices = AUTO_SLICES;
+	private int reindexSlices = AUTO_SLICES;
 
-    private int reindexTimeoutSeconds = 5 * 60;
+	private int reindexTimeoutSeconds = 5 * 60;
 
-    @ConstructorProperties({"authoringMapping", "previewMapping", "authoringNamePattern", "localeMapping",
-            "defaultSettings", "ignoredSettings", "openSearchClient"})
-    public OpenSearchAdminServiceImpl(final Resource authoringMapping, final Resource previewMapping,
-                                      final String authoringNamePattern, final Map<String, String> localeMapping,
-                                      final Map<String, String> defaultSettings, final Set<String> ignoredSettings,
-                                      final RestHighLevelClient openSearchClient) {
-        this.authoringMapping = authoringMapping;
-        this.previewMapping = previewMapping;
-        this.authoringNamePattern = authoringNamePattern;
-        this.localeMapping = localeMapping;
-        this.defaultSettings = defaultSettings;
-        this.ignoredSettings = ignoredSettings;
-        this.openSearchClient = openSearchClient;
-    }
+	@ConstructorProperties({"authoringMapping", "previewMapping", "authoringNamePattern", "localeMapping",
+		"defaultSettings", "ignoredSettings", "openSearchClient"})
+	public OpenSearchAdminServiceImpl(final Resource authoringMapping, final Resource previewMapping,
+					  final String authoringNamePattern, final Map<String, String> localeMapping,
+					  final Map<String, String> defaultSettings, final Set<String> ignoredSettings,
+					  final RestHighLevelClient openSearchClient) {
+		this.authoringMapping = authoringMapping;
+		this.previewMapping = previewMapping;
+		this.authoringNamePattern = authoringNamePattern;
+		this.localeMapping = localeMapping;
+		this.defaultSettings = defaultSettings;
+		this.ignoredSettings = ignoredSettings;
+		this.openSearchClient = openSearchClient;
+	}
 
-    @SuppressWarnings("unused")
-    public void setIndexNameSuffix(final String indexNameSuffix) {
-        this.indexNameSuffix = indexNameSuffix;
-    }
+	@SuppressWarnings("unused")
+	public void setIndexNameSuffix(final String indexNameSuffix) {
+		this.indexNameSuffix = indexNameSuffix;
+	}
 
-    @SuppressWarnings("unused")
-    public void setReindexSlices(final int reindexSlices) {
-        this.reindexSlices = reindexSlices;
-    }
+	@SuppressWarnings("unused")
+	public void setReindexSlices(final int reindexSlices) {
+		this.reindexSlices = reindexSlices;
+	}
 
-    @SuppressWarnings("unused")
-    public void setReindexTimeoutSeconds(final int reindexTimeoutSeconds) {
-        this.reindexTimeoutSeconds = reindexTimeoutSeconds;
-    }
+	@SuppressWarnings("unused")
+	public void setReindexTimeoutSeconds(final int reindexTimeoutSeconds) {
+		this.reindexTimeoutSeconds = reindexTimeoutSeconds;
+	}
 
-    @Override
-    public boolean indexExists(String indexName) {
-        return doIndexExist(openSearchClient, indexName);
-    }
+	@Override
+	public boolean indexExists(String indexName) {
+		return doIndexExist(openSearchClient, indexName);
+	}
 
-    protected boolean doIndexExist(RestHighLevelClient client, String indexName) {
-        logger.debug("Checking if index {} exits", indexName);
-        try {
-            return client.indices().exists(
-                    new GetIndexRequest(indexName), RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            throw new OpenSearchException(indexName, "Error consulting index", e);
-        }
-    }
+	protected boolean doIndexExist(RestHighLevelClient client, String indexName) {
+		logger.debug("Checking if index {} exits", indexName);
+		try {
+			return client.indices().exists(
+				new GetIndexRequest(indexName), RequestOptions.DEFAULT);
+		} catch (IOException e) {
+			throw new OpenSearchException(indexName, "Error consulting index", e);
+		}
+	}
 
-    @Override
-    public void createIndex(String aliasName) throws OpenSearchException {
-        createIndex(aliasName, null);
-    }
+	@Override
+	public void createIndex(String aliasName) throws OpenSearchException {
+		createIndex(aliasName, null);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void createIndex(final String aliasName, Locale locale) throws OpenSearchException {
-        doCreateIndex(openSearchClient, aliasName, indexNameSuffix, locale, true, defaultSettings);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void createIndex(final String aliasName, Locale locale) throws OpenSearchException {
+		doCreateIndex(openSearchClient, aliasName, indexNameSuffix, locale, true, defaultSettings);
+	}
 
-    /**
-     * Performs the index creation using the given OpenSearch client
-     */
-    protected void doCreateIndex(RestHighLevelClient client, String aliasName, Locale locale) {
-        doCreateIndex(client, aliasName, indexNameSuffix, locale, true, defaultSettings);
-    }
+	/**
+	 * Performs the index creation using the given OpenSearch client
+	 */
+	protected void doCreateIndex(RestHighLevelClient client, String aliasName, Locale locale) {
+		doCreateIndex(client, aliasName, indexNameSuffix, locale, true, defaultSettings);
+	}
 
-    /**
-     * Performs the index creation using the given OpenSearch client
-     */
-    protected void doCreateIndex(RestHighLevelClient client, String aliasName, String indexSuffix, Locale locale,
-                                 boolean createAlias, Map<String, String> settings) {
-        Resource mapping = aliasName.matches(authoringNamePattern) ? authoringMapping : previewMapping;
-        String defaultAnalyzer = ES_STANDARD_ANALYZER;
-        if (locale != null) {
-            String localeValue = LocaleUtils.toString(locale);
-            aliasName += "-" + LocaleUtils.toString(locale);
-            defaultAnalyzer = localeMapping.entrySet().stream()
-                    .filter(entry -> localeValue.matches(entry.getKey()))
-                    .map(Map.Entry::getValue)
-                    .findFirst()
-                    .orElse(defaultAnalyzer);
-        }
+	/**
+	 * Performs the index creation using the given OpenSearch client
+	 */
+	protected void doCreateIndex(RestHighLevelClient client, String aliasName, String indexSuffix, Locale locale,
+				     boolean createAlias, Map<String, String> settings) {
+		Resource mapping = aliasName.matches(authoringNamePattern) ? authoringMapping : previewMapping;
+		String defaultAnalyzer = ES_STANDARD_ANALYZER;
+		if (locale != null) {
+			String localeValue = LocaleUtils.toString(locale);
+			aliasName += "-" + LocaleUtils.toString(locale);
+			defaultAnalyzer = localeMapping.entrySet().stream()
+				.filter(entry -> localeValue.matches(entry.getKey()))
+				.map(Map.Entry::getValue)
+				.findFirst()
+				.orElse(defaultAnalyzer);
+		}
 
-        Settings.Builder settingsBuilder = Settings.builder();
-        settings.forEach(settingsBuilder::put);
-        ignoredSettings.forEach(settingsBuilder::remove);
+		Settings.Builder settingsBuilder = Settings.builder();
+		settings.forEach(settingsBuilder::put);
+		ignoredSettings.forEach(settingsBuilder::remove);
 
-        String indexName = aliasName + indexSuffix;
-        if (doIndexExist(client, createAlias ? aliasName : indexName)) {
+		String indexName = aliasName + indexSuffix;
+		if (doIndexExist(client, createAlias ? aliasName : indexName)) {
 
-            try {
-                client.indices().close(new CloseIndexRequest(indexName), RequestOptions.DEFAULT);
-                logger.info("Index '{}' already indexExists, updating settings", indexName);
-                client.indices().putSettings(new UpdateSettingsRequest().indices(indexName).settings(settingsBuilder), RequestOptions.DEFAULT);
+			try {
+				client.indices().close(new CloseIndexRequest(indexName), RequestOptions.DEFAULT);
+				logger.info("Index '{}' already indexExists, updating settings", indexName);
+				client.indices().putSettings(new UpdateSettingsRequest().indices(indexName).settings(settingsBuilder), RequestOptions.DEFAULT);
 
-                client.indices().open(new OpenIndexRequest(indexName), RequestOptions.DEFAULT);
-            } catch (IOException e) {
-                throw new OpenSearchException(aliasName, format("Error updating settings for index '%s'", indexName), e);
-            }
-            return;
-        }
-        logger.info("Creating index {}", indexName);
+				client.indices().open(new OpenIndexRequest(indexName), RequestOptions.DEFAULT);
+			} catch (IOException e) {
+				throw new OpenSearchException(aliasName, format("Error updating settings for index '%s'", indexName), e);
+			}
+			return;
+		}
+		logger.info("Creating index {}", indexName);
 
-        settingsBuilder.put(ES_KEY_DEFAULT_ANALYZER, defaultAnalyzer);
-        try (InputStream is = mapping.getInputStream()) {
-            CreateIndexRequest request = new CreateIndexRequest(indexName)
-                    .settings(settingsBuilder.build())
-                    .mapping(IOUtils.toString(is, UTF_8), XContentType.JSON);
-            if (createAlias) {
-                logger.info("Creating alias {}", aliasName);
-                request.alias(new Alias(aliasName));
-            }
-            client.indices().create(request, RequestOptions.DEFAULT);
-        } catch (Exception e) {
-            throw new OpenSearchException(aliasName, "Error creating index " + indexName, e);
-        }
-    }
+		settingsBuilder.put(ES_KEY_DEFAULT_ANALYZER, defaultAnalyzer);
+		try (InputStream is = mapping.getInputStream()) {
+			CreateIndexRequest request = new CreateIndexRequest(indexName)
+				.settings(settingsBuilder.build())
+				.mapping(IOUtils.toString(is, UTF_8), XContentType.JSON);
+			if (createAlias) {
+				logger.info("Creating alias {}", aliasName);
+				request.alias(new Alias(aliasName));
+			}
+			client.indices().create(request, RequestOptions.DEFAULT);
+		} catch (Exception e) {
+			throw new OpenSearchException(aliasName, "Error creating index " + indexName, e);
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deleteIndexes(final String aliasName) throws OpenSearchException {
-        doDeleteIndexes(openSearchClient, aliasName);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deleteIndexes(final String aliasName) throws OpenSearchException {
+		doDeleteIndexes(openSearchClient, aliasName);
+	}
 
-    /**
-     * Performs the index delete using the given OpenSearch client
-     */
-    protected void doDeleteIndexes(RestHighLevelClient client, String aliasName) {
-        try {
-            GetAliasesResponse indices = client.indices().getAlias(
-                    new GetAliasesRequest(aliasName),
-                    RequestOptions.DEFAULT);
-            Set<String> actualIndices = indices.getAliases().keySet();
-            logger.info("Deleting indices {}", actualIndices);
-            client.indices().delete(
-                    new DeleteIndexRequest(actualIndices.toArray(new String[]{})),
-                    RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            throw new OpenSearchException(aliasName, "Error deleting index " + aliasName, e);
-        }
-    }
+	/**
+	 * Performs the index delete using the given OpenSearch client
+	 */
+	protected void doDeleteIndexes(RestHighLevelClient client, String aliasName) {
+		try {
+			GetAliasesResponse indices = client.indices().getAlias(
+				new GetAliasesRequest(aliasName),
+				RequestOptions.DEFAULT);
+			Set<String> actualIndices = indices.getAliases().keySet();
+			logger.info("Deleting indices {}", actualIndices);
+			client.indices().delete(
+				new DeleteIndexRequest(actualIndices.toArray(new String[]{})),
+				RequestOptions.DEFAULT);
+		} catch (IOException e) {
+			throw new OpenSearchException(aliasName, "Error deleting index " + aliasName, e);
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void recreateIndex(String aliasName) throws OpenSearchException {
-        doRecreateIndex(openSearchClient, aliasName);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void recreateIndex(String aliasName) throws OpenSearchException {
+		doRecreateIndex(openSearchClient, aliasName);
+	}
 
-    /**
-     * Performs all operations for recreating an index using the given OpenSearch client
-     */
-    protected void doRecreateIndex(RestHighLevelClient client, String aliasName) {
-        logger.info("Recreating index for alias {}", aliasName);
-        try {
-            List<String> existingIndexes = doGetIndexes(client, aliasName);
-            for (String indexName : existingIndexes) {
-                logger.info("Found index {} for alias {}", indexName, aliasName);
+	/**
+	 * Performs all operations for recreating an index using the given OpenSearch client
+	 */
+	protected void doRecreateIndex(RestHighLevelClient client, String aliasName) {
+		logger.info("Recreating index for alias {}", aliasName);
+		try {
+			List<String> existingIndexes = doGetIndexes(client, aliasName);
+			for (String indexName : existingIndexes) {
+				logger.info("Found index {} for alias {}", indexName, aliasName);
 
-                // get the locale from the alias name
-                Locale locale = getLocale(indexName);
+				// get the locale from the alias name
+				Locale locale = getLocale(indexName);
 
-                // get the version of the existing index
-                String[] tokens = indexName.split("_v");
-                if (tokens.length != 2) {
-                    throw new IllegalStateException("Could not find current version for index: " + indexName);
-                }
-                int currentVersion = Integer.parseInt(tokens[1]);
+				// get the version of the existing index
+				String[] tokens = indexName.split("_v");
+				if (tokens.length != 2) {
+					throw new IllegalStateException("Could not find current version for index: " + indexName);
+				}
+				int currentVersion = Integer.parseInt(tokens[1]);
 
-                // create a new index
-                String newVersion = "_v" + (currentVersion + 1);
-                logger.debug("Using new version {} for index {}", newVersion, indexName);
+				// create a new index
+				String newVersion = "_v" + (currentVersion + 1);
+				logger.debug("Using new version {} for index {}", newVersion, indexName);
 
-                // copy the supported settings from the existing index
-                Map<String, String> settings = doGetIndexSettings(client, aliasName);
+				// copy the supported settings from the existing index
+				Map<String, String> settings = doGetIndexSettings(client, aliasName);
 
-                doCreateIndex(client, aliasName, newVersion, locale, false, settings);
-                String newIndexName = locale == null ? aliasName + newVersion :
-                        aliasName + "-" + LocaleUtils.toString(locale) + newVersion;
+				doCreateIndex(client, aliasName, newVersion, locale, false, settings);
+				String newIndexName = locale == null ? aliasName + newVersion :
+					aliasName + "-" + LocaleUtils.toString(locale) + newVersion;
 
-                // index all existing content into the new index
-                doReindex(client, indexName, newIndexName);
+				// index all existing content into the new index
+				doReindex(client, indexName, newIndexName);
 
-                // swap indexes
-                doSwap(client, aliasName, indexName, newIndexName);
+				// swap indexes
+				doSwap(client, aliasName, indexName, newIndexName);
 
-                // delete the previous index
-                doDeleteIndex(client, indexName);
-            }
-        } catch (Exception e) {
-            throw new OpenSearchException(aliasName, "Error upgrading index " + aliasName, e);
-        }
-    }
+				// delete the previous index
+				doDeleteIndex(client, indexName);
+			}
+		} catch (Exception e) {
+			throw new OpenSearchException(aliasName, "Error upgrading index " + aliasName, e);
+		}
+	}
 
-    private static Locale getLocale(String indexName) {
-        Locale locale = null;
-        String localeValue = substringBeforeLast(substringAfterLast(indexName, "-"), "_");
-        if (contains(localeValue, "_")) {
-            locale = LocaleUtils.parseLocale(localeValue);
-            if (locale != null) {
-                logger.info("Found locale {} for index {}", locale, indexName);
-            }
-        }
-        return locale;
-    }
+	private static Locale getLocale(String indexName) {
+		Locale locale = null;
+		String localeValue = substringBeforeLast(substringAfterLast(indexName, "-"), "_");
+		if (contains(localeValue, "_")) {
+			locale = LocaleUtils.parseLocale(localeValue);
+			if (locale != null) {
+				logger.info("Found locale {} for index {}", locale, indexName);
+			}
+		}
+		return locale;
+	}
 
-    protected List<String> doGetIndexes(RestHighLevelClient client, String aliasName) throws IOException {
-        GetAliasesResponse indices =
-                client.indices().getAlias(new GetAliasesRequest(aliasName), RequestOptions.DEFAULT);
-        return IteratorUtils.toList(indices.getAliases().keySet().iterator());
-    }
+	protected List<String> doGetIndexes(RestHighLevelClient client, String aliasName) throws IOException {
+		GetAliasesResponse indices =
+			client.indices().getAlias(new GetAliasesRequest(aliasName), RequestOptions.DEFAULT);
+		return IteratorUtils.toList(indices.getAliases().keySet().iterator());
+	}
 
-    protected Map<String, String> doGetIndexSettings(RestHighLevelClient client, String indexAlias) throws IOException {
-        List<String> indices = doGetIndexes(client, indexAlias);
-        if (indices.isEmpty()) {
-            throw new IndexNotFoundException(indexAlias);
-        }
-        String indexName = indices.get(0);
-        GetSettingsResponse response =
-                client.indices().getSettings(new GetSettingsRequest().indices(indexAlias), RequestOptions.DEFAULT);
-        Settings indexSettings = response.getIndexToSettings().get(indexName);
-        Map<String, String> settings = new HashMap<>(defaultSettings);
-        indexSettings.keySet().forEach(key -> settings.put(key, indexSettings.get(key)));
-        return settings;
-    }
+	protected Map<String, String> doGetIndexSettings(RestHighLevelClient client, String indexAlias) throws IOException {
+		List<String> indices = doGetIndexes(client, indexAlias);
+		if (indices.isEmpty()) {
+			throw new IndexNotFoundException(indexAlias);
+		}
+		String indexName = indices.get(0);
+		GetSettingsResponse response =
+			client.indices().getSettings(new GetSettingsRequest().indices(indexAlias), RequestOptions.DEFAULT);
+		Settings indexSettings = response.getIndexToSettings().get(indexName);
+		Map<String, String> settings = new HashMap<>(defaultSettings);
+		indexSettings.keySet().forEach(key -> settings.put(key, indexSettings.get(key)));
+		return settings;
+	}
 
-    protected void doReindex(RestHighLevelClient client, String sourceIndex, String destinationIndex)
-            throws IOException {
-        logger.info("Reindexing all existing content from {} to {}", sourceIndex, destinationIndex);
-        TaskSubmissionResponse response = client.submitReindexTask(
-                new ReindexRequest()
-                        .setSourceIndices(sourceIndex)
-                        .setDestIndex(destinationIndex)
-                        .setRefresh(true)
-                        .setSlices(reindexSlices),
-                RequestOptions.DEFAULT
-        );
-        logger.debug("Wait for reindex task '{}' to complete", response.getTask());
-        TaskId taskId = new TaskId(response.getTask());
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-            logger.debug("Get reindex task '{}' status", taskId);
-            try {
-                GetTaskResponse getTaskResponse;
-                while (!(getTaskResponse = getTask(client, taskId)).isCompleted()) {
-                    logger.trace("Reindex task '{}' not completed yet, waiting...", taskId);
-                    Thread.sleep(DEFAULT_WAIT_SLEEP_TIME_MILLIS);
-                }
-                logger.debug("Reindex task '{}' completed", getTaskResponse.getTaskInfo().getStatus());
-                logger.info("Completed task '{}'. Reindexing from '{}' into '{}'", taskId, sourceIndex, destinationIndex);
-            } catch (Exception e) {
-                throw new SearchException(format("Failed to retrieve reindex task '%s' status", taskId.getId()), e);
-            }
-        });
+	protected void doReindex(RestHighLevelClient client, String sourceIndex, String destinationIndex)
+		throws IOException {
+		logger.info("Reindexing all existing content from {} to {}", sourceIndex, destinationIndex);
+		TaskSubmissionResponse response = client.submitReindexTask(
+			new ReindexRequest()
+				.setSourceIndices(sourceIndex)
+				.setDestIndex(destinationIndex)
+				.setRefresh(true)
+				.setSlices(reindexSlices),
+			RequestOptions.DEFAULT
+		);
+		logger.debug("Wait for reindex task '{}' to complete", response.getTask());
+		TaskId taskId = new TaskId(response.getTask());
+		CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+			logger.debug("Get reindex task '{}' status", taskId);
+			try {
+				GetTaskResponse getTaskResponse;
+				while (!(getTaskResponse = getTask(client, taskId)).isCompleted()) {
+					logger.trace("Reindex task '{}' not completed yet, waiting...", taskId);
+					Thread.sleep(DEFAULT_WAIT_SLEEP_TIME_MILLIS);
+				}
+				logger.debug("Reindex task '{}' completed", getTaskResponse.getTaskInfo().getStatus());
+				logger.info("Completed task '{}'. Reindexing from '{}' into '{}'", taskId, sourceIndex, destinationIndex);
+			} catch (Exception e) {
+				throw new SearchException(format("Failed to retrieve reindex task '%s' status", taskId.getId()), e);
+			}
+		});
 
-        // Don't wait forever
-        future.orTimeout(reindexTimeoutSeconds, SECONDS).join();
-    }
+		// Don't wait forever
+		future.orTimeout(reindexTimeoutSeconds, SECONDS).join();
+	}
 
-    private GetTaskResponse getTask(final RestHighLevelClient client, final TaskId taskId) throws IOException {
-        GetTaskRequest taskQuery = new GetTaskRequest(taskId.getNodeId(), taskId.getId());
-        return client.tasks()
-                .get(taskQuery, RequestOptions.DEFAULT)
-                .orElseThrow(() -> new SearchException("Reindex task not found. id=" + taskId));
-    }
+	private GetTaskResponse getTask(final RestHighLevelClient client, final TaskId taskId) throws IOException {
+		GetTaskRequest taskQuery = new GetTaskRequest(taskId.getNodeId(), taskId.getId());
+		return client.tasks()
+			.get(taskQuery, RequestOptions.DEFAULT)
+			.orElseThrow(() -> new SearchException("Reindex task not found. id=" + taskId));
+	}
 
-    protected void doSwap(RestHighLevelClient client, String aliasName, String existingIndexName, String newIndexName)
-            throws IOException {
-        logger.info("Swapping index {} with {}", existingIndexName, newIndexName);
-        client.indices().updateAliases(new IndicesAliasesRequest()
-                .addAliasAction(
-                        new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
-                                .index(newIndexName)
-                                .alias(aliasName))
-                .addAliasAction(
-                        new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
-                                .index(existingIndexName)
-                                .alias(aliasName)
-                ), RequestOptions.DEFAULT);
-    }
+	protected void doSwap(RestHighLevelClient client, String aliasName, String existingIndexName, String newIndexName)
+		throws IOException {
+		logger.info("Swapping index {} with {}", existingIndexName, newIndexName);
+		client.indices().updateAliases(new IndicesAliasesRequest()
+			.addAliasAction(
+				new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
+					.index(newIndexName)
+					.alias(aliasName))
+			.addAliasAction(
+				new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
+					.index(existingIndexName)
+					.alias(aliasName)
+			), RequestOptions.DEFAULT);
+	}
 
-    protected void doDeleteIndex(RestHighLevelClient client, String indexName) throws IOException {
-        logger.info("Deleting index {}", indexName);
-        client.indices().delete(new DeleteIndexRequest(indexName), RequestOptions.DEFAULT);
-    }
+	protected void doDeleteIndex(RestHighLevelClient client, String indexName) throws IOException {
+		logger.info("Deleting index {}", indexName);
+		client.indices().delete(new DeleteIndexRequest(indexName), RequestOptions.DEFAULT);
+	}
 
-    @Override
-    public void waitUntilReady() {
-        doWaitUntilReady(openSearchClient);
-    }
+	@Override
+	public void waitUntilReady() {
+		doWaitUntilReady(openSearchClient);
+	}
 
-    @Override
-    public void duplicateIndex(String srcAliasName, String destAliasName) throws OpenSearchException {
-        doDuplicateIndex(openSearchClient, srcAliasName, destAliasName);
-    }
+	@Override
+	public void duplicateIndex(String srcAliasName, String destAliasName) throws OpenSearchException {
+		doDuplicateIndex(openSearchClient, srcAliasName, destAliasName);
+	}
 
-    protected void doDuplicateIndex(RestHighLevelClient client, String srcAliasName, String destAliasName) throws OpenSearchException {
-        try {
-            doCreateIndex(client, destAliasName, indexNameSuffix,
-                    getLocale(srcAliasName), true, doGetIndexSettings(client, srcAliasName));
-            doReindex(client, srcAliasName, destAliasName);
-        } catch (IOException e) {
-            throw new OpenSearchException(srcAliasName, format("Error duplicating index '%s'", srcAliasName), e);
-        }
-    }
+	protected void doDuplicateIndex(RestHighLevelClient client, String srcAliasName, String destAliasName) throws OpenSearchException {
+		try {
+			doCreateIndex(client, destAliasName, indexNameSuffix,
+				getLocale(srcAliasName), true, doGetIndexSettings(client, srcAliasName));
+			doReindex(client, srcAliasName, destAliasName);
+		} catch (IOException e) {
+			throw new OpenSearchException(srcAliasName, format("Error duplicating index '%s'", srcAliasName), e);
+		}
+	}
 
-    protected void doWaitUntilReady(RestHighLevelClient client) {
-        logger.info("Waiting for OpenSearch cluster to be ready");
-        boolean ready = false;
-        do {
-            try {
-                ready = client.ping(RequestOptions.DEFAULT);
-            } catch (IOException e) {
-                logger.debug("Error pinging OpenSearch cluster", e);
-            }
-            if (!ready) {
-                logger.info("OpenSearch cluster not ready, will try again in 5 seconds");
-                try {
-                    Thread.sleep(DEFAULT_WAIT_SLEEP_TIME_MILLIS);
-                } catch (InterruptedException e) {
-                    logger.error("Error waiting for OpenSearch cluster to be ready", e);
-                }
-            }
-        } while (!ready);
-    }
+	protected void doWaitUntilReady(RestHighLevelClient client) {
+		logger.info("Waiting for OpenSearch cluster to be ready");
+		boolean ready = false;
+		do {
+			try {
+				ready = client.ping(RequestOptions.DEFAULT);
+			} catch (IOException e) {
+				logger.debug("Error pinging OpenSearch cluster", e);
+			}
+			if (!ready) {
+				logger.info("OpenSearch cluster not ready, will try again in 5 seconds");
+				try {
+					Thread.sleep(DEFAULT_WAIT_SLEEP_TIME_MILLIS);
+				} catch (InterruptedException e) {
+					logger.error("Error waiting for OpenSearch cluster to be ready", e);
+				}
+			}
+		} while (!ready);
+	}
 
-    @Override
-    public void close() throws Exception {
-        openSearchClient.close();
-    }
+	@Override
+	public void close() throws Exception {
+		openSearchClient.close();
+	}
 }

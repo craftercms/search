@@ -26,9 +26,9 @@ import org.jsoup.safety.Safelist;
  */
 public class HtmlStrippingConverter implements FieldValueConverter {
 
-    @Override
-    public Object convert(String name, String value) {
-        return Jsoup.clean(value, Safelist.none());
-    }
+	@Override
+	public Object convert(String name, String value) {
+		return Jsoup.clean(value, Safelist.none());
+	}
 
 }

@@ -64,175 +64,175 @@ import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 @ContextConfiguration(locations = "classpath:/spring/application-context.xml")
 public class OpenSearchITTest {
 
-    private static final String PLUTON_SITE = "pluton";
-    private static final String PLUTON_INDEX_ID = "pluton";
-    private static final String IPAD_DOC_ID = "ipad.xml";
-    private static final String DISABLED_DOC_ID = "disabled.xml";
-    private static final String EXPIRED_DOC_ID = "expired.xml";
-    private static final String WP_REASONS_PDF_DOC_ID = "crafter-wp-7-reasons.pdf";
+	private static final String PLUTON_SITE = "pluton";
+	private static final String PLUTON_INDEX_ID = "pluton";
+	private static final String IPAD_DOC_ID = "ipad.xml";
+	private static final String DISABLED_DOC_ID = "disabled.xml";
+	private static final String EXPIRED_DOC_ID = "expired.xml";
+	private static final String WP_REASONS_PDF_DOC_ID = "crafter-wp-7-reasons.pdf";
 
-    private static final List<String> WP_REASONS_PDF_TAGS = Arrays.asList("Crafter", "reasons", "white paper");
+	private static final List<String> WP_REASONS_PDF_TAGS = Arrays.asList("Crafter", "reasons", "white paper");
 
-    @Autowired
-    private OpenSearchWrapper searchClient;
+	@Autowired
+	private OpenSearchWrapper searchClient;
 
-    @Autowired
-    private OpenSearchService searchService;
+	@Autowired
+	private OpenSearchService searchService;
 
-    @Autowired
-    private OpenSearchAdminService adminService;
+	@Autowired
+	private OpenSearchAdminService adminService;
 
-    private OpenSearchRunner runner;
+	private OpenSearchRunner runner;
 
-    @Before
-    public void setUp() throws IOException {
-        runner = new OpenSearchRunner();
-        runner.onBuild((number, settingsBuilder) -> {
-            settingsBuilder.put("http.port", "9229-9230");
-            settingsBuilder.put("network.host", "localhost");
-        }).build(newConfigs().clusterName("crafter-opensearch").numOfNode(2));
-        runner.ensureYellow();
+	@Before
+	public void setUp() throws IOException {
+		runner = new OpenSearchRunner();
+		runner.onBuild((number, settingsBuilder) -> {
+			settingsBuilder.put("http.port", "9229-9230");
+			settingsBuilder.put("network.host", "localhost");
+		}).build(newConfigs().clusterName("crafter-opensearch").numOfNode(2));
+		runner.ensureYellow();
 
-        adminService.createIndex(PLUTON_INDEX_ID);
-    }
+		adminService.createIndex(PLUTON_INDEX_ID);
+	}
 
-    @After
-    public void tearDown() throws IOException {
-        adminService.deleteIndexes(PLUTON_INDEX_ID);
-        runner.close();
-        runner.clean();
-    }
+	@After
+	public void tearDown() throws IOException {
+		adminService.deleteIndexes(PLUTON_INDEX_ID);
+		runner.close();
+		runner.clean();
+	}
 
-    @Test
-    public void testMethods() throws Exception {
-        SearchRequest request = new SearchRequest(PLUTON_INDEX_ID);
-        request.source(searchSource().query(matchAllQuery()));
+	@Test
+	public void testMethods() throws Exception {
+		SearchRequest request = new SearchRequest(PLUTON_INDEX_ID);
+		request.source(searchSource().query(matchAllQuery()));
 
-        SearchResponse response = searchClient.search(request, RequestOptions.DEFAULT);
-        assertNotNull(response);
+		SearchResponse response = searchClient.search(request, RequestOptions.DEFAULT);
+		assertNotNull(response);
 
-        assertEquals(0, getNumDocs(response));
+		assertEquals(0, getNumDocs(response));
 
-        String xml = getClasspathFileContent("docs/" + IPAD_DOC_ID);
-        searchService.index(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID, xml);
+		String xml = getClasspathFileContent("docs/" + IPAD_DOC_ID);
+		searchService.index(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID, xml);
 
-        xml = getClasspathFileContent("docs/" + DISABLED_DOC_ID);
-        searchService.index(PLUTON_INDEX_ID, PLUTON_SITE, DISABLED_DOC_ID, xml);
+		xml = getClasspathFileContent("docs/" + DISABLED_DOC_ID);
+		searchService.index(PLUTON_INDEX_ID, PLUTON_SITE, DISABLED_DOC_ID, xml);
 
-        xml = getClasspathFileContent("docs/" + EXPIRED_DOC_ID);
-        searchService.index(PLUTON_INDEX_ID, PLUTON_SITE, EXPIRED_DOC_ID, xml);
+		xml = getClasspathFileContent("docs/" + EXPIRED_DOC_ID);
+		searchService.index(PLUTON_INDEX_ID, PLUTON_SITE, EXPIRED_DOC_ID, xml);
 
-        Resource file = getClasspathFile("docs/" + WP_REASONS_PDF_DOC_ID);
-        searchService.indexBinary(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file);
+		Resource file = getClasspathFile("docs/" + WP_REASONS_PDF_DOC_ID);
+		searchService.indexBinary(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file);
 
-        searchService.refresh(PLUTON_INDEX_ID);
+		searchService.refresh(PLUTON_INDEX_ID);
 
-        response = searchClient.search(request, RequestOptions.DEFAULT);
-        assertNotNull(response);
+		response = searchClient.search(request, RequestOptions.DEFAULT);
+		assertNotNull(response);
 
-        assertEquals(2, getNumDocs(response));
+		assertEquals(2, getNumDocs(response));
 
-        Map<String, DocumentContext> docs = getDocs(response);
-        DocumentContext ipadDoc = docs.get(IPAD_DOC_ID);
-        DocumentContext wpReasonsPdfDoc = docs.get(WP_REASONS_PDF_DOC_ID);
+		Map<String, DocumentContext> docs = getDocs(response);
+		DocumentContext ipadDoc = docs.get(IPAD_DOC_ID);
+		DocumentContext wpReasonsPdfDoc = docs.get(WP_REASONS_PDF_DOC_ID);
 
-        assertNotNull(ipadDoc);
-        assertNotNull(wpReasonsPdfDoc);
-        assertIPadDoc(ipadDoc);
-        assertWpReasonsPdfDoc(wpReasonsPdfDoc);
+		assertNotNull(ipadDoc);
+		assertNotNull(wpReasonsPdfDoc);
+		assertIPadDoc(ipadDoc);
+		assertWpReasonsPdfDoc(wpReasonsPdfDoc);
 
-        Map<String, Object> additionalFields = Map.of("tags", Map.of("value_smv", WP_REASONS_PDF_TAGS));
+		Map<String, Object> additionalFields = Map.of("tags", Map.of("value_smv", WP_REASONS_PDF_TAGS));
 
-        searchService.indexBinary(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file, additionalFields);
-        searchService.refresh(PLUTON_INDEX_ID);
+		searchService.indexBinary(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID, file, additionalFields);
+		searchService.refresh(PLUTON_INDEX_ID);
 
-        request.source(searchSource().query(matchQuery("localId", WP_REASONS_PDF_DOC_ID)));
+		request.source(searchSource().query(matchQuery("localId", WP_REASONS_PDF_DOC_ID)));
 
-        response = searchClient.search(request, RequestOptions.DEFAULT);
-        assertNotNull(response);
+		response = searchClient.search(request, RequestOptions.DEFAULT);
+		assertNotNull(response);
 
-        assertEquals(1, getNumDocs(response));
+		assertEquals(1, getNumDocs(response));
 
-        docs = getDocs(response);
-        wpReasonsPdfDoc = docs.get(WP_REASONS_PDF_DOC_ID);
+		docs = getDocs(response);
+		wpReasonsPdfDoc = docs.get(WP_REASONS_PDF_DOC_ID);
 
-        assertNotNull(wpReasonsPdfDoc);
-        assertWpReasonsPdfDocWithAdditionalFields(wpReasonsPdfDoc);
+		assertNotNull(wpReasonsPdfDoc);
+		assertWpReasonsPdfDocWithAdditionalFields(wpReasonsPdfDoc);
 
-        searchService.delete(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID);
-        searchService.delete(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID);
-        searchService.refresh(PLUTON_INDEX_ID);
+		searchService.delete(PLUTON_INDEX_ID, PLUTON_SITE, IPAD_DOC_ID);
+		searchService.delete(PLUTON_INDEX_ID, PLUTON_SITE, WP_REASONS_PDF_DOC_ID);
+		searchService.refresh(PLUTON_INDEX_ID);
 
-        request = new SearchRequest(PLUTON_INDEX_ID);
-        request.source(searchSource().query(matchAllQuery()));
+		request = new SearchRequest(PLUTON_INDEX_ID);
+		request.source(searchSource().query(matchAllQuery()));
 
-        response = searchClient.search(request, RequestOptions.DEFAULT);
-        assertNotNull(response);
+		response = searchClient.search(request, RequestOptions.DEFAULT);
+		assertNotNull(response);
 
-        assertEquals(0, getNumDocs(response));
-    }
+		assertEquals(0, getNumDocs(response));
+	}
 
-    private Resource getClasspathFile(String path) {
-        return new ClassPathResource(path);
-    }
+	private Resource getClasspathFile(String path) {
+		return new ClassPathResource(path);
+	}
 
-    private String getClasspathFileContent(String path) throws IOException {
-        return IOUtils.toString(new ClassPathResource(path).getInputStream(), Charset.defaultCharset());
-    }
+	private String getClasspathFileContent(String path) throws IOException {
+		return IOUtils.toString(new ClassPathResource(path).getInputStream(), Charset.defaultCharset());
+	}
 
-    private long getNumDocs(SearchResponse response) {
-        return response.getHits().getTotalHits().value;
-    }
+	private long getNumDocs(SearchResponse response) {
+		return response.getHits().getTotalHits().value;
+	}
 
-    // Parse each doc into JSON to speed up querying fields later
-    private Map<String, DocumentContext> getDocs(SearchResponse response) {
-        return Stream.of(response.getHits().getHits())
-                .collect(toMap(hit -> hit.getSourceAsMap().get("localId").toString(),
-                        hit -> JsonPath.parse(hit.getSourceAsString())));
-    }
+	// Parse each doc into JSON to speed up querying fields later
+	private Map<String, DocumentContext> getDocs(SearchResponse response) {
+		return Stream.of(response.getHits().getHits())
+			.collect(toMap(hit -> hit.getSourceAsMap().get("localId").toString(),
+				hit -> JsonPath.parse(hit.getSourceAsString())));
+	}
 
-    private void assertIPadDocCommonFields(DocumentContext doc) {
-        assertThat(doc, hasJsonPath("crafterPublishedDate", notNullValue()));
-        assertThat(doc, hasJsonPath("crafterPublishedDate_dt", notNullValue()));
-        assertThat(doc, hasJsonPath("crafterSite", equalTo(PLUTON_SITE)));
-        assertThat(doc, hasJsonPath("name_s", equalTo("iPad Air 64GB")));
-        assertThat(doc, hasJsonPath("name_t", equalTo("iPad Air 64GB")));
-        assertThat(doc, hasJsonPath("description_html",
-                equalTo("Apple MH182LL/A iPad Air 9.7-Inch Retina Display 64GB, Wi-Fi (Gold)")));
-        assertThat(doc, hasJsonPath("availableDate_dt", equalTo("2014-10-01T00:00:00.000Z")));
-        assertThat(doc, hasJsonPath("tags.value_s", equalTo(List.of("Apple", "iPad", "Tablet"))));
-    }
+	private void assertIPadDocCommonFields(DocumentContext doc) {
+		assertThat(doc, hasJsonPath("crafterPublishedDate", notNullValue()));
+		assertThat(doc, hasJsonPath("crafterPublishedDate_dt", notNullValue()));
+		assertThat(doc, hasJsonPath("crafterSite", equalTo(PLUTON_SITE)));
+		assertThat(doc, hasJsonPath("name_s", equalTo("iPad Air 64GB")));
+		assertThat(doc, hasJsonPath("name_t", equalTo("iPad Air 64GB")));
+		assertThat(doc, hasJsonPath("description_html",
+			equalTo("Apple MH182LL/A iPad Air 9.7-Inch Retina Display 64GB, Wi-Fi (Gold)")));
+		assertThat(doc, hasJsonPath("availableDate_dt", equalTo("2014-10-01T00:00:00.000Z")));
+		assertThat(doc, hasJsonPath("tags.value_s", equalTo(List.of("Apple", "iPad", "Tablet"))));
+	}
 
-    private void assertIPadDoc(DocumentContext doc) {
-        assertIPadDocCommonFields(doc);
+	private void assertIPadDoc(DocumentContext doc) {
+		assertIPadDocCommonFields(doc);
 
-        assertThat(doc, hasJsonPath("id", equalTo(PLUTON_SITE + ":" + IPAD_DOC_ID)));
-        assertThat(doc, hasJsonPath("rootId", equalTo(PLUTON_SITE + ":" + IPAD_DOC_ID)));
-        assertThat(doc, hasJsonPath("localId", equalTo(IPAD_DOC_ID)));
-        assertThat(doc, hasJsonPath("content-type", equalTo("product")));
-        assertThat(doc, hasJsonPath("tags.value_s", equalTo(List.of("Apple", "iPad", "Tablet"))));
-        assertThat(doc, hasJsonPath("accessories.item[*].description_html",
-                equalTo(List.of("Silicon case with stand for iPad Air 64GB", "Lighting cable for iPad"))));
-        assertThat(doc, hasJsonPath("accessories.item[*].name_s", equalTo(List.of("Case", "Lighting Cable"))));
-        // wrapping list is required because of how jsonPath returns the results
-        assertThat(doc, hasJsonPath("accessories.item[*].colors.color_s",
-                equalTo(List.of(List.of("Black", "Blue", "Red")))));
-    }
+		assertThat(doc, hasJsonPath("id", equalTo(PLUTON_SITE + ":" + IPAD_DOC_ID)));
+		assertThat(doc, hasJsonPath("rootId", equalTo(PLUTON_SITE + ":" + IPAD_DOC_ID)));
+		assertThat(doc, hasJsonPath("localId", equalTo(IPAD_DOC_ID)));
+		assertThat(doc, hasJsonPath("content-type", equalTo("product")));
+		assertThat(doc, hasJsonPath("tags.value_s", equalTo(List.of("Apple", "iPad", "Tablet"))));
+		assertThat(doc, hasJsonPath("accessories.item[*].description_html",
+			equalTo(List.of("Silicon case with stand for iPad Air 64GB", "Lighting cable for iPad"))));
+		assertThat(doc, hasJsonPath("accessories.item[*].name_s", equalTo(List.of("Case", "Lighting Cable"))));
+		// wrapping list is required because of how jsonPath returns the results
+		assertThat(doc, hasJsonPath("accessories.item[*].colors.color_s",
+			equalTo(List.of(List.of("Black", "Blue", "Red")))));
+	}
 
-    private void assertWpReasonsPdfDoc(DocumentContext doc) {
-        assertThat(doc, hasJsonPath("crafterPublishedDate", notNullValue()));
-        assertThat(doc, hasJsonPath("crafterPublishedDate_dt", notNullValue()));
-        assertThat(doc, hasJsonPath("crafterSite", equalTo(PLUTON_SITE)));
-        assertThat(doc, hasJsonPath("id", equalTo(PLUTON_SITE + ":" + WP_REASONS_PDF_DOC_ID)));
-        assertThat(doc, hasJsonPath("rootId", equalTo(PLUTON_SITE + ":" + WP_REASONS_PDF_DOC_ID)));
-        assertThat(doc, hasJsonPath("localId", equalTo(WP_REASONS_PDF_DOC_ID)));
-        assertThat(doc, hasJsonPath("content", notNullValue()));
-    }
+	private void assertWpReasonsPdfDoc(DocumentContext doc) {
+		assertThat(doc, hasJsonPath("crafterPublishedDate", notNullValue()));
+		assertThat(doc, hasJsonPath("crafterPublishedDate_dt", notNullValue()));
+		assertThat(doc, hasJsonPath("crafterSite", equalTo(PLUTON_SITE)));
+		assertThat(doc, hasJsonPath("id", equalTo(PLUTON_SITE + ":" + WP_REASONS_PDF_DOC_ID)));
+		assertThat(doc, hasJsonPath("rootId", equalTo(PLUTON_SITE + ":" + WP_REASONS_PDF_DOC_ID)));
+		assertThat(doc, hasJsonPath("localId", equalTo(WP_REASONS_PDF_DOC_ID)));
+		assertThat(doc, hasJsonPath("content", notNullValue()));
+	}
 
-    private void assertWpReasonsPdfDocWithAdditionalFields(DocumentContext doc) {
-        assertWpReasonsPdfDoc(doc);
+	private void assertWpReasonsPdfDocWithAdditionalFields(DocumentContext doc) {
+		assertWpReasonsPdfDoc(doc);
 
-        assertThat(doc, hasJsonPath("tags.value_smv", equalTo(WP_REASONS_PDF_TAGS)));
-    }
+		assertThat(doc, hasJsonPath("tags.value_smv", equalTo(WP_REASONS_PDF_TAGS)));
+	}
 
 }

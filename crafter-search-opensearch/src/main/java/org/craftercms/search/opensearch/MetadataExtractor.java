@@ -22,17 +22,19 @@ import org.springframework.core.io.Resource;
 
 /**
  * Defines the basic operation to process binary files and produce relevant metadata
+ *
  * @param <T> the type of object that provides the metadata
  * @author joseross
  */
 public interface MetadataExtractor<T> {
 
-    /**
-     * Takes relevant metadata from the source object to the properties parameter
-     * @param resource the original file containing the metadata (in case any extra operation is needed)
-     * @param metadata the object that provides the metadata
-     * @param properties the properties that will be indexed
-     */
-    void extract(Resource resource, T metadata, Map<String, Object> properties);
+	/**
+	 * Takes relevant metadata from the source object to the properties parameter
+	 *
+	 * @param resource   the original file containing the metadata (in case any extra operation is needed)
+	 * @param metadata   the object that provides the metadata
+	 * @param properties the properties that will be indexed
+	 */
+	void extract(Resource resource, T metadata, Map<String, Object> properties);
 
 }

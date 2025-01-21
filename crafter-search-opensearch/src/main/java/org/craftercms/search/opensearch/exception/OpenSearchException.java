@@ -20,16 +20,17 @@ import org.craftercms.search.commons.exception.SearchException;
 
 /**
  * Base exception for all OpenSearch errors
+ *
  * @author joseross
  */
 public class OpenSearchException extends SearchException {
 
-    public OpenSearchException(final String indexId, final String msg) {
-        super(indexId, msg);
-    }
+	public OpenSearchException(final String indexId, final String msg) {
+		super(indexId, msg);
+	}
 
-    public OpenSearchException(final String indexId, final String msg, final Throwable throwable) {
-        super(indexId, msg, throwable);
-    }
+	public OpenSearchException(final String indexId, final String msg, final Throwable throwable) {
+		super(indexId, msg, throwable);
+	}
 
 }

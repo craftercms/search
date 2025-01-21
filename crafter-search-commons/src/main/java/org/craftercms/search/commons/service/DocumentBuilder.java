@@ -22,33 +22,32 @@ import org.craftercms.search.commons.exception.DocumentBuildException;
 
 /**
  * Transforms an XML document to te appropriate format for the search engine.
+ *
  * @param <T> the document type for the search engine
  */
 public interface DocumentBuilder<T> {
 
-    /**
-     * Builds a document from the input XML.
-     *
-     * @param site                   the Crafter site name the content belongs to
-     * @param id                     value for the "localId" field in the document (final doc id is built as
-     *                               site:localId)
-     * @param xml                    the input XML
-     * @param ignoreRootInFieldNames ignore the root element of the input XML in field names
-     * @return the document
-     * @throws DocumentBuildException
-     *
-     */
-    T build(String site, String id, String xml, boolean ignoreRootInFieldNames) throws DocumentBuildException;
+	/**
+	 * Builds a document from the input XML.
+	 *
+	 * @param site                   the Crafter site name the content belongs to
+	 * @param id                     value for the "localId" field in the document (final doc id is built as
+	 *                               site:localId)
+	 * @param xml                    the input XML
+	 * @param ignoreRootInFieldNames ignore the root element of the input XML in field names
+	 * @return the document
+	 * @throws DocumentBuildException
+	 */
+	T build(String site, String id, String xml, boolean ignoreRootInFieldNames) throws DocumentBuildException;
 
-    /**
-     * Builds a document from the provided multi value map of fields
-     *
-     * @param site      the Crafter site name the content belongs to
-     * @param id        value for the "localId" field in the document (final doc id is built as site:localId)
-     * @param fields    fields to add to the document.
-     *
-     * @return the document
-     */
-    T build(String site, String id, Map<String, List<String>> fields) throws DocumentBuildException;
+	/**
+	 * Builds a document from the provided multi value map of fields
+	 *
+	 * @param site   the Crafter site name the content belongs to
+	 * @param id     value for the "localId" field in the document (final doc id is built as site:localId)
+	 * @param fields fields to add to the document.
+	 * @return the document
+	 */
+	T build(String site, String id, Map<String, List<String>> fields) throws DocumentBuildException;
 
 }

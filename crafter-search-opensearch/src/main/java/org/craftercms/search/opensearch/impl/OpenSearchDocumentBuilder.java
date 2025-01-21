@@ -26,22 +26,23 @@ import org.craftercms.search.opensearch.jackson.MixedMultivaluedMap;
 
 /**
  * Implementation of {@link DocumentBuilder} for OpenSearch
+ *
  * @author joseross
  */
 public class OpenSearchDocumentBuilder extends AbstractDocumentBuilder<Map<String, Object>> {
 
-    public OpenSearchDocumentBuilder(ElementParserService<Map<String, Object>> parserService, FieldValueConverter fieldValueConverter) {
-        super(parserService, fieldValueConverter);
-    }
+	public OpenSearchDocumentBuilder(ElementParserService<Map<String, Object>> parserService, FieldValueConverter fieldValueConverter) {
+		super(parserService, fieldValueConverter);
+	}
 
-    @Override
-    protected Map<String, Object> createDoc() {
-        return new MixedMultivaluedMap();
-    }
+	@Override
+	protected Map<String, Object> createDoc() {
+		return new MixedMultivaluedMap();
+	}
 
-    @Override
-    protected void addField(final Map<String, Object> doc, final String fieldName, final Object fieldValue) {
-        doc.put(fieldName, fieldValue);
-    }
+	@Override
+	protected void addField(final Map<String, Object> doc, final String fieldName, final Object fieldValue) {
+		doc.put(fieldName, fieldValue);
+	}
 
 }

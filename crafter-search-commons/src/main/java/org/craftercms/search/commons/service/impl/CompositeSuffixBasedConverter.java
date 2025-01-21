@@ -29,32 +29,32 @@ import org.craftercms.search.commons.service.FieldValueConverter;
  */
 public class CompositeSuffixBasedConverter implements FieldValueConverter {
 
-    private Map<String, FieldValueConverter> converterMappings;
-    private FieldValueConverter defaultConverter;
+	private Map<String, FieldValueConverter> converterMappings;
+	private FieldValueConverter defaultConverter;
 
-    public void setConverterMappings(Map<String, FieldValueConverter> converterMappings) {
-        this.converterMappings = converterMappings;
-    }
+	public void setConverterMappings(Map<String, FieldValueConverter> converterMappings) {
+		this.converterMappings = converterMappings;
+	}
 
-    public void setDefaultConverter(FieldValueConverter defaultConverter) {
-        this.defaultConverter = defaultConverter;
-    }
+	public void setDefaultConverter(FieldValueConverter defaultConverter) {
+		this.defaultConverter = defaultConverter;
+	}
 
-    @Override
-    public Object convert(String name, String value) {
-        if (MapUtils.isNotEmpty(converterMappings)) {
-            for (Map.Entry<String, FieldValueConverter> entry : converterMappings.entrySet()) {
-                if (name.endsWith(entry.getKey())) {
-                    return entry.getValue().convert(name, value);
-                }
-            }
-        }
+	@Override
+	public Object convert(String name, String value) {
+		if (MapUtils.isNotEmpty(converterMappings)) {
+			for (Map.Entry<String, FieldValueConverter> entry : converterMappings.entrySet()) {
+				if (name.endsWith(entry.getKey())) {
+					return entry.getValue().convert(name, value);
+				}
+			}
+		}
 
-        if (defaultConverter != null) {
-            return defaultConverter.convert(name, value);
-        } else {
-            return value;
-        }
-    }
+		if (defaultConverter != null) {
+			return defaultConverter.convert(name, value);
+		} else {
+			return value;
+		}
+	}
 
 }

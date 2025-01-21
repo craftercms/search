@@ -23,62 +23,66 @@ import java.util.Locale;
 
 /**
  * Provides operations to manage indices in OpenSearch
+ *
  * @author joseross
  * @since 3.1.0
  */
 public interface OpenSearchAdminService extends AutoCloseable {
 
-    /**
-     * Creates an index
-     * @param aliasName the name of the alias
-     * @throws OpenSearchException if there is any error during the operation
-     */
-    void createIndex(String aliasName) throws OpenSearchException;
+	/**
+	 * Creates an index
+	 *
+	 * @param aliasName the name of the alias
+	 * @throws OpenSearchException if there is any error during the operation
+	 */
+	void createIndex(String aliasName) throws OpenSearchException;
 
-    /**
-     * Indicates if an index exists for the given alias
-     *
-     * @param aliasName the index alias
-     * @return true if the index exists, false otherwise
-     * @throws OpenSearchException if there is any error while checking the index
-     */
-    boolean indexExists(String aliasName) throws OpenSearchException;
+	/**
+	 * Indicates if an index exists for the given alias
+	 *
+	 * @param aliasName the index alias
+	 * @return true if the index exists, false otherwise
+	 * @throws OpenSearchException if there is any error while checking the index
+	 */
+	boolean indexExists(String aliasName) throws OpenSearchException;
 
-    /**
-     * Creates an index for the given locale
-     * @param aliasName the name of the alias
-     * @param locale the locale for the index
-     */
-    void createIndex(String aliasName, Locale locale);
+	/**
+	 * Creates an index for the given locale
+	 *
+	 * @param aliasName the name of the alias
+	 * @param locale    the locale for the index
+	 */
+	void createIndex(String aliasName, Locale locale);
 
-    /**
-     * Deletes all indexes assigned to the given alias
-     * @param aliasName the name of the alias
-     * @throws OpenSearchException if there is any error during the operation
-     */
-    void deleteIndexes(String aliasName) throws OpenSearchException;
+	/**
+	 * Deletes all indexes assigned to the given alias
+	 *
+	 * @param aliasName the name of the alias
+	 * @throws OpenSearchException if there is any error during the operation
+	 */
+	void deleteIndexes(String aliasName) throws OpenSearchException;
 
-    /**
-     * Recreates an existing index
-     *
-     * @param aliasName the name of the alias
-     * @throws OpenSearchException if there is any error during the operation
-     */
-    void recreateIndex(String aliasName) throws OpenSearchException;
+	/**
+	 * Recreates an existing index
+	 *
+	 * @param aliasName the name of the alias
+	 * @throws OpenSearchException if there is any error during the operation
+	 */
+	void recreateIndex(String aliasName) throws OpenSearchException;
 
-    /**
-     * Checks if the OpenSearch cluster is ready to receive requests
-     */
-    void waitUntilReady();
+	/**
+	 * Checks if the OpenSearch cluster is ready to receive requests
+	 */
+	void waitUntilReady();
 
-    /**
-     * Create a new index with the same settings and mappings as the source index,
-     * then reindex all data to the newly created index.
-     *
-     * @param srcIndex  the existing source index
-     * @param destIndex the new index to be created
-     * @throws OpenSearchException if there is any error during the operation
-     */
-    void duplicateIndex(String srcIndex, String destIndex) throws OpenSearchException;
+	/**
+	 * Create a new index with the same settings and mappings as the source index,
+	 * then reindex all data to the newly created index.
+	 *
+	 * @param srcIndex  the existing source index
+	 * @param destIndex the new index to be created
+	 * @throws OpenSearchException if there is any error during the operation
+	 */
+	void duplicateIndex(String srcIndex, String destIndex) throws OpenSearchException;
 
 }

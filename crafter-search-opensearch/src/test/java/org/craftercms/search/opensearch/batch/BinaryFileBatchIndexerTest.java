@@ -34,48 +34,48 @@ import static org.mockito.Mockito.*;
  */
 public class BinaryFileBatchIndexerTest extends BatchIndexerTestBase {
 
-    private static final String SITE_NAME = "test";
-    private static final String SUPPORTED_FILENAME = "crafter-wp-7-reasons.pdf";
-    private static final String NON_SUPPORTED_FILENAME = "image.jpg";
+	private static final String SITE_NAME = "test";
+	private static final String SUPPORTED_FILENAME = "crafter-wp-7-reasons.pdf";
+	private static final String NON_SUPPORTED_FILENAME = "image.jpg";
 
-    private OpenSearchBinaryFileBatchIndexer batchIndexer;
+	private OpenSearchBinaryFileBatchIndexer batchIndexer;
 
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
 
-        when(contentStoreService.findContent(any(), anyString())).thenAnswer(
-                invocationOnMock -> {
-                    Object[] args = invocationOnMock.getArguments();
-                    String path = (String)args[1];
+		when(contentStoreService.findContent(any(), anyString())).thenAnswer(
+			invocationOnMock -> {
+				Object[] args = invocationOnMock.getArguments();
+				String path = (String) args[1];
 
-                    return findContent(path);
-                }
-        );
+				return findContent(path);
+			}
+		);
 
-        batchIndexer = getBatchIndexer();
-    }
+		batchIndexer = getBatchIndexer();
+	}
 
-    @Test
-    public void testProcess() {
-        String indexId = SITE_NAME;
-        UpdateSet updateSet = new UpdateSet(Collections.singletonList(SUPPORTED_FILENAME), Collections.singletonList(NON_SUPPORTED_FILENAME));
-        UpdateStatus updateStatus = new UpdateStatus();
+	@Test
+	public void testProcess() {
+		String indexId = SITE_NAME;
+		UpdateSet updateSet = new UpdateSet(Collections.singletonList(SUPPORTED_FILENAME), Collections.singletonList(NON_SUPPORTED_FILENAME));
+		UpdateStatus updateStatus = new UpdateStatus();
 
-        batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
+		batchIndexer.updateIndex(indexId, SITE_NAME, contentStoreService, context, updateSet, updateStatus);
 
-        assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
-        assertEquals(SUPPORTED_FILENAME, updateStatus.getSuccessfulUpdates().get(0));
-        verify(searchService)
-                .indexBinary(eq(indexId), eq(SITE_NAME), eq(SUPPORTED_FILENAME), any(Content.class), eq(null));
-        verify(searchService, never()).delete(indexId, SITE_NAME, NON_SUPPORTED_FILENAME);
-    }
+		assertEquals(1, updateStatus.getAttemptedUpdatesAndDeletes());
+		assertEquals(SUPPORTED_FILENAME, updateStatus.getSuccessfulUpdates().get(0));
+		verify(searchService)
+			.indexBinary(eq(indexId), eq(SITE_NAME), eq(SUPPORTED_FILENAME), any(Content.class), eq(null));
+		verify(searchService, never()).delete(indexId, SITE_NAME, NON_SUPPORTED_FILENAME);
+	}
 
-    protected OpenSearchBinaryFileBatchIndexer getBatchIndexer() {
-        OpenSearchBinaryFileBatchIndexer batchIndexer = new OpenSearchBinaryFileBatchIndexer(searchService);
-        batchIndexer.setSupportedMimeTypes(Collections.singletonList("application/pdf"));
+	protected OpenSearchBinaryFileBatchIndexer getBatchIndexer() {
+		OpenSearchBinaryFileBatchIndexer batchIndexer = new OpenSearchBinaryFileBatchIndexer(searchService);
+		batchIndexer.setSupportedMimeTypes(Collections.singletonList("application/pdf"));
 
-        return batchIndexer;
-    }
+		return batchIndexer;
+	}
 
 }

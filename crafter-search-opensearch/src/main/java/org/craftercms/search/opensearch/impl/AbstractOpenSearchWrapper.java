@@ -52,127 +52,127 @@ import static org.opensearch.action.search.SearchRequest.DEFAULT_INDICES_OPTIONS
  */
 public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public static final String PARAM_NAME_INDEX = "index";
-    public static final String PARAM_NAME_SEARCH_TYPE = "search_type";
+	public static final String PARAM_NAME_INDEX = "index";
+	public static final String PARAM_NAME_SEARCH_TYPE = "search_type";
 
-    /**
-     * The OpenSearch client
-     */
-    protected final RestHighLevelClient client;
+	/**
+	 * The OpenSearch client
+	 */
+	protected final RestHighLevelClient client;
 
-    /**
-     * The filter queries to apply to all searches
-     */
-    protected String[] filterQueries;
+	/**
+	 * The filter queries to apply to all searches
+	 */
+	protected String[] filterQueries;
 
-    public AbstractOpenSearchWrapper(final RestHighLevelClient client) {
-        this.client = client;
-    }
+	public AbstractOpenSearchWrapper(final RestHighLevelClient client) {
+		this.client = client;
+	}
 
-    public void setFilterQueries(final String[] filterQueries) {
-        this.filterQueries = filterQueries;
-    }
+	public void setFilterQueries(final String[] filterQueries) {
+		this.filterQueries = filterQueries;
+	}
 
-    /**
-     * Updates the value of the index for the given request
-     *
-     * @param request the request to update
-     */
-    protected abstract void updateIndex(SearchRequest request);
+	/**
+	 * Updates the value of the index for the given request
+	 *
+	 * @param request the request to update
+	 */
+	protected abstract void updateIndex(SearchRequest request);
 
-    /**
-     * Updates the filter queries for the given request
-     *
-     * @param request the request to update
-     */
-    protected void updateFilters(SearchRequest request) {
-        if (ArrayUtils.isEmpty(filterQueries)) {
-            logger.debug("No additional filter queries configured");
-            return;
-        }
+	/**
+	 * Updates the filter queries for the given request
+	 *
+	 * @param request the request to update
+	 */
+	protected void updateFilters(SearchRequest request) {
+		if (ArrayUtils.isEmpty(filterQueries)) {
+			logger.debug("No additional filter queries configured");
+			return;
+		}
 
-        BoolQueryBuilder boolQueryBuilder;
-        if (request.source().query() instanceof BoolQueryBuilder) {
-            boolQueryBuilder = (BoolQueryBuilder) request.source().query();
-        } else {
-            boolQueryBuilder = new BoolQueryBuilder().must(request.source().query());
-        }
+		BoolQueryBuilder boolQueryBuilder;
+		if (request.source().query() instanceof BoolQueryBuilder) {
+			boolQueryBuilder = (BoolQueryBuilder) request.source().query();
+		} else {
+			boolQueryBuilder = new BoolQueryBuilder().must(request.source().query());
+		}
 
-        for (String filterQuery : filterQueries) {
-            logger.debug("Adding filter query: {}", filterQuery);
-            boolQueryBuilder.filter(new QueryStringQueryBuilder(filterQuery));
-        }
+		for (String filterQuery : filterQueries) {
+			logger.debug("Adding filter query: {}", filterQuery);
+			boolQueryBuilder.filter(new QueryStringQueryBuilder(filterQuery));
+		}
 
-        request.source().query(boolQueryBuilder);
-    }
+		request.source().query(boolQueryBuilder);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SearchResponse search(final SearchRequest request, final RequestOptions options) {
-        logger.debug("Original search request: {}", request);
-        updateIndex(request);
-        updateFilters(request);
-        logger.debug("Updated search request: {}", request);
-        if (logger.isDebugEnabled()) {
-            var urls = client.getLowLevelClient().getNodes().stream()
-                    .map(Node::getHost)
-                    .collect(toList());
-            logger.debug("Executing search request for urls {}", urls);
-        }
-        try {
-            return client.search(request, options);
-        } catch (Exception e) {
-            throw new OpenSearchException(request.indices()[0], "Error executing search request", e);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public SearchResponse search(final SearchRequest request, final RequestOptions options) {
+		logger.debug("Original search request: {}", request);
+		updateIndex(request);
+		updateFilters(request);
+		logger.debug("Updated search request: {}", request);
+		if (logger.isDebugEnabled()) {
+			var urls = client.getLowLevelClient().getNodes().stream()
+				.map(Node::getHost)
+				.collect(toList());
+			logger.debug("Executing search request for urls {}", urls);
+		}
+		try {
+			return client.search(request, options);
+		} catch (Exception e) {
+			throw new OpenSearchException(request.indices()[0], "Error executing search request", e);
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SearchResponse search(final Map<String, Object> request, final Map<String, Object> parameters,
-                                 final RequestOptions options) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            String json = mapper.writeValueAsString(request);
-            return search(json, parameters, options);
-        } catch (IOException e) {
-            throw new OpenSearchException(null, "Error parsing request " + request, e);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public SearchResponse search(final Map<String, Object> request, final Map<String, Object> parameters,
+				     final RequestOptions options) {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String json = mapper.writeValueAsString(request);
+			return search(json, parameters, options);
+		} catch (IOException e) {
+			throw new OpenSearchException(null, "Error parsing request " + request, e);
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SearchResponse search(final String request, final Map<String, Object> parameters,
-                                 final RequestOptions options) {
-        SearchModule module = new SearchModule(Settings.EMPTY, Collections.emptyList());
-        try {
-            SearchSourceBuilder builder =
-                    SearchSourceBuilder.fromXContent(JsonXContent.jsonXContent
-                            .createParser(new NamedXContentRegistry(module.getNamedXContents()),
-                                    DeprecationHandler.THROW_UNSUPPORTED_OPERATION, request));
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public SearchResponse search(final String request, final Map<String, Object> parameters,
+				     final RequestOptions options) {
+		SearchModule module = new SearchModule(Settings.EMPTY, Collections.emptyList());
+		try {
+			SearchSourceBuilder builder =
+				SearchSourceBuilder.fromXContent(JsonXContent.jsonXContent
+					.createParser(new NamedXContentRegistry(module.getNamedXContents()),
+						DeprecationHandler.THROW_UNSUPPORTED_OPERATION, request));
 
-            SearchRequest searchRequest = new SearchRequest();
-            searchRequest.source(builder);
+			SearchRequest searchRequest = new SearchRequest();
+			searchRequest.source(builder);
 
-            if (isNotEmpty(parameters)) {
-                if (parameters.containsKey(PARAM_NAME_INDEX)) {
-                    searchRequest.indices(parameters.get(PARAM_NAME_INDEX).toString().split(","));
-                }
-                searchRequest.searchType((String) parameters.get(PARAM_NAME_SEARCH_TYPE));
-                searchRequest.indicesOptions(IndicesOptions.fromMap(parameters, DEFAULT_INDICES_OPTIONS));
-            }
+			if (isNotEmpty(parameters)) {
+				if (parameters.containsKey(PARAM_NAME_INDEX)) {
+					searchRequest.indices(parameters.get(PARAM_NAME_INDEX).toString().split(","));
+				}
+				searchRequest.searchType((String) parameters.get(PARAM_NAME_SEARCH_TYPE));
+				searchRequest.indicesOptions(IndicesOptions.fromMap(parameters, DEFAULT_INDICES_OPTIONS));
+			}
 
-            return search(searchRequest, options);
-        } catch (IOException e) {
-            throw new OpenSearchException(null, "Error parsing request " + request, e);
-        }
-    }
+			return search(searchRequest, options);
+		} catch (IOException e) {
+			throw new OpenSearchException(null, "Error parsing request " + request, e);
+		}
+	}
 
 }

@@ -28,42 +28,42 @@ import org.springframework.core.io.AbstractResource;
  */
 public class ContentResource extends AbstractResource {
 
-    private Content content;
-    private String filename;
+	private Content content;
+	private String filename;
 
-    public ContentResource(Content content, String filename) {
-        this.content = content;
-        this.filename = filename;
-    }
+	public ContentResource(Content content, String filename) {
+		this.content = content;
+		this.filename = filename;
+	}
 
-    @Override
-    public String getDescription() {
-        return content.toString();
-    }
+	@Override
+	public String getDescription() {
+		return content.toString();
+	}
 
-    @Override
-    public String getFilename() {
-        return filename;
-    }
+	@Override
+	public String getFilename() {
+		return filename;
+	}
 
-    @Override
-    public boolean exists() {
-        return true;
-    }
+	@Override
+	public boolean exists() {
+		return true;
+	}
 
-    @Override
-    public long contentLength() throws IOException {
-        return content.getLength();
-    }
+	@Override
+	public long contentLength() throws IOException {
+		return content.getLength();
+	}
 
-    @Override
-    public long lastModified() throws IOException {
-        return content.getLastModified();
-    }
+	@Override
+	public long lastModified() throws IOException {
+		return content.getLastModified();
+	}
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return content.getInputStream();
-    }
+	@Override
+	public InputStream getInputStream() throws IOException {
+		return content.getInputStream();
+	}
 
 }

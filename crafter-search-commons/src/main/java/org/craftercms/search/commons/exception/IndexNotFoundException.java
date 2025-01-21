@@ -20,10 +20,10 @@ package org.craftercms.search.commons.exception;
  */
 public class IndexNotFoundException extends SearchException {
 
-    public IndexNotFoundException(String indexId) {
-        super("Target '" + indexId + "' not found");
+	public IndexNotFoundException(String indexId) {
+		super("Target '" + indexId + "' not found");
 
-        this.indexId = indexId;
-    }
-    
+		this.indexId = indexId;
+	}
+
 }

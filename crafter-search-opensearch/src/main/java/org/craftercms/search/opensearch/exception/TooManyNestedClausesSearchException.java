@@ -20,7 +20,7 @@ package org.craftercms.search.opensearch.exception;
  */
 public class TooManyNestedClausesSearchException extends OpenSearchException {
 
-    public TooManyNestedClausesSearchException(String indexId, String msg, Throwable throwable) {
-        super(indexId, msg, throwable);
-    }
+	public TooManyNestedClausesSearchException(String indexId, String msg, Throwable throwable) {
+		super(indexId, msg, throwable);
+	}
 }

@@ -20,39 +20,40 @@ import java.time.Instant;
 
 /**
  * Holds the data for a single change made in the content.
+ *
  * @author joseross
  */
 public class UpdateDetail {
 
-    /**
-     * Name of the author of the change
-     */
-    protected String author;
+	/**
+	 * Name of the author of the change
+	 */
+	protected String author;
 
-    /**
-     * Time when the change was made
-     */
-    protected Instant date;
+	/**
+	 * Time when the change was made
+	 */
+	protected Instant date;
 
-    public String getAuthor() {
-        return author;
-    }
+	public String getAuthor() {
+		return author;
+	}
 
-    public void setAuthor(final String author) {
-        this.author = author;
-    }
+	public void setAuthor(final String author) {
+		this.author = author;
+	}
 
-    public Instant getDate() {
-        return date;
-    }
+	public Instant getDate() {
+		return date;
+	}
 
-    public void setDate(final Instant date) {
-        this.date = date;
-    }
+	public void setDate(final Instant date) {
+		this.date = date;
+	}
 
-    @Override
-    public String toString() {
-        return "UpdateDetail{" + "author='" + author + '\'' + ", date=" + date + '}';
-    }
+	@Override
+	public String toString() {
+		return "UpdateDetail{" + "author='" + author + '\'' + ", date=" + date + '}';
+	}
 
 }

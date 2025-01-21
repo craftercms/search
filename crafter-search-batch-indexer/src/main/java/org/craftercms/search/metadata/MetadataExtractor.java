@@ -29,13 +29,14 @@ import org.craftercms.core.service.Context;
  */
 public interface MetadataExtractor {
 
-    /**
-     * Performs the metadata extraction on the given file
-     * @param path the path of the file to process
-     * @param contentStoreService the content store service
-     * @param context the current context
-     * @return the extracted metadata
-     */
-    Map<String, Object> extract(String path, ContentStoreService contentStoreService, Context context);
+	/**
+	 * Performs the metadata extraction on the given file
+	 *
+	 * @param path                the path of the file to process
+	 * @param contentStoreService the content store service
+	 * @param context             the current context
+	 * @return the extracted metadata
+	 */
+	Map<String, Object> extract(String path, ContentStoreService contentStoreService, Context context);
 
 }

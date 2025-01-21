@@ -27,114 +27,125 @@ import static java.util.Collections.emptyMap;
 
 /**
  * Exposes the search related operations from the OpenSearch client
+ *
  * @author joseross
  */
 public interface OpenSearchWrapper {
 
-    /**
-     * Performs a search operation
-     * @param request the search request
-     * @return the search response
-     * @throws OpenSearchException if there is any error executing the search
-     */
-    default SearchResponse search(SearchRequest request) throws OpenSearchException {
-        return search(request, RequestOptions.DEFAULT);
-    }
+	/**
+	 * Performs a search operation
+	 *
+	 * @param request the search request
+	 * @return the search response
+	 * @throws OpenSearchException if there is any error executing the search
+	 */
+	default SearchResponse search(SearchRequest request) throws OpenSearchException {
+		return search(request, RequestOptions.DEFAULT);
+	}
 
-    /**
-     * Performs a search operation
-     * @param request the search request
-     * @param options the request options
-     * @return the search response
-     * @throws OpenSearchException if there is any error executing the search
-     */
-    SearchResponse search(SearchRequest request, RequestOptions options) throws OpenSearchException;
+	/**
+	 * Performs a search operation
+	 *
+	 * @param request the search request
+	 * @param options the request options
+	 * @return the search response
+	 * @throws OpenSearchException if there is any error executing the search
+	 */
+	SearchResponse search(SearchRequest request, RequestOptions options) throws OpenSearchException;
 
-    /**
-     * Performs a search operation
-     * @param request the search request
-     * @return the search response
-     * @throws OpenSearchException if there is any error executing the search
-     */
-    default SearchResponse search(Map<String, Object> request) throws OpenSearchException {
-        return search(request, RequestOptions.DEFAULT);
-    }
+	/**
+	 * Performs a search operation
+	 *
+	 * @param request the search request
+	 * @return the search response
+	 * @throws OpenSearchException if there is any error executing the search
+	 */
+	default SearchResponse search(Map<String, Object> request) throws OpenSearchException {
+		return search(request, RequestOptions.DEFAULT);
+	}
 
-    /**
-     * Performs a search operation
-     * @param request the search request
-     * @param options the request options
-     * @return the search response
-     * @throws OpenSearchException if there is any error executing the search
-     */
-    default SearchResponse search(Map<String, Object> request, RequestOptions options) throws OpenSearchException {
-        return search(request, emptyMap(), options);
-    }
+	/**
+	 * Performs a search operation
+	 *
+	 * @param request the search request
+	 * @param options the request options
+	 * @return the search response
+	 * @throws OpenSearchException if there is any error executing the search
+	 */
+	default SearchResponse search(Map<String, Object> request, RequestOptions options) throws OpenSearchException {
+		return search(request, emptyMap(), options);
+	}
 
-    /**
-     * Performs a search operation
-     * @param request the search request
-     * @param parameters the parameters for the search
-     * @param options the request options
-     * @return the search response
-     * @throws OpenSearchException if there is any error executing the search
-     */
-    SearchResponse search(Map<String, Object> request, Map<String, Object> parameters, RequestOptions options)
-            throws OpenSearchException;
+	/**
+	 * Performs a search operation
+	 *
+	 * @param request    the search request
+	 * @param parameters the parameters for the search
+	 * @param options    the request options
+	 * @return the search response
+	 * @throws OpenSearchException if there is any error executing the search
+	 */
+	SearchResponse search(Map<String, Object> request, Map<String, Object> parameters, RequestOptions options)
+		throws OpenSearchException;
 
-    /**
-     * Performs a search operation
-     * @param request the search request
-     * @param parameters the parameters for the search
-     * @return the search response
-     * @throws OpenSearchException if there is any error executing the search
-     */
-    default SearchResponse search(Map<String, Object> request, Map<String, Object> parameters)
-            throws OpenSearchException {
-        return search(request, parameters, RequestOptions.DEFAULT);
-    }
+	/**
+	 * Performs a search operation
+	 *
+	 * @param request    the search request
+	 * @param parameters the parameters for the search
+	 * @return the search response
+	 * @throws OpenSearchException if there is any error executing the search
+	 */
+	default SearchResponse search(Map<String, Object> request, Map<String, Object> parameters)
+		throws OpenSearchException {
+		return search(request, parameters, RequestOptions.DEFAULT);
+	}
 
-    /**
-     * Performs a search operation
-     * @param request the search request
-     * @return the search response
-     * @throws OpenSearchException if there is any error executing the search
-     */
-    default SearchResponse search(String request) throws OpenSearchException {
-        return search(request, RequestOptions.DEFAULT);
-    }
+	/**
+	 * Performs a search operation
+	 *
+	 * @param request the search request
+	 * @return the search response
+	 * @throws OpenSearchException if there is any error executing the search
+	 */
+	default SearchResponse search(String request) throws OpenSearchException {
+		return search(request, RequestOptions.DEFAULT);
+	}
 
-    /**
-     * Performs a search operation
-     * @param request the search request
-     * @param options the request options
-     * @return the search response
-     * @throws OpenSearchException if there is any error executing the search
-     */
-    default SearchResponse search(String request, RequestOptions options) throws OpenSearchException {
-        return search(request, emptyMap(), options);
-    }
+	/**
+	 * Performs a search operation
+	 *
+	 * @param request the search request
+	 * @param options the request options
+	 * @return the search response
+	 * @throws OpenSearchException if there is any error executing the search
+	 */
+	default SearchResponse search(String request, RequestOptions options) throws OpenSearchException {
+		return search(request, emptyMap(), options);
+	}
 
-    /**
-     * Performs a search operation
-     * @param request the search request
-     * @param parameters the parameters for the search
-     * @param options the request options
-     * @return the search response
-     * @throws OpenSearchException if there is any error executing the search
-     */
-    SearchResponse search(String request, Map<String, Object> parameters, RequestOptions options)
-            throws OpenSearchException;
+	/**
+	 * Performs a search operation
+	 *
+	 * @param request    the search request
+	 * @param parameters the parameters for the search
+	 * @param options    the request options
+	 * @return the search response
+	 * @throws OpenSearchException if there is any error executing the search
+	 */
+	SearchResponse search(String request, Map<String, Object> parameters, RequestOptions options)
+		throws OpenSearchException;
 
-    /**
-     * Performs a search operation
-     * @param request the search request
-     * @param parameters the parameters for the search
-     * @return the search response
-     * @throws OpenSearchException if there is any error executing the search
-     */
-    default SearchResponse search(String request, Map<String, Object> parameters) throws OpenSearchException {
-        return search(request, parameters, RequestOptions.DEFAULT);
-    }
+	/**
+	 * Performs a search operation
+	 *
+	 * @param request    the search request
+	 * @param parameters the parameters for the search
+	 * @return the search response
+	 * @throws OpenSearchException if there is any error executing the search
+	 */
+	default SearchResponse search(String request, Map<String, Object> parameters) throws OpenSearchException {
+		return search(request, parameters, RequestOptions.DEFAULT);
+	}
 
 }

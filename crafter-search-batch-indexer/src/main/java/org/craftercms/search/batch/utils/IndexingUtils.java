@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import jakarta.activation.FileTypeMap;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -33,28 +34,28 @@ import static java.time.ZoneOffset.UTC;
  */
 public abstract class IndexingUtils {
 
-    public static final String FIELD_NAME_EDITED_BY = "lastEditedBy";
-    public static final String FIELD_NAME_EDITED_ON = "lastEditedOn";
+	public static final String FIELD_NAME_EDITED_BY = "lastEditedBy";
+	public static final String FIELD_NAME_EDITED_ON = "lastEditedOn";
 
-    public static boolean isMimeTypeSupported(FileTypeMap mimeTypesMap, List<String> supportedMimeTypes,
-                                              String filename) {
-        if (mimeTypesMap != null && CollectionUtils.isNotEmpty(supportedMimeTypes)) {
-            MimeType mimeType = MimeType.valueOf(mimeTypesMap.getContentType(filename.toLowerCase()));
-            return supportedMimeTypes.stream().anyMatch(type -> MimeType.valueOf(type).isCompatibleWith(mimeType));
-        } else {
-            return true;
-        }
-    }
+	public static boolean isMimeTypeSupported(FileTypeMap mimeTypesMap, List<String> supportedMimeTypes,
+						  String filename) {
+		if (mimeTypesMap != null && CollectionUtils.isNotEmpty(supportedMimeTypes)) {
+			MimeType mimeType = MimeType.valueOf(mimeTypesMap.getContentType(filename.toLowerCase()));
+			return supportedMimeTypes.stream().anyMatch(type -> MimeType.valueOf(type).isCompatibleWith(mimeType));
+		} else {
+			return true;
+		}
+	}
 
-    public static Map<String, Object> getAdditionalFields(UpdateDetail updateDetail) {
-        Map<String, Object> additionalFields = null;
-        if(updateDetail != null) {
-            additionalFields = new HashMap<>();
-            additionalFields.put(FIELD_NAME_EDITED_BY, updateDetail.getAuthor());
-            additionalFields.put(FIELD_NAME_EDITED_ON,
-                    DateTimeFormatter.ISO_INSTANT.format(updateDetail.getDate().atZone(UTC)));
-        }
-        return additionalFields;
-    }
+	public static Map<String, Object> getAdditionalFields(UpdateDetail updateDetail) {
+		Map<String, Object> additionalFields = null;
+		if (updateDetail != null) {
+			additionalFields = new HashMap<>();
+			additionalFields.put(FIELD_NAME_EDITED_BY, updateDetail.getAuthor());
+			additionalFields.put(FIELD_NAME_EDITED_ON,
+				DateTimeFormatter.ISO_INSTANT.format(updateDetail.getDate().atZone(UTC)));
+		}
+		return additionalFields;
+	}
 
 }

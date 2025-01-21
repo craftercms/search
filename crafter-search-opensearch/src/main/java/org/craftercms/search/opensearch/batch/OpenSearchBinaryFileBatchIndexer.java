@@ -27,31 +27,32 @@ import java.util.Map;
 
 /**
  * Implementation of {@link AbstractBinaryFileBatchIndexer} for OpenSearch
+ *
  * @author joseross
  */
 public class OpenSearchBinaryFileBatchIndexer extends AbstractBinaryFileBatchIndexer {
 
-    /**
-     * OpenSearch service
-     */
-    protected final OpenSearchService searchService;
+	/**
+	 * OpenSearch service
+	 */
+	protected final OpenSearchService searchService;
 
-    @ConstructorProperties({"searchService"})
-    public OpenSearchBinaryFileBatchIndexer(final OpenSearchService searchService) {
-        this.searchService = searchService;
-    }
+	@ConstructorProperties({"searchService"})
+	public OpenSearchBinaryFileBatchIndexer(final OpenSearchService searchService) {
+		this.searchService = searchService;
+	}
 
-    @Override
-    protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
-        OpenSearchIndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
-    }
+	@Override
+	protected void doDelete(final String indexId, final String siteName, final String path, final UpdateStatus updateStatus) {
+		OpenSearchIndexingUtils.doDelete(searchService, indexId, siteName, path, updateStatus);
+	}
 
-    @Override
-    protected void doUpdateContent(final String indexId, final String siteName, final String path,
-                                   final Content binaryContent, final UpdateDetail updateDetail,
-                                   final UpdateStatus updateStatus, Map<String, Object> metadata) {
-        OpenSearchIndexingUtils.doUpdateBinary(searchService, indexId, siteName, path, metadata,
-            binaryContent, updateDetail, updateStatus);
-    }
+	@Override
+	protected void doUpdateContent(final String indexId, final String siteName, final String path,
+				       final Content binaryContent, final UpdateDetail updateDetail,
+				       final UpdateStatus updateStatus, Map<String, Object> metadata) {
+		OpenSearchIndexingUtils.doUpdateBinary(searchService, indexId, siteName, path, metadata,
+			binaryContent, updateDetail, updateStatus);
+	}
 
 }

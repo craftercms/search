@@ -24,12 +24,12 @@ import org.craftercms.search.commons.exception.SearchException;
  */
 public class BatchIndexingException extends SearchException {
 
-    public BatchIndexingException(String msg) {
-        super(msg);
-    }
+	public BatchIndexingException(String msg) {
+		super(msg);
+	}
 
-    public BatchIndexingException(String msg, Throwable cause) {
-        super(msg, cause);
-    }
+	public BatchIndexingException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
 
 }

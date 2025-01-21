@@ -34,50 +34,51 @@ import org.dom4j.Element;
 
 /**
  * Implementation of {@link ItemProcessor} that adds a field with the paths of the descriptors that are being inherited
- *  *
+ * *
+ *
  * @author joseross
  * @since 3.1.4
  */
 public class InheritedDescriptorsItemProcessor implements ItemProcessor {
 
-    /**
-     * The name of the field to add
-     */
-    protected String inheritsFromElementName;
+	/**
+	 * The name of the field to add
+	 */
+	protected String inheritsFromElementName;
 
-    /**
-     * The merge strategy resolver
-     */
-    protected DescriptorMergeStrategyResolver mergeStrategyResolver;
+	/**
+	 * The merge strategy resolver
+	 */
+	protected DescriptorMergeStrategyResolver mergeStrategyResolver;
 
-    @ConstructorProperties({"inheritsFromElementName", "mergeStrategyResolver"})
-    public InheritedDescriptorsItemProcessor(final String inheritsFromElementName,
-                                             final DescriptorMergeStrategyResolver mergeStrategyResolver) {
-        this.inheritsFromElementName = inheritsFromElementName;
-        this.mergeStrategyResolver = mergeStrategyResolver;
-    }
+	@ConstructorProperties({"inheritsFromElementName", "mergeStrategyResolver"})
+	public InheritedDescriptorsItemProcessor(final String inheritsFromElementName,
+						 final DescriptorMergeStrategyResolver mergeStrategyResolver) {
+		this.inheritsFromElementName = inheritsFromElementName;
+		this.mergeStrategyResolver = mergeStrategyResolver;
+	}
 
-    @Override
-    public Item process(final Context context, final CachingOptions cachingOptions, final Item item)
-        throws ItemProcessingException {
-        if (item.getDescriptorDom() != null) {
-            DescriptorMergeStrategy mergeStrategy = mergeStrategyResolver.
-                getStrategy(item.getDescriptorUrl(), item.getDescriptorDom());
-            if (mergeStrategy != null) {
-                List<MergeableDescriptor> inheritedDescriptors = mergeStrategy.
-                    getDescriptors(context, cachingOptions, item.getDescriptorUrl(), item.getDescriptorDom());
-                if (CollectionUtils.isNotEmpty(inheritedDescriptors)) {
-                    inheritedDescriptors.stream()
-                        .filter(descriptor -> !StringUtils.equals(descriptor.getUrl(), item.getDescriptorUrl()))
-                        .forEach(descriptor -> {
-                            Element inheritedFromElement = DocumentHelper.createElement(inheritsFromElementName);
-                            inheritedFromElement.setText(descriptor.getUrl());
-                            item.getDescriptorDom().getRootElement().add(inheritedFromElement);
-                        });
-                }
-            }
-        }
-        return item;
-    }
+	@Override
+	public Item process(final Context context, final CachingOptions cachingOptions, final Item item)
+		throws ItemProcessingException {
+		if (item.getDescriptorDom() != null) {
+			DescriptorMergeStrategy mergeStrategy = mergeStrategyResolver.
+				getStrategy(item.getDescriptorUrl(), item.getDescriptorDom());
+			if (mergeStrategy != null) {
+				List<MergeableDescriptor> inheritedDescriptors = mergeStrategy.
+					getDescriptors(context, cachingOptions, item.getDescriptorUrl(), item.getDescriptorDom());
+				if (CollectionUtils.isNotEmpty(inheritedDescriptors)) {
+					inheritedDescriptors.stream()
+						.filter(descriptor -> !StringUtils.equals(descriptor.getUrl(), item.getDescriptorUrl()))
+						.forEach(descriptor -> {
+							Element inheritedFromElement = DocumentHelper.createElement(inheritsFromElementName);
+							inheritedFromElement.setText(descriptor.getUrl());
+							item.getDescriptorDom().getRootElement().add(inheritedFromElement);
+						});
+				}
+			}
+		}
+		return item;
+	}
 
 }

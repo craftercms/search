@@ -33,42 +33,42 @@ import org.slf4j.LoggerFactory;
  */
 public class OpenSearchElementParserImpl extends AbstractElementParser<Map<String, Object>> {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenSearchElementParserImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(OpenSearchElementParserImpl.class);
 
-    public OpenSearchElementParserImpl(FieldValueConverter fieldValueConverter) {
-        super(fieldValueConverter);
-    }
+	public OpenSearchElementParserImpl(FieldValueConverter fieldValueConverter) {
+		super(fieldValueConverter);
+	}
 
-    @Override
-    public boolean parse(final Element element, final String fieldName, final String parentFieldName,
-                         final Map<String, Object> doc, final ElementParserService<Map<String, Object>> parserService) {
-        logger.debug("Parsing element '{}'", fieldName);
+	@Override
+	public boolean parse(final Element element, final String fieldName, final String parentFieldName,
+			     final Map<String, Object> doc, final ElementParserService<Map<String, Object>> parserService) {
+		logger.debug("Parsing element '{}'", fieldName);
 
-        if (element.hasContent()) {
-            if (element.isTextOnly()) {
-                logger.debug("Adding field '{}'", fieldName);
+		if (element.hasContent()) {
+			if (element.isTextOnly()) {
+				logger.debug("Adding field '{}'", fieldName);
 
-                Object fieldValue = fieldValueConverter.convert(fieldName, element.getText());
+				Object fieldValue = fieldValueConverter.convert(fieldName, element.getText());
 
-                addField(doc, fieldName, fieldValue);
-            } else {
-                Map<String, Object> map = new MixedMultivaluedMap();
-                List<Element> children = element.elements();
-                for (Element child : children) {
-                    parserService.parse(child, StringUtils.EMPTY, map);
-                }
-                addField(doc, fieldName, map);
-            }
-        } else {
-            logger.debug("Element '{}' has no content. Ignoring it.", fieldName);
-        }
+				addField(doc, fieldName, fieldValue);
+			} else {
+				Map<String, Object> map = new MixedMultivaluedMap();
+				List<Element> children = element.elements();
+				for (Element child : children) {
+					parserService.parse(child, StringUtils.EMPTY, map);
+				}
+				addField(doc, fieldName, map);
+			}
+		} else {
+			logger.debug("Element '{}' has no content. Ignoring it.", fieldName);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    protected void addField(final Map<String, Object> doc, final String fieldName, final Object fieldValue) {
-        doc.put(fieldName, fieldValue);
-    }
+	@Override
+	protected void addField(final Map<String, Object> doc, final String fieldName, final Object fieldValue) {
+		doc.put(fieldName, fieldValue);
+	}
 
 }

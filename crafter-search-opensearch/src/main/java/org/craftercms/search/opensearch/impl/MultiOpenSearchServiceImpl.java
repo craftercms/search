@@ -31,46 +31,46 @@ import java.util.Map;
  */
 public class MultiOpenSearchServiceImpl extends OpenSearchServiceImpl {
 
-    /**
-     * OpenSearch clients used for write-related operations
-     */
-    protected final OpenSearchClient[] writeClients;
+	/**
+	 * OpenSearch clients used for write-related operations
+	 */
+	protected final OpenSearchClient[] writeClients;
 
-    public MultiOpenSearchServiceImpl(final OpenSearchDocumentBuilder documentBuilder,
-                                      final DocumentParser documentParser, final OpenSearchClient readClient,
-                                      final OpenSearchClient[] writeClients) {
-        super(documentBuilder, documentParser, readClient);
-        this.writeClients = writeClients;
-    }
+	public MultiOpenSearchServiceImpl(final OpenSearchDocumentBuilder documentBuilder,
+					  final DocumentParser documentParser, final OpenSearchClient readClient,
+					  final OpenSearchClient[] writeClients) {
+		super(documentBuilder, documentParser, readClient);
+		this.writeClients = writeClients;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void delete(final String indexName, final String siteName, final String docId)
-            throws OpenSearchException {
-        for (OpenSearchClient client : writeClients) {
-            doDelete(client, indexName, siteName, docId);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void delete(final String indexName, final String siteName, final String docId)
+		throws OpenSearchException {
+		for (OpenSearchClient client : writeClients) {
+			doDelete(client, indexName, siteName, docId);
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void index(final String indexName, final String siteName, final String docId, final Map<String, Object> doc)
-            throws OpenSearchException {
-        for (OpenSearchClient client : writeClients) {
-            doIndex(client, indexName, siteName, docId, doc);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void index(final String indexName, final String siteName, final String docId, final Map<String, Object> doc)
+		throws OpenSearchException {
+		for (OpenSearchClient client : writeClients) {
+			doIndex(client, indexName, siteName, docId, doc);
+		}
+	}
 
-    @Override
-    public void close() throws Exception {
-        for (OpenSearchClient client : writeClients) {
-            client._transport().close();
-        }
-        super.close();
-    }
+	@Override
+	public void close() throws Exception {
+		for (OpenSearchClient client : writeClients) {
+			client._transport().close();
+		}
+		super.close();
+	}
 
 }
