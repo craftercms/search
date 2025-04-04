@@ -144,6 +144,13 @@
 			<artifactId>spring-oxm</artifactId>
 		</dependency>
 		<!-- Spring end -->
+		<!-- Override start -->
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parser-code-module</artifactId>
+			<version>${tika.version}</version>
+		</dependency>
+		<!-- Override end -->
 	</dependencies>
 
 	<repositories>
