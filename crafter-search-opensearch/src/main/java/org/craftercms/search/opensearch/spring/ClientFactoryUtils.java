@@ -74,14 +74,14 @@ public class ClientFactoryUtils {
 			logger.debug("Using default thread count");
 		}
 
-		if (connectionTimeout >= 0) {
+		if (connectionTimeout > 0) {
 			logger.debug("Using custom connect timeout: {}", connectionTimeout);
 			configBuilder.setConnectTimeout(connectionTimeout);
 		} else {
 			logger.debug("Using default connect timeout");
 		}
 
-		if (socketTimeout >= 0) {
+		if (socketTimeout > 0) {
 			logger.debug("Using custom socket timeout: {}", socketTimeout);
 			configBuilder.setSoTimeout(socketTimeout);
 		} else {
