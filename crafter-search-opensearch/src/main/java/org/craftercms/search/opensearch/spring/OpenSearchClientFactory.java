@@ -161,6 +161,7 @@ public class OpenSearchClientFactory extends AbstractFactoryBean<OpenSearchClien
 			if (connectTimeout >= 0) {
 				logger.debug("Using custom connect timeout: {}", connectTimeout);
 				builder.setConnectTimeout(connectTimeout);
+				builder.setConnectionRequestTimeout(connectTimeout);
 			} else {
 				logger.debug("Using default connect timeout");
 			}

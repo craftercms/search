@@ -142,6 +142,7 @@ public class RestHighLevelClientFactory extends AbstractFactoryBean<RestHighLeve
 			if (connectTimeout >= 0) {
 				logger.debug("Using custom connect timeout: {}", connectTimeout);
 				builder.setConnectTimeout(connectTimeout);
+				builder.setConnectionRequestTimeout(connectTimeout);
 			} else {
 				logger.debug("Using default connect timeout");
 			}
