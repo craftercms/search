@@ -65,10 +65,10 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
     public static final String PARAM_NAME_INDEX = "index";
     public static final String PARAM_NAME_SEARCH_TYPE = "search_type";
 
-	public static final String NEGATIVE_TERM_QUERY_REGEX = "-[\\w.\\-]+:\\s*(?:\"[^\"]+\"|[^\\s\\[\\]]+)";
-	public static final String POSITIVE_TERM_QUERY_REGEX = "[\\w.\\-]+:\\s*(?:\"[^\"]+\"|[^\\s\\[\\]]+)";
-	public static final String NEGATIVE_RANGE_QUERY_REGEX = "-[\\w.\\-]+:\\s*\\[[^]]+ TO [^]]+]";
-	public static final String POSITIVE_RANGE_QUERY_REGEX = "[\\w.\\-]+:\\s*\\[[^]]+ TO [^]]+]";
+	public static final String NEGATIVE_TERM_QUERY_REGEX = "-[\\w.\\-]+:\\s*(?:\"[^\"]+\"|[^\\s\\[\\]:]+)";
+	public static final String POSITIVE_TERM_QUERY_REGEX = "[\\w.\\-]+:\\s*(?:\"[^\"]+\"|[^\\s\\[\\]:]+)";
+	public static final String NEGATIVE_RANGE_QUERY_REGEX = "(?i)-[\\w.\\-]+:\\s*\\[[^]]+\\s+TO\\s+[^]]+]";
+	public static final String POSITIVE_RANGE_QUERY_REGEX = "(?i)[\\w.\\-]+:\\s*\\[[^]]+\\s+TO\\s+[^]]+]";
 
     /**
      * The OpenSearch client
