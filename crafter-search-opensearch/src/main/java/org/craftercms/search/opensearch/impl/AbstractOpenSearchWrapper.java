@@ -143,7 +143,7 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 			else if (filterQuery.matches(NEGATIVE_RANGE_QUERY_REGEX)) {
 				String rangeExpr = getRangeExpression(filterQuery);
 				String field = filterQuery.substring(1, filterQuery.indexOf(":")).trim();
-				String[] bounds = rangeExpr.split("TO");
+				String[] bounds = rangeExpr.split("(?i)\\s+TO\\s+");
 				String from = bounds[0].trim();
 				String to = bounds[1].trim();
 				logger.debug("Optimizing negated range filter for field: '{}', from: '{}', to: '{}'", field, from, to);
@@ -156,7 +156,7 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 			else if (filterQuery.matches(POSITIVE_RANGE_QUERY_REGEX)) {
 				String rangeExpr = getRangeExpression(filterQuery);
 				String field = filterQuery.substring(0, filterQuery.indexOf(":")).trim();
-				String[] bounds = rangeExpr.split("TO");
+				String[] bounds = rangeExpr.split("(?i)\\s+TO\\s+");
 				String from = bounds[0].trim();
 				String to = bounds[1].trim();
 				logger.debug("Optimizing positive range filter for field: '{}', from: '{}', to: '{}'", field, from, to);

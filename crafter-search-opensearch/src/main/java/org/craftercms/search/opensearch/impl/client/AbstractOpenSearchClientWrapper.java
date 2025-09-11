@@ -65,8 +65,8 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
     public static final String PARAM_NAME_INDEX = "index";
     public static final String PARAM_NAME_SEARCH_TYPE = "search_type";
 
-	public static final String NEGATIVE_TERM_QUERY_REGEX = "-[\\w.\\-]+:\\s*\"[^\"]+\"";
-	public static final String POSITIVE_TERM_QUERY_REGEX = "[\\w.\\-]+:\\s*\"[^\"]+\"";
+	public static final String NEGATIVE_TERM_QUERY_REGEX = "-[\\w.\\-]+:\\s*(?:\"[^\"]+\"|[^\\s\\[\\]]+)";
+	public static final String POSITIVE_TERM_QUERY_REGEX = "[\\w.\\-]+:\\s*(?:\"[^\"]+\"|[^\\s\\[\\]]+)";
 	public static final String NEGATIVE_RANGE_QUERY_REGEX = "-[\\w.\\-]+:\\s*\\[[^]]+ TO [^]]+]";
 	public static final String POSITIVE_RANGE_QUERY_REGEX = "[\\w.\\-]+:\\s*\\[[^]]+ TO [^]]+]";
 
@@ -220,7 +220,7 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 			else if (filterQuery.matches(NEGATIVE_RANGE_QUERY_REGEX)) {
 				String rangeExpr = getRangeExpression(filterQuery);
 				String field = filterQuery.substring(1, filterQuery.indexOf(":")).trim();
-				String[] bounds = rangeExpr.split("TO");
+				String[] bounds = rangeExpr.split("(?i)\\s+TO\\s+");
 				String from = bounds[0].trim();
 				String to = bounds[1].trim();
 				logger.debug("Optimizing negated range filter for field: '{}', from: '{}', to: '{}'", field, from, to);
@@ -240,7 +240,7 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 			else if (filterQuery.matches(POSITIVE_RANGE_QUERY_REGEX)) {
 				String rangeExpr = getRangeExpression(filterQuery);
 				String field = filterQuery.substring(0, filterQuery.indexOf(":")).trim();
-				String[] bounds = rangeExpr.split("TO");
+				String[] bounds = rangeExpr.split("(?i)\\s+TO\\s+");
 				String from = bounds[0].trim();
 				String to = bounds[1].trim();
 				logger.debug("Optimizing positive range filter for field: '{}', from: '{}', to: '{}'", field, from, to);
