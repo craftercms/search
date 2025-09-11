@@ -23,10 +23,12 @@ import org.craftercms.search.opensearch.client.OpenSearchClientWrapper;
 import org.craftercms.search.opensearch.exception.OpenSearchException;
 import org.craftercms.search.opensearch.exception.TooManyNestedClausesSearchException;
 import org.opensearch.client.ResponseException;
+import org.opensearch.client.json.JsonData;
 import org.opensearch.client.json.JsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.ErrorCause;
 import org.opensearch.client.opensearch._types.ErrorResponse;
+import org.opensearch.client.opensearch._types.FieldValue;
 import org.opensearch.client.opensearch._types.SearchType;
 import org.opensearch.client.opensearch._types.query_dsl.BoolQuery;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
@@ -62,6 +64,11 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 
     public static final String PARAM_NAME_INDEX = "index";
     public static final String PARAM_NAME_SEARCH_TYPE = "search_type";
+
+	public static final String NEGATIVE_TERM_QUERY_REGEX = "-[\\w.\\-]+:\\s*\"[^\"]+\"";
+	public static final String POSITIVE_TERM_QUERY_REGEX = "[\\w.\\-]+:\\s*\"[^\"]+\"";
+	public static final String NEGATIVE_RANGE_QUERY_REGEX = "-[\\w.\\-]+:\\s*\\[[^]]+ TO [^]]+]";
+	public static final String POSITIVE_RANGE_QUERY_REGEX = "[\\w.\\-]+:\\s*\\[[^]]+ TO [^]]+]";
 
     /**
      * The OpenSearch client
@@ -154,42 +161,119 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
             .minimumShouldMatch(originalQuery.minimumShouldMatch());
     }
 
-    /**
-     * Updates the filter queries for the given request
-     * @param request the request to update
-     * @param updates the request updates
-     */
-    protected void updateQuery(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
-        if(ArrayUtils.isEmpty(filterQueries)) {
-            logger.debug("No additional filter queries configured");
-            return;
-        }
+	/**
+	 * Updates the filter queries for the given request, optimizing common patterns
+	 * (term and range queries) for better performance.
+	 * <p>
+	 * Supported patterns:
+	 *   -field:"value"              → mustNot(termQuery)
+	 *    field:"value"              → filter(termQuery)
+	 *   -field:[* TO now]           → mustNot(rangeQuery)
+	 *    field:[* TO now]           → filter(rangeQuery)
+	 *   -field:[value1 TO value2]   → mustNot(rangeQuery)
+	 *    field:[value1 TO value2]   → filter(rangeQuery)
+	 * <p>
+	 * Falls back to query_string for everything else.
+	 *
+	 * @param request the request to update
+	 * @param parameters the request parameters
+	 * @param updates the request updates
+	 */
+	protected void updateQuery(SearchRequest request, Map<String, Object> parameters, RequestUpdates updates) {
+		if (ArrayUtils.isEmpty(filterQueries)) {
+			logger.debug("No additional filter queries configured");
+			return;
+		}
 
-        Query originalQuery = request.query();
-        BoolQuery.Builder builder = new BoolQuery.Builder();
-        if (originalQuery != null) {
-            if (originalQuery.isBool()) {
-                // copy the original query
-                copyQuery(originalQuery.bool(), builder);
-            } else {
-                // wrap the original query
-                builder.must(originalQuery);
-            }
-        }
+		Query originalQuery = request.query();
+		BoolQuery.Builder builder = new BoolQuery.Builder();
+		if (originalQuery != null) {
+			if (originalQuery.isBool()) {
+				// copy the original query
+				copyQuery(originalQuery.bool(), builder);
+			} else {
+				// wrap the original query
+				builder.must(originalQuery);
+			}
+		}
 
-        for(String filterQuery : filterQueries) {
-            logger.debug("Adding filter query: {}", filterQuery);
-            builder.filter(f -> f
-                .queryString(q -> q
-                    .query(filterQuery)
-                )
-            );
-        }
+		for (String filterQuery : filterQueries) {
+			logger.debug("Processing filter query: {}", filterQuery);
 
-        updates.query = Query.of(q -> q
-            .bool(builder.build())
-        );
-    }
+			// Negated term query (e.g., -status:"draft", -disabled:true)
+			if (filterQuery.matches(NEGATIVE_TERM_QUERY_REGEX)) {
+				String[] parts = filterQuery.substring(1).split(":", 2);
+				String field = parts[0].trim();
+				String value = parts[1].replaceAll("\"", "").trim();
+				logger.debug("Optimizing negated term filter for field: '{}', value: '{}'", field, value);
+				builder.mustNot(q -> q.term(t -> t.field(field).value(FieldValue.of(value))));
+			}
+			// Positive term query (e.g., status:"published", enabled:true)
+			else if (filterQuery.matches(POSITIVE_TERM_QUERY_REGEX)) {
+				String[] parts = filterQuery.split(":", 2);
+				String field = parts[0].trim();
+				String value = parts[1].replaceAll("\"", "").trim();
+				logger.debug("Optimizing positive term filter for field: '{}', value: '{}'", field, value);
+				builder.filter(q -> q.term(t -> t.field(field).value(FieldValue.of(value))));
+			}
+			// Negated range query (e.g., -date:[2025-01-01 TO now])
+			else if (filterQuery.matches(NEGATIVE_RANGE_QUERY_REGEX)) {
+				String rangeExpr = getRangeExpression(filterQuery);
+				String field = filterQuery.substring(1, filterQuery.indexOf(":")).trim();
+				String[] bounds = rangeExpr.split("TO");
+				String from = bounds[0].trim();
+				String to = bounds[1].trim();
+				logger.debug("Optimizing negated range filter for field: '{}', from: '{}', to: '{}'", field, from, to);
+
+				builder.mustNot(q -> q.range(r -> {
+					var rangeBuilder = r.field(field);
+					if (!from.equals("*")) {
+						rangeBuilder.gte(JsonData.of(from));
+					}
+					if (!to.equals("*")) {
+						rangeBuilder.lte(JsonData.of(to));
+					}
+					return rangeBuilder;
+				}));
+			}
+			// Positive range query (e.g., date:[2025-01-01 TO now])
+			else if (filterQuery.matches(POSITIVE_RANGE_QUERY_REGEX)) {
+				String rangeExpr = getRangeExpression(filterQuery);
+				String field = filterQuery.substring(0, filterQuery.indexOf(":")).trim();
+				String[] bounds = rangeExpr.split("TO");
+				String from = bounds[0].trim();
+				String to = bounds[1].trim();
+				logger.debug("Optimizing positive range filter for field: '{}', from: '{}', to: '{}'", field, from, to);
+
+				builder.filter(q -> q.range(r -> {
+					var rangeBuilder = r.field(field);
+					if (!from.equals("*")) {
+						rangeBuilder.gte(JsonData.of(from));
+					}
+					if (!to.equals("*")) {
+						rangeBuilder.lte(JsonData.of(to));
+					}
+					return rangeBuilder;
+				}));
+			}
+			// Fallback: query_string (for advanced filters, fuzziness, wildcards, etc.)
+			else {
+				logger.debug("Using query_string filter: '{}'", filterQuery);
+				builder.filter(q -> q.queryString(qs -> qs.query(filterQuery)));
+			}
+		}
+
+		updates.query = Query.of(q -> q.bool(builder.build()));
+	}
+
+	/**
+	 * Extracts the range expression from a range filter query
+	 * @param filterQuery the filter query
+	 * @return the range expression (the part between the square brackets)
+	 */
+	private String getRangeExpression(String filterQuery) {
+		return filterQuery.substring(filterQuery.indexOf("[") + 1, filterQuery.indexOf("]"));
+	}
 
     public static class RequestUpdates {
 
