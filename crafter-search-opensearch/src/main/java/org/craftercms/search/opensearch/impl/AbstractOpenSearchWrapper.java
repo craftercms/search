@@ -106,11 +106,18 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 			return;
 		}
 
+		if (request.source() == null) {
+			request.source(new SearchSourceBuilder());
+		}
+
 		BoolQueryBuilder boolQueryBuilder;
-		if (request.source().query() instanceof BoolQueryBuilder) {
-			boolQueryBuilder = (BoolQueryBuilder) request.source().query();
+		var existing = request.source().query();
+		if (existing instanceof BoolQueryBuilder) {
+			boolQueryBuilder = (BoolQueryBuilder) existing;
+		} else if (existing != null) {
+			boolQueryBuilder = new BoolQueryBuilder().must(existing);
 		} else {
-			boolQueryBuilder = new BoolQueryBuilder().must(request.source().query());
+			boolQueryBuilder = new BoolQueryBuilder();
 		}
 
 		for (String filterQuery : filterQueries) {
@@ -120,17 +127,17 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 			if (filterQuery.matches(NEGATIVE_TERM_QUERY_REGEX)) {
 				String[] parts = filterQuery.substring(1).split(":", 2);
 				String field = parts[0].trim();
-				String value = parts[1].replaceAll("\"", "").trim();
+				String value = parts[1].trim();
 				logger.debug("Optimizing negated term filter for field: '{}', value: '{}'", field, value);
-				boolQueryBuilder.mustNot(QueryBuilders.termQuery(field, value));
+				boolQueryBuilder.mustNot(QueryBuilders.termQuery(field, parseTermValue(value)));
 			}
 			// Positive term query (e.g., status:"published")
 			else if (filterQuery.matches(POSITIVE_TERM_QUERY_REGEX)) {
 				String[] parts = filterQuery.split(":", 2);
 				String field = parts[0].trim();
-				String value = parts[1].replaceAll("\"", "").trim();
+				String value = parts[1].trim();
 				logger.debug("Optimizing positive term filter for field: '{}', value: '{}'", field, value);
-				boolQueryBuilder.filter(QueryBuilders.termQuery(field, value));
+				boolQueryBuilder.filter(QueryBuilders.termQuery(field, parseTermValue(value)));
 			}
 			// Negated range query (e.g., -date:[2025-01-01 TO now])
 			else if (filterQuery.matches(NEGATIVE_RANGE_QUERY_REGEX)) {
@@ -166,6 +173,35 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 		}
 
 		request.source().query(boolQueryBuilder);
+	}
+
+	/**
+	 * Parses a raw term value from a term query, converting it to the appropriate type
+	 * (Boolean, Long, Double, or String).
+	 *
+	 * @param raw the raw term value (possibly quoted)
+	 * @return the parsed term value
+	 */
+	private static Object parseTermValue(String raw) {
+		String v = stripOuterQuotes(raw);
+		if ("true".equalsIgnoreCase(v) || "false".equalsIgnoreCase(v)) return Boolean.parseBoolean(v);
+		if (v.matches("-?\\d+")) { try { return Long.parseLong(v); } catch (NumberFormatException ignore) {} }
+		if (v.matches("-?\\d+\\.\\d+")) { try { return Double.parseDouble(v); } catch (NumberFormatException ignore) {} }
+		return v;
+	}
+
+	/**
+	 * Strips outer double quotes from a string, if present.
+	 *
+	 * @param s the string to process
+	 * @return the string without outer quotes, or the original string if no outer quotes were present
+	 */
+	private static String stripOuterQuotes(String s) {
+		if (s != null && s.length() >= 2 && s.charAt(0) == '\"' && s.charAt(s.length()-1) == '\"') {
+			return s.substring(1, s.length()-1);
+		}
+
+		return s;
 	}
 
 	/**

@@ -204,17 +204,17 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 			if (filterQuery.matches(NEGATIVE_TERM_QUERY_REGEX)) {
 				String[] parts = filterQuery.substring(1).split(":", 2);
 				String field = parts[0].trim();
-				String value = parts[1].replaceAll("\"", "").trim();
+				String value = parts[1].trim();
 				logger.debug("Optimizing negated term filter for field: '{}', value: '{}'", field, value);
-				builder.mustNot(q -> q.term(t -> t.field(field).value(FieldValue.of(value))));
+				builder.mustNot(q -> q.term(t -> t.field(field).value(toFieldValue(value))));
 			}
 			// Positive term query (e.g., status:"published", enabled:true)
 			else if (filterQuery.matches(POSITIVE_TERM_QUERY_REGEX)) {
 				String[] parts = filterQuery.split(":", 2);
 				String field = parts[0].trim();
-				String value = parts[1].replaceAll("\"", "").trim();
+				String value = parts[1].trim();
 				logger.debug("Optimizing positive term filter for field: '{}', value: '{}'", field, value);
-				builder.filter(q -> q.term(t -> t.field(field).value(FieldValue.of(value))));
+				builder.filter(q -> q.term(t -> t.field(field).value(toFieldValue(value))));
 			}
 			// Negated range query (e.g., -date:[2025-01-01 TO now])
 			else if (filterQuery.matches(NEGATIVE_RANGE_QUERY_REGEX)) {
@@ -264,6 +264,37 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 		}
 
 		updates.query = Query.of(q -> q.bool(builder.build()));
+	}
+
+	/**
+	 * Converts a string value to the appropriate FieldValue type based on content
+	 * @param raw the raw string value
+	 * @return a properly typed FieldValue
+	 */
+	private static FieldValue toFieldValue(String raw) {
+		String v = stripOuterQuotes(raw);
+		if ("true".equalsIgnoreCase(v) || "false".equalsIgnoreCase(v)) {
+			return FieldValue.of(Boolean.parseBoolean(v));
+		}
+		if (v.matches("-?\\d+")) {
+			try { return FieldValue.of(Long.parseLong(v)); } catch (NumberFormatException ignore) {}
+		}
+		if (v.matches("-?\\d+\\.\\d+")) {
+			try { return FieldValue.of(Double.parseDouble(v)); } catch (NumberFormatException ignore) {}
+		}
+		return FieldValue.of(v);
+	}
+
+	/**
+	 * Removes outer quotes from a string if present
+	 * @param s the input string
+	 * @return string with outer quotes removed
+	 */
+	private static String stripOuterQuotes(String s) {
+		if (s != null && s.length() >= 2 && s.charAt(0) == '\"' && s.charAt(s.length()-1) == '\"') {
+			return s.substring(1, s.length()-1);
+		}
+		return s;
 	}
 
 	/**
