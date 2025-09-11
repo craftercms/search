@@ -144,12 +144,14 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 				String rangeExpr = getRangeExpression(filterQuery);
 				String field = filterQuery.substring(1, filterQuery.indexOf(":")).trim();
 				String[] bounds = rangeExpr.split("(?i)\\s+TO\\s+");
-				String from = bounds[0].trim();
-				String to = bounds[1].trim();
+				String rawFrom = bounds[0].trim();
+				String rawTo = bounds[1].trim();
+				String from = stripOuterQuotes(rawFrom);
+				String to = stripOuterQuotes(rawTo);
 				logger.debug("Optimizing negated range filter for field: '{}', from: '{}', to: '{}'", field, from, to);
 				RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery(field);
-				if (!from.equals("*")) rangeQuery.gte(from);
-				if (!to.equals("*")) rangeQuery.lte(to);
+				if (!"*".equals(from)) rangeQuery.gte(parseTermValue(from));
+				if (!"*".equals(to)) rangeQuery.lte(parseTermValue(to));
 				boolQueryBuilder.mustNot(rangeQuery);
 			}
 			// Positive range query (e.g., date:[2025-01-01 TO now])
@@ -157,12 +159,14 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 				String rangeExpr = getRangeExpression(filterQuery);
 				String field = filterQuery.substring(0, filterQuery.indexOf(":")).trim();
 				String[] bounds = rangeExpr.split("(?i)\\s+TO\\s+");
-				String from = bounds[0].trim();
-				String to = bounds[1].trim();
+				String rawFrom = bounds[0].trim();
+				String rawTo = bounds[1].trim();
+				String from = stripOuterQuotes(rawFrom);
+				String to = stripOuterQuotes(rawTo);
 				logger.debug("Optimizing positive range filter for field: '{}', from: '{}', to: '{}'", field, from, to);
 				RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery(field);
-				if (!from.equals("*")) rangeQuery.gte(from);
-				if (!to.equals("*")) rangeQuery.lte(to);
+				if (!"*".equals(from)) rangeQuery.gte(parseTermValue(from));
+				if (!"*".equals(to)) rangeQuery.lte(parseTermValue(to));
 				boolQueryBuilder.filter(rangeQuery);
 			}
 			// Fallback: query_string (for advanced filters, fuzziness, wildcards, etc.)
