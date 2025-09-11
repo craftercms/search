@@ -198,7 +198,7 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 		}
 
 		for (String filterQuery : filterQueries) {
-			logger.debug("Processing filter query: {}", filterQuery);
+			logger.debug("Processing filter query: '{}'", filterQuery);
 
 			// Negated term query (e.g., -status:"draft", -disabled:true)
 			if (filterQuery.matches(NEGATIVE_TERM_QUERY_REGEX)) {
@@ -221,16 +221,18 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 				String rangeExpr = getRangeExpression(filterQuery);
 				String field = filterQuery.substring(1, filterQuery.indexOf(":")).trim();
 				String[] bounds = rangeExpr.split("(?i)\\s+TO\\s+");
-				String from = bounds[0].trim();
-				String to = bounds[1].trim();
+				String rawFrom = bounds[0].trim();
+				String rawTo = bounds[1].trim();
+				String from = stripOuterQuotes(rawFrom);
+				String to = stripOuterQuotes(rawTo);
 				logger.debug("Optimizing negated range filter for field: '{}', from: '{}', to: '{}'", field, from, to);
 
 				builder.mustNot(q -> q.range(r -> {
 					var rangeBuilder = r.field(field);
-					if (!from.equals("*")) {
+					if (!"*".equals(from)) {
 						rangeBuilder.gte(toJsonDataValue(from));
 					}
-					if (!to.equals("*")) {
+					if (!"*".equals(to)) {
 						rangeBuilder.lte(toJsonDataValue(to));
 					}
 					return rangeBuilder;
@@ -241,16 +243,18 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 				String rangeExpr = getRangeExpression(filterQuery);
 				String field = filterQuery.substring(0, filterQuery.indexOf(":")).trim();
 				String[] bounds = rangeExpr.split("(?i)\\s+TO\\s+");
-				String from = bounds[0].trim();
-				String to = bounds[1].trim();
+				String rawFrom = bounds[0].trim();
+				String rawTo = bounds[1].trim();
+				String from = stripOuterQuotes(rawFrom);
+				String to = stripOuterQuotes(rawTo);
 				logger.debug("Optimizing positive range filter for field: '{}', from: '{}', to: '{}'", field, from, to);
 
 				builder.filter(q -> q.range(r -> {
 					var rangeBuilder = r.field(field);
-					if (!from.equals("*")) {
+					if (!"*".equals(from)) {
 						rangeBuilder.gte(toJsonDataValue(from));
 					}
-					if (!to.equals("*")) {
+					if (!"*".equals(to)) {
 						rangeBuilder.lte(toJsonDataValue(to));
 					}
 					return rangeBuilder;

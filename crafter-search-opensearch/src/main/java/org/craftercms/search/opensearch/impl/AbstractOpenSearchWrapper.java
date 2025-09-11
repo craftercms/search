@@ -121,7 +121,7 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 		}
 
 		for (String filterQuery : filterQueries) {
-			logger.debug("Processing filter query: {}", filterQuery);
+			logger.debug("Processing filter query: '{}'", filterQuery);
 
 			// Negated term query (e.g., -status:"draft")
 			if (filterQuery.matches(NEGATIVE_TERM_QUERY_REGEX)) {
