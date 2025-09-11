@@ -228,10 +228,10 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 				builder.mustNot(q -> q.range(r -> {
 					var rangeBuilder = r.field(field);
 					if (!from.equals("*")) {
-						rangeBuilder.gte(JsonData.of(from));
+						rangeBuilder.gte(toJsonDataValue(from));
 					}
 					if (!to.equals("*")) {
-						rangeBuilder.lte(JsonData.of(to));
+						rangeBuilder.lte(toJsonDataValue(to));
 					}
 					return rangeBuilder;
 				}));
@@ -248,10 +248,10 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 				builder.filter(q -> q.range(r -> {
 					var rangeBuilder = r.field(field);
 					if (!from.equals("*")) {
-						rangeBuilder.gte(JsonData.of(from));
+						rangeBuilder.gte(toJsonDataValue(from));
 					}
 					if (!to.equals("*")) {
-						rangeBuilder.lte(JsonData.of(to));
+						rangeBuilder.lte(toJsonDataValue(to));
 					}
 					return rangeBuilder;
 				}));
@@ -304,6 +304,23 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 	 */
 	private String getRangeExpression(String filterQuery) {
 		return filterQuery.substring(filterQuery.indexOf("[") + 1, filterQuery.indexOf("]"));
+	}
+
+	/**
+	 * Converts a string value to the appropriate JsonData type based on content
+	 * @param raw the raw string value
+	 * @return a properly typed JsonData
+	 */
+	private static JsonData toJsonDataValue(String raw) {
+		String v = stripOuterQuotes(raw == null ? "" : raw.trim());
+		if (v.matches("-?\\d+")) {
+			try { return JsonData.of(Long.parseLong(v)); } catch (NumberFormatException ignore) {}
+		}
+		if (v.matches("-?\\d+\\.\\d+")) {
+			try { return JsonData.of(Double.parseDouble(v)); } catch (NumberFormatException ignore) {}
+		}
+
+		return JsonData.of(v);
 	}
 
     public static class RequestUpdates {
