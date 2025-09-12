@@ -47,6 +47,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.isNotEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Base implementation of {@link OpenSearchClientWrapper}
@@ -198,6 +199,10 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 		}
 
 		for (String filterQuery : filterQueries) {
+			if (isEmpty(filterQuery) || filterQuery.isBlank()) {
+				logger.debug("Skipping empty filter query entry");
+				continue;
+			}
 			logger.debug("Processing filter query: '{}'", filterQuery);
 
 			// Negated term query (e.g., -status:"draft", -disabled:true)

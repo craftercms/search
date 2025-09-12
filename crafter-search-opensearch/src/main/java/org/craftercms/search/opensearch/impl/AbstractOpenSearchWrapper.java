@@ -46,6 +46,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.isNotEmpty;
 import static org.craftercms.search.opensearch.impl.client.AbstractOpenSearchClientWrapper.*;
 import static org.opensearch.action.search.SearchRequest.DEFAULT_INDICES_OPTIONS;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Base implementation of {@link OpenSearchWrapper}
@@ -121,6 +122,10 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 		}
 
 		for (String filterQuery : filterQueries) {
+			if (isEmpty(filterQuery) || filterQuery.isBlank()) {
+				logger.debug("Skipping empty filter query entry");
+				continue;
+			}
 			logger.debug("Processing filter query: '{}'", filterQuery);
 
 			// Negated term query (e.g., -status:"draft")
