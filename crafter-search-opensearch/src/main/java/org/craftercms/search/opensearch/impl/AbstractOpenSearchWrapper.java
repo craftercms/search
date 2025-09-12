@@ -129,7 +129,12 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 				String field = parts[0].trim();
 				String value = parts[1].trim();
 				logger.debug("Optimizing negated term filter for field: '{}', value: '{}'", field, value);
-				boolQueryBuilder.mustNot(QueryBuilders.termQuery(field, parseTermValue(value)));
+				// Unquoted '*' means "field must not exist"
+				if ("*".equals(value)) {
+					boolQueryBuilder.mustNot(QueryBuilders.existsQuery(field));
+				} else {
+					boolQueryBuilder.mustNot(QueryBuilders.termQuery(field, parseTermValue(value)));
+				}
 			}
 			// Positive term query (e.g., status:"published")
 			else if (filterQuery.matches(POSITIVE_TERM_QUERY_REGEX)) {
@@ -137,7 +142,12 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 				String field = parts[0].trim();
 				String value = parts[1].trim();
 				logger.debug("Optimizing positive term filter for field: '{}', value: '{}'", field, value);
-				boolQueryBuilder.filter(QueryBuilders.termQuery(field, parseTermValue(value)));
+				// Unquoted '*' means "field must exist"
+				if ("*".equals(value)) {
+					boolQueryBuilder.filter(QueryBuilders.existsQuery(field));
+				} else {
+					boolQueryBuilder.filter(QueryBuilders.termQuery(field, parseTermValue(value)));
+				}
 			}
 			// Negated range query (e.g., -date:[2025-01-01 TO now])
 			else if (filterQuery.matches(NEGATIVE_RANGE_QUERY_REGEX)) {
