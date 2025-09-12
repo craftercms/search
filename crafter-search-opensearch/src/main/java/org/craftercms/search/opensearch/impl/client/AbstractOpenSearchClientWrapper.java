@@ -66,11 +66,6 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
     public static final String PARAM_NAME_INDEX = "index";
     public static final String PARAM_NAME_SEARCH_TYPE = "search_type";
 
-	public static final String NEGATIVE_TERM_QUERY_REGEX = "-[\\w.\\-]+:\\s*(?:\"[^\"]+\"|[^\\s\\[\\]:]+)";
-	public static final String POSITIVE_TERM_QUERY_REGEX = "[\\w.\\-]+:\\s*(?:\"[^\"]+\"|[^\\s\\[\\]:]+)";
-	public static final String NEGATIVE_RANGE_QUERY_REGEX = "(?i)-[\\w.\\-]+:\\s*\\[[^]]+\\s+TO\\s+[^]]+]";
-	public static final String POSITIVE_RANGE_QUERY_REGEX = "(?i)[\\w.\\-]+:\\s*\\[[^]]+\\s+TO\\s+[^]]+]";
-
     /**
      * The OpenSearch client
      */
@@ -81,6 +76,26 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
      */
     protected String[] filterQueries;
 
+	/**
+	 * Regular expression for detecting negated term queries (e.g., -status:"draft", -disabled:"true")
+	 */
+	protected String regexNegativeTermQuery;
+
+	/**
+	 * Regular expression for detecting positive term queries (e.g., status:"published", enabled:"true")
+	 */
+	protected String regexPositiveTermQuery;
+
+	/**
+	 * Regular expression for detecting negated range queries (e.g., -date:[2025-01-01 TO now])
+	 */
+	protected String regexNegativeRangeQuery;
+
+	/**
+	 * Regular expression for detecting positive range queries (e.g., date:[2025-01-01 TO now])
+	 */
+	protected String regexPositiveRangeQuery;
+
     public AbstractOpenSearchClientWrapper(OpenSearchClient client) {
         this.client = client;
     }
@@ -88,6 +103,22 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
     public void setFilterQueries(final String[] filterQueries) {
         this.filterQueries = filterQueries;
     }
+
+	public void setRegexNegativeTermQuery(String regexNegativeTermQuery) {
+		this.regexNegativeTermQuery = regexNegativeTermQuery;
+	}
+
+	public void setRegexPositiveTermQuery(String regexPositiveTermQuery) {
+		this.regexPositiveTermQuery = regexPositiveTermQuery;
+	}
+
+	public void setRegexNegativeRangeQuery(String regexNegativeRangeQuery) {
+		this.regexNegativeRangeQuery = regexNegativeRangeQuery;
+	}
+
+	public void setRegexPositiveRangeQuery(String regexPositiveRangeQuery) {
+		this.regexPositiveRangeQuery = regexPositiveRangeQuery;
+	}
 
     @Override
     public <T> SearchResponse<T> search(SearchRequest request, Class<T> docClass, Map<String, Object> parameters)
@@ -206,7 +237,7 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 			logger.debug("Processing filter query: '{}'", filterQuery);
 
 			// Negated term query (e.g., -status:"draft", -disabled:true)
-			if (filterQuery.matches(NEGATIVE_TERM_QUERY_REGEX)) {
+			if (filterQuery.matches(regexNegativeTermQuery)) {
 				String[] parts = filterQuery.substring(1).split(":", 2);
 				String field = parts[0].trim();
 				String value = parts[1].trim();
@@ -214,7 +245,7 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 				builder.mustNot(q -> q.term(t -> t.field(field).value(toFieldValue(value))));
 			}
 			// Positive term query (e.g., status:"published", enabled:true)
-			else if (filterQuery.matches(POSITIVE_TERM_QUERY_REGEX)) {
+			else if (filterQuery.matches(regexPositiveTermQuery)) {
 				String[] parts = filterQuery.split(":", 2);
 				String field = parts[0].trim();
 				String value = parts[1].trim();
@@ -222,7 +253,7 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 				builder.filter(q -> q.term(t -> t.field(field).value(toFieldValue(value))));
 			}
 			// Negated range query (e.g., -date:[2025-01-01 TO now])
-			else if (filterQuery.matches(NEGATIVE_RANGE_QUERY_REGEX)) {
+			else if (filterQuery.matches(regexNegativeRangeQuery)) {
 				String rangeExpr = getRangeExpression(filterQuery);
 				String field = filterQuery.substring(1, filterQuery.indexOf(":")).trim();
 				String[] bounds = rangeExpr.split("(?i)\\s+TO\\s+");
@@ -244,7 +275,7 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 				}));
 			}
 			// Positive range query (e.g., date:[2025-01-01 TO now])
-			else if (filterQuery.matches(POSITIVE_RANGE_QUERY_REGEX)) {
+			else if (filterQuery.matches(regexPositiveRangeQuery)) {
 				String rangeExpr = getRangeExpression(filterQuery);
 				String field = filterQuery.substring(0, filterQuery.indexOf(":")).trim();
 				String[] bounds = rangeExpr.split("(?i)\\s+TO\\s+");

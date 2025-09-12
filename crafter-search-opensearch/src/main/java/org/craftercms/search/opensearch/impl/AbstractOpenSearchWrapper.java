@@ -44,7 +44,6 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.isNotEmpty;
-import static org.craftercms.search.opensearch.impl.client.AbstractOpenSearchClientWrapper.*;
 import static org.opensearch.action.search.SearchRequest.DEFAULT_INDICES_OPTIONS;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -70,6 +69,26 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
      */
     protected String[] filterQueries;
 
+	/**
+	 * Regular expression for detecting negated term queries (e.g., -status:"draft", -disabled:"true")
+	 */
+	protected String regexNegativeTermQuery;
+
+	/**
+	 * Regular expression for detecting positive term queries (e.g., status:"published", enabled:"true")
+	 */
+	protected String regexPositiveTermQuery;
+
+	/**
+	 * Regular expression for detecting negated range queries (e.g., -date:[2025-01-01 TO now])
+	 */
+	protected String regexNegativeRangeQuery;
+
+	/**
+	 * Regular expression for detecting positive range queries (e.g., date:[2025-01-01 TO now])
+	 */
+	protected String regexPositiveRangeQuery;
+
     public AbstractOpenSearchWrapper(final RestHighLevelClient client) {
         this.client = client;
     }
@@ -77,6 +96,22 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
     public void setFilterQueries(final String[] filterQueries) {
         this.filterQueries = filterQueries;
     }
+
+	public void setRegexNegativeTermQuery(String regexNegativeTermQuery) {
+		this.regexNegativeTermQuery = regexNegativeTermQuery;
+	}
+
+	public void setRegexPositiveTermQuery(String regexPositiveTermQuery) {
+		this.regexPositiveTermQuery = regexPositiveTermQuery;
+	}
+
+	public void setRegexNegativeRangeQuery(String regexNegativeRangeQuery) {
+		this.regexNegativeRangeQuery = regexNegativeRangeQuery;
+	}
+
+	public void setRegexPositiveRangeQuery(String regexPositiveRangeQuery) {
+		this.regexPositiveRangeQuery = regexPositiveRangeQuery;
+	}
 
     /**
      * Updates the value of the index for the given request
@@ -129,7 +164,7 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 			logger.debug("Processing filter query: '{}'", filterQuery);
 
 			// Negated term query (e.g., -status:"draft")
-			if (filterQuery.matches(NEGATIVE_TERM_QUERY_REGEX)) {
+			if (filterQuery.matches(regexNegativeTermQuery)) {
 				String[] parts = filterQuery.substring(1).split(":", 2);
 				String field = parts[0].trim();
 				String value = parts[1].trim();
@@ -142,7 +177,7 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 				}
 			}
 			// Positive term query (e.g., status:"published")
-			else if (filterQuery.matches(POSITIVE_TERM_QUERY_REGEX)) {
+			else if (filterQuery.matches(regexPositiveTermQuery)) {
 				String[] parts = filterQuery.split(":", 2);
 				String field = parts[0].trim();
 				String value = parts[1].trim();
@@ -155,7 +190,7 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 				}
 			}
 			// Negated range query (e.g., -date:[2025-01-01 TO now])
-			else if (filterQuery.matches(NEGATIVE_RANGE_QUERY_REGEX)) {
+			else if (filterQuery.matches(regexNegativeRangeQuery)) {
 				String rangeExpr = getRangeExpression(filterQuery);
 				String field = filterQuery.substring(1, filterQuery.indexOf(":")).trim();
 				String[] bounds = rangeExpr.split("(?i)\\s+TO\\s+");
@@ -170,7 +205,7 @@ public abstract class AbstractOpenSearchWrapper implements OpenSearchWrapper {
 				boolQueryBuilder.mustNot(rangeQuery);
 			}
 			// Positive range query (e.g., date:[2025-01-01 TO now])
-			else if (filterQuery.matches(POSITIVE_RANGE_QUERY_REGEX)) {
+			else if (filterQuery.matches(regexPositiveRangeQuery)) {
 				String rangeExpr = getRangeExpression(filterQuery);
 				String field = filterQuery.substring(0, filterQuery.indexOf(":")).trim();
 				String[] bounds = rangeExpr.split("(?i)\\s+TO\\s+");
