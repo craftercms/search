@@ -235,10 +235,10 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 				builder.mustNot(q -> q.range(r -> {
 					var rangeBuilder = r.field(field);
 					if (!"*".equals(from)) {
-						rangeBuilder.gte(toJsonDataValue(from));
+						rangeBuilder.gte(toJsonDataValue(rawFrom));
 					}
 					if (!"*".equals(to)) {
-						rangeBuilder.lte(toJsonDataValue(to));
+						rangeBuilder.lte(toJsonDataValue(rawTo));
 					}
 					return rangeBuilder;
 				}));
@@ -257,10 +257,10 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 				builder.filter(q -> q.range(r -> {
 					var rangeBuilder = r.field(field);
 					if (!"*".equals(from)) {
-						rangeBuilder.gte(toJsonDataValue(from));
+						rangeBuilder.gte(toJsonDataValue(rawFrom));
 					}
 					if (!"*".equals(to)) {
-						rangeBuilder.lte(toJsonDataValue(to));
+						rangeBuilder.lte(toJsonDataValue(rawTo));
 					}
 					return rangeBuilder;
 				}));
@@ -281,7 +281,12 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 	 * @return a properly typed FieldValue
 	 */
 	private static FieldValue toFieldValue(String raw) {
-		String v = stripOuterQuotes(raw);
+		String s = raw == null ? "" : raw.trim();
+		// Preserve quoted values as strings (don't coerce "05" -> 5 or "true" -> true)
+		if (s.length() >= 2 && s.charAt(0) == '\"' && s.charAt(s.length()-1) == '\"') {
+			return FieldValue.of(stripOuterQuotes(s));
+		}
+		String v = stripOuterQuotes(s);
 		if ("true".equalsIgnoreCase(v) || "false".equalsIgnoreCase(v)) {
 			return FieldValue.of(Boolean.parseBoolean(v));
 		}
@@ -321,15 +326,16 @@ public abstract class AbstractOpenSearchClientWrapper implements OpenSearchClien
 	 * @return a properly typed JsonData
 	 */
 	private static JsonData toJsonDataValue(String raw) {
-		String v = stripOuterQuotes(raw == null ? "" : raw.trim());
-		if (v.matches("-?\\d+")) {
+		String s = raw == null ? "" : raw.trim();
+		boolean quoted = s.length() >= 2 && s.charAt(0) == '\"' && s.charAt(s.length() - 1) == '\"';
+		String v = quoted ? stripOuterQuotes(s) : s;
+		if (!quoted && v.matches("-?\\d+")) {
 			try { return JsonData.of(Long.parseLong(v)); } catch (NumberFormatException ignore) {}
 		}
-		if (v.matches("-?\\d+\\.\\d+")) {
+		if (!quoted && v.matches("-?\\d+\\.\\d+")) {
 			try { return JsonData.of(Double.parseDouble(v)); } catch (NumberFormatException ignore) {}
 		}
-
-		return JsonData.of(v);
+		return JsonData.of(v); // dates, keywords, quoted numerics
 	}
 
     public static class RequestUpdates {
