@@ -18,29 +18,29 @@ package org.craftercms.search.opensearch.spring;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.nio.reactor.IOReactorException;
-import org.opensearch.client.RestClient;
-import org.opensearch.client.RestClientBuilder;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.core5.http.HttpHost;
 import org.opensearch.client.json.jackson.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
-import org.opensearch.client.transport.OpenSearchTransport;
-import org.opensearch.client.transport.rest_client.RestClientTransport;
+import org.opensearch.client.transport.httpclient5.ApacheHttpClient5Transport;
+import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.beans.ConstructorProperties;
-import java.util.stream.Stream;
+import java.net.URISyntaxException;
 
-import static org.craftercms.search.opensearch.spring.ClientFactoryUtils.createConnectionManager;
+import static org.apache.hc.core5.util.Timeout.ofMilliseconds;
+import static org.craftercms.search.opensearch.spring.ClientFactoryUtils.*;
 
 /**
  * Implementation of {@link AbstractFactoryBean} to create instances of {@link OpenSearchClient}
+ *
  * @author joseross
  * @since 4.0.0
  */
@@ -152,52 +152,52 @@ public class OpenSearchClientFactory extends AbstractFactoryBean<OpenSearchClien
      */
     public static OpenSearchClient createClient(String[] serverUrls, String username, String password,
                                                 int connectTimeout, int socketTimeout, int threadCount,
-                                                boolean socketKeepAlive, int maxTotalConnections, int maxConnectionsPerRoute) {
+                                                boolean socketKeepAlive, int maxTotalConnections, int maxConnectionsPerRoute) throws URISyntaxException {
         logger.debug("Building client for urls: {}", (Object) serverUrls);
-        HttpHost[] hosts = Stream.of(serverUrls).map(HttpHost::create).toArray(HttpHost[]::new);
-        RestClientBuilder clientBuilder = RestClient.builder(hosts);
-        RestClientBuilder.RequestConfigCallback requestConfigCallback = builder -> {
+        HttpHost[] hosts = new HttpHost[serverUrls.length];
+        for (int i = 0; i < serverUrls.length; i++) {
+            hosts[i] = HttpHost.create(serverUrls[i]);
+        }
+        ApacheHttpClient5TransportBuilder.RequestConfigCallback requestConfigCallback = builder -> {
             if (connectTimeout >= 0) {
                 logger.debug("Using custom connect timeout: {}", connectTimeout);
-                builder.setConnectTimeout(connectTimeout);
-                builder.setConnectionRequestTimeout(connectTimeout);
+                builder.setConnectionRequestTimeout(ofMilliseconds(connectTimeout));
             } else {
                 logger.debug("Using default connect timeout");
             }
             if (socketTimeout >= 0) {
                 logger.debug("Using custom socket timeout: {}", socketTimeout);
-                builder.setSocketTimeout(socketTimeout);
+                builder.setResponseTimeout(ofMilliseconds(socketTimeout));
             } else {
                 logger.debug("Using default socket timeout");
             }
             return builder;
         };
-        RestClientBuilder.HttpClientConfigCallback httpClientConfigCallback = builder -> {
+        ApacheHttpClient5TransportBuilder.HttpClientConfigCallback httpClientConfigCallback = builder -> {
             if (StringUtils.isNoneEmpty(username, password)) {
                 logger.debug("Using basic auth with user: {}", username);
-                CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+                BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(new AuthScope(null, -1), new UsernamePasswordCredentials(username, password.toCharArray()));
                 builder.setDefaultCredentialsProvider(credentialsProvider);
             } else {
                 logger.debug("No credentials provided");
             }
 
-            try {
                 builder.setConnectionManager(
-                        createConnectionManager(connectTimeout, socketTimeout, threadCount, socketKeepAlive, maxTotalConnections, maxConnectionsPerRoute));
-            } catch (IOReactorException e) {
-                logger.warn("Error setting up custom exception handler", e);
-            }
-
+                    createConnectionManager(connectTimeout, maxTotalConnections, maxConnectionsPerRoute));
+            builder.setIOReactorConfig(createIOReactorConfig(socketTimeout, threadCount, socketKeepAlive));
+            builder.setIoReactorExceptionCallback(createIOReactorExceptionCallback());
             return builder;
         };
-        clientBuilder.setRequestConfigCallback(requestConfigCallback);
-        clientBuilder.setHttpClientConfigCallback(httpClientConfigCallback);
         ObjectMapper mapper = new ObjectMapper()
                 .findAndRegisterModules()
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        OpenSearchTransport transport = new RestClientTransport(clientBuilder.build(),
-                                                                    new JacksonJsonpMapper(mapper));
+        ApacheHttpClient5Transport transport = ApacheHttpClient5TransportBuilder
+                .builder(hosts)
+                .setRequestConfigCallback(requestConfigCallback)
+                .setMapper(new JacksonJsonpMapper(mapper))
+                .setHttpClientConfigCallback(httpClientConfigCallback)
+                .build();
         return new OpenSearchClient(transport);
     }
 
@@ -207,14 +207,17 @@ public class OpenSearchClientFactory extends AbstractFactoryBean<OpenSearchClien
     }
 
     @Override
-    protected OpenSearchClient createInstance() {
+    @NonNull
+    protected OpenSearchClient createInstance() throws URISyntaxException {
         return createClient(serverUrls, username, password, connectTimeout, socketTimeout, threadCount,
                 socketKeepAlive, maxTotalConnections, maxConnectionsPerRoute);
     }
 
     @Override
-    protected void destroyInstance(OpenSearchClient instance) throws Exception {
-        instance._transport().close();
+    protected void destroyInstance(@Nullable OpenSearchClient instance) throws Exception {
+        if (instance != null) {
+            instance._transport().close();
+        }
     }
 
 }

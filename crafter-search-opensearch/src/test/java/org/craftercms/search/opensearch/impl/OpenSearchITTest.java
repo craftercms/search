@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2023 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2025 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -40,6 +40,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
@@ -62,6 +63,7 @@ import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/application-context.xml")
+@SuppressWarnings("unused")
 public class OpenSearchITTest {
 
     private static final String PLUTON_SITE = "pluton";
@@ -85,7 +87,7 @@ public class OpenSearchITTest {
     private OpenSearchRunner runner;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         runner = new OpenSearchRunner();
         runner.onBuild((number, settingsBuilder) -> {
             settingsBuilder.put("http.port", "9229-9230");
@@ -172,6 +174,7 @@ public class OpenSearchITTest {
         assertEquals(0, getNumDocs(response));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private Resource getClasspathFile(String path) {
         return new ClassPathResource(path);
     }
@@ -181,7 +184,7 @@ public class OpenSearchITTest {
     }
 
     private long getNumDocs(SearchResponse response) {
-        return response.getHits().getTotalHits().value;
+        return Objects.requireNonNull(response.getHits().getTotalHits()).value();
     }
 
     // Parse each doc into JSON to speed up querying fields later
