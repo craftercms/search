@@ -17,23 +17,24 @@
 package org.craftercms.search.opensearch.spring;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.nio.reactor.IOReactorException;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.util.Timeout;
 import org.opensearch.client.RestClient;
 import org.opensearch.client.RestClientBuilder;
 import org.opensearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.beans.ConstructorProperties;
-import java.util.stream.Stream;
+import java.net.URISyntaxException;
 
-import static org.craftercms.search.opensearch.spring.ClientFactoryUtils.createConnectionManager;
+import static org.craftercms.search.opensearch.spring.ClientFactoryUtils.*;
 
 /**
  * Factory class for the OpenSearch rest client
@@ -134,21 +135,23 @@ public class RestHighLevelClientFactory extends AbstractFactoryBean<RestHighLeve
 
 	public static RestHighLevelClient createClient(String[] serverUrls, String username, String password,
 												   int connectTimeout, int socketTimeout, int threadCount,
-												   boolean socketKeepAlive, int maxTotalConnections, int maxConnectionsPerRoute) {
+												   boolean socketKeepAlive, int maxTotalConnections, int maxConnectionsPerRoute) throws URISyntaxException {
 		logger.debug("Building client for urls: {}", (Object) serverUrls);
-		HttpHost[] hosts = Stream.of(serverUrls).map(HttpHost::create).toArray(HttpHost[]::new);
+		HttpHost[] hosts = new HttpHost[serverUrls.length];
+		for (int i = 0; i < serverUrls.length; i++) {
+			hosts[i] = HttpHost.create(serverUrls[i]);
+		}
 		RestClientBuilder clientBuilder = RestClient.builder(hosts);
 		RestClientBuilder.RequestConfigCallback requestConfigCallback = builder -> {
 			if (connectTimeout >= 0) {
 				logger.debug("Using custom connect timeout: {}", connectTimeout);
-				builder.setConnectTimeout(connectTimeout);
-				builder.setConnectionRequestTimeout(connectTimeout);
+				builder.setConnectionRequestTimeout(Timeout.ofMilliseconds(connectTimeout));
 			} else {
 				logger.debug("Using default connect timeout");
 			}
 			if (socketTimeout >= 0) {
 				logger.debug("Using custom socket timeout: {}", socketTimeout);
-				builder.setSocketTimeout(socketTimeout);
+				builder.setResponseTimeout(Timeout.ofMilliseconds(socketTimeout));
 			} else {
 				logger.debug("Using default socket timeout");
 			}
@@ -157,20 +160,17 @@ public class RestHighLevelClientFactory extends AbstractFactoryBean<RestHighLeve
 		RestClientBuilder.HttpClientConfigCallback httpClientConfigCallback = builder -> {
 			if (StringUtils.isNoneEmpty(username, password)) {
 				logger.debug("Using basic auth with user: {}", username);
-				CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-				credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+				BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+				credentialsProvider.setCredentials(new AuthScope(null, -1), new UsernamePasswordCredentials(username, password.toCharArray()));
 				builder.setDefaultCredentialsProvider(credentialsProvider);
 			} else {
 				logger.debug("No credentials provided");
 			}
 
-			try {
-				builder.setConnectionManager(
-						createConnectionManager(connectTimeout, socketTimeout, threadCount, socketKeepAlive, maxTotalConnections, maxConnectionsPerRoute));
-			} catch (IOReactorException e) {
-				logger.warn("Error setting up custom exception handler", e);
-			}
-
+			builder.setConnectionManager(
+					createConnectionManager(connectTimeout, maxTotalConnections, maxConnectionsPerRoute));
+			builder.setIOReactorConfig(createIOReactorConfig(socketTimeout, threadCount, socketKeepAlive));
+			builder.setIoReactorExceptionCallback(createIOReactorExceptionCallback());
 			return builder;
 		};
 		clientBuilder.setRequestConfigCallback(requestConfigCallback);
@@ -179,14 +179,17 @@ public class RestHighLevelClientFactory extends AbstractFactoryBean<RestHighLeve
 	}
 
 	@Override
-	protected RestHighLevelClient createInstance() {
+	@NonNull
+	protected RestHighLevelClient createInstance() throws URISyntaxException {
 		return createClient(serverUrls, username, password, connectTimeout, socketTimeout, threadCount,
 				socketKeepAlive, maxTotalConnections, maxConnectionsPerRoute);
 	}
 
 	@Override
-	protected void destroyInstance(final RestHighLevelClient instance) throws Exception {
-		instance.close();
+	protected void destroyInstance(@Nullable final RestHighLevelClient instance) throws Exception {
+		if(instance != null) {
+			instance.close();
+		}
 	}
 
 	@Override
