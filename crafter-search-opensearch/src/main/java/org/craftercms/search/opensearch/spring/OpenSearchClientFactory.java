@@ -22,6 +22,8 @@ import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.core5.http.HttpHost;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.opensearch.client.json.jackson.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5Transport;
@@ -29,8 +31,6 @@ import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBui
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.beans.ConstructorProperties;
 import java.net.URISyntaxException;
