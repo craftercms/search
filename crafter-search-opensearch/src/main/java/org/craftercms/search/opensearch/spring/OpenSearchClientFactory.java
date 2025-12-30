@@ -174,6 +174,9 @@ public class OpenSearchClientFactory extends AbstractFactoryBean<OpenSearchClien
 			return builder;
 		};
 		ApacheHttpClient5TransportBuilder.HttpClientConfigCallback httpClientConfigCallback = builder -> {
+			// Disable compression since httpclient5 v5.6 has a different way of handling it
+			// that causes issues with OpenSearch. See https://issues.apache.org/jira/browse/HTTPCLIENT-2409
+			builder.disableContentCompression();
 			if (StringUtils.isNoneEmpty(username, password)) {
 				logger.debug("Using basic auth with user: {}", username);
 				BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
