@@ -22,14 +22,14 @@ import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.util.Timeout;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.opensearch.client.RestClient;
 import org.opensearch.client.RestClientBuilder;
 import org.opensearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.beans.ConstructorProperties;
 import java.net.URISyntaxException;
@@ -158,6 +158,9 @@ public class RestHighLevelClientFactory extends AbstractFactoryBean<RestHighLeve
             return builder;
         };
         RestClientBuilder.HttpClientConfigCallback httpClientConfigCallback = builder -> {
+			// Disable compression since httpclient5 v5.6 has a different way of handling it
+			// that causes issues with OpenSearch. See https://issues.apache.org/jira/browse/HTTPCLIENT-2409
+			builder.disableContentCompression();
             if (StringUtils.isNoneEmpty(username, password)) {
                 logger.debug("Using basic auth with user: {}", username);
                 BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
