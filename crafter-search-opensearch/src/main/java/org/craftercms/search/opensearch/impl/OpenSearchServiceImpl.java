@@ -115,7 +115,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
     public List<String> searchField(final String aliasName, final String field, final Query query)
             throws OpenSearchException {
         if (logger.isDebugEnabled()) {
-            logger.debug("[{}] Searching with query {}, field '{}')", aliasName, query.toJsonString(), field);
+            logger.debug("[{}] Searching with query {}, field '{}'", aliasName, query.toJsonString(), field);
         }
 
         List<String> fieldValues = new LinkedList<>();
