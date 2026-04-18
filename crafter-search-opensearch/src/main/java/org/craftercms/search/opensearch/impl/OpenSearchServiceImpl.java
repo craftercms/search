@@ -160,7 +160,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[{}] Result count for query {}, field '{}': {})", aliasName, query.toJsonString(), field,
+            logger.debug("[{}] Result count for query {}, field '{}': {}", aliasName, query.toJsonString(), field,
                     fieldValues.size());
         }
 
