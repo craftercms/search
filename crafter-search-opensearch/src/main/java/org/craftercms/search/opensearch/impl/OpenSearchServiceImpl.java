@@ -114,9 +114,11 @@ public class OpenSearchServiceImpl implements OpenSearchService {
     @SuppressWarnings("rawtypes")
     public List<String> searchField(final String aliasName, final String field, final Query query)
             throws OpenSearchException {
-        logger.debug("[{}] Search values for field {} (query -> {})", aliasName, field, query);
+        if (logger.isDebugEnabled()) {
+            logger.debug("[{}] Searching with query {}, field '{}'", aliasName, query.toJsonString(), field);
+        }
 
-        List<String> ids = new LinkedList<>();
+        List<String> fieldValues = new LinkedList<>();
         String scrollId = null;
 
         try {
@@ -133,8 +135,8 @@ public class OpenSearchServiceImpl implements OpenSearchService {
             String innerScrollId = response.scrollId();
             scrollId = innerScrollId;
 
-            while (response.hits().hits().size() > 0) {
-                response.hits().hits().forEach(hit -> ids.add((String) hit.source().get(field)));
+            while (!response.hits().hits().isEmpty()) {
+                response.hits().hits().forEach(hit -> fieldValues.add((String) hit.source().get(field)));
 
                 logger.debug("[{}] Getting next batch for scroll with id {}", aliasName, innerScrollId);
                 response = openSearchClient.scroll(s -> s
@@ -157,7 +159,12 @@ public class OpenSearchServiceImpl implements OpenSearchService {
             }
         }
 
-        return ids;
+        if (logger.isDebugEnabled()) {
+            logger.debug("[{}] Result count for query {}, field '{}': {}", aliasName, query.toJsonString(), field,
+                    fieldValues.size());
+        }
+
+        return fieldValues;
     }
 
     @Override
