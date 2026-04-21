@@ -88,8 +88,8 @@ public class OpenSearchServiceImpl implements OpenSearchService {
 
 	@ConstructorProperties({"documentBuilder", "documentParser", "OpenSearchClient"})
 	public OpenSearchServiceImpl(final OpenSearchDocumentBuilder documentBuilder,
-				     final DocumentParser documentParser,
-				     final OpenSearchClient openSearchClient) {
+								 final DocumentParser documentParser,
+								 final OpenSearchClient openSearchClient) {
 		this.documentBuilder = documentBuilder;
 		this.documentParser = documentParser;
 		this.openSearchClient = openSearchClient;
@@ -114,9 +114,11 @@ public class OpenSearchServiceImpl implements OpenSearchService {
 	@SuppressWarnings("rawtypes")
 	public List<String> searchField(final String aliasName, final String field, final Query query)
 		throws OpenSearchException {
-		logger.debug("[{}] Search values for field {} (query -> {})", aliasName, field, query);
+		if (logger.isDebugEnabled()) {
+			logger.debug("[{}] Searching with query {}, field '{}'", aliasName, query.toJsonString(), field);
+		}
 
-		List<String> ids = new LinkedList<>();
+		List<String> fieldValues = new LinkedList<>();
 		String scrollId = null;
 
 		try {
@@ -133,8 +135,8 @@ public class OpenSearchServiceImpl implements OpenSearchService {
 			String innerScrollId = response.scrollId();
 			scrollId = innerScrollId;
 
-			while (response.hits().hits().size() > 0) {
-				response.hits().hits().forEach(hit -> ids.add((String) hit.source().get(field)));
+			while (!response.hits().hits().isEmpty()) {
+				response.hits().hits().forEach(hit -> fieldValues.add((String) hit.source().get(field)));
 
 				logger.debug("[{}] Getting next batch for scroll with id {}", aliasName, innerScrollId);
 				response = openSearchClient.scroll(s -> s
@@ -157,7 +159,12 @@ public class OpenSearchServiceImpl implements OpenSearchService {
 			}
 		}
 
-		return ids;
+		if (logger.isDebugEnabled()) {
+			logger.debug("[{}] Result count for query {}, field '{}': {}", aliasName, query.toJsonString(), field,
+				fieldValues.size());
+		}
+
+		return fieldValues;
 	}
 
 	@Override
@@ -196,7 +203,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
 	 * Performs the index operation using the given OpenSearch client
 	 */
 	protected void doIndex(OpenSearchClient client, String indexName, String siteName, String docId,
-			       Map<String, Object> doc) {
+						   Map<String, Object> doc) {
 		try {
 			doDelete(client, indexName, siteName, docId);
 			logger.debug("[{}] Indexing document {}", indexName, docId);
@@ -215,7 +222,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
 	 */
 	@Override
 	public void index(final String indexName, final String siteName, final String docId, final String xml,
-			  final Map<String, Object> additionalFields) throws OpenSearchException {
+					  final Map<String, Object> additionalFields) throws OpenSearchException {
 		Map<String, Object> doc = documentBuilder.build(siteName, docId, xml, true);
 		Map<String, Object> mergedDoc = mergeMaps(doc, additionalFields);
 		index(indexName, siteName, docId, mergedDoc);
@@ -226,7 +233,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
 	 */
 	@Override
 	public void indexBinary(final String indexName, final String siteName, final String path,
-				final Content content, final Map<String, Object> additionalFields)
+							final Content content, final Map<String, Object> additionalFields)
 		throws OpenSearchException {
 		String filename = FilenameUtils.getName(path);
 		try {
@@ -242,7 +249,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
 	 */
 	@Override
 	public void indexBinary(final String indexName, final String siteName, final String path,
-				final Resource resource, final Map<String, Object> additionalFields)
+							final Resource resource, final Map<String, Object> additionalFields)
 		throws OpenSearchException {
 		String filename = FilenameUtils.getName(path);
 		try {
