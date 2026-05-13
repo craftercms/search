@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2022 Crafter Software Corporation. All Rights Reserved.
+ * Copyright (C) 2007-2026 Crafter Software Corporation. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as published by
@@ -24,6 +24,8 @@ import org.craftercms.core.service.ContentStoreService;
 import org.craftercms.core.service.Context;
 import org.craftercms.core.service.Item;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 /**
  * Implementation of {@link org.craftercms.search.metadata.MetadataExtractor} for content-type metadata
  *
@@ -35,10 +37,9 @@ public class ContentTypeMetadataExtractor extends AbstractMetadataExtractor {
 	public static final String NAME_PLACEHOLDER = "\\{name\\}";
 	public static final String FILE_PLACEHOLDER = "\\{file\\}";
 
-	public static final String DEFAULT_CONFIG_TEMPLATE = "/config/studio/content-types{name}/config.xml";
 	public static final String DEFAULT_DEFINITION_TEMPLATE = "/config/studio/content-types{name}/form-definition.xml";
 	public static final String DEFAULT_THUMBNAIL_TEMPLATE = "/config/studio/content-types{name}/{file}";
-	public static final String DEFAULT_THUMBNAIL_XPATH = "*/image-thumbnail";
+	public static final String DEFAULT_THUMBNAIL_XPATH = "*/imageThumbnail";
 
 	public static final String DEFAULT_PROPERTY_NAME_THUMBNAIL = "thumbnail";
 
@@ -51,11 +52,6 @@ public class ContentTypeMetadataExtractor extends AbstractMetadataExtractor {
 	 * The expected value of the field to check (optional)
 	 */
 	protected String fieldValue;
-
-	/**
-	 * The pattern for the configuration file
-	 */
-	protected String configTemplate = DEFAULT_CONFIG_TEMPLATE;
 
 	/**
 	 * The pattern for the form definition file
@@ -83,10 +79,6 @@ public class ContentTypeMetadataExtractor extends AbstractMetadataExtractor {
 
 	public void setFieldValue(final String fieldValue) {
 		this.fieldValue = fieldValue;
-	}
-
-	public void setConfigTemplate(final String configTemplate) {
-		this.configTemplate = configTemplate;
 	}
 
 	public void setDefinitionTemplate(final String definitionTemplate) {
@@ -127,7 +119,6 @@ public class ContentTypeMetadataExtractor extends AbstractMetadataExtractor {
 		Item item = contentStoreService.getItem(context, path);
 		String contentTypeName = item.queryDescriptorValue(fieldXpath);
 
-		getConfigMetadata(contentTypeName, contentStoreService, context, metadata);
 		getDefinitionMetadata(contentTypeName, contentStoreService, context, metadata);
 
 		return metadata;
@@ -141,21 +132,14 @@ public class ContentTypeMetadataExtractor extends AbstractMetadataExtractor {
 		String definitionPath = StringUtils.replaceFirst(definitionTemplate, NAME_PLACEHOLDER, contentTypeName);
 		Item definition = contentStoreService.getItem(context, definitionPath);
 
-		//TODO: Define the metadata to extract
-	}
-
-	/**
-	 * Extracts metadata from the configuration file
-	 */
-	protected void getConfigMetadata(final String contentTypeName, final ContentStoreService contentStoreService,
-					 final Context context, final Map<String, Object> metadata) {
-		String configPath = StringUtils.replaceFirst(configTemplate, NAME_PLACEHOLDER, contentTypeName);
-		Item config = contentStoreService.getItem(context, configPath);
-
-		String thumbnailFile = config.queryDescriptorValue(thumbnailXpath);
-		String thumbnailValue = StringUtils.replaceFirst(thumbnailTemplate, NAME_PLACEHOLDER, contentTypeName);
-		thumbnailValue = StringUtils.replaceFirst(thumbnailValue, FILE_PLACEHOLDER, thumbnailFile);
+		String thumbnailValue = "";
+		String thumbnailFile = definition.queryDescriptorValue(thumbnailXpath);
+		if (isNotBlank(thumbnailFile)) {
+			thumbnailValue = StringUtils.replaceFirst(thumbnailTemplate, NAME_PLACEHOLDER, contentTypeName);
+			thumbnailValue = StringUtils.replaceFirst(thumbnailValue, FILE_PLACEHOLDER, thumbnailFile);
+		}
 		metadata.put(propertyNameThumbnail, thumbnailValue);
+		//TODO: Define the metadata to extract
 	}
 
 }
